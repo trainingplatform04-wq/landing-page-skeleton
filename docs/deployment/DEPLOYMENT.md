@@ -132,7 +132,7 @@ Every environment always gets **both** apps, deployed together from the same com
 | Git                   | <https://git-scm.com/downloads>                                                                                                                                                                   | `git --version`     |
 | Node.js **24**        | via a version manager: [nvm-windows](https://github.com/coreybutler/nvm-windows/releases) (Windows) or [nvm](https://github.com/nvm-sh/nvm) (macOS/Linux), then `nvm install 24` and `nvm use 24` | `node -v` → `v24.x` |
 | GitHub CLI (optional) | <https://cli.github.com>                                                                                                                                                                          | `gh --version`      |
-| pnpm                  | `npm install --global pnpm` (any version: inside the repo it switches itself to the one pinned by `packageManager` in `package.json`)                                                             | `pnpm -v`           |
+| pnpm                  | `npm install --global pnpm` (any version: inside the repo it switches itself to the one pinned in `package.json`)                                                                                 | `pnpm -v`           |
 
 You do **not** need the Vercel CLI on your laptop: only the pipeline deploys.
 
@@ -641,7 +641,7 @@ pnpm build:e2e && CI=1 pnpm test:e2e  # E2E against a production build (fixture 
 
 | File                                | Trigger                                       | What it does                                                                                                                                                                                            |
 | ----------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.github/actions/setup/action.yml`  | used by every job                             | pnpm from `packageManager`, Node from `.nvmrc`, cached `pnpm install --frozen-lockfile`, optionally the **pinned** Vercel CLI                                                                           |
+| `.github/actions/setup/action.yml`  | used by every job                             | pnpm pinned in `package.json`, Node from `.nvmrc`, cached `pnpm install --frozen-lockfile`, optionally the **pinned** Vercel CLI                                                                        |
 | `.github/workflows/ci.yml`          | PR → `develop`/`main`; called by `deploy.yml` | **Branch policy** (PRs to `main` only from `develop`/`hotfix/*`) · lint · format · Sanity type drift · types · unit tests (coverage ≥ 80 %) · build both apps · E2E                                     |
 | `.github/workflows/deploy.yml`      | push to `develop` / `main`                    | Full `ci.yml` again, then for **webapp + studio**, one at a time: `vercel pull` → `vercel build` → `vercel deploy --prebuilt` → `vercel inspect --wait` → (staging) `vercel alias set` → **smoke test** |
 | `.github/dependabot.yml`            | weekly                                        | pnpm and GitHub Actions updates, PRs into `develop`                                                                                                                                                     |

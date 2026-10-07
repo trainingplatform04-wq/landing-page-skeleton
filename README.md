@@ -28,7 +28,7 @@ pnpm dev                               # web http://localhost:3000 · Studio htt
 
 ### Package manager: pnpm only
 
-- **One version for everyone**: `packageManager` in `package.json` pins pnpm. Whatever pnpm you have
+- **One version for everyone**: `package.json` pins pnpm (`packageManager` for pnpm ≤ 10, `devEngines` for pnpm ≥ 11). Whatever pnpm you have
   installed downloads and uses that exact version inside this repo, so nobody has to upgrade by hand.
   CI reads the same field.
 - **npm is blocked**: `npm install` fails on purpose (`EBADDEVENGINES`, set by `devEngines`).
