@@ -92,7 +92,7 @@ Every environment always gets **both** apps, deployed together from the same com
 | **Dataset**             | A separate content database inside one Sanity project. [Docs](https://www.sanity.io/docs/datasets)                                                                                                           |
 | **CORS origin**         | A website address Sanity allows to call its API from a browser. Anything not listed is blocked. [Docs](https://www.sanity.io/docs/cors)                                                                      |
 | **Smoke test**          | A quick automated check, run right after deploying, that proves the live site really answers with our app (not an error page or a login wall).                                                               |
-| **Secret / Variable**   | GitHub Actions settings. A _secret_ is hidden in logs (only `VERCEL_TOKEN`); a _variable_ is plain text (IDs, URLs).                                                                                         |
+| **Secret / Variable**   | GitHub Actions settings. A _secret_ is hidden in logs (`VERCEL_TOKEN`, `SANITY_TOKEN`); a _variable_ is plain text (IDs, URLs).                                                                              |
 
 ### 0.4 How the pipeline flows
 
@@ -132,12 +132,12 @@ Every environment always gets **both** apps, deployed together from the same com
 | Git                   | <https://git-scm.com/downloads>                                                                                                                                                                   | `git --version`     |
 | Node.js **24**        | via a version manager: [nvm-windows](https://github.com/coreybutler/nvm-windows/releases) (Windows) or [nvm](https://github.com/nvm-sh/nvm) (macOS/Linux), then `nvm install 24` and `nvm use 24` | `node -v` → `v24.x` |
 | GitHub CLI (optional) | <https://cli.github.com>                                                                                                                                                                          | `gh --version`      |
-| pnpm                  | `npm install --global pnpm` (any version: inside the repo it switches itself to the one pinned in `package.json`)                                                                                 | `pnpm -v`           |
+| pnpm                  | `npm install --global pnpm` (pnpm 10 or newer: inside the repo it switches itself to the one pinned in `package.json`; pnpm 9 does not)                                                           | `pnpm -v`           |
 
 You do **not** need the Vercel CLI on your laptop: only the pipeline deploys.
 
 > 🪟 **Windows:** run every command in this guide in **Git Bash** (installed with Git), not in
-> PowerShell or `cmd`. Commands such as `cp`, `CI=1 pnpm …` and `MSYS_NO_PATHCONV=1 …` only work
+> PowerShell or `cmd`. Commands such as `cp` and `CI=1 pnpm …` only work
 > in a POSIX shell.
 
 ### 1.3 Your setup notebook
@@ -415,6 +415,16 @@ Why twice? PRs opened by Dependabot ([§6.4](#64-dependabot-optional-but-recomme
 Actions secrets**, only Dependabot secrets. Without this copy, every Dependabot PR fails CI at
 `vercel env pull`. Variables (§6.3) are shared, so they don't need a copy.
 
+3. **Staging demo content** (optional, [§8.0](#80-content-in-sanity)): every deploy of `develop` adds
+   the new demo content to the `staging` dataset. It needs a Sanity token:
+   <https://www.sanity.io/manage> → your project → **API** → **Tokens** → **Add API token** →
+   name `github-seed-staging`, permissions **Editor** → **Save** → copy it. Then **New repository
+   secret** (Actions only, Dependabot PRs never seed): `SANITY_TOKEN` = that token.
+
+   The token can write the whole project (Sanity tokens are per project, not per dataset), so two
+   guards keep it on staging: the workflow pins `SANITY_STUDIO_DATASET=staging`, and the seed
+   script refuses every other dataset. Only the seed step receives the token.
+
 ### 6.3 The variables (seven)
 
 Same page → **Variables** tab → **New repository variable**, once per row:
@@ -488,7 +498,26 @@ Alternative to copying `.env` files: `pnpm dlx vercel@61.0.0 link` then
 
 ### 8.0 Content in Sanity
 
-The datasets start empty: no seed, no sample content. Every page exists because the code defines
+`production` starts empty and stays editor-only: no sample content. `staging` can get the demo
+content in one command (repo root, after `cd studio && pnpm exec sanity login && cd ..`):
+
+```bash
+pnpm studio:seed --dry-run   # what it would write
+pnpm studio:seed             # adds the demo content of studio/seed/seed.data.ts
+```
+
+**Automatically:** every deploy of `develop` runs `pnpm studio:seed` (needs the
+`SANITY_TOKEN` secret, [§6.2](#62-the-secret-one-value-stored-twice)). A schema change that ships with its demo
+content is therefore visible on staging right after the deploy, without anyone running a command.
+
+Re-running is safe: every demo document has a fixed id, so it is updated, never duplicated.
+`pnpm studio:seed` only adds what is new in the seed since the last run (new documents, new fields)
+and keeps every change: a field an editor edited or emptied and a document an editor deleted stay
+that way. `pnpm studio:seed --reset` (deliberately) resets the demo documents, editors' changes and
+drafts on them included, and deletes those removed from the seed. Documents editors created themselves are never touched. The script
+refuses every dataset but `staging`.
+
+Without the seed, every page exists because the code defines
 it: while its document isn't published it renders empty and is hidden from search engines
 (`noindex`, not in the sitemap), so the site and the smoke test work with an empty CMS. Editors fill
 the pages in the Studio (**Pages → Home page → Deutsch** opens or creates it) and **Publish**.
@@ -581,13 +610,13 @@ anything to compare"_). Land **one change on `develop` first**, through the norm
 
 ## Part 10: Daily workflow
 
-| You want to…            | Do                                                                                                | Result                           |
-| ----------------------- | ------------------------------------------------------------------------------------------------- | -------------------------------- |
-| Build a feature         | Branch `feat/<name>` from `develop` → PR into `develop` → CI green + review → **squash merge**    | Staging deploys automatically    |
-| Release to production   | PR `develop` → `main` → CI green → **merge commit**                                               | Production deploys automatically |
-| Fix production urgently | [§12.2](#122-hotfix)                                                                              |                                  |
-| Change content          | In the Studio (staging Studio for tests, production Studio for real content). No deploy needed.   | Live within about a minute       |
-| Change the schema       | Edit `studio/schemas/` → `pnpm typegen` → commit `types/sanity.types.ts`. CI fails if you forget. | Deployed with the next release   |
+| You want to…            | Do                                                                                                                           | Result                           |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| Build a feature         | Branch `feat/<name>` from `develop` → PR into `develop` → CI green + review → **squash merge**                               | Staging deploys automatically    |
+| Release to production   | PR `develop` → `main` → CI green → **merge commit**                                                                          | Production deploys automatically |
+| Fix production urgently | [§12.2](#122-hotfix)                                                                                                         |                                  |
+| Change content          | In the Studio (staging Studio for tests, production Studio for real content). No deploy needed.                              | Live within about a minute       |
+| Change the schema       | Edit `studio/schemas/` → `pnpm typegen` → update `studio/seed/seed.data.ts` → commit both. CI fails if you forget the types. | Deployed with the next release   |
 
 Before opening or updating a PR, run the same checks as CI:
 
@@ -622,11 +651,11 @@ pnpm build:e2e && CI=1 pnpm test:e2e  # E2E against a production build (fixture 
 
 **GitHub** (repo → Settings → Secrets and variables → Actions)
 
-| Kind     | Name                                                                                         |
-| -------- | -------------------------------------------------------------------------------------------- |
-| Secret   | `VERCEL_TOKEN` (Actions **and** Dependabot secrets)                                          |
-| Variable | `VERCEL_ORG_ID`, `VERCEL_WEBAPP_PROJECT_ID`, `VERCEL_STUDIO_PROJECT_ID`                      |
-| Variable | `STAGING_WEBAPP_URL`, `STAGING_STUDIO_URL`, `PRODUCTION_WEBAPP_URL`, `PRODUCTION_STUDIO_URL` |
+| Kind     | Name                                                                                             |
+| -------- | ------------------------------------------------------------------------------------------------ |
+| Secret   | `VERCEL_TOKEN` (Actions **and** Dependabot secrets), `SANITY_TOKEN` (Actions only, staging seed) |
+| Variable | `VERCEL_ORG_ID`, `VERCEL_WEBAPP_PROJECT_ID`, `VERCEL_STUDIO_PROJECT_ID`                          |
+| Variable | `STAGING_WEBAPP_URL`, `STAGING_STUDIO_URL`, `PRODUCTION_WEBAPP_URL`, `PRODUCTION_STUDIO_URL`     |
 
 **How they are used**
 
@@ -639,13 +668,13 @@ pnpm build:e2e && CI=1 pnpm test:e2e  # E2E against a production build (fixture 
 
 ### 11.2 Pipeline files
 
-| File                                | Trigger                                       | What it does                                                                                                                                                                                            |
-| ----------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.github/actions/setup/action.yml`  | used by every job                             | pnpm pinned in `package.json`, Node from `.nvmrc`, cached `pnpm install --frozen-lockfile`, optionally the **pinned** Vercel CLI                                                                        |
-| `.github/workflows/ci.yml`          | PR → `develop`/`main`; called by `deploy.yml` | **Branch policy** (PRs to `main` only from `develop`/`hotfix/*`) · lint · format · Sanity type drift · types · unit tests (coverage ≥ 80 %) · build both apps · E2E                                     |
-| `.github/workflows/deploy.yml`      | push to `develop` / `main`                    | Full `ci.yml` again, then for **webapp + studio**, one at a time: `vercel pull` → `vercel build` → `vercel deploy --prebuilt` → `vercel inspect --wait` → (staging) `vercel alias set` → **smoke test** |
-| `.github/dependabot.yml`            | weekly                                        | pnpm and GitHub Actions updates, PRs into `develop`                                                                                                                                                     |
-| `vercel.json`, `studio/vercel.json` | read by Vercel                                | Build commands, Git auto-deploy **off**, Studio SPA rewrite                                                                                                                                             |
+| File                                | Trigger                                       | What it does                                                                                                                                                                                                                                               |
+| ----------------------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.github/actions/setup/action.yml`  | used by every job                             | pnpm pinned in `package.json`, Node from `.nvmrc`, cached `pnpm install --frozen-lockfile`, optionally the **pinned** Vercel CLI                                                                                                                           |
+| `.github/workflows/ci.yml`          | PR → `develop`/`main`; called by `deploy.yml` | **Branch policy** (PRs to `main` only from `develop`/`hotfix/*`) · lint · format · Sanity type drift · types · unit tests (coverage ≥ 80 %) · build both apps · E2E                                                                                        |
+| `.github/workflows/deploy.yml`      | push to `develop` / `main`                    | Full `ci.yml` again, then for **webapp + studio**, one at a time: `vercel pull` → `vercel build` → `vercel deploy --prebuilt` → `vercel inspect --wait` → (staging) `vercel alias set` → **smoke test**; (staging) **seed**: `pnpm studio:seed` (add only) |
+| `.github/dependabot.yml`            | weekly                                        | pnpm and GitHub Actions updates, PRs into `develop`                                                                                                                                                                                                        |
+| `vercel.json`, `studio/vercel.json` | read by Vercel                                | Build commands, Git auto-deploy **off**, Studio SPA rewrite                                                                                                                                                                                                |
 
 Why CI runs again after a merge: without branch protection anyone could push directly, and the
 merged commit is not always the commit that was tested in the PR.
@@ -681,11 +710,12 @@ answered `302` to a Vercel login page for everyone. Only the smoke test caught i
 
 ### 11.4 Sanity operations
 
-| Task                            | Command (inside `studio/`, after `pnpm exec sanity login`)                                                                                 |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| Refresh staging from production | `pnpm exec sanity dataset export production prod.tar.gz --no-drafts`, then `pnpm exec sanity dataset import prod.tar.gz staging --replace` |
-| List datasets                   | `pnpm exec sanity dataset list`                                                                                                            |
-| Export a backup                 | `pnpm exec sanity dataset export production backup.tar.gz`                                                                                 |
+| Task                            | Command (inside `studio/`, after `pnpm exec sanity login`)                                                                                                 |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Refresh staging from production | `pnpm exec sanity dataset export production prod.tar.gz --no-drafts`, then `pnpm exec sanity dataset import prod.tar.gz staging --replace`                 |
+| Fill staging with demo content  | `pnpm studio:seed` (repo root, [§8.0](#80-content-in-sanity)); after a refresh from production never use `--reset` (it would overwrite the copied content) |
+| List datasets                   | `pnpm exec sanity dataset list`                                                                                                                            |
+| Export a backup                 | `pnpm exec sanity dataset export production backup.tar.gz`                                                                                                 |
 
 **Sitemap freshness.** Published pages and offers enter `/sitemap.xml` at build time, so they are
 listed after the next deploy. If Sanity can't be reached during the build, the build **fails** rather
@@ -750,6 +780,9 @@ Same idea for the Studio (`studio.example.com`, with credentials in CORS).
 Create a new token ([§5.1](#51-create-the-deploy-token)) → update **both** GitHub secrets named `VERCEL_TOKEN` (Actions and Dependabot, [§6.2](#62-the-secret-one-value-stored-twice))
 → re-run the last Deploy run → delete the old token in Vercel.
 
+The Sanity seed token (`SANITY_TOKEN`) the same way: new token in Sanity ([§6.2](#62-the-secret-one-value-stored-twice), step 3) →
+update the GitHub secret → delete the old token in Sanity.
+
 ### 12.6 Add an environment variable
 
 All in one PR:
@@ -811,5 +844,6 @@ Re-run only the failed jobs: Actions → the run → **Re-run jobs → Re-run fa
 3. **Never** skip or soften a failing smoke test: fix the cause.
 4. **Never** develop against the `production` dataset, and never commit `.env` files.
 5. **Never** add a wildcard CORS origin, or a Sanity token to the web app.
-6. **One** secret value in GitHub (`VERCEL_TOKEN`, stored for Actions and for Dependabot); app configuration lives **only** in Vercel.
-7. Code and this document change **together**, in the same PR.
+6. **Two** secrets in GitHub: `VERCEL_TOKEN` (Actions and Dependabot) and `SANITY_TOKEN` (staging seed only); app configuration lives **only** in Vercel.
+7. **Never** seed production: it is filled by editors only.
+8. Code and this document change **together**, in the same PR.

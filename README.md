@@ -17,18 +17,19 @@ A small, production-grade Nuxt 4 + Sanity skeleton for multi-language landing pa
 
 ```bash
 nvm use 24                             # Node 24 (.nvmrc)
-npm install --global pnpm              # once per machine, any version (see below)
+npm install --global pnpm              # once per machine: pnpm 10 or newer (see below)
 pnpm install                           # installs the web app and the Studio (pnpm workspace)
 cp .env.example .env                   # web app → staging dataset
 cp studio/.env.example studio/.env     # Studio  → staging dataset
 # then set your Sanity project ID: NUXT_PUBLIC_SANITY_PROJECT_ID in .env, SANITY_STUDIO_PROJECT_ID in studio/.env
 pnpm exec sanity login                 # once, for the Studio
+pnpm studio:seed                       # optional: fill the staging dataset with demo content
 pnpm dev                               # web http://localhost:3000 · Studio http://localhost:3333
 ```
 
 ### Package manager: pnpm only
 
-- **One version for everyone**: `package.json` pins pnpm (`packageManager` for pnpm ≤ 10, `devEngines` for pnpm ≥ 11). Whatever pnpm you have
+- **One version for everyone**: `package.json` pins pnpm (`packageManager` for pnpm ≤ 10, `devEngines` for pnpm ≥ 11). Any pnpm 10 or newer you have
   installed downloads and uses that exact version inside this repo, so nobody has to upgrade by hand.
   CI reads the same field.
 - **npm is blocked**: `npm install` fails on purpose (`EBADDEVENGINES`, set by `devEngines`).
@@ -44,19 +45,37 @@ pnpm install
 
 ## Scripts
 
-| Script                                       | What it does                                                             |
-| -------------------------------------------- | ------------------------------------------------------------------------ |
-| `pnpm dev`                                   | Web app + Studio in watch mode                                           |
-| `pnpm build` / `pnpm preview`                | Production build of the web app / serve it locally                       |
-| `pnpm build:e2e`                             | Production build against the fixture CMS, for `CI=1 pnpm test:e2e`       |
-| `pnpm studio:build`                          | Production build of the Studio                                           |
-| `pnpm typegen`                               | Regenerate `types/sanity.types.ts` (schema types) from the Studio schema |
-| `pnpm lint` / `lint:fix`                     | ESLint                                                                   |
-| `pnpm format` / `format:check`               | Prettier                                                                 |
-| `pnpm typecheck`                             | `vue-tsc` for the web app + `tsc` for the Studio                         |
-| `pnpm test` / `test:watch` / `test:coverage` | Vitest (`unit` + `nuxt` projects, coverage ≥ 80 %)                       |
-| `pnpm test:e2e`                              | Playwright: dev server locally; `CI=1` after `pnpm build:e2e` (as in CI) |
-| `pnpm test:smoke`                            | Playwright smoke suite against `PLAYWRIGHT_BASE_URL`                     |
+| Script                                       | What it does                                                                     |
+| -------------------------------------------- | -------------------------------------------------------------------------------- |
+| `pnpm dev`                                   | Web app + Studio in watch mode                                                   |
+| `pnpm build` / `pnpm preview`                | Production build of the web app / serve it locally                               |
+| `pnpm build:e2e`                             | Production build against the fixture CMS, for `CI=1 pnpm test:e2e`               |
+| `pnpm studio:build`                          | Production build of the Studio                                                   |
+| `pnpm studio:seed`                           | Fill the `staging` dataset with demo content (`--reset`, `--dry-run`, see below) |
+| `pnpm typegen`                               | Regenerate `types/sanity.types.ts` (schema types) from the Studio schema         |
+| `pnpm lint` / `lint:fix`                     | ESLint                                                                           |
+| `pnpm format` / `format:check`               | Prettier                                                                         |
+| `pnpm typecheck`                             | `vue-tsc` for the web app + `tsc` for the Studio                                 |
+| `pnpm test` / `test:watch` / `test:coverage` | Vitest (`unit` + `nuxt` projects, coverage ≥ 80 %)                               |
+| `pnpm test:e2e`                              | Playwright: dev server locally; `CI=1` after `pnpm build:e2e` (as in CI)         |
+| `pnpm test:smoke`                            | Playwright smoke suite against `PLAYWRIGHT_BASE_URL`                             |
+
+## Demo content (staging)
+
+`pnpm studio:seed` fills the `staging` dataset with `studio/seed/seed.data.ts`: every page in German and English,
+offers, testimonials, FAQ, business profile and placeholder pictures, all labelled as demo. Open the
+staging Studio or site right after and everything is there. It needs `pnpm exec sanity login` once
+(inside `studio/`) and refuses every dataset but `staging`; production is always filled by hand.
+
+| Command                      | Effect                                                                                                         |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `pnpm studio:seed`           | Adds what is new in the seed file (documents, fields): editors' changes stay. Also run by every staging deploy |
+| `pnpm studio:seed --reset`   | Staging matches the seed file: demo documents reset, editors' changes on them discarded, removed ones deleted  |
+| `pnpm studio:seed --dry-run` | Prints what would change, writes nothing                                                                       |
+
+Running it again never creates duplicates: each demo document has a fixed id. Documents editors
+created themselves are never touched. **Any schema change updates the seed file in the same PR**
+(new field, section or page filled in every language; removed ones removed).
 
 ## Documentation
 

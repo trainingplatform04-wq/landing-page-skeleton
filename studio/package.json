@@ -6,7 +6,8 @@
     "dev": "sanity dev",
     "build": "sanity build",
     "typecheck": "tsc --noEmit",
-    "typegen": "sanity schema extract --force && sanity typegen generate"
+    "typegen": "sanity schema extract --force && sanity typegen generate",
+    "seed": "sanity exec seed/seed.ts --with-user-token --"
   },
   "dependencies": {
     "@sanity/document-internationalization": "^6.2.39",

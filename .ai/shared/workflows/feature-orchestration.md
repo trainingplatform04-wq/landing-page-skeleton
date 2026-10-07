@@ -29,7 +29,7 @@ For each step, declare the delegation (`→ tech-lead: …`) and print `--- Step
 
 **Step 4: Implement (backend → frontend → qa)**
 
-1. `backend-engineer`: Studio schemas (`studio/schemas/`), groqd queries in their composable, `pnpm typegen`, composables returning plain views.
+1. `backend-engineer`: Studio schemas (`studio/schemas/`), groqd queries in their composable, `pnpm typegen`, the staging demo content in `studio/seed/seed.data.ts` updated to match the schema, composables returning plain views.
 2. `frontend-engineer`: pages and components consuming those composables, with i18n keys in **every** locale.
 3. `qa-engineer`: co-located specs plus E2E for every new page, then the local gates (`docs/conventions/CODING_STANDARDS.md` §7).
 
