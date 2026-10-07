@@ -132,12 +132,12 @@ Every environment always gets **both** apps, deployed together from the same com
 | Git                   | <https://git-scm.com/downloads>                                                                                                                                                                   | `git --version`     |
 | Node.js **24**        | via a version manager: [nvm-windows](https://github.com/coreybutler/nvm-windows/releases) (Windows) or [nvm](https://github.com/nvm-sh/nvm) (macOS/Linux), then `nvm install 24` and `nvm use 24` | `node -v` → `v24.x` |
 | GitHub CLI (optional) | <https://cli.github.com>                                                                                                                                                                          | `gh --version`      |
-| pnpm                  | `npm install --global pnpm` (any version: inside the repo it switches itself to the one pinned in `package.json`)                                                                                 | `pnpm -v`           |
+| pnpm                  | `npm install --global pnpm` (pnpm 10 or newer: inside the repo it switches itself to the one pinned in `package.json`; pnpm 9 does not)                                                           | `pnpm -v`           |
 
 You do **not** need the Vercel CLI on your laptop: only the pipeline deploys.
 
 > 🪟 **Windows:** run every command in this guide in **Git Bash** (installed with Git), not in
-> PowerShell or `cmd`. Commands such as `cp`, `CI=1 pnpm …` and `MSYS_NO_PATHCONV=1 …` only work
+> PowerShell or `cmd`. Commands such as `cp` and `CI=1 pnpm …` only work
 > in a POSIX shell.
 
 ### 1.3 Your setup notebook

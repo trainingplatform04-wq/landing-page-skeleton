@@ -17,7 +17,7 @@ A small, production-grade Nuxt 4 + Sanity skeleton for multi-language landing pa
 
 ```bash
 nvm use 24                             # Node 24 (.nvmrc)
-npm install --global pnpm              # once per machine, any version (see below)
+npm install --global pnpm              # once per machine: pnpm 10 or newer (see below)
 pnpm install                           # installs the web app and the Studio (pnpm workspace)
 cp .env.example .env                   # web app → staging dataset
 cp studio/.env.example studio/.env     # Studio  → staging dataset
@@ -28,7 +28,7 @@ pnpm dev                               # web http://localhost:3000 · Studio htt
 
 ### Package manager: pnpm only
 
-- **One version for everyone**: `package.json` pins pnpm (`packageManager` for pnpm ≤ 10, `devEngines` for pnpm ≥ 11). Whatever pnpm you have
+- **One version for everyone**: `package.json` pins pnpm (`packageManager` for pnpm ≤ 10, `devEngines` for pnpm ≥ 11). Any pnpm 10 or newer you have
   installed downloads and uses that exact version inside this repo, so nobody has to upgrade by hand.
   CI reads the same field.
 - **npm is blocked**: `npm install` fails on purpose (`EBADDEVENGINES`, set by `devEngines`).
