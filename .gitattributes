@@ -1,0 +1,5 @@
+# Normalize line endings: LF in the repo and in every checkout (matches Prettier endOfLine: lf).
+* text=auto eol=lf
+*.ico binary
+*.png binary
+*.jpg binary

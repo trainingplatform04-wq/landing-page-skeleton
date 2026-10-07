@@ -1,0 +1,4 @@
+@import 'tailwindcss';
+@import '@nuxt/ui';
+
+/* Theme tokens go in an `@theme {}` block: https://tailwindcss.com/docs/theme */

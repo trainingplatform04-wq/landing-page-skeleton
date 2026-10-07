@@ -1,0 +1,49 @@
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+
+# Node dependencies
+node_modules
+
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+.vscode/*
+!.vscode/extensions.json
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Sanity Studio
+studio/.sanity
+
+# Testing
+coverage
+playwright-report
+test-results
+blob-report
+
+# Husky
+.husky/_
+
+.nuxtrc
+
+# Sanity schema extraction (intermediate input of `npm run typegen`)
+studio/schema.json
+
+# Sanity dataset export archives (deployment guide §11.4) — content dumps, never commit
+*.tar.gz
+
+# Vercel CLI (`vercel build` / `vercel pull` output and project link)
+.vercel

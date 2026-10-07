@@ -1,0 +1,148 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Deploy — the ONLY way code reaches Vercel (Git auto-deploys are disabled in
+# vercel.json / studio/vercel.json).
+#
+#   push develop → CI → deploy webapp + studio to Preview    → alias → smoke  (STAGING)
+#   push main    → CI → deploy webapp + studio to Production          → smoke  (PRODUCTION)
+#   workflow_dispatch on develop/main → same as a push to that branch
+#
+# Docs: docs/deployment/DEPLOYMENT.md
+# ─────────────────────────────────────────────────────────────────────────────
+name: Deploy
+
+on:
+  push:
+    branches: [develop, main]
+  # Re-deploy the same branch, e.g. from a Sanity publish webhook so new CMS pages
+  # reach the build-time sitemap (docs/deployment/DEPLOYMENT.md → Sitemap freshness).
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # One deploy per branch at a time. Never cancel a deploy halfway through.
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+  IS_PRODUCTION: ${{ github.ref_name == 'main' }}
+
+jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
+
+  deploy:
+    name: Deploy ${{ matrix.app }} (${{ github.ref_name == 'main' && 'production' || 'staging' }})
+    needs: ci
+    runs-on: ubuntu-latest
+    # setup + build (~6 min) + the 12 min build wait, with room to report and clean up.
+    timeout-minutes: 25
+    strategy:
+      # One Vercel build at a time: a second concurrent deployment sits in Vercel's
+      # queue (Hobby = 1 concurrent build) and the CLI waits on it until timeout.
+      max-parallel: 1
+      matrix:
+        include:
+          - app: webapp
+            project-id: ${{ vars.VERCEL_WEBAPP_PROJECT_ID }}
+            url: ${{ github.ref_name == 'main' && vars.PRODUCTION_WEBAPP_URL || vars.STAGING_WEBAPP_URL }}
+            nitro-preset: vercel
+          - app: studio
+            project-id: ${{ vars.VERCEL_STUDIO_PROJECT_ID }}
+            url: ${{ github.ref_name == 'main' && vars.PRODUCTION_STUDIO_URL || vars.STAGING_STUDIO_URL }}
+            nitro-preset: ''
+    env:
+      VERCEL_PROJECT_ID: ${{ matrix.project-id }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      TARGET: ${{ github.ref_name == 'main' && 'production' || 'preview' }}
+      PROD_FLAG: ${{ github.ref_name == 'main' && '--prod' || '' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup
+        with:
+          vercel-cli: 'true'
+
+      # Project settings + env vars of the target environment (source of truth).
+      - run: vercel pull --yes --environment="$TARGET" --token="$VERCEL_TOKEN"
+
+      - run: vercel build $PROD_FLAG --token="$VERCEL_TOKEN"
+        env:
+          NITRO_PRESET: ${{ matrix.nitro-preset }}
+
+      # Split in two on purpose. `vercel deploy` streams no build output, so waiting
+      # inside it turns every slow or failing deployment into a bare "step timed out"
+      # with nothing to debug. `--no-wait` returns the URL as soon as the upload is
+      # accepted; the next step waits and prints Vercel's own build logs.
+      - name: Deploy prebuilt output
+        id: deploy
+        timeout-minutes: 5
+        run: |
+          url=$(vercel deploy --prebuilt --no-wait $PROD_FLAG --token="$VERCEL_TOKEN")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      # --timeout must expire before the step timeout below, so a deployment stuck in
+      # Vercel's build queue reports itself instead of being killed silently.
+      - name: Wait for the build
+        timeout-minutes: 12
+        env:
+          DEPLOY_URL: ${{ steps.deploy.outputs.url }}
+        run: vercel inspect "$DEPLOY_URL" --wait --timeout 10m --logs --token="$VERCEL_TOKEN"
+
+      # A failed wait leaves the deployment building on Vercel, where it holds the
+      # build slot and makes the next run queue behind it. Never leave one behind.
+      - name: Discard an unfinished deployment
+        if: failure() && steps.deploy.outputs.url != ''
+        env:
+          DEPLOY_URL: ${{ steps.deploy.outputs.url }}
+        run: vercel remove "$DEPLOY_URL" --yes --token="$VERCEL_TOKEN" || true
+
+      # Staging gets a stable URL; production domains are assigned by --prod.
+      - name: Point staging alias
+        if: env.IS_PRODUCTION != 'true'
+        env:
+          DEPLOY_URL: ${{ steps.deploy.outputs.url }}
+          ALIAS_URL: ${{ matrix.url }}
+        run: vercel alias set "$DEPLOY_URL" "${ALIAS_URL#https://}" --token="$VERCEL_TOKEN"
+
+      - name: Summary
+        env:
+          DEPLOY_URL: ${{ steps.deploy.outputs.url }}
+          PUBLIC_URL: ${{ matrix.url }}
+        run: |
+          echo "### ${{ matrix.app }} → $TARGET" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Public URL: $PUBLIC_URL" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Deployment: $DEPLOY_URL" >> "$GITHUB_STEP_SUMMARY"
+
+  smoke:
+    name: Smoke test
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      WEBAPP_URL: ${{ github.ref_name == 'main' && vars.PRODUCTION_WEBAPP_URL || vars.STAGING_WEBAPP_URL }}
+      STUDIO_URL: ${{ github.ref_name == 'main' && vars.PRODUCTION_STUDIO_URL || vars.STAGING_STUDIO_URL }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup
+
+      # No --location: an auth wall or SSO redirect must fail the check,
+      # not be followed to a login page that also answers 200.
+      - name: Studio serves the Sanity Studio
+        run: |
+          # `|| true`: a transport failure (DNS, TLS, timeout) yields status 000 and
+          # reaches the annotated error below instead of aborting silently under `bash -e`.
+          page="$RUNNER_TEMP/studio.html"
+          status=$(curl --silent --show-error --max-time 30 --output "$page" --write-out '%{http_code}' "$STUDIO_URL" || true)
+          [ "$status" = 200 ] || { echo "::error::$STUDIO_URL answered HTTP $status (auth wall, redirect or unreachable?)"; exit 1; }
+          grep -q 'id="sanity"' "$page" || { echo "::error::$STUDIO_URL did not serve the Sanity Studio"; exit 1; }
+
+      - run: npx playwright install --with-deps chromium
+
+      - name: Web App smoke
+        run: npm run test:smoke
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ env.WEBAPP_URL }}

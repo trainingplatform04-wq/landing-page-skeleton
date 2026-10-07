@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    // Shared app files use type-only `~/` imports (erased at build time).
+    "paths": { "~/*": ["../*"] }
+  },
+  "include": [
+    "./**/*.ts",
+    "./**/*.tsx",
+    "../constants/i18n.constants.ts",
+    "../constants/routes.constants.ts",
+    "../constants/sanity.constants.ts",
+    "../utils/url/url.utils.ts"
+  ],
+  "exclude": ["dist", "node_modules"]
+}

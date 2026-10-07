@@ -1,0 +1,20 @@
+{
+  "name": "landing-page-studio",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "sanity dev",
+    "build": "sanity build",
+    "typecheck": "tsc --noEmit",
+    "typegen": "sanity schema extract --force && sanity typegen generate"
+  },
+  "dependencies": {
+    "@sanity/document-internationalization": "^6.2.39",
+    "@sanity/icons": "^5.2.3",
+    "react": "^19.2.2",
+    "react-dom": "^19.2.2",
+    "sanity": "^6.17.0",
+    "sanity-plugin-internationalized-array": "^5.3.2",
+    "styled-components": "^6.1.19"
+  }
+}

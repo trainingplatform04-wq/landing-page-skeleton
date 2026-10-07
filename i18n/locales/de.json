@@ -1,0 +1,64 @@
+{
+  "nav": {
+    "label": "Hauptnavigation",
+    "home": "Startseite",
+    "offers": "Angebote",
+    "contact": "Kontakt",
+    "faq": "FAQ"
+  },
+  "localeSwitcher": {
+    "label": "Sprache wechseln"
+  },
+  "footer": {
+    "copyright": "© {year} {name}. Alle Rechte vorbehalten.",
+    "legal": "Rechtliches",
+    "imprint": "Impressum",
+    "privacy": "Datenschutz"
+  },
+  "home": {
+    "featuredOffers": "Ausgewählte Angebote",
+    "allOffers": "Alle Angebote"
+  },
+  "testimonials": {
+    "title": "Das sagen meine Kunden"
+  },
+  "faq": {
+    "title": "Häufige Fragen",
+    "all": "Alle Fragen",
+    "empty": "Noch keine Fragen"
+  },
+  "offers": {
+    "empty": "Noch keine Angebote",
+    "price": "Preis: {price}"
+  },
+  "contact": {
+    "form": {
+      "name": "Name",
+      "email": "E-Mail",
+      "message": "Nachricht",
+      "consent": "Ich bin einverstanden, dass meine Angaben zur Beantwortung meiner Anfrage verwendet werden. Mehr in der",
+      "submit": "Senden",
+      "unavailable": "Schreiben Sie uns per E-Mail",
+      "sent": "Danke! Wir melden uns in Kürze bei Ihnen.",
+      "error": "Das hat nicht geklappt. Bitte versuchen Sie es noch einmal.",
+      "required": "Bitte ausfüllen",
+      "invalidEmail": "Bitte eine gültige E-Mail-Adresse eingeben",
+      "consentRequired": "Bitte stimmen Sie zu, damit wir antworten können",
+      "tooLong": "Höchstens {max} Zeichen"
+    }
+  },
+  "legal": {
+    "updatedAt": "Stand: {date}"
+  },
+  "errors": {
+    "backHome": "Zurück zur Startseite",
+    "notFound": {
+      "title": "Seite nicht gefunden",
+      "message": "Die gesuchte Seite existiert nicht oder wurde verschoben."
+    },
+    "server": {
+      "title": "Etwas ist schiefgelaufen",
+      "message": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
+    }
+  }
+}

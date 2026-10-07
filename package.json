@@ -1,0 +1,77 @@
+{
+  "name": "landing-page-base",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "workspaces": [
+    "studio"
+  ],
+  "scripts": {
+    "dev": "concurrently --names web,studio --prefix-colors green,magenta \"nuxt dev\" \"npm run dev --workspace studio\"",
+    "build": "nuxt build",
+    "build:e2e": "node tests/e2e/build.ts",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "prepare": "husky",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "nuxt typecheck && npm run typecheck --workspace studio",
+    "verify": "npm run lint && npm run format:check && npm run typecheck && npm run test:coverage",
+    "typegen": "npm run typegen --workspace studio",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:smoke": "playwright test smoke",
+    "studio:build": "npm run build --workspace studio"
+  },
+  "dependencies": {
+    "@nuxt/image": "^2.1.0",
+    "@nuxt/ui": "^4.11.2",
+    "@nuxtjs/i18n": "^10.6.0",
+    "@nuxtjs/robots": "^6.2.4",
+    "@nuxtjs/sanity": "^2.5.0",
+    "@nuxtjs/sitemap": "^8.6.0",
+    "@portabletext/vue": "^1.0.14",
+    "@sanity/client": "^7.27.0",
+    "groqd": "^1.7.1",
+    "nuxt": "^4.5.2",
+    "nuxt-schema-org": "^6.4.3",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@iconify-json/lucide": "^1.2.137",
+    "@nuxt/eslint": "^1.17.0",
+    "@nuxt/test-utils": "^4.3.2",
+    "@playwright/test": "^1.63.0",
+    "@vitest/coverage-v8": "^5.0.2",
+    "@vue/test-utils": "^2.4.6",
+    "concurrently": "^10.0.5",
+    "eslint": "^10.0.0",
+    "eslint-plugin-simple-import-sort": "^14.0.0",
+    "groq-js": "^1.30.3",
+    "h3-next": "npm:h3@^2.0.1-rc.32",
+    "happy-dom": "^20.14.5",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.0",
+    "prettier": "^3.5.3",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.2",
+    "vue-tsc": "^3.3.11"
+  },
+  "overrides": {
+    "adm-zip": "0.6.1",
+    "js-yaml@^3": "3.15.2",
+    "smol-toml": "1.9.0",
+    "undici@^7": "7.30.0",
+    "uuid@^10": "11.1.1",
+    "fontless": {
+      "esbuild": "0.28.2"
+    }
+  }
+}
