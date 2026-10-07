@@ -47,7 +47,7 @@
     "groqd": "^1.7.1",
     "nuxt": "^4.5.2",
     "nuxt-schema-org": "^6.4.3",
-    "zod": "^3.25.76"
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.139",
