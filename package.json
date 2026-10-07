@@ -32,7 +32,8 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:smoke": "playwright test smoke",
-    "studio:build": "pnpm --filter landing-page-studio build"
+    "studio:build": "pnpm --filter landing-page-studio build",
+    "studio:seed": "pnpm --filter landing-page-studio seed"
   },
   "dependencies": {
     "@nuxt/image": "^2.1.0",

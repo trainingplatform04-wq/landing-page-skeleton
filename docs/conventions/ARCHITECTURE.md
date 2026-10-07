@@ -4,19 +4,19 @@ Nuxt 4 with the **flat layout** (`srcDir: '.'`): Nuxt directories live at the re
 
 ## Directory responsibilities
 
-| Directory                | Contains                                                                                                          | Rule                                                                     |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `pages/`                 | One file per route (`faq.vue`, `offers/[slug].vue`, …)                                                            | Call one composable, set the head, compose components. No data access.   |
-| `layouts/`               | The page frame (header, main, footer)                                                                             | Single root element.                                                     |
-| `components/<Name>/`     | `Name.vue` + `Name.spec.ts`, named after their content (`OfferCard`, `FaqList`)                                   | Props in, markup out. Props are plain values (`types/content.types.ts`). |
-| `composables/<useName>/` | `useName.ts` (query, view type, mapper, composable) + `useName.spec.ts`                                           | The **only** place that fetches data (`useCms` + `useAsyncData`).        |
-| `utils/<topic>/`         | `topic.utils.ts` + `topic.utils.spec.ts`                                                                          | Pure functions: no network, no Nuxt runtime.                             |
-| `constants/`             | `routes.constants.ts`, `i18n.constants.ts`, `navigation.constants.ts`, `date.constants.ts`, `sanity.constants.ts` | Shared values (routes and locales also by the Studio).                   |
-| `types/`                 | `content.types.ts` (what components receive), `sanity.types.ts` (**generated**)                                   | Never edit the generated file.                                           |
-| `modules/`               | `sitemap.ts`: reads published pages and offers when building                                                      | Loaded before the `~/` alias exists: relative imports only.              |
-| `i18n/locales/`          | `en.json`, `de.json`                                                                                              | The same keys in every language.                                         |
-| `studio/`                | Sanity Studio: `schemas/{pages,collections,objects,settings}`, `sanity.structure.ts`, `utils/`                    | Deployed as its own Vercel project.                                      |
-| `tests/e2e/`             | Playwright specs against a test CMS (`sanity/fixtures.ts`); `smoke.spec.ts` also runs after deploys               |                                                                          |
+| Directory                | Contains                                                                                                                       | Rule                                                                     |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
+| `pages/`                 | One file per route (`faq.vue`, `offers/[slug].vue`, …)                                                                         | Call one composable, set the head, compose components. No data access.   |
+| `layouts/`               | The page frame (header, main, footer)                                                                                          | Single root element.                                                     |
+| `components/<Name>/`     | `Name.vue` + `Name.spec.ts`, named after their content (`OfferCard`, `FaqList`)                                                | Props in, markup out. Props are plain values (`types/content.types.ts`). |
+| `composables/<useName>/` | `useName.ts` (query, view type, mapper, composable) + `useName.spec.ts`                                                        | The **only** place that fetches data (`useCms` + `useAsyncData`).        |
+| `utils/<topic>/`         | `topic.utils.ts` + `topic.utils.spec.ts`                                                                                       | Pure functions: no network, no Nuxt runtime.                             |
+| `constants/`             | `routes.constants.ts`, `i18n.constants.ts`, `navigation.constants.ts`, `date.constants.ts`, `sanity.constants.ts`              | Shared values (routes and locales also by the Studio).                   |
+| `types/`                 | `content.types.ts` (what components receive), `sanity.types.ts` (**generated**)                                                | Never edit the generated file.                                           |
+| `modules/`               | `sitemap.ts`: reads published pages and offers when building                                                                   | Loaded before the `~/` alias exists: relative imports only.              |
+| `i18n/locales/`          | `en.json`, `de.json`                                                                                                           | The same keys in every language.                                         |
+| `studio/`                | Sanity Studio: `schemas/{pages,collections,objects,settings}`, `sanity.structure.ts`, `utils/`, `seed/` (staging demo content) | Deployed as its own Vercel project.                                      |
+| `tests/e2e/`             | Playwright specs against a test CMS (`sanity/fixtures.ts`); `smoke.spec.ts` also runs after deploys                            |                                                                          |
 
 Enforced by ESLint (`eslint.config.mjs`): no data fetching in views, no CMS types in views, no server code, no `#imports`, no parent-relative imports, import groups, `<script>` → `<template>` → `<style>` block order.
 
@@ -97,7 +97,7 @@ The contact form (`UForm`, validated with zod) sends the message in the backgrou
 
 Each recipe is a short checklist. A complete earlier implementation of the removed features is in the git tag `reference-full-2026-10`.
 
-- **Add a page**: a route in `ROUTE_PATHS` (+ `PAGE_TYPES` if the CMS fills it), a schema in `studio/schemas/pages/` (registered in `studio/schemas/index.ts`), a composable with its four parts, the page file, its UI texts, its test content in `tests/e2e/sanity/fixtures.ts`, and the route in `tests/e2e/smoke.spec.ts`.
+- **Add a page**: a route in `ROUTE_PATHS` (+ `PAGE_TYPES` if the CMS fills it), a schema in `studio/schemas/pages/` (registered in `studio/schemas/index.ts`), a composable with its four parts, the page file, its UI texts, its test content in `tests/e2e/sanity/fixtures.ts`, its demo content in `studio/seed/seed.data.ts`, and the route in `tests/e2e/smoke.spec.ts`.
 - **Add a collection with its own URL** (like offers): a schema with `languageField`, `titleField`, `slugField`; add it to `TRANSLATED_TYPES` (`studio/utils/singleton/singleton.utils.ts`) and to the desk; a list composable and a detail composable (404 for an unknown slug, `useSetI18nParams` for the switcher); add it to `modules/sitemap.ts`.
 - **Add a list of references on a page** (like testimonials): `referenceListField` in the page schema, filter the references by language before `deref()` in the query, map them to a plain type in `types/content.types.ts`.
 - **Add a blog**: the offers recipe with a date field, ordered by date.

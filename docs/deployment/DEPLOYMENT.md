@@ -488,7 +488,21 @@ Alternative to copying `.env` files: `pnpm dlx vercel@61.0.0 link` then
 
 ### 8.0 Content in Sanity
 
-The datasets start empty: no seed, no sample content. Every page exists because the code defines
+`production` starts empty and stays editor-only: no sample content. `staging` can get the demo
+content in one command (repo root, after `cd studio && pnpm exec sanity login && cd ..`):
+
+```bash
+pnpm studio:seed --dry-run   # what it would write
+pnpm studio:seed             # staging = demo content of studio/seed/seed.data.ts
+```
+
+Re-running is safe: every demo document has a fixed id, so it is updated, never duplicated.
+`pnpm studio:seed` resets the demo documents (editors' changes and drafts on them included), adds
+new ones and deletes those removed from the seed; `pnpm studio:seed --missing` only adds what is
+missing and keeps every change. Documents editors created themselves are never touched. The script
+refuses every dataset but `staging`.
+
+Without the seed, every page exists because the code defines
 it: while its document isn't published it renders empty and is hidden from search engines
 (`noindex`, not in the sitemap), so the site and the smoke test work with an empty CMS. Editors fill
 the pages in the Studio (**Pages → Home page → Deutsch** opens or creates it) and **Publish**.
@@ -581,13 +595,13 @@ anything to compare"_). Land **one change on `develop` first**, through the norm
 
 ## Part 10: Daily workflow
 
-| You want to…            | Do                                                                                                | Result                           |
-| ----------------------- | ------------------------------------------------------------------------------------------------- | -------------------------------- |
-| Build a feature         | Branch `feat/<name>` from `develop` → PR into `develop` → CI green + review → **squash merge**    | Staging deploys automatically    |
-| Release to production   | PR `develop` → `main` → CI green → **merge commit**                                               | Production deploys automatically |
-| Fix production urgently | [§12.2](#122-hotfix)                                                                              |                                  |
-| Change content          | In the Studio (staging Studio for tests, production Studio for real content). No deploy needed.   | Live within about a minute       |
-| Change the schema       | Edit `studio/schemas/` → `pnpm typegen` → commit `types/sanity.types.ts`. CI fails if you forget. | Deployed with the next release   |
+| You want to…            | Do                                                                                                                           | Result                           |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| Build a feature         | Branch `feat/<name>` from `develop` → PR into `develop` → CI green + review → **squash merge**                               | Staging deploys automatically    |
+| Release to production   | PR `develop` → `main` → CI green → **merge commit**                                                                          | Production deploys automatically |
+| Fix production urgently | [§12.2](#122-hotfix)                                                                                                         |                                  |
+| Change content          | In the Studio (staging Studio for tests, production Studio for real content). No deploy needed.                              | Live within about a minute       |
+| Change the schema       | Edit `studio/schemas/` → `pnpm typegen` → update `studio/seed/seed.data.ts` → commit both. CI fails if you forget the types. | Deployed with the next release   |
 
 Before opening or updating a PR, run the same checks as CI:
 
@@ -684,6 +698,7 @@ answered `302` to a Vercel login page for everyone. Only the smoke test caught i
 | Task                            | Command (inside `studio/`, after `pnpm exec sanity login`)                                                                                 |
 | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | Refresh staging from production | `pnpm exec sanity dataset export production prod.tar.gz --no-drafts`, then `pnpm exec sanity dataset import prod.tar.gz staging --replace` |
+| Fill staging with demo content  | `pnpm studio:seed` (repo root, [§8.0](#80-content-in-sanity)); after a refresh from production use `--missing` to keep the copied content  |
 | List datasets                   | `pnpm exec sanity dataset list`                                                                                                            |
 | Export a backup                 | `pnpm exec sanity dataset export production backup.tar.gz`                                                                                 |
 

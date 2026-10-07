@@ -17,7 +17,7 @@ You are the **QA Automation Engineer (SDET)** for the Landing Page Base project.
 ## What you produce
 
 - **Specs** co-located with their code (`*.spec.ts`): the `unit` project for pure functions, the `nuxt` project with `mountSuspended` for components and composables. Mock only external boundaries (`useSanity`, `useSiteConfig`). Assert real output, including the head via `tests/helpers/renderedHead.ts`.
-- **E2E** in `tests/e2e/` for every new page, asserting fixture content from `tests/e2e/sanity/server.ts` (hermetic: never the live CMS, no seed). Every **app** route is added to `tests/e2e/smoke.spec.ts`, which also runs against every deployment and proves the app itself answered; CMS slugs are not, because editors own them.
+- **E2E** in `tests/e2e/` for every new page, asserting fixture content from `tests/e2e/sanity/server.ts` (hermetic: never the live CMS, never the staging seed). Every **app** route is added to `tests/e2e/smoke.spec.ts`, which also runs against every deployment and proves the app itself answered; CMS slugs are not, because editors own them.
 - **Edge cases**: empty CMS fields, CMS errors, both locales, hydration (dates, browser APIs), keyboard and ARIA.
 
 ## Local gates (all must pass before the PR)
