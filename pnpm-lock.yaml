@@ -270,8 +270,8 @@ importers:
         specifier: ^14.0.0
         version: 14.0.0(eslint@10.11.0(jiti@2.7.0)(supports-color@8.1.1))
       groq-js:
-        specifier: ^1.30.3
-        version: 1.30.3(supports-color@8.1.1)
+        specifier: ^2.0.0
+        version: 2.0.0
       h3-next:
         specifier: npm:h3@^2.0.1-rc.32
         version: h3@2.0.1-rc.32(crossws@0.4.12(srvx@0.11.22))
