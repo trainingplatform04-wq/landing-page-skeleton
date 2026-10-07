@@ -41,7 +41,7 @@
     "@nuxtjs/robots": "^6.2.4",
     "@nuxtjs/sanity": "^2.5.0",
     "@nuxtjs/sitemap": "^8.6.0",
-    "@portabletext/vue": "^1.0.14",
+    "@portabletext/vue": "^2.0.0",
     "@sanity/client": "^7.27.0",
     "groqd": "^1.7.1",
     "nuxt": "^4.5.2",

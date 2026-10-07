@@ -224,8 +224,8 @@ importers:
         specifier: ^8.6.0
         version: 8.6.0(c836fbd58b2c50bbfc6aa24c0cb44b33)
       '@portabletext/vue':
-        specifier: ^1.0.14
-        version: 1.0.14(vue@3.5.43(typescript@6.0.3))
+        specifier: ^2.0.0
+        version: 2.0.0(vue@3.5.43(typescript@6.0.3))
       '@sanity/client':
         specifier: ^7.27.0
         version: 7.27.0
@@ -2955,6 +2955,12 @@ packages:
 
   '@portabletext/vue@1.0.14':
     resolution: {integrity: sha512-piVkECB5RpiLa4+i4aYrtYXp/N9y0V20JYoulOKXQ/ptc35Ql7GkhFzw1vmn7IexhNvHjX1NMzrKUg1mPInynA==}
+    peerDependencies:
+      vue: ^3.3.4
+
+  '@portabletext/vue@2.0.0':
+    resolution: {integrity: sha512-uYSScj4BO9LMKid+na8XIRdvdcYuMoOQU8UffglDDWKd4k0bTg6fiQd+iplQZIbQwzOikFeutIky3OYYYd2UYw==}
+    engines: {node: '>=22.12'}
     peerDependencies:
       vue: ^3.3.4
 
@@ -12736,6 +12742,12 @@ snapshots:
     dependencies:
       '@portabletext/toolkit': 2.0.18
       '@portabletext/types': 2.0.15
+      vue: 3.5.43(typescript@6.0.3)
+
+  '@portabletext/vue@2.0.0(vue@3.5.43(typescript@6.0.3))':
+    dependencies:
+      '@portabletext/toolkit': 6.0.0
+      '@portabletext/types': 4.0.2
       vue: 3.5.43(typescript@6.0.3)
 
   '@rexxars/react-json-inspector@9.0.1(react@19.3.0)':
