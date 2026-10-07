@@ -1,11 +1,11 @@
 /**
  * `pnpm studio:seed`: writes the demo content (seed.data.ts) to the `staging` dataset.
  * Run with `sanity exec … --with-user-token`: it writes as the logged-in Sanity user
- * (`pnpm exec sanity login`, inside studio/), no token to create or store.
+ * (`pnpm exec sanity login`, inside studio/), or with `SANITY_AUTH_TOKEN` in the pipeline.
  *
  *   pnpm studio:seed                  sync: staging matches seed.data.ts (see seed.plan.ts)
- *   pnpm studio:seed -- --missing     only add what is missing, keep editors' changes
- *   pnpm studio:seed -- --dry-run     print the plan, write nothing
+ *   pnpm studio:seed --missing        only add what is new, keep editors' changes (pipeline)
+ *   pnpm studio:seed --dry-run        print the plan, write nothing
  */
 import { getCliClient } from 'sanity/cli'
 
@@ -21,6 +21,7 @@ const args = process.argv.slice(2)
 const mode = args.includes('--missing') ? 'missing' : 'sync'
 const dryRun = args.includes('--dry-run')
 const log = (line: string) => process.stdout.write(`${line}\n`)
+const list = (items: string[]) => (items.length ? items.join(', ') : 'none')
 
 const client = getCliClient({ apiVersion: SANITY_API_VERSION })
 const { projectId, dataset = '' } = client.config()
@@ -51,12 +52,20 @@ async function uploadImages(): Promise<Record<SeedImage, string>> {
 const images = await uploadImages()
 const documents = seedDocuments((name) => images[name])
 const manifest = await client.getDocument<SeedManifest>(MANIFEST_ID)
-const plan = planSeed(documents, manifest?.ids ?? [], mode)
+const candidates = documents.flatMap(({ _id }) => [_id, `drafts.${_id}`])
+// `raw`: drafts included (the default perspective only returns published documents).
+const existing = await client.fetch<string[]>(
+  '*[_id in $ids]._id',
+  { ids: candidates },
+  { perspective: 'raw' },
+)
+const plan = planSeed(documents, manifest ?? null, mode, new Set(existing))
 
 log(`[seed] ${projectId}/${dataset} · mode ${mode}${dryRun ? ' · dry run' : ''}`)
 log(`[seed] ${documents.length} documents, ${SEED_IMAGES.length} images`)
-log(`[seed] new since the last run: ${plan.created.join(', ') || 'none'}`)
-log(`[seed] removed from seed.data.ts: ${plan.removed.join(', ') || 'none'}`)
+log(`[seed] new documents: ${list(plan.created)}`)
+if (mode === 'missing') log(`[seed] new fields: ${list(plan.filled)}`)
+if (mode === 'sync') log(`[seed] deleted (removed from seed.data.ts): ${list(plan.removed)}`)
 
 if (!dryRun) {
   // One transaction: the dataset gets the whole seed or nothing.

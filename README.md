@@ -67,11 +67,11 @@ offers, testimonials, FAQ, business profile and placeholder pictures, all labell
 staging Studio or site right after and everything is there. It needs `pnpm exec sanity login` once
 (inside `studio/`) and refuses every dataset but `staging`; production is always filled by hand.
 
-| Command                      | Effect                                                                                                  |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `pnpm studio:seed`           | Staging matches the seed file: demo documents reset, new ones added, ones removed from the file deleted |
-| `pnpm studio:seed --missing` | Only adds demo documents that do not exist yet: editors' changes stay                                   |
-| `pnpm studio:seed --dry-run` | Prints what would change, writes nothing                                                                |
+| Command                      | Effect                                                                                                         |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `pnpm studio:seed`           | Staging matches the seed file: demo documents reset, new ones added, ones removed from the file deleted        |
+| `pnpm studio:seed --missing` | Only adds what is new in the seed file (documents, fields): editors' changes stay. Run by every staging deploy |
+| `pnpm studio:seed --dry-run` | Prints what would change, writes nothing                                                                       |
 
 Running it again never creates duplicates: each demo document has a fixed id. Documents editors
 created themselves are never touched. **Any schema change updates the seed file in the same PR**

@@ -2,7 +2,7 @@
 # Deploy — the ONLY way code reaches Vercel (Git auto-deploys are disabled in
 # vercel.json / studio/vercel.json).
 #
-#   push develop → CI → deploy webapp + studio to Preview    → alias → smoke  (STAGING)
+#   push develop → CI → deploy webapp + studio to Preview    → alias → smoke + seed (STAGING)
 #   push main    → CI → deploy webapp + studio to Production          → smoke  (PRODUCTION)
 #   workflow_dispatch on develop/main → same as a push to that branch
 #
@@ -116,6 +116,40 @@ jobs:
           echo "### ${{ matrix.app }} → $TARGET" >> "$GITHUB_STEP_SUMMARY"
           echo "- Public URL: $PUBLIC_URL" >> "$GITHUB_STEP_SUMMARY"
           echo "- Deployment: $DEPLOY_URL" >> "$GITHUB_STEP_SUMMARY"
+
+  # Staging only: adds the demo content that is new in studio/seed/seed.data.ts (new
+  # documents, new fields) and keeps everything editors changed, emptied or deleted.
+  # Never deletes; a full reset stays a deliberate `pnpm studio:seed` from a laptop.
+  # After the deploy, so the new Studio schema is live before its content arrives.
+  seed:
+    name: Seed staging (new demo content)
+    needs: deploy
+    if: github.ref_name == 'develop'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # Pinned here as well: the seed script also refuses every other dataset.
+      SANITY_STUDIO_DATASET: staging
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup
+        with:
+          vercel-cli: 'true'
+
+      # The Studio's staging env (project ID) from Vercel, as CI does.
+      - name: Pull Studio staging env from Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          STUDIO_PROJECT_ID: ${{ vars.VERCEL_STUDIO_PROJECT_ID }}
+        run: VERCEL_PROJECT_ID="$STUDIO_PROJECT_ID" vercel env pull studio/.env --environment=preview --yes --token="$VERCEL_TOKEN"
+
+      # The token reaches this step only, never `pnpm install` and its scripts.
+      - name: Add new demo content (keeps editors' changes)
+        env:
+          SANITY_AUTH_TOKEN: ${{ secrets.SANITY_TOKEN }}
+        run: |
+          [ -n "$SANITY_AUTH_TOKEN" ] || { echo "::error::Secret SANITY_TOKEN is missing (docs/deployment/DEPLOYMENT.md §6.2)."; exit 1; }
+          pnpm studio:seed --missing
 
   smoke:
     name: Smoke test
