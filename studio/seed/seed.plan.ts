@@ -4,20 +4,20 @@ import type { SeedDocument } from './seed.data'
  * What one run of the seed writes. Every seeded document has a fixed id, so running it
  * again never duplicates anything:
  *
- * - `sync` (`pnpm studio:seed`, by hand): the dataset matches seed.data.ts afterwards.
+ * - `add` (default, `pnpm studio:seed`, also the pipeline on every staging deploy): adds
+ *   only what is new in seed.data.ts since the last run, and keeps everything editors did.
+ *   A new document is created; a new field (or section) is set on the existing document
+ *   and on its draft, where it is still empty. A field an editor emptied, a document an
+ *   editor deleted and every edited value stay as they are. Nothing is deleted.
+ * - `reset` (`--reset`, deliberately, by hand): the dataset matches seed.data.ts afterwards.
  *   Seeded documents are replaced (an editor's change or draft on them is discarded), new
  *   ones are created, and the ones removed from seed.data.ts since the last run are deleted.
- * - `missing` (`--missing`, also the pipeline on every staging deploy): adds only what is
- *   new in seed.data.ts since the last run, and keeps everything editors did. A new
- *   document is created; a new field (or section) is set on the existing document and on
- *   its draft, where it is still empty. A field an editor emptied, a document an editor
- *   deleted and every edited value stay as they are. Nothing is deleted.
  *
  * Documents editors created themselves are never touched. The manifest remembers which
  * documents and fields the seed wrote; its id has a dot, so it is private (never served to
  * the website).
  */
-export type SeedMode = 'sync' | 'missing'
+export type SeedMode = 'add' | 'reset'
 
 export const MANIFEST_ID = 'seed.manifest'
 
@@ -47,7 +47,7 @@ export type SeedMutation =
 export interface SeedPlan {
   mutations: SeedMutation[]
   created: string[]
-  /** `homePage-de: hero.subtitle`, in `missing` mode. */
+  /** `homePage-de: hero.subtitle`, in `add` mode. */
   filled: string[]
   removed: string[]
 }
@@ -139,7 +139,7 @@ export function planSeed(
   const removed = previous.ids.filter((id) => !current.has(id))
   const created = ids.filter((id) => !previous.ids.includes(id))
 
-  if (mode === 'sync') {
+  if (mode === 'reset') {
     return {
       mutations: [
         ...documents.flatMap((document) => [
@@ -168,7 +168,7 @@ export function planSeed(
     })
   })
 
-  // Removed documents stay recorded, so the next sync deletes them.
+  // Removed documents stay recorded, so the next reset deletes them.
   const kept = (manifest?.documents ?? []).filter(({ id }) => !current.has(id))
   const legacy = removed
     .filter((id) => !kept.some((entry) => entry.id === id))

@@ -503,18 +503,18 @@ content in one command (repo root, after `cd studio && pnpm exec sanity login &&
 
 ```bash
 pnpm studio:seed --dry-run   # what it would write
-pnpm studio:seed             # staging = demo content of studio/seed/seed.data.ts
+pnpm studio:seed             # adds the demo content of studio/seed/seed.data.ts
 ```
 
-**Automatically:** every deploy of `develop` runs `pnpm studio:seed --missing` (needs the
+**Automatically:** every deploy of `develop` runs `pnpm studio:seed` (needs the
 `SANITY_TOKEN` secret, [§6.2](#62-the-secret-one-value-stored-twice)). A schema change that ships with its demo
 content is therefore visible on staging right after the deploy, without anyone running a command.
 
 Re-running is safe: every demo document has a fixed id, so it is updated, never duplicated.
-`pnpm studio:seed` resets the demo documents (editors' changes and drafts on them included), adds
-new ones and deletes those removed from the seed; `pnpm studio:seed --missing` only adds what is new
-in the seed since the last run (new documents, new fields) and keeps every change: a field an editor
-edited or emptied and a document an editor deleted stay that way. Documents editors created themselves are never touched. The script
+`pnpm studio:seed` only adds what is new in the seed since the last run (new documents, new fields)
+and keeps every change: a field an editor edited or emptied and a document an editor deleted stay
+that way. `pnpm studio:seed --reset` (deliberately) resets the demo documents, editors' changes and
+drafts on them included, and deletes those removed from the seed. Documents editors created themselves are never touched. The script
 refuses every dataset but `staging`.
 
 Without the seed, every page exists because the code defines
@@ -668,13 +668,13 @@ pnpm build:e2e && CI=1 pnpm test:e2e  # E2E against a production build (fixture 
 
 ### 11.2 Pipeline files
 
-| File                                | Trigger                                       | What it does                                                                                                                                                                                                                                              |
-| ----------------------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.github/actions/setup/action.yml`  | used by every job                             | pnpm pinned in `package.json`, Node from `.nvmrc`, cached `pnpm install --frozen-lockfile`, optionally the **pinned** Vercel CLI                                                                                                                          |
-| `.github/workflows/ci.yml`          | PR → `develop`/`main`; called by `deploy.yml` | **Branch policy** (PRs to `main` only from `develop`/`hotfix/*`) · lint · format · Sanity type drift · types · unit tests (coverage ≥ 80 %) · build both apps · E2E                                                                                       |
-| `.github/workflows/deploy.yml`      | push to `develop` / `main`                    | Full `ci.yml` again, then for **webapp + studio**, one at a time: `vercel pull` → `vercel build` → `vercel deploy --prebuilt` → `vercel inspect --wait` → (staging) `vercel alias set` → **smoke test**; (staging) **seed**: `pnpm studio:seed --missing` |
-| `.github/dependabot.yml`            | weekly                                        | pnpm and GitHub Actions updates, PRs into `develop`                                                                                                                                                                                                       |
-| `vercel.json`, `studio/vercel.json` | read by Vercel                                | Build commands, Git auto-deploy **off**, Studio SPA rewrite                                                                                                                                                                                               |
+| File                                | Trigger                                       | What it does                                                                                                                                                                                                                                               |
+| ----------------------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.github/actions/setup/action.yml`  | used by every job                             | pnpm pinned in `package.json`, Node from `.nvmrc`, cached `pnpm install --frozen-lockfile`, optionally the **pinned** Vercel CLI                                                                                                                           |
+| `.github/workflows/ci.yml`          | PR → `develop`/`main`; called by `deploy.yml` | **Branch policy** (PRs to `main` only from `develop`/`hotfix/*`) · lint · format · Sanity type drift · types · unit tests (coverage ≥ 80 %) · build both apps · E2E                                                                                        |
+| `.github/workflows/deploy.yml`      | push to `develop` / `main`                    | Full `ci.yml` again, then for **webapp + studio**, one at a time: `vercel pull` → `vercel build` → `vercel deploy --prebuilt` → `vercel inspect --wait` → (staging) `vercel alias set` → **smoke test**; (staging) **seed**: `pnpm studio:seed` (add only) |
+| `.github/dependabot.yml`            | weekly                                        | pnpm and GitHub Actions updates, PRs into `develop`                                                                                                                                                                                                        |
+| `vercel.json`, `studio/vercel.json` | read by Vercel                                | Build commands, Git auto-deploy **off**, Studio SPA rewrite                                                                                                                                                                                                |
 
 Why CI runs again after a merge: without branch protection anyone could push directly, and the
 merged commit is not always the commit that was tested in the PR.
@@ -710,12 +710,12 @@ answered `302` to a Vercel login page for everyone. Only the smoke test caught i
 
 ### 11.4 Sanity operations
 
-| Task                            | Command (inside `studio/`, after `pnpm exec sanity login`)                                                                                 |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| Refresh staging from production | `pnpm exec sanity dataset export production prod.tar.gz --no-drafts`, then `pnpm exec sanity dataset import prod.tar.gz staging --replace` |
-| Fill staging with demo content  | `pnpm studio:seed` (repo root, [§8.0](#80-content-in-sanity)); after a refresh from production use `--missing` to keep the copied content  |
-| List datasets                   | `pnpm exec sanity dataset list`                                                                                                            |
-| Export a backup                 | `pnpm exec sanity dataset export production backup.tar.gz`                                                                                 |
+| Task                            | Command (inside `studio/`, after `pnpm exec sanity login`)                                                                                                 |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Refresh staging from production | `pnpm exec sanity dataset export production prod.tar.gz --no-drafts`, then `pnpm exec sanity dataset import prod.tar.gz staging --replace`                 |
+| Fill staging with demo content  | `pnpm studio:seed` (repo root, [§8.0](#80-content-in-sanity)); after a refresh from production never use `--reset` (it would overwrite the copied content) |
+| List datasets                   | `pnpm exec sanity dataset list`                                                                                                                            |
+| Export a backup                 | `pnpm exec sanity dataset export production backup.tar.gz`                                                                                                 |
 
 **Sitemap freshness.** Published pages and offers enter `/sitemap.xml` at build time, so they are
 listed after the next deploy. If Sanity can't be reached during the build, the build **fails** rather

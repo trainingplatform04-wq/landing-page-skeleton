@@ -3,9 +3,9 @@
  * Run with `sanity exec … --with-user-token`: it writes as the logged-in Sanity user
  * (`pnpm exec sanity login`, inside studio/), or with `SANITY_AUTH_TOKEN` in the pipeline.
  *
- *   pnpm studio:seed                  sync: staging matches seed.data.ts (see seed.plan.ts)
- *   pnpm studio:seed --missing        only add what is new, keep editors' changes (pipeline)
- *   pnpm studio:seed --dry-run        print the plan, write nothing
+ *   pnpm studio:seed                  add what is new, keep editors' changes (also the pipeline)
+ *   pnpm studio:seed --reset          staging matches seed.data.ts, editors' changes discarded
+ *   pnpm studio:seed --dry-run        print the plan, write nothing (with either mode)
  */
 import { getCliClient } from 'sanity/cli'
 
@@ -18,7 +18,8 @@ import { MANIFEST_ID, planSeed, type SeedManifest } from './seed.plan'
 const SEEDABLE_DATASETS = ['staging']
 
 const args = process.argv.slice(2)
-const mode = args.includes('--missing') ? 'missing' : 'sync'
+// The destructive mode is never the default: staging is shared with the client.
+const mode = args.includes('--reset') ? 'reset' : 'add'
 const dryRun = args.includes('--dry-run')
 const log = (line: string) => process.stdout.write(`${line}\n`)
 const list = (items: string[]) => (items.length ? items.join(', ') : 'none')
@@ -64,8 +65,8 @@ const plan = planSeed(documents, manifest ?? null, mode, new Set(existing))
 log(`[seed] ${projectId}/${dataset} · mode ${mode}${dryRun ? ' · dry run' : ''}`)
 log(`[seed] ${documents.length} documents, ${SEED_IMAGES.length} images`)
 log(`[seed] new documents: ${list(plan.created)}`)
-if (mode === 'missing') log(`[seed] new fields: ${list(plan.filled)}`)
-if (mode === 'sync') log(`[seed] deleted (removed from seed.data.ts): ${list(plan.removed)}`)
+if (mode === 'add') log(`[seed] new fields: ${list(plan.filled)}`)
+if (mode === 'reset') log(`[seed] deleted (removed from seed.data.ts): ${list(plan.removed)}`)
 
 if (!dryRun) {
   // One transaction: the dataset gets the whole seed or nothing.

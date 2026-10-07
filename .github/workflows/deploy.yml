@@ -119,7 +119,7 @@ jobs:
 
   # Staging only: adds the demo content that is new in studio/seed/seed.data.ts (new
   # documents, new fields) and keeps everything editors changed, emptied or deleted.
-  # Never deletes; a full reset stays a deliberate `pnpm studio:seed` from a laptop.
+  # Never deletes; a full reset stays a deliberate `pnpm studio:seed --reset` from a laptop.
   # After the deploy, so the new Studio schema is live before its content arrives.
   seed:
     name: Seed staging (new demo content)
@@ -149,7 +149,7 @@ jobs:
           SANITY_AUTH_TOKEN: ${{ secrets.SANITY_TOKEN }}
         run: |
           [ -n "$SANITY_AUTH_TOKEN" ] || { echo "::error::Secret SANITY_TOKEN is missing (docs/deployment/DEPLOYMENT.md §6.2)."; exit 1; }
-          pnpm studio:seed --missing
+          pnpm studio:seed
 
   smoke:
     name: Smoke test

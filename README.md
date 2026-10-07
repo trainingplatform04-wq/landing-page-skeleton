@@ -45,20 +45,20 @@ pnpm install
 
 ## Scripts
 
-| Script                                       | What it does                                                                       |
-| -------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `pnpm dev`                                   | Web app + Studio in watch mode                                                     |
-| `pnpm build` / `pnpm preview`                | Production build of the web app / serve it locally                                 |
-| `pnpm build:e2e`                             | Production build against the fixture CMS, for `CI=1 pnpm test:e2e`                 |
-| `pnpm studio:build`                          | Production build of the Studio                                                     |
-| `pnpm studio:seed`                           | Fill the `staging` dataset with demo content (`--missing`, `--dry-run`, see below) |
-| `pnpm typegen`                               | Regenerate `types/sanity.types.ts` (schema types) from the Studio schema           |
-| `pnpm lint` / `lint:fix`                     | ESLint                                                                             |
-| `pnpm format` / `format:check`               | Prettier                                                                           |
-| `pnpm typecheck`                             | `vue-tsc` for the web app + `tsc` for the Studio                                   |
-| `pnpm test` / `test:watch` / `test:coverage` | Vitest (`unit` + `nuxt` projects, coverage ≥ 80 %)                                 |
-| `pnpm test:e2e`                              | Playwright: dev server locally; `CI=1` after `pnpm build:e2e` (as in CI)           |
-| `pnpm test:smoke`                            | Playwright smoke suite against `PLAYWRIGHT_BASE_URL`                               |
+| Script                                       | What it does                                                                     |
+| -------------------------------------------- | -------------------------------------------------------------------------------- |
+| `pnpm dev`                                   | Web app + Studio in watch mode                                                   |
+| `pnpm build` / `pnpm preview`                | Production build of the web app / serve it locally                               |
+| `pnpm build:e2e`                             | Production build against the fixture CMS, for `CI=1 pnpm test:e2e`               |
+| `pnpm studio:build`                          | Production build of the Studio                                                   |
+| `pnpm studio:seed`                           | Fill the `staging` dataset with demo content (`--reset`, `--dry-run`, see below) |
+| `pnpm typegen`                               | Regenerate `types/sanity.types.ts` (schema types) from the Studio schema         |
+| `pnpm lint` / `lint:fix`                     | ESLint                                                                           |
+| `pnpm format` / `format:check`               | Prettier                                                                         |
+| `pnpm typecheck`                             | `vue-tsc` for the web app + `tsc` for the Studio                                 |
+| `pnpm test` / `test:watch` / `test:coverage` | Vitest (`unit` + `nuxt` projects, coverage ≥ 80 %)                               |
+| `pnpm test:e2e`                              | Playwright: dev server locally; `CI=1` after `pnpm build:e2e` (as in CI)         |
+| `pnpm test:smoke`                            | Playwright smoke suite against `PLAYWRIGHT_BASE_URL`                             |
 
 ## Demo content (staging)
 
@@ -69,8 +69,8 @@ staging Studio or site right after and everything is there. It needs `pnpm exec 
 
 | Command                      | Effect                                                                                                         |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `pnpm studio:seed`           | Staging matches the seed file: demo documents reset, new ones added, ones removed from the file deleted        |
-| `pnpm studio:seed --missing` | Only adds what is new in the seed file (documents, fields): editors' changes stay. Run by every staging deploy |
+| `pnpm studio:seed`           | Adds what is new in the seed file (documents, fields): editors' changes stay. Also run by every staging deploy |
+| `pnpm studio:seed --reset`   | Staging matches the seed file: demo documents reset, editors' changes on them discarded, removed ones deleted  |
 | `pnpm studio:seed --dry-run` | Prints what would change, writes nothing                                                                       |
 
 Running it again never creates duplicates: each demo document has a fixed id. Documents editors
