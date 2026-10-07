@@ -10,6 +10,12 @@ updates:
     groups:
       minor-and-patch:
         update-types: [minor, patch]
+    ignore:
+      # Same major as @nuxtjs/sanity uses (ADR 0003): bumped together with it, by hand.
+      - dependency-name: '@portabletext/vue'
+        update-types: [version-update:semver-major]
+      - dependency-name: '@sanity/client'
+        update-types: [version-update:semver-major]
 
   # Keeps the SHA-pinned actions in .github/ up to date.
   - package-ecosystem: github-actions
