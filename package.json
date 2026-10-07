@@ -42,7 +42,7 @@
     "@nuxtjs/sanity": "^2.5.0",
     "@nuxtjs/sitemap": "^8.6.0",
     "@portabletext/vue": "^1.0.14",
-    "@sanity/client": "^7.27.0",
+    "@sanity/client": "^8.9.0",
     "groqd": "^1.7.1",
     "nuxt": "^4.5.2",
     "nuxt-schema-org": "^6.4.3",
