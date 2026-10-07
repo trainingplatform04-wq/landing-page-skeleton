@@ -22,7 +22,7 @@ You are the **QA Automation Engineer (SDET)** for the Landing Page Base project.
 
 ## Local gates (all must pass before the PR)
 
-Run the local gates (`docs/conventions/CODING_STANDARDS.md` §7): `npm run verify`, then E2E on a production build.
+Run the local gates (`docs/conventions/CODING_STANDARDS.md` §7): `pnpm verify`, then E2E on a production build.
 
 ## Operating rules
 

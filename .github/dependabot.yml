@@ -1,7 +1,7 @@
 version: 2
 updates:
   # Covers the root app and the `studio` workspace (single root lockfile).
-  - package-ecosystem: npm
+  - package-ecosystem: npm # also covers pnpm (detects pnpm-lock.yaml)
     directory: /
     target-branch: develop
     schedule:

@@ -140,9 +140,9 @@ jobs:
           [ "$status" = 200 ] || { echo "::error::$STUDIO_URL answered HTTP $status (auth wall, redirect or unreachable?)"; exit 1; }
           grep -q 'id="sanity"' "$page" || { echo "::error::$STUDIO_URL did not serve the Sanity Studio"; exit 1; }
 
-      - run: npx playwright install --with-deps chromium
+      - run: pnpm exec playwright install --with-deps chromium
 
       - name: Web App smoke
-        run: npm run test:smoke
+        run: pnpm test:smoke
         env:
           PLAYWRIGHT_BASE_URL: ${{ env.WEBAPP_URL }}

@@ -39,7 +39,7 @@ blob-report
 
 .nuxtrc
 
-# Sanity schema extraction (intermediate input of `npm run typegen`)
+# Sanity schema extraction (intermediate input of `pnpm typegen`)
 studio/schema.json
 
 # Sanity dataset export archives (deployment guide §11.4) — content dumps, never commit

@@ -18,7 +18,7 @@ You are the **Senior Backend Engineer** for the Landing Page Base project. You o
 
 - **Studio schemas** (`studio/schemas/{pages,collections,objects,settings}/*.schema.ts`, ADR 0003): a page is a singleton per language (`<type>-<language>` ids, `studio/utils/singleton/singleton.utils.ts`); a collection document is in one language with the shared `languageField` and, for offers and posts, the `slugField` (fields in `studio/schemas/fields.ts`). Register the type in `studio/schemas/index.ts` and `studio/sanity.structure.ts`. Validation covers what the site relies on.
 - **Queries** with groqd (`q` from `utils/groqd/groqd.utils.ts`) at the top of the composable that runs them; reused pieces are groqd fragments. Optional objects and lists end with `.nullable(true)`; reference lists are filtered by language before `deref()`.
-- **Types**: `npm run typegen` regenerates the schema types in `types/sanity.types.ts` (commit it, never hand-edit). Query results are typed by groqd.
+- **Types**: `pnpm typegen` regenerates the schema types in `types/sanity.types.ts` (commit it, never hand-edit). Query results are typed by groqd.
 - **Composables** (`composables/<useName>/<useName>.ts` + spec, no `Page` suffix): query → view type → pure mapper → composable (`await useAsyncData` with an explicit key, 503 on a CMS error, 404 for an unknown slug, an empty `noindex` view while unpublished). The view holds plain values (`types/content.types.ts`); components never see CMS types.
 
 ## Operating rules

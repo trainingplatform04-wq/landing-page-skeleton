@@ -17,29 +17,46 @@ A small, production-grade Nuxt 4 + Sanity skeleton for multi-language landing pa
 
 ```bash
 nvm use 24                             # Node 24 (.nvmrc)
-npm install                            # installs the web app and the Studio (npm workspaces)
+npm install --global pnpm              # once per machine, any version (see below)
+pnpm install                           # installs the web app and the Studio (pnpm workspace)
 cp .env.example .env                   # web app → staging dataset
 cp studio/.env.example studio/.env     # Studio  → staging dataset
 # then set your Sanity project ID: NUXT_PUBLIC_SANITY_PROJECT_ID in .env, SANITY_STUDIO_PROJECT_ID in studio/.env
-npx sanity login                       # once, for the Studio
-npm run dev                            # web http://localhost:3000 · Studio http://localhost:3333
+pnpm exec sanity login                 # once, for the Studio
+pnpm dev                               # web http://localhost:3000 · Studio http://localhost:3333
+```
+
+### Package manager: pnpm only
+
+- **One version for everyone**: `package.json` pins pnpm (`packageManager` for pnpm ≤ 10, `devEngines` for pnpm ≥ 11). Whatever pnpm you have
+  installed downloads and uses that exact version inside this repo, so nobody has to upgrade by hand.
+  CI reads the same field.
+- **npm is blocked**: `npm install` fails on purpose (`EBADDEVENGINES`, set by `devEngines`).
+- **Workspace settings** (Studio workspace, `overrides`, dependencies allowed to run install
+  scripts) live in `pnpm-workspace.yaml`. `pnpm-lock.yaml` is the same on every OS: commit it as is.
+
+Switching a clone that was installed with npm (once, in the repo root, any OS):
+
+```bash
+node -e "for (const d of ['node_modules', 'studio/node_modules', 'package-lock.json']) require('fs').rmSync(d, { recursive: true, force: true })"
+pnpm install
 ```
 
 ## Scripts
 
-| Script                                      | What it does                                                                |
-| ------------------------------------------- | --------------------------------------------------------------------------- |
-| `npm run dev`                               | Web app + Studio in watch mode                                              |
-| `npm run build` / `npm run preview`         | Production build of the web app / serve it locally                          |
-| `npm run build:e2e`                         | Production build against the fixture CMS, for `CI=1 npm run test:e2e`       |
-| `npm run studio:build`                      | Production build of the Studio                                              |
-| `npm run typegen`                           | Regenerate `types/sanity.types.ts` (schema types) from the Studio schema    |
-| `npm run lint` / `lint:fix`                 | ESLint                                                                      |
-| `npm run format` / `format:check`           | Prettier                                                                    |
-| `npm run typecheck`                         | `vue-tsc` for the web app + `tsc` for the Studio                            |
-| `npm test` / `test:watch` / `test:coverage` | Vitest (`unit` + `nuxt` projects, coverage ≥ 80 %)                          |
-| `npm run test:e2e`                          | Playwright: dev server locally; `CI=1` after `npm run build:e2e` (as in CI) |
-| `npm run test:smoke`                        | Playwright smoke suite against `PLAYWRIGHT_BASE_URL`                        |
+| Script                                       | What it does                                                             |
+| -------------------------------------------- | ------------------------------------------------------------------------ |
+| `pnpm dev`                                   | Web app + Studio in watch mode                                           |
+| `pnpm build` / `pnpm preview`                | Production build of the web app / serve it locally                       |
+| `pnpm build:e2e`                             | Production build against the fixture CMS, for `CI=1 pnpm test:e2e`       |
+| `pnpm studio:build`                          | Production build of the Studio                                           |
+| `pnpm typegen`                               | Regenerate `types/sanity.types.ts` (schema types) from the Studio schema |
+| `pnpm lint` / `lint:fix`                     | ESLint                                                                   |
+| `pnpm format` / `format:check`               | Prettier                                                                 |
+| `pnpm typecheck`                             | `vue-tsc` for the web app + `tsc` for the Studio                         |
+| `pnpm test` / `test:watch` / `test:coverage` | Vitest (`unit` + `nuxt` projects, coverage ≥ 80 %)                       |
+| `pnpm test:e2e`                              | Playwright: dev server locally; `CI=1` after `pnpm build:e2e` (as in CI) |
+| `pnpm test:smoke`                            | Playwright smoke suite against `PLAYWRIGHT_BASE_URL`                     |
 
 ## Documentation
 

@@ -15,6 +15,7 @@ export default defineConfig({
             'utils/**/*.spec.ts',
             'studio/utils/**/*.spec.ts',
             'tests/orchestration/**/*.spec.ts',
+            'tests/tooling/**/*.spec.ts',
           ],
         },
       },

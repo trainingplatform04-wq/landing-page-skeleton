@@ -1,0 +1,17 @@
+packages:
+  - studio
+
+# Scoped pins for transitive security advisories (was `overrides` in package.json).
+overrides:
+  adm-zip: 0.6.1
+  js-yaml@^3: 3.15.2
+  smol-toml: 1.9.0
+  undici@^7: 7.30.0
+  uuid@^10: 11.1.1
+  fontless>esbuild: 0.28.2
+
+# pnpm runs no dependency install scripts unless listed here (supply-chain hardening).
+allowBuilds:
+  esbuild: true
+  vue-demi: true
+  unrs-resolver: false

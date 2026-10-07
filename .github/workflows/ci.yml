@@ -45,18 +45,18 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup
-      - run: npm run lint
-      - run: npm run format:check
+      - run: pnpm lint
+      - run: pnpm format:check
 
       # Generated CMS types must match the schema + queries in this commit.
       - name: Sanity types are up to date
         run: |
-          npm run typegen
+          pnpm typegen
           git diff --exit-code -- types/sanity.types.ts \
-            || { echo "::error::types/sanity.types.ts is stale. Run 'npm run typegen' and commit."; exit 1; }
+            || { echo "::error::types/sanity.types.ts is stale. Run 'pnpm typegen' and commit."; exit 1; }
 
-      - run: npm run typecheck
-      - run: npm run test:coverage
+      - run: pnpm typecheck
+      - run: pnpm test:coverage
 
   build-e2e:
     name: Build · E2E
@@ -82,11 +82,11 @@ jobs:
       - name: Build Studio
         run: |
           set -a; source studio/.env; set +a
-          npm run studio:build
+          pnpm studio:build
 
       # Against the fixture CMS (build-time sitemap included): E2E never depends on staging.
       - name: Build Web App
-        run: npm run build:e2e
+        run: pnpm build:e2e
         env:
           # The pulled .env contains VERCEL=1; force a runnable Node server for E2E.
           NITRO_PRESET: node-server
@@ -96,17 +96,17 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install Playwright
         run: |
           if [ "${{ steps.pw-cache.outputs.cache-hit }}" = "true" ]; then
-            npx playwright install-deps chromium
+            pnpm exec playwright install-deps chromium
           else
-            npx playwright install --with-deps chromium
+            pnpm exec playwright install --with-deps chromium
           fi
 
-      - run: npm run test:e2e
+      - run: pnpm test:e2e
 
       - name: Upload Playwright report
         if: failure()

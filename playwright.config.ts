@@ -6,7 +6,7 @@ import { FIXTURE_CMS_ENV, SANITY_MOCK_URL } from './tests/e2e/sanity/fixtureCms.
 // instead of booting a local server.
 const remoteBaseUrl = process.env.PLAYWRIGHT_BASE_URL
 
-// Local runs: the app on its own port (never reuses your `npm run dev`), reading
+// Local runs: the app on its own port (never reuses your `pnpm dev`), reading
 // fixture content from a local GROQ server instead of the live CMS
 // (tests/e2e/sanity/server.ts). Deterministic, no seed, no editor content needed.
 const APP_PORT = 3100
@@ -41,7 +41,7 @@ export default defineConfig({
           url: `${SANITY_MOCK_URL}/health`,
         },
         {
-          command: process.env.CI ? 'npm run preview' : `npx nuxt dev --port ${APP_PORT}`,
+          command: process.env.CI ? 'pnpm preview' : `pnpm exec nuxt dev --port ${APP_PORT}`,
           port: APP_PORT,
           env: {
             PORT: String(APP_PORT),

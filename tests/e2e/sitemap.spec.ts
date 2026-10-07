@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-// Built from the test CMS when building for production (npm run build:e2e): the dev
+// Built from the test CMS when building for production (pnpm build:e2e): the dev
 // server never reads the CMS for the sitemap.
 test.describe('Sitemap', () => {
   test.skip(!process.env.CI, 'The sitemap is built from the CMS at build time: run with CI=1')

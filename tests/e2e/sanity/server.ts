@@ -3,7 +3,7 @@
  *
  * The app keeps its real Sanity client and its real GROQ queries; only the API host
  * points here (`fixtureCms.ts`, used by playwright.config.ts and the build-time sitemap
- * of `npm run build:e2e`). Queries are executed by groq-js, Sanity's own
+ * of `pnpm build:e2e`). Queries are executed by groq-js, Sanity's own
  * GROQ engine, against the documents of fixtures.ts. E2E is therefore deterministic
  * and never depends on what editors published. Live Sanity is checked by the
  * post-deploy smoke test (tests/e2e/smoke.spec.ts), which doesn't depend on content.
