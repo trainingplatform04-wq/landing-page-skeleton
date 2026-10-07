@@ -1,11 +1,11 @@
 /**
- * Production build for the E2E suite (`npm run build:e2e`, CI and local gates).
+ * Production build for the E2E suite (`pnpm build:e2e`, CI and local gates).
  *
  * The sitemap reads Sanity at build time, so the build gets the same fixture CMS as the
  * app at runtime (tests/e2e/sanity/server.ts): E2E stays hermetic and never depends on
  * staging content or availability. Deployments build with `vercel build` instead.
  *
- * Run by npm: `node tests/e2e/build.ts` (Node strips the types).
+ * Run by pnpm: `node tests/e2e/build.ts` (Node strips the types).
  */
 import { execSync, spawn } from 'node:child_process'
 import { get } from 'node:http'
@@ -32,7 +32,7 @@ const server = spawn(process.execPath, ['tests/e2e/sanity/server.ts'], { stdio: 
 
 try {
   await waitUntilUp()
-  execSync('npx nuxt build', {
+  execSync('pnpm exec nuxt build', {
     stdio: 'inherit',
     env: { ...process.env, ...FIXTURE_CMS_ENV },
   })

@@ -78,7 +78,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-09-01',
 
   typescript: {
-    // The Studio is its own workspace with its own tsconfig (`npm run typecheck` runs both).
+    // The Studio is its own workspace with its own tsconfig (`pnpm typecheck` runs both).
     tsConfig: { exclude: ['../studio'] },
     // Files imported by this config use type-only `~/` imports (erased at runtime).
     nodeTsConfig: { exclude: ['../studio'], compilerOptions: { paths: { '~/*': ['../*'] } } },

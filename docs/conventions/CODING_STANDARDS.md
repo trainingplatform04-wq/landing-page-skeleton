@@ -40,11 +40,11 @@
 
 ## 6. Tests
 
-- ✅ Co-located `*.spec.ts`; coverage ≥ 80 % (`npm run test:coverage`).
+- ✅ Co-located `*.spec.ts`; coverage ≥ 80 % (`pnpm test:coverage`).
 - Pure functions → `unit` project (plain Node). Components/composables → `nuxt` project with `mountSuspended` (real i18n, real Nuxt UI). Mock only external boundaries: the CMS (`useSanity`; answers shaped like `tests/helpers/cmsData.ts`). Never mock Nuxt runtime APIs (`useHead`, `useSeoMeta`, …); assert their real output (`tests/helpers/renderedHead.ts`).
 - Assert rendered text and attributes, not `wrapper.exists()`.
 - Test behaviour, not constants: a list or a config value is covered by the tests of the code that uses it.
-- E2E (`tests/e2e/`): CI (and `CI=1 npm run test:e2e` after `npm run build:e2e`) runs against a production build; plain `npm run test:e2e` uses the dev server for speed.
+- E2E (`tests/e2e/`): CI (and `CI=1 pnpm test:e2e` after `pnpm build:e2e`) runs against a production build; plain `pnpm test:e2e` uses the dev server for speed.
 - **E2E is hermetic.** The app reads its CMS content from `tests/e2e/sanity/server.ts`: the real queries run through groq-js (Sanity's GROQ engine) against the documents of `tests/e2e/sanity/fixtures.ts`, which also stands in for the contact form service. Tests never depend on what editors published. A new page or query gets its test documents there.
 - **Live Sanity** is covered by `smoke.spec.ts`, which runs against every deployment on every page and only checks things that don't depend on content (our app answered, no errors).
 
@@ -53,8 +53,8 @@
 Every agent and human runs exactly these before opening or updating a PR. CI runs the same checks.
 
 ```bash
-npm run verify                         # lint · format:check · typecheck · unit/component tests + coverage
-npm run build:e2e && CI=1 npm run test:e2e # E2E on a production build built against the fixture CMS
+pnpm verify                         # lint · format:check · typecheck · unit/component tests + coverage
+pnpm build:e2e && CI=1 pnpm test:e2e # E2E on a production build built against the fixture CMS
 ```
 
-After a schema change, run `npm run typegen` first and commit `types/sanity.types.ts`.
+After a schema change, run `pnpm typegen` first and commit `types/sanity.types.ts`.

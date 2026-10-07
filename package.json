@@ -2,14 +2,18 @@
   "name": "landing-page-base",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@11.28.2",
   "engines": {
     "node": "24.x"
   },
-  "workspaces": [
-    "studio"
-  ],
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "onFail": "error"
+    }
+  },
   "scripts": {
-    "dev": "concurrently --names web,studio --prefix-colors green,magenta \"nuxt dev\" \"npm run dev --workspace studio\"",
+    "dev": "concurrently --names web,studio --prefix-colors green,magenta \"nuxt dev\" \"pnpm --filter landing-page-studio dev\"",
     "build": "nuxt build",
     "build:e2e": "node tests/e2e/build.ts",
     "preview": "nuxt preview",
@@ -19,15 +23,15 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "nuxt typecheck && npm run typecheck --workspace studio",
-    "verify": "npm run lint && npm run format:check && npm run typecheck && npm run test:coverage",
-    "typegen": "npm run typegen --workspace studio",
+    "typecheck": "nuxt typecheck && pnpm --filter landing-page-studio typecheck",
+    "verify": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm test:coverage",
+    "typegen": "pnpm --filter landing-page-studio typegen",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:smoke": "playwright test smoke",
-    "studio:build": "npm run build --workspace studio"
+    "studio:build": "pnpm --filter landing-page-studio build"
   },
   "dependencies": {
     "@nuxt/image": "^2.1.0",
@@ -63,15 +67,5 @@
     "typescript": "~6.0.3",
     "vitest": "^5.0.2",
     "vue-tsc": "^3.3.11"
-  },
-  "overrides": {
-    "adm-zip": "0.6.1",
-    "js-yaml@^3": "3.15.2",
-    "smol-toml": "1.9.0",
-    "undici@^7": "7.30.0",
-    "uuid@^10": "11.1.1",
-    "fontless": {
-      "esbuild": "0.28.2"
-    }
   }
 }

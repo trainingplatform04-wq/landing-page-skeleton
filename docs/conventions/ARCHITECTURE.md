@@ -50,7 +50,7 @@ Every page composable has the same four parts, top to bottom (see `composables/u
 3. **The mapper**: a pure function from the CMS data to the view (links resolved, prices and dates formatted in the business time zone, images flattened). Tested through the composable's spec.
 4. **The composable**: `await useAsyncData(key, fetch)`, then 503 on a CMS error (404 for an unknown offer slug), then the mapper.
 
-- **Types**: `npm run typegen` generates the Sanity schema types (`types/sanity.types.ts`) that groqd uses; query results are typed by groqd itself.
+- **Types**: `pnpm typegen` generates the Sanity schema types (`types/sanity.types.ts`) that groqd uses; query results are typed by groqd itself.
 - **One language per request** ([ADR 0001](../adr/0001-i18n-translated-urls.md)): every query filters `language == $locale`.
 - **`await` in `<script setup>`**: the server sends complete HTML with the right status code, which search engines need.
 - **The layout** (`useLayout`) loads the footer note, the business profile and which legal pages exist. It never throws: on a CMS error the frame shows what the code knows.

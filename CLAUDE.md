@@ -35,7 +35,7 @@ Principles: **KISS & SOLID**, **co-location** (`composables/<useName>/<useName>.
 
 - **No APIs**: never create `server/api/` routes. This is a frontend layer.
 - **Data access only in composables**: `useSanity()` + `useAsyncData` live in `composables/`. Components, pages and layouts calling them fail lint.
-- **Queries** are written with groqd at the top of the composable that runs them; shared pieces are fragments in `utils/groqd/groqd.utils.ts`. A page composable returns one view of plain values; components never see CMS types. After changing a schema: `npm run typegen` and commit `types/sanity.types.ts`.
+- **Queries** are written with groqd at the top of the composable that runs them; shared pieces are fragments in `utils/groqd/groqd.utils.ts`. A page composable returns one view of plain values; components never see CMS types. After changing a schema: `pnpm typegen` and commit `types/sanity.types.ts`.
 - **Translated content** ([ADR 0001](docs/adr/0001-i18n-translated-urls.md)): **every document with text is in one language** (`language` field; every query filters `language == $locale`). No field-level translation.
 - **Skeleton** ([ADR 0003](docs/adr/0003-structured-content.md), [ADR 0004](docs/adr/0004-skeleton-scope-and-data-flow.md)): 7 pages; code owns pages, routes, layout and menu; Sanity owns their content (one document per page and language) and the collections editors create (offers, testimonials, FAQ). No page builder, no seed, no sample content. Translated paths are declared once in `constants/routes.constants.ts`; editors own only the slug of an offer.
 - **Imports**: Vue/Nuxt APIs are auto-imported; project code (composables, utils, constants) is imported explicitly from its `~/` file.
@@ -49,7 +49,7 @@ Principles: **KISS & SOLID**, **co-location** (`composables/<useName>/<useName>.
 For a request, `/feature`, or a task file (e.g. "Implement `docs/tasks/<name>.md`"), run the single pipeline [`.ai/shared/workflows/feature-orchestration.md`](.ai/shared/workflows/feature-orchestration.md):
 
 1. **Scope** (task file) → **Plan** → 🚦 **Gate G1: wait for human approval**.
-2. **Implement** on `feat/<name>` from `develop` → local gates (`npm run verify` + E2E, defined once in `docs/conventions/CODING_STANDARDS.md` §7).
+2. **Implement** on `feat/<name>` from `develop` → local gates (`pnpm verify` + E2E, defined once in `docs/conventions/CODING_STANDARDS.md` §7).
 3. **PR** into `develop` → [review loop](.ai/shared/workflows/code-review-loop.md) with a **fresh reviewer subagent** each round, until `APPROVED` (every comment resolved, max 3 rounds).
 4. **Merge** (squash) after green CI → verify the staging deploy. Blockers are reported, never held.
 5. **Production**: [`release.md`](.ai/shared/workflows/release.md), 🚦 **Gate G2: human "go"**.

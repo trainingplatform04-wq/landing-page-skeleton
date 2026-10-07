@@ -30,7 +30,7 @@ export default defineCliConfig({
     dataset: process.env.SANITY_STUDIO_DATASET,
   },
 
-  // `npm run typegen` → schema.json → types/sanity.types.ts: the schema types groqd uses
+  // `pnpm typegen` → schema.json → types/sanity.types.ts: the schema types groqd uses
   // to autocomplete and type the queries (the queries themselves are not scanned).
   schemaExtraction: {
     path: 'schema.json',

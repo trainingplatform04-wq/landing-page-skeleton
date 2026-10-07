@@ -132,12 +132,12 @@ Every environment always gets **both** apps, deployed together from the same com
 | Git                   | <https://git-scm.com/downloads>                                                                                                                                                                   | `git --version`     |
 | Node.js **24**        | via a version manager: [nvm-windows](https://github.com/coreybutler/nvm-windows/releases) (Windows) or [nvm](https://github.com/nvm-sh/nvm) (macOS/Linux), then `nvm install 24` and `nvm use 24` | `node -v` → `v24.x` |
 | GitHub CLI (optional) | <https://cli.github.com>                                                                                                                                                                          | `gh --version`      |
-| Docker (optional)     | <https://docs.docker.com/get-docker/> (only to regenerate the lockfile, [§12.8](#128-ci-fails-with-missing--from-lock-file))                                                                      | `docker --version`  |
+| pnpm                  | `npm install --global pnpm` (any version: inside the repo it switches itself to the one pinned by `packageManager` in `package.json`)                                                             | `pnpm -v`           |
 
 You do **not** need the Vercel CLI on your laptop: only the pipeline deploys.
 
 > 🪟 **Windows:** run every command in this guide in **Git Bash** (installed with Git), not in
-> PowerShell or `cmd`. Commands such as `cp`, `CI=1 npm run …` and `MSYS_NO_PATHCONV=1 …` only work
+> PowerShell or `cmd`. Commands such as `cp`, `CI=1 pnpm …` and `MSYS_NO_PATHCONV=1 …` only work
 > in a POSIX shell.
 
 ### 1.3 Your setup notebook
@@ -187,9 +187,9 @@ Why public? The website only **reads published** content and must work **without
 CLI alternative (from `studio/`, after Part 7):
 
 ```bash
-npx sanity login
-npx sanity dataset create staging --visibility public
-npx sanity dataset visibility set production public
+pnpm exec sanity login
+pnpm exec sanity dataset create staging --visibility public
+pnpm exec sanity dataset visibility set production public
 ```
 
 ### 2.3 CORS origins (who may call Sanity from a browser)
@@ -242,7 +242,7 @@ Project page → **Members** → **Invite members** → email + role (**Editor**
    - **Project Name:** `landing-page-base-webapp`
    - **Framework Preset:** `Nuxt.js`
    - **Root Directory:** `./` (leave as is)
-   - Build/Install commands: leave defaults (`vercel.json` pins `npm run build` and `npm ci`).
+   - Build/Install commands: leave defaults (`vercel.json` pins `pnpm build` and `pnpm install --frozen-lockfile`).
    - Environment Variables: skip for now (Part 3.2).
 4. Click **Deploy**. This first deployment will **fail** with `Missing required env: …`: that is
    expected and harmless (the build refuses to run without its configuration). Click
@@ -336,7 +336,7 @@ Same repository, imported a **second** time, with a different root directory.
    - **Project Name:** `landing-page-base-studio`
    - **Root Directory:** click **Edit** → select **`studio`** → **Continue**. ⚠️ Most important setting.
    - **Framework Preset:** `Sanity` (or `Other`). The build and output are pinned in `studio/vercel.json`
-     (`npm run build` → `dist/`, plus a rewrite so Studio deep links survive a page refresh).
+     (`pnpm build` → `dist/`, plus a rewrite so Studio deep links survive a page refresh).
 3. **Deploy** → it fails with `[studio] Missing or invalid env`: expected. Open the project.
 
 ### 4.2 Environment variables
@@ -460,7 +460,8 @@ On GitHub Free (private repo) you can't enforce branch protection. The team rule
 git clone https://github.com/<owner>/<repo>.git
 cd <repo>
 nvm use 24                           # Node 24, as in .nvmrc
-npm install                          # installs the web app and the studio workspace
+npm install --global pnpm            # once per machine; pnpm then uses the version pinned in package.json
+pnpm install                         # installs the web app and the studio workspace
 
 cp .env.example .env                 # NUXT_PUBLIC_* (dataset: staging)
 cp studio/.env.example studio/.env   # SANITY_STUDIO_* (dataset: staging)
@@ -469,15 +470,15 @@ cp studio/.env.example studio/.env   # SANITY_STUDIO_* (dataset: staging)
 Open both `.env` files and set the project ID to N1. Then:
 
 ```bash
-cd studio && npx sanity login && cd ..   # once: opens the browser to log into Sanity
-npm run dev                              # web → http://localhost:3000 · studio → http://localhost:3333
+cd studio && pnpm exec sanity login && cd ..   # once: opens the browser to log into Sanity
+pnpm dev                              # web → http://localhost:3000 · studio → http://localhost:3333
 ```
 
 Check: <http://localhost:3000> shows the home page (placeholder text until an editor publishes it), <http://localhost:3333> asks you
 to log in, then shows the content tree.
 
-Alternative to copying `.env` files: `npx vercel link` then
-`npx vercel env pull .env --environment=development` (and the same inside `studio/`).
+Alternative to copying `.env` files: `pnpm dlx vercel@61.0.0 link` then
+`pnpm dlx vercel@61.0.0 env pull .env --environment=development` (and the same inside `studio/`).
 
 > Never point your laptop at `production`. `.env` files are git-ignored: never commit them.
 
@@ -568,8 +569,8 @@ anything to compare"_). Land **one change on `develop` first**, through the norm
    - [ ] **Production content is empty at first**: editors fill it in the production Studio, or copy the published staging content once (inside `studio/`):
 
      ```bash
-     npx sanity dataset export staging staging.tar.gz --no-drafts
-     npx sanity dataset import staging.tar.gz production --replace   # ⚠️ overwrites documents with the same IDs
+     pnpm exec sanity dataset export staging staging.tar.gz --no-drafts
+     pnpm exec sanity dataset import staging.tar.gz production --replace   # ⚠️ overwrites documents with the same IDs
      ```
 
    - [ ] `N5/robots.txt` allows indexing and points to `N5/sitemap.xml`.
@@ -580,19 +581,19 @@ anything to compare"_). Land **one change on `develop` first**, through the norm
 
 ## Part 10: Daily workflow
 
-| You want to…            | Do                                                                                                   | Result                           |
-| ----------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------- |
-| Build a feature         | Branch `feat/<name>` from `develop` → PR into `develop` → CI green + review → **squash merge**       | Staging deploys automatically    |
-| Release to production   | PR `develop` → `main` → CI green → **merge commit**                                                  | Production deploys automatically |
-| Fix production urgently | [§12.2](#122-hotfix)                                                                                 |                                  |
-| Change content          | In the Studio (staging Studio for tests, production Studio for real content). No deploy needed.      | Live within about a minute       |
-| Change the schema       | Edit `studio/schemas/` → `npm run typegen` → commit `types/sanity.types.ts`. CI fails if you forget. | Deployed with the next release   |
+| You want to…            | Do                                                                                                | Result                           |
+| ----------------------- | ------------------------------------------------------------------------------------------------- | -------------------------------- |
+| Build a feature         | Branch `feat/<name>` from `develop` → PR into `develop` → CI green + review → **squash merge**    | Staging deploys automatically    |
+| Release to production   | PR `develop` → `main` → CI green → **merge commit**                                               | Production deploys automatically |
+| Fix production urgently | [§12.2](#122-hotfix)                                                                              |                                  |
+| Change content          | In the Studio (staging Studio for tests, production Studio for real content). No deploy needed.   | Live within about a minute       |
+| Change the schema       | Edit `studio/schemas/` → `pnpm typegen` → commit `types/sanity.types.ts`. CI fails if you forget. | Deployed with the next release   |
 
 Before opening or updating a PR, run the same checks as CI:
 
 ```bash
-npm run verify                          # lint · format · types · unit tests + coverage
-npm run build:e2e && CI=1 npm run test:e2e  # E2E against a production build (fixture CMS)
+pnpm verify                          # lint · format · types · unit tests + coverage
+pnpm build:e2e && CI=1 pnpm test:e2e  # E2E against a production build (fixture CMS)
 ```
 
 ---
@@ -640,10 +641,10 @@ npm run build:e2e && CI=1 npm run test:e2e  # E2E against a production build (fi
 
 | File                                | Trigger                                       | What it does                                                                                                                                                                                            |
 | ----------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.github/actions/setup/action.yml`  | used by every job                             | Node from `.nvmrc`, cached `npm ci`, optionally the **pinned** Vercel CLI                                                                                                                               |
+| `.github/actions/setup/action.yml`  | used by every job                             | pnpm from `packageManager`, Node from `.nvmrc`, cached `pnpm install --frozen-lockfile`, optionally the **pinned** Vercel CLI                                                                           |
 | `.github/workflows/ci.yml`          | PR → `develop`/`main`; called by `deploy.yml` | **Branch policy** (PRs to `main` only from `develop`/`hotfix/*`) · lint · format · Sanity type drift · types · unit tests (coverage ≥ 80 %) · build both apps · E2E                                     |
 | `.github/workflows/deploy.yml`      | push to `develop` / `main`                    | Full `ci.yml` again, then for **webapp + studio**, one at a time: `vercel pull` → `vercel build` → `vercel deploy --prebuilt` → `vercel inspect --wait` → (staging) `vercel alias set` → **smoke test** |
-| `.github/dependabot.yml`            | weekly                                        | npm and GitHub Actions updates, PRs into `develop`                                                                                                                                                      |
+| `.github/dependabot.yml`            | weekly                                        | pnpm and GitHub Actions updates, PRs into `develop`                                                                                                                                                     |
 | `vercel.json`, `studio/vercel.json` | read by Vercel                                | Build commands, Git auto-deploy **off**, Studio SPA rewrite                                                                                                                                             |
 
 Why CI runs again after a merge: without branch protection anyone could push directly, and the
@@ -680,11 +681,11 @@ answered `302` to a Vercel login page for everyone. Only the smoke test caught i
 
 ### 11.4 Sanity operations
 
-| Task                            | Command (inside `studio/`, after `npx sanity login`)                                                                           |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Refresh staging from production | `npx sanity dataset export production prod.tar.gz --no-drafts`, then `npx sanity dataset import prod.tar.gz staging --replace` |
-| List datasets                   | `npx sanity dataset list`                                                                                                      |
-| Export a backup                 | `npx sanity dataset export production backup.tar.gz`                                                                           |
+| Task                            | Command (inside `studio/`, after `pnpm exec sanity login`)                                                                                 |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Refresh staging from production | `pnpm exec sanity dataset export production prod.tar.gz --no-drafts`, then `pnpm exec sanity dataset import prod.tar.gz staging --replace` |
+| List datasets                   | `pnpm exec sanity dataset list`                                                                                                            |
+| Export a backup                 | `pnpm exec sanity dataset export production backup.tar.gz`                                                                                 |
 
 **Sitemap freshness.** Published pages and offers enter `/sitemap.xml` at build time, so they are
 listed after the next deploy. If Sanity can't be reached during the build, the build **fails** rather
@@ -763,14 +764,15 @@ All in one PR:
 
 Sanity → project → **Members** ([§2.5](#25-invite-the-editors)). No deploy needed.
 
-### 12.8 CI fails with `Missing: … from lock file`
+### 12.8 CI fails with `ERR_PNPM_OUTDATED_LOCKFILE`
 
-CI installs on Linux with `npm ci`. A lockfile written on Windows or macOS can miss Linux-only
-optional packages. Regenerate it on Linux and commit it:
+CI installs with `pnpm install --frozen-lockfile`: a `package.json` (root or `studio/`) or
+`pnpm-workspace.yaml` changed without `pnpm-lock.yaml`. Run `pnpm install` and commit the lockfile.
+It is the same on every OS (pnpm records the optional packages of all platforms), so it can be
+regenerated on Windows, macOS or Linux.
 
-```bash
-MSYS_NO_PATHCONV=1 docker run --rm -v "$PWD:/app" -w /app node:24 npm install --package-lock-only --ignore-scripts
-```
+A dependency that needs an install script (native binary, postinstall) must be allowed in
+`allowBuilds` in `pnpm-workspace.yaml`; pnpm skips the scripts of every other package.
 
 ---
 
@@ -788,7 +790,7 @@ MSYS_NO_PATHCONV=1 docker run --rm -v "$PWD:/app" -w /app node:24 npm install --
 | `vercel alias set` fails (name taken / not authorized)                                                           | The staging name belongs to someone else                                                                          | Pick a new name, update the four places in [§8.2](#82-how-the-staging-url-is-created)                                                                                                                                                   |
 | Deploy: **Wait for the build** times out after 10 min                                                            | The deployment never left `BUILDING`: queued behind another build, or Vercel failed to ingest the prebuilt output | Read the build logs the step prints, or open the **Inspect** URL from the **Deploy prebuilt output** step. Queued: wait for the other build to finish and re-run. Failed: fix the cause, the step already discarded the dead deployment |
 | Build: `Error … fetching` from the sitemap (`nitro:build:before`)                                                | Sanity unreachable or wrong project/dataset while building the sitemap                                            | Check the env vars and Sanity status, then re-run the job                                                                                                                                                                               |
-| CI: `types/sanity.types.ts is stale`                                                                             | Schema or query changed without TypeGen                                                                           | `npm run typegen`, commit the file                                                                                                                                                                                                      |
+| CI: `types/sanity.types.ts is stale`                                                                             | Schema or query changed without TypeGen                                                                           | `pnpm typegen`, commit the file                                                                                                                                                                                                         |
 | CI: `PRs into main must come from 'develop' or 'hotfix/*'`                                                       | PR from a feature branch straight into `main`                                                                     | Target `develop` instead                                                                                                                                                                                                                |
 | Browser console: `blocked by CORS policy` on `*.api.sanity.io`                                                   | Origin missing in Sanity CORS                                                                                     | [§2.3](#23-cors-origins-who-may-call-sanity-from-a-browser)                                                                                                                                                                             |
 | Studio login loops or "not authorized"                                                                           | Studio origin lacks **Allow credentials**, or the user isn't a project member                                     | [§2.3](#23-cors-origins-who-may-call-sanity-from-a-browser), [§2.5](#25-invite-the-editors)                                                                                                                                             |

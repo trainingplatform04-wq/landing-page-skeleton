@@ -1,5 +1,5 @@
 name: Setup
-description: Node (from .nvmrc) + cached npm ci for the whole workspace, optionally the pinned Vercel CLI.
+description: pnpm (from package.json "packageManager") + Node (from .nvmrc) + cached frozen install for the whole workspace, optionally the pinned Vercel CLI.
 
 inputs:
   vercel-cli:
@@ -9,14 +9,17 @@ inputs:
 runs:
   using: composite
   steps:
+    # No `version` input: pnpm reads it from the "packageManager" field of package.json.
+    - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
     - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
       with:
         node-version-file: .nvmrc
-        cache: npm
+        cache: pnpm
 
     - name: Install dependencies
       shell: bash
-      run: npm ci --no-audit --no-fund
+      run: pnpm install --frozen-lockfile
       env:
         # Git hooks are a local-dev concern (https://typicode.github.io/husky/how-to.html#ci-server-and-docker).
         HUSKY: '0'
@@ -26,4 +29,4 @@ runs:
     - name: Install Vercel CLI
       if: inputs.vercel-cli == 'true'
       shell: bash
-      run: npm install --global vercel@61.0.0 --no-audit --no-fund
+      run: pnpm add --global vercel@61.0.0
