@@ -4,7 +4,7 @@ description: Runs the design track with Lovable (discovery with PO, Designer, Te
 
 # /design
 
-**Request:** $ARGUMENTS (an idea, `approve <page>`, `changes <page>`, `status`, or nothing)
+**Request:** $ARGUMENTS (an idea, `approve <page>`, `changes <page>`, `send <brief id>`, `status`, or nothing)
 
 1. Read `.ai/shared/workflows/operating-model.md`, then `.ai/shared/workflows/design-orchestration.md`, and follow it step by step as the Orchestrator.
 2. Read the persona in `.ai/shared/agents/<name>.md` (its "Discovery questions" block) before asking questions as that role. The four roles run in your own context: no subagents.

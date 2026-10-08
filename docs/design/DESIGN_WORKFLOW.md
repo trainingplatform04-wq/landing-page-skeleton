@@ -216,15 +216,15 @@ knowledge** (free to write), never in prompts:
 | Convention                                                                                                                                                       | Why                                                                |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
 | One React component per section: `src/components/sections/<Name>.tsx`, root element `data-section="<name>"`, names equal to our component names                  | Section-level diffs and screenshots                                |
-| Pages in `src/pages/<Page>.tsx`, composed only of section components                                                                                             | One page = one ordered list of sections                            |
+| Route files in `src/routes/<route>.tsx` (TanStack Start, as Lovable generates) only compose section components, in order                                         | One page = one ordered list of sections                            |
 | **Content separated from markup**: `src/content/<page>.<locale>.ts` (`de`, `en`), sections read their text from there                                            | Content goes straight into the seed and the changeset's `content/` |
 | A language switch in the prototype (DE / EN)                                                                                                                     | The client reviews both languages                                  |
 | Colours, radii, spacing, fonts only from the theme mirrored from our tokens (§6.3); shadcn components restyled through those variables; no raw hex in components | Token changes are explicit                                         |
 | Tailwind breakpoints used as 375 / 768 / 1440 designs (`md:`, `xl:`); every section checked at the three widths                                                  | Same widths as the visual tests                                    |
 | States visible on demand (`?state=error`, `?state=open`) for forms, menus, empty lists                                                                           | States get baselines too                                           |
-| Motion only with CSS transitions, durations ≤ 300 ms, disabled under `prefers-reduced-motion`                                                                    | Matches what Nuxt UI does                                          |
-| Images in `public/design/` as files, no hot-linked URLs, no text inside images                                                                                   | They become seed images                                            |
-| No backend, no auth, no database, no external calls                                                                                                              | A prototype, not an app                                            |
+| Motion only with CSS transitions/animations up to 700 ms (the existing `reveal`), disabled under `prefers-reduced-motion`                                        | Reproducible in Nuxt with the same values                          |
+| Images as files in `src/assets/`, imported by components, no hot-linked URLs, no text inside images                                                              | They become seed images                                            |
+| No new or changed backend code (an existing one, like FitFlow's contact function, stays untouched), no auth, no payments, no analytics                           | A prototype, not an app                                            |
 
 ### 6.3 Project knowledge from our tokens
 
@@ -316,7 +316,7 @@ The designer engineer turns the brief into **one** Lovable prompt. Structure:
 
 ```
 Goal: <one line>
-Page: <Page> (src/pages/<Page>.tsx). Sections in this order:
+Page: <Page> (route src/routes/<route>.tsx). Sections in this order:
 1. <Name> (data-section="<name>") — <purpose>
    Layout: 375 … / 768 … / 1440 …
    Content: see src/content/<page>.<locale>.ts keys <…> (DE and EN given below)
@@ -467,13 +467,15 @@ and tags it in the synced repository when Git sync is set up (tags only).
 
 ### 10.2 Computing the delta
 
-For the page's section files (`src/components/sections/*.tsx` used by `src/pages/<Page>.tsx`) and
-its content files (`src/content/<page>.<locale>.ts`):
+The page's files are derived from its route file: `src/routes/<route>.tsx` and the section
+components it imports (`src/components/sections/*.tsx`), plus its content files
+(`src/content/<page>.<locale>.ts`) and the images those sections import (`src/assets/`). The
+project knowledge in Lovable is the reference for these paths; this document mirrors it.
 
 - **one** `get_diff` call: `base_sha` = the previous approved commit, `sha` = the new one (free, computed by Lovable, no Git sync needed), split per file; a new section file is read whole with `read_file` at the new commit;
 - new file → stored whole; changed → unified diff `sections/<name>.diff`; unchanged → skipped;
 - content: the changed keys per locale → `content/<section>.json`;
-- assets referenced by changed sections → `assets/`.
+- images imported by changed sections (`src/assets/`) → `assets/`.
 
 First version of a page: every section is "new".
 

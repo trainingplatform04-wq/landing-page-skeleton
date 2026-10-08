@@ -15,12 +15,13 @@ The design tool is **Lovable**, through the `lovable` MCP server. Lovable builds
 
 ## Entry points
 
-| You were given…               | Start at                                     |
-| ----------------------------- | -------------------------------------------- |
-| `/design` or `/design <idea>` | Step 1                                       |
-| `/design approve <page>`      | Step 7 (the last Lovable result of the page) |
-| `/design changes <page>`      | Step 2, in change mode, on that page         |
-| `/design status`              | Print `docs/design/pages/` and open briefs   |
+| You were given…                                                                            | Start at                                     |
+| ------------------------------------------------------------------------------------------ | -------------------------------------------- |
+| `/design` or `/design <idea>`                                                              | Step 1                                       |
+| `/design approve <page>`                                                                   | Step 7 (the last Lovable result of the page) |
+| `/design changes <page>`                                                                   | Step 2, in change mode, on that page         |
+| `/design status`                                                                           | Print `docs/design/pages/` and open briefs   |
+| `/design send <id>`, or `/design` while a brief is `approved` with a saved compiled prompt | Step 5 (the go was already given at Step 4)  |
 
 ## Steps
 
@@ -54,6 +55,7 @@ Rules:
 
 - First build of the project: `create_project` with the prompt (and the workspace id), then `render_project_widget` when the client supports it. Record the project id in `docs/design/design-system.md`.
 - Later builds: `send_message` with `wait=false`.
+- If Lovable refuses the message for lack of credits, nothing was spent: save the compiled prompt in the brief (section "Compiled prompt"), log the attempt in its Iterations table, tell the human, and stop. The next `/design send <id>` (or `/design`) resumes here.
 - Poll `get_message` until it finishes. A result with status `awaiting_input` is a Lovable tool approval: show `tool_id` and `params` to the human, ask, and answer with `respond_to_approval`. Never approve it on the human's behalf.
 - When done, **notify the human** (push notification when the platform has one), with `get_project` (preview URL and screenshot) and a short summary of `get_diff` for that message. Record the message id and the commit in the brief's Iterations table.
 
