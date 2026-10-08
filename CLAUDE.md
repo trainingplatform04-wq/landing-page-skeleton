@@ -11,7 +11,8 @@ This is an **Enterprise Nuxt 4 Starter Skeleton** designed to support **Autonomo
 - `.agents/agents/`: Flat YAML pointers for Antigravity's native agent UI.
 - **Tools (MCP)**: Agents use the Model Context Protocol for GitHub, Sanity and Jira.
 - **Operating model** ([`.ai/shared/workflows/operating-model.md`](.ai/shared/workflows/operating-model.md)): the two human gates (G1 plan, G2 production), blockers (never hold, report), mandatory independent reviewer subagent, and signed GitHub comments. It overrides anything conflicting.
-- **Commands**: `/feature <request>`, `/review <PR>`, `/release [hotfix <name>]`, `/agents`.
+- **Commands**: `/design [idea]`, `/feature <request>`, `/review <PR>`, `/release [hotfix <name>]`, `/agents`.
+- **Design track** ([`docs/design/DESIGN_WORKFLOW.md`](docs/design/DESIGN_WORKFLOW.md)): `/design` runs discovery → brief (gate D1) → one Lovable prompt → approved design (gate D2) → a design changeset in `docs/design/changes/` that a task points to. Lovable builds a React prototype only; production code is always this Nuxt repository.
 - **Drift guard**: `tests/orchestration/orchestration.spec.ts` fails CI if personas, pointers or referenced paths drift.
 
 ## 2. Architecture (read before writing code)

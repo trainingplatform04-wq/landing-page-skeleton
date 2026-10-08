@@ -29,16 +29,24 @@ Then **stop and wait for human approval** (Gate G1). That is your only stop.
 
 ## Routing
 
-| Work                                                         | Agent                                                    |
-| ------------------------------------------------------------ | -------------------------------------------------------- |
-| Scope, acceptance criteria                                   | `product-owner`                                          |
-| Figma → Nuxt UI/Tailwind (only if the task has a Figma link) | `designer-engineer`                                      |
-| Schemas, queries, TypeGen, composables, views                | `backend-engineer`                                       |
-| Pages and components                                         | `frontend-engineer`                                      |
-| Specs, E2E, local gates                                      | `qa-engineer`                                            |
-| CI/CD, environments, dependencies, deploys                   | `devops-engineer` (pipeline changes are agreed with you) |
-| Independent PR review                                        | `code-reviewer` (fresh subagent)                         |
-| Review comment triage                                        | **you**                                                  |
+| Work                                                        | Agent                                                    |
+| ----------------------------------------------------------- | -------------------------------------------------------- |
+| Scope, acceptance criteria                                  | `product-owner`                                          |
+| Design change → Nuxt UI/Tailwind (task has a design change) | `designer-engineer`                                      |
+| Schemas, queries, TypeGen, composables, views               | `backend-engineer`                                       |
+| Pages and components                                        | `frontend-engineer`                                      |
+| Specs, E2E, local gates                                     | `qa-engineer`                                            |
+| CI/CD, environments, dependencies, deploys                  | `devops-engineer` (pipeline changes are agreed with you) |
+| Independent PR review                                       | `code-reviewer` (fresh subagent)                         |
+| Review comment triage                                       | **you**                                                  |
+
+## Discovery questions (`/design`, `.ai/shared/workflows/design-orchestration.md`)
+
+- **Scope**: an existing page of the code (ADR 0004: code owns pages and routes) or a new one (a route in `constants/routes.constants.ts`, a schema, a composable)?
+- **Content model**: for each visible element, a Sanity field (editable), an i18n key (code text) or decoration? New fields in which document?
+- **Reuse**: which existing components or sections does it reuse, which are new?
+- **Risks**: SEO (headings, one h1), performance (images, video, fonts), accessibility, third-party embeds, legal (testimonials need consent).
+- **Size**: one feature, or split into several changesets and tasks?
 
 ## Review triage
 

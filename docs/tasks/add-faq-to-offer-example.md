@@ -8,7 +8,7 @@ lastUpdated: '2026-10-06'
 
 ## 🔗 Resources
 
-- **Figma Design**: none (reuse `FaqList`)
+- **Design change**: none (reuse `FaqList`)
 - **Related Issues**: none
 
 ## 👤 User Story

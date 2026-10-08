@@ -25,7 +25,7 @@ For each step, declare the delegation (`→ tech-lead: …`) and print `--- Step
 
 **Step 2: Plan (tech-lead) → 🚦 Gate G1.** Produce the plan: contracts (view types, composable signatures, groqd queries, schema changes), directory tree, owner → task list, risks. **Stop and wait for human approval.** This is the only stop before production.
 
-**Step 3: Design (designer-engineer), only if the task links a Figma file.** Extract layout and tokens, and map them to Nuxt UI components first and Tailwind utilities second. Without a Figma link, skip to Step 4.
+**Step 3: Design (designer-engineer), only if the task has a `Design change`.** Read the changeset (made by `.ai/shared/workflows/design-orchestration.md`, gate D2): `change.md`, then only the touched section specs. Produce the component map (Nuxt UI first, Tailwind second) and the token changes for the frontend. Without a design change, skip to Step 4.
 
 **Step 4: Implement (backend → frontend → qa)**
 

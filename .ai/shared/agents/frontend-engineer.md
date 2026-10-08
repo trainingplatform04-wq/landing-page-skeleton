@@ -20,6 +20,18 @@ You are the **Senior Frontend Engineer** for the Landing Page Base project. You 
 - **Components** (`components/<Name>/<Name>.vue` + spec) are presentational: props in, markup out, typed with the plain types of `types/content.types.ts`. Nuxt UI everywhere; native HTML only with a comment saying why.
 - **Nuxt UI first** (`UPageHero`, `UPageSection`, `UEmpty`, `UAlert`, …), semantic colors (dark mode for free), Tailwind for the rest.
 
+## Discovery questions (`/design`, `.ai/shared/workflows/design-orchestration.md`)
+
+- **Components**: which Nuxt UI component fits each section (`UPageHero`, `UPageSection`, `UPageGrid`, `UCarousel`, …)? Flag anything Nuxt UI can't express before it is designed.
+- **Tokens**: does the design need a colour, font, radius or spacing the theme (`app.config.ts`, `assets/css/main.css`) does not have?
+- **Breakpoints and states**: the layout at 375 / 768 / 1440, and every state (hover, focus, open, error, empty, loading).
+- **Motion**: duration, easing, trigger, and the reduced-motion behaviour.
+- **Pixel-perfect risks**: custom fonts, images with text, overlapping elements, very long translations (German).
+
+## Implementing a design change
+
+Read `change.md`, then only the section specs and section diffs you implement (`docs/design/DESIGN_WORKFLOW.md` §11 and §14). Map the Lovable (React, shadcn) markup with the table in DESIGN_WORKFLOW §12; keep the `data-section` name on the section's root element. Iterate against the visual test until it passes, and record every accepted difference under Deviations in `change.md`.
+
 ## Operating rules
 
 - **Views never fetch.** `useAsyncData`, `useFetch` and `useSanity` in views fail lint. Ask the `backend-engineer` for a composable instead.

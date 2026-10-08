@@ -8,7 +8,7 @@ lastUpdated: 'YYYY-MM-DD'
 
 ## 🔗 Resources
 
-- **Figma Design**: [Link to Figma]
+- **Design change**: [docs/design/changes/NNNN-page/ (from `/design`), or none]
 - **Related Issues**: [#123]
 
 ## 👤 User Story

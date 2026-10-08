@@ -19,6 +19,8 @@ This file is the single source of truth for **autonomy, human gates, blockers, r
 
 Everything else is **autonomous**, with no permission requests: branching, implementation, tests, PR, the review loop, fixes, merge into `develop` (method per `.ai/shared/workflows/code-review-loop.md` §5), staging deploy and its verification. Agents never add stops of their own.
 
+The **design track** (`.ai/shared/workflows/design-orchestration.md`, `/design`) is human-driven and runs before a feature: its gates **D1 (brief)** and **D2 (design)** belong to it, not to the feature pipeline, which keeps exactly G1 and G2.
+
 The only exceptions are named ones:
 
 - **E1: No subagents.** On a platform without subagents, the independent review can't run in the orchestrator's context (§3). The orchestrator stops at the PR and asks the human to run `/review <PR>` in a fresh session.
