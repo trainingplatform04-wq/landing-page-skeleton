@@ -30,7 +30,7 @@ None, or the list of changes for `app.config.ts` / `assets/css/main.css`.
 
 ## Acceptance
 
-- Visual test within tolerance for every listed section, every locale and width (DESIGN_WORKFLOW §13), or "baselines pending" until the visual tooling exists.
+- `pnpm design:verify <change>` passes for every listed section, every locale and width (DESIGN_WORKFLOW §13).
 - Every state in the section specs is covered.
 - axe: no serious or critical issue.
 - The demo content on staging equals the design content (seed).
@@ -42,6 +42,8 @@ Every accepted difference from the design, with its reason.
 ## Files
 
 - `sections/<name>.md`: behaviour spec per section
-- `sections/<name>.diff`: the Lovable diff of that section between `from` and `to`
+- `sections/<name>.diff`: the Lovable diff of that section between `from` and `to` (evidence for the designer and the reviewer; the frontend never reads it)
+- `verify.json`: what the design gate compares
+- `pictures.json`: the prototype's pictures (address, alt), uploaded to Sanity by the seed
 - `content/<name>.json`: the section's content per locale
-- `baseline/`: reference screenshots (when the visual tooling exists)
+- `baseline/`: reference screenshots of the approved prototype (`pnpm design:capture`)

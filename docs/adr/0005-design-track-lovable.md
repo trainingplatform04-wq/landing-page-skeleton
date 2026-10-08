@@ -17,6 +17,9 @@ The feature pipeline (`/feature`) is autonomous from a task to staging. Design w
 - **Approval as buttons in the chat** (Approve, Request changes, Discard), and `/design approve <page>` for later sessions.
 - **A validated design is a commit**: D2 records the approved Lovable commit of the page and produces a changeset in `docs/design/changes/` with only the sections changed since the previous approved commit. Tasks point to a changeset (`Design change` field). The changeset format is tool-independent.
 - **Design content becomes the staging seed** (`studio/seed/seed.data.ts`), and pixel-perfect is measured by visual tests against baselines rendered from the prototype (tooling: DESIGN_WORKFLOW §15).
+- **Strict architecture** (amended 2026-10-09): only the designer engineer reads Lovable code and turns it into facts (measurements, typography, tokens, states, content); the frontend implements from those facts and the baselines under ARCHITECTURE and CODING_STANDARDS only, never from the React code; the reviewer blocks prototype-shaped code.
+- **Design gate before the PR** (amended 2026-10-09): `pnpm design:capture` freezes the approved prototype as section screenshots at gate D2; `pnpm design:verify` compares our production build with them, section by section, locale by locale, at 375 / 768 / 1440. A design task is not done, and no PR is opened, until it passes.
+- **Pictures live in Sanity only** (amended 2026-10-09): the seed downloads pictures from their addresses (stock photos now, the prototype's at D2) and uploads them to the dataset; no picture file is committed.
 - **Optimised for the Lovable free plan**; upgrading changes the pace, not the workflow.
 - **Security**: agents only touch the Lovable project recorded in `docs/design/design-system.md`; credits, publishing and Lovable tool approvals always go through the human.
 

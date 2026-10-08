@@ -1,37 +1,41 @@
 /**
- * The demo pictures of the seed: generated SVG placeholders (no stock photos, no licences),
- * one per place an editor would put a photo. Same name → same file → Sanity keeps one asset.
+ * The demo pictures of the seed: real photos chosen by context, one per place an editor would
+ * put a photo. Nothing is stored in the repository: the seed downloads each photo from its URL
+ * and uploads it to the Sanity dataset, where editors see and replace it. Same file → Sanity
+ * keeps one asset, so re-runs reuse it. When a page gets its approved Lovable design, its photos
+ * replace these (docs/design/DESIGN_WORKFLOW.md §10).
+ *
+ * All from Unsplash, under the Unsplash License (free for commercial use, no attribution
+ * required): https://unsplash.com/license. Each URL fixes the photo and its crop.
  */
+const unsplash = (photo: string, width: number, height: number) =>
+  `https://images.unsplash.com/${photo}?w=${width}&h=${height}&fit=crop&crop=faces,entropy&q=72&fm=jpg`
+
 const IMAGES = {
-  hero: { label: 'Hero', width: 1600, height: 900, hue: 150 },
-  portrait: { label: 'Portrait', width: 800, height: 1000, hue: 200 },
-  offerPersonal: { label: 'Personal Training', width: 1200, height: 800, hue: 20 },
-  offerStrength: { label: 'Kraftgruppe · Strength group', width: 1200, height: 800, hue: 280 },
-  offerOnline: { label: 'Online-Coaching', width: 1200, height: 800, hue: 230 },
-  clientAnna: { label: 'A', width: 400, height: 400, hue: 330 },
-  clientJonas: { label: 'J', width: 400, height: 400, hue: 40 },
-  clientMira: { label: 'M', width: 400, height: 400, hue: 180 },
-  training: { label: 'Training', width: 1200, height: 700, hue: 100 },
-  share: { label: 'Demo Studio Berlin', width: 1200, height: 630, hue: 160 },
+  // unsplash.com/photos/two-person-inside-gym-exercising-buWcS7G1_28
+  hero: unsplash('photo-1534258936925-c58bed479fcb', 1600, 900),
+  // unsplash.com/photos/smiling-woman-in-front-of-window-YMYFCxWgHMw
+  portrait: unsplash('photo-1536914356815-690cf1fa40e2', 800, 1000),
+  // unsplash.com/photos/woman-kneeling-beside-man-R0y_bEUjiOM
+  offerPersonal: unsplash('photo-1571019614242-c5c5dee9f50b', 1200, 800),
+  // unsplash.com/photos/three-person-lifting-barbels-Lx_GDv7VA9M
+  offerStrength: unsplash('photo-1554284126-aa88f22d8b74', 1200, 800),
+  // unsplash.com/photos/woman-in-black-t-shirt-and-black-pants-lying-on-black-yoga-mat-qa1wvrlWCio
+  offerOnline: unsplash('photo-1586439496903-c96e9f18f212', 1200, 800),
+  // unsplash.com/photos/woman-in-white-crew-neck-shirt-smiling-IF9TK5Uy-KI
+  clientAnna: unsplash('photo-1580489944761-15a19d654956', 400, 400),
+  // unsplash.com/photos/man-wearing-white-crew-neck-shirt-outdoor-selective-focus-photography-TMt3JGoVlng
+  clientJonas: unsplash('photo-1564564244660-5d73c057f2d2', 400, 400),
+  clientMira: unsplash('photo-1494790108377-be9c29b29330', 400, 400),
+  // unsplash.com/photos/people-performing-box-jumps-workout-wy_L8W0zcpI
+  training: unsplash('photo-1536922246289-88c42f957773', 1200, 700),
+  // unsplash.com/photos/man-holding-black-barbell-hOuJYX2K5DA
+  share: unsplash('photo-1517838277536-f5f99be501cd', 1200, 630),
 } as const
 
 export type SeedImage = keyof typeof IMAGES
 
 export const SEED_IMAGES = Object.keys(IMAGES) as SeedImage[]
 
-/** The SVG file of a demo picture, labelled "DEMO" so nobody mistakes it for real content. */
-export function seedImageFile(name: SeedImage) {
-  const { label, width, height, hue } = IMAGES[name]
-  const size = Math.round(Math.min(width, height) / 9)
-  const svg = [
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
-    `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">`,
-    `<stop offset="0" stop-color="hsl(${hue} 55% 42%)"/><stop offset="1" stop-color="hsl(${(hue + 40) % 360} 60% 24%)"/>`,
-    `</linearGradient></defs>`,
-    `<rect width="100%" height="100%" fill="url(#g)"/>`,
-    `<text x="50%" y="50%" fill="#fff" font-family="system-ui, sans-serif" font-size="${size}" font-weight="700" text-anchor="middle" dominant-baseline="middle">${label}</text>`,
-    `<text x="50%" y="${height - size}" fill="#fff" fill-opacity="0.7" font-family="system-ui, sans-serif" font-size="${Math.round(size / 2.5)}" letter-spacing="4" text-anchor="middle">DEMO</text>`,
-    `</svg>`,
-  ].join('')
-  return { filename: `seed-${name}.svg`, svg }
-}
+/** Where the seed downloads a demo picture from before uploading it to Sanity. */
+export const seedImageUrl = (name: SeedImage) => IMAGES[name]

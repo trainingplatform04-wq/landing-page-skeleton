@@ -67,9 +67,9 @@ Rules:
 **Step 7: Approval → 🚦 Gate D2.** Only after the human chose **Approve** (or typed `/design approve <page>`):
 
 1. Record the approved Lovable commit of the page (`list_edits`) in `docs/design/pages/<page>.md` and, when Git sync is set up, tag it `design/<page>-v<n>` in the Lovable repository (tags only: never rewrite its history).
-2. Create the changeset `docs/design/changes/<id>-<page>[-<what>]/` from `docs/design/changes/_template/` (DESIGN_WORKFLOW §10): for every section file that is new or changed since the page's previous approved commit, store its diff (one `get_diff` call with `base_sha` = the previous approved commit and `sha` = the new one, split per file; `read_file` at the new commit for a new section), the content per locale, and a section spec from `docs/design/changes/_template/section.md`. Unchanged sections are neither copied nor read.
-3. Copy the client approval (who, when, channel) into the changeset's Approval block.
-4. When the visual tooling exists (DESIGN_WORKFLOW §15), render the baselines; until then, note "baselines pending" in `change.md`.
+2. **Capture at once** (the Lovable preview always shows the latest state): write the changeset's `verify.json` from `docs/design/changes/_template/verify.json` (preview URL and path per locale, our app's path per locale, the new or changed sections, widths, tolerance) and run `pnpm design:capture <change>`: baselines of every listed section, and `pictures.json` (picture addresses and alt texts; no picture file is ever committed). DESIGN_WORKFLOW §10.2.
+3. Create the changeset `docs/design/changes/<id>-<page>[-<what>]/` from `docs/design/changes/_template/` (DESIGN_WORKFLOW §10): for every section file that is new or changed since the page's previous approved commit, store its diff as evidence (one `get_diff` call with `base_sha` = the previous approved commit and `sha` = the new one, split per file; `read_file` at the new commit for a new section), the content per locale, and a section spec from `docs/design/changes/_template/section.md` written as **facts** (measurements per width, typography, our tokens, states, motion; no React, no JSX, no class list: DESIGN_WORKFLOW §10.3). Unchanged sections are neither copied nor read.
+4. Copy the client approval (who, when, channel) into the changeset's Approval block.
 5. Draft the task `docs/tasks/<name>.md` from `docs/tasks/template.md`, with the `Design change` field set.
 6. Ask: "Start `/feature docs/tasks/<name>.md` now?" Yes → run `.ai/shared/workflows/feature-orchestration.md` from Step 2.
 

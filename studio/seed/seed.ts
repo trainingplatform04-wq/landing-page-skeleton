@@ -11,7 +11,7 @@ import { getCliClient } from 'sanity/cli'
 
 import { SANITY_API_VERSION } from '../../constants/sanity.constants'
 import { seedDocuments } from './seed.data'
-import { SEED_IMAGES, type SeedImage, seedImageFile } from './seed.images'
+import { SEED_IMAGES, type SeedImage, seedImageUrl } from './seed.images'
 import { MANIFEST_ID, planSeed, type SeedManifest } from './seed.plan'
 
 /** Demo content never reaches production: editors write it there. */
@@ -34,15 +34,18 @@ if (!SEEDABLE_DATASETS.includes(dataset)) {
   )
 }
 
-/** Uploads the demo pictures. Sanity keeps one asset per file content, so re-runs reuse them. */
+/** Downloads the demo pictures and uploads them to Sanity, which keeps one asset per file content. */
 async function uploadImages(): Promise<Record<SeedImage, string>> {
   const entries = await Promise.all(
     SEED_IMAGES.map(async (name) => {
       if (dryRun) return [name, `image-dry-run-${name}`] as const
-      const { filename, svg } = seedImageFile(name)
-      const asset = await client.assets.upload('image', Buffer.from(svg), {
-        filename,
-        contentType: 'image/svg+xml',
+      // Downloaded from its URL and uploaded to the dataset: the photo lives in Sanity only.
+      const response = await fetch(seedImageUrl(name))
+      if (!response.ok)
+        throw new Error(`[seed] ${name}: HTTP ${response.status} from ${seedImageUrl(name)}`)
+      const asset = await client.assets.upload('image', Buffer.from(await response.arrayBuffer()), {
+        filename: `seed-${name}.jpg`,
+        contentType: response.headers.get('content-type') ?? 'image/jpeg',
       })
       return [name, asset._id] as const
     }),
