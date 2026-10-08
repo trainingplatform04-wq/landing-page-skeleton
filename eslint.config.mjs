@@ -108,4 +108,12 @@ export default withNuxt(
       'no-restricted-imports': 'off',
     },
   },
+  {
+    // The seed is a Node command-line script, not app code: it downloads the demo pictures
+    // (`fetch`) to upload them to Sanity. The "data only through composables" rule is the app's.
+    files: ['studio/seed/**/*.ts'],
+    rules: {
+      'no-restricted-globals': 'off',
+    },
+  },
 )

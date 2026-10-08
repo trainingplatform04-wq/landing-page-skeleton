@@ -23,6 +23,7 @@ Lint, types and tests are already enforced by CI. Focus on what tools can't catc
 - [ ] **Correctness**: logic bugs, null/empty/error states, SSR vs client differences, hydration safety (dates, `Math.random`, browser-only APIs).
 - [ ] **Architecture**: data access only in `composables/` (via `useAsyncData`); each page composable is query → view type → mapper → composable; views are presentational with plain props (`types/content.types.ts`), no CMS types.
 - [ ] **Demo content**: a schema change in `studio/schemas/` comes with the same change in `studio/seed/seed.data.ts` (every new field filled in every language, removed fields removed). Missing → `blocking`.
+- [ ] **Design changes**: the PR reports `pnpm design:verify` green for the changeset; the code follows our architecture, not the prototype's (no JSX-like structure, no class list copied from Lovable, no hard-coded text, our file layout). Missing gate or prototype-shaped code → `blocking`.
 - [ ] **CMS typing**: queries written with groqd (validated answers), optional fields `.nullable(true)`, schema types regenerated (`pnpm typegen`).
 - [ ] **i18n**: no hardcoded UI text; new keys exist in **every** locale; every CMS query filters `language == $locale` (no field-level translation); internal links use `localePath()`.
 - [ ] **SEO & a11y**: pages call `useSeoMeta` with the title/description their composable resolved; images have alt text; landmarks and labels on navigation; semantic headings.

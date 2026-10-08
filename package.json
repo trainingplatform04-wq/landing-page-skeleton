@@ -32,6 +32,8 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:smoke": "playwright test smoke",
+    "design:capture": "node tests/visual/design.ts capture",
+    "design:verify": "node tests/visual/design.ts verify",
     "studio:build": "pnpm --filter landing-page-studio build",
     "studio:seed": "pnpm --filter landing-page-studio seed"
   },

@@ -31,9 +31,9 @@ and **client validation** work together, from the first page to the tenth change
 10. [Approval and changesets (gate D2)](#10-approval-and-changesets-gate-d2)
 11. [From changeset to feature](#11-from-changeset-to-feature)
 12. [Lovable (React, shadcn) → Nuxt UI](#12-lovable-react-shadcn--nuxt-ui)
-13. [Pixel-perfect](#13-pixel-perfect)
+13. [Pixel-perfect: the design gate](#13-pixel-perfect-the-design-gate)
 14. [Token and credit economy](#14-token-and-credit-economy)
-15. [Tooling to build](#15-tooling-to-build)
+15. [Tooling](#15-tooling)
 16. [Running on the Lovable free plan](#16-running-on-the-lovable-free-plan)
 17. [Alternatives](#17-alternatives)
 18. [Risks and mitigations](#18-risks-and-mitigations)
@@ -136,11 +136,12 @@ docs/design/
     │   │   ├── hero.md         ← behaviour spec
     │   │   └── hero.diff       ← Lovable diff of that section (whole file for a first version)
     │   ├── content/hero.json   ← the section's content per locale (→ seed)
-    │   ├── assets/             ← pictures the prototype uses (→ seed images)
-    │   └── baseline/           ← reference screenshots (§13), when the tooling exists
+    │   ├── verify.json         ← what the design gate compares (prototype vs app, sections, widths)
+    │   ├── pictures.json       ← the prototype's pictures (address, alt): the seed uploads them to Sanity
+    │   └── baseline/           ← reference screenshots of the approved prototype (§13)
     └── 0002-home-testimonials/ ← a later change: only the changed sections
 
-tests/visual/                   ← visual tests and design scripts (§15)
+tests/visual/                   ← the design gate: pnpm design:capture / design:verify (§13)
 ```
 
 Ids are sequential and shared by briefs and changesets (`0001`, `0002`, …). Changesets are
@@ -389,7 +390,7 @@ answers with `respond_to_approval`. It never decides for you.
 4. Client approves (email) → **Approve** → **D2**:
    - approved commit recorded, tag `design/home-v1`;
    - `docs/design/changes/0001-home/` with every section (first version: the whole section files
-     as "diff"), specs, content per locale, assets;
+     as "diff"), specs, content per locale, `verify.json`, baselines and `pictures.json`;
    - `docs/design/pages/home.md` created;
    - task `docs/tasks/home-page.md` drafted with `Design change: docs/design/changes/0001-home/`.
 5. "Start `/feature` now?" → yes → plan → **G1** → implementation, visual loop, PR, review, merge →
@@ -465,51 +466,75 @@ At **Approve**, `/design` reads `list_edits`, takes the latest commit of the pro
 `docs/design/pages/<page>.md` (`Approved commit: <sha> (design/<page>-v<n>)`) and to the brief,
 and tags it in the synced repository when Git sync is set up (tags only).
 
-### 10.2 Computing the delta
+### 10.2 Capturing the approved design (immediately, before anything changes in Lovable)
 
-The page's files are derived from its route file: `src/routes/<route>.tsx` and the section
-components it imports (`src/components/sections/*.tsx`), plus its content files
-(`src/content/<page>.<locale>.ts`) and the images those sections import (`src/assets/`). The
-project knowledge in Lovable is the reference for these paths; this document mirrors it.
+The Lovable preview always shows the **latest** state, so the approved state is captured at once:
 
-- **one** `get_diff` call: `base_sha` = the previous approved commit, `sha` = the new one (free, computed by Lovable, no Git sync needed), split per file; a new section file is read whole with `read_file` at the new commit;
-- new file → stored whole; changed → unified diff `sections/<name>.diff`; unchanged → skipped;
-- content: the changed keys per locale → `content/<section>.json`;
-- images imported by changed sections (`src/assets/`) → `assets/`.
+1. `/design` writes `verify.json` in the changeset (`docs/design/changes/_template/verify.json`):
+   the prototype's preview URL and its path per locale, our app's path per locale (from
+   `constants/routes.constants.ts`), the new or changed sections, the widths, the tolerance.
+2. `pnpm design:capture <change>` renders every listed section of the prototype in each locale's
+   own browser language and at each width, and stores Playwright's **stable** screenshot (two
+   identical frames in a row) in `baseline/<section>-<locale>-<width>.png`. It also lists the
+   pictures each section shows in `pictures.json` (address, alt text, locale). **No picture file is
+   stored in the repository**: the seed downloads them and uploads them to Sanity (§12.3).
+
+### 10.3 Extracting the delta, as facts
+
+Only the **designer engineer** reads Lovable code. The page's files are derived from its route file:
+`src/routes/<route>.tsx`, the section components it imports (`src/components/sections/*.tsx`) and
+its content files (`src/content/<page>.<locale>.ts`). The project knowledge in Lovable is the
+reference for these paths; this document mirrors it.
+
+- **One** `get_diff` call: `base_sha` = the previous approved commit, `sha` = the new one (free,
+  computed by Lovable, no Git sync needed), split per file; a new section file is read whole with
+  `read_file` at the new commit. Unchanged sections are skipped.
+- The diff is kept as evidence (`sections/<name>.diff`) for the designer and the reviewer.
+- From it, the designer writes **facts** into `sections/<name>.md` (`docs/design/changes/_template/section.md`):
+  layout per width with measurements (column counts, gaps, paddings, max widths, heights, image
+  ratios), typography (font, size, weight, case, line height per width), colours **as our tokens**,
+  borders, radii, shadows, states, motion (duration, easing, trigger), accessibility. **No React,
+  no JSX, no class list**: values only.
+- Content: the changed keys per locale → `content/<section>.json`.
 
 First version of a page: every section is "new".
 
-### 10.3 Writing the changeset
+### 10.4 Writing the changeset and the task
 
 From `docs/design/changes/_template/`: `change.md` (source commits, sections, approval, acceptance,
-deviations) and one `sections/<name>.md` per new or changed section, drafted from the brief and
-the diff. Anything the agent cannot infer goes under Open questions, answered at G1.
-
-### 10.4 The task
-
-`docs/tasks/<name>.md` from `docs/tasks/template.md`, `Design change: docs/design/changes/<id>/`,
-acceptance from `change.md`. Then: "Start `/feature` now?"
+deviations), the section specs, `verify.json`, `pictures.json`, `baseline/`. Anything the designer
+cannot infer goes under Open questions, answered at G1. Then the task `docs/tasks/<name>.md` from
+`docs/tasks/template.md`, `Design change: docs/design/changes/<id>/`, acceptance from `change.md`,
+and: "Start `/feature` now?"
 
 ---
 
 ## 11. From changeset to feature
 
-| Step              | Agent                                   | Reads                                                         | Produces                                             |
-| ----------------- | --------------------------------------- | ------------------------------------------------------------- | ---------------------------------------------------- |
-| Scope             | Product Owner                           | task, `change.md`                                             | scope confirmation                                   |
-| Plan              | Tech Lead                               | `change.md`, page index, specs' Components and Content tables | plan → **G1**                                        |
-| Design map        | Designer engineer                       | section specs, section diffs                                  | component map (§12), token changes                   |
-| Data              | Backend engineer                        | Content tables, `content/*.json`, `assets/`                   | schema fields, `pnpm typegen`, seed = design content |
-| UI                | Frontend engineer                       | one spec + one diff at a time                                 | section components with `data-section`               |
-| Verify            | QA engineer                             | acceptance                                                    | visual tests (§13), E2E, axe                         |
-| Loop              | Frontend ↔ visual test                  | the failing section's diff image only                         | fixes; deviations recorded                           |
-| PR, review, merge | Tech Lead, fresh reviewer, Orchestrator | diff, visual report, deviations                               | merge → staging                                      |
+| Step              | Agent                                   | Reads                                                         | Produces                                                                |
+| ----------------- | --------------------------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Scope             | Product Owner                           | task, `change.md`                                             | scope confirmation                                                      |
+| Plan              | Tech Lead                               | `change.md`, page index, specs' Components and Content tables | plan → **G1**                                                           |
+| Design map        | Designer engineer                       | section specs (facts)                                         | component map (§12), token changes                                      |
+| Data              | Backend engineer                        | Content tables, `content/*.json`, `pictures.json`             | schema fields, `pnpm typegen`, seed = design content and pictures       |
+| UI                | Frontend engineer                       | one section spec at a time + its baselines                    | section components with `data-section`, **under our architecture only** |
+| **Design gate**   | QA engineer                             | `verify.json`                                                 | `pnpm design:verify <change>` green (§13), plus E2E and axe             |
+| Loop              | Frontend ↔ design gate                  | the failing section's diff image only                         | fixes; deviations recorded                                              |
+| PR, review, merge | Tech Lead, fresh reviewer, Orchestrator | diff, gate report, deviations                                 | merge → staging, seeded with the design content and pictures            |
+
+**Strict architecture.** The frontend engineer **never reads Lovable code** (`.diff` files, the
+Lovable project). It implements from the section spec and the baselines, following
+`docs/conventions/ARCHITECTURE.md` and `docs/conventions/CODING_STANDARDS.md` exactly: Nuxt UI
+first, composables own data, components get plain props, every text through Sanity or i18n, the
+project's file layout. The design gate proves the result is pixel-perfect; resemblance to the
+Lovable code is never a goal. The reviewer blocks code shaped like the prototype (JSX-like
+structure, copied class lists, hard-coded texts, a file layout that is not ours).
 
 Reading rules for every agent:
 
 1. `change.md` first, then only the section specs you are assigned.
-2. A section diff only while implementing that section.
-3. Screenshots only when a visual test failed on that section.
+2. Only the designer reads Lovable code, and only the changed sections.
+3. Screenshots only when the design gate failed on that section (the diff image).
 4. Never older changesets: the page index says what is current.
 5. Never the whole Lovable project.
 
@@ -517,84 +542,104 @@ Reading rules for every agent:
 
 ## 12. Lovable (React, shadcn) → Nuxt UI
 
-Lovable's markup is a visual reference, not code to copy. The frontend keeps our architecture
-(composables, plain props, i18n, Sanity) and maps:
+### 12.1 The designer's component map
 
-| Lovable / shadcn                                              | Nuxt UI v4                                                                                                         |
-| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Hero section (`<section>` with heading, text, buttons, image) | `UPageHero` (`title`, `description`, `links`, default slot)                                                        |
-| Content section with title                                    | `UPageSection`                                                                                                     |
-| Grid of cards                                                 | `UPageGrid` + `UPageCard`                                                                                          |
-| `Button`                                                      | `UButton` (`color`, `variant`, `size`, `to`)                                                                       |
-| `Card`                                                        | `UCard` / `UPageCard`                                                                                              |
-| `Badge`                                                       | `UBadge`                                                                                                           |
-| `Accordion`                                                   | `UAccordion`                                                                                                       |
-| `Carousel` (embla)                                            | `UCarousel`                                                                                                        |
-| `Dialog` / `Sheet`                                            | `UModal` / `USlideover`                                                                                            |
-| `DropdownMenu`                                                | `UDropdownMenu`                                                                                                    |
-| `Tabs`                                                        | `UTabs`                                                                                                            |
-| `Input`, `Textarea`, `Select`, form + zod                     | `UInput`, `UTextarea`, `USelect`, `UForm` + `UFormField` (zod)                                                     |
-| `Avatar`                                                      | `UAvatar`                                                                                                          |
-| `Separator`                                                   | `USeparator`                                                                                                       |
-| `lucide-react` icons                                          | `UIcon name="i-lucide-…"` (same icon set)                                                                          |
-| Toasts (`sonner`)                                             | `useToast()`                                                                                                       |
-| Tailwind classes                                              | Kept as is (Tailwind v4 both sides); colours through semantic tokens (`text-muted`, `bg-elevated`, `text-primary`) |
-| Static text from `src/content/*.ts`                           | Sanity fields or i18n keys, per the section spec's Content table                                                   |
+Used by the designer to write the component map, never as code to translate line by line:
 
-When Nuxt UI has no equivalent, Tailwind utilities first, custom CSS last, and a note in the spec.
+| Lovable / shadcn                             | Nuxt UI v4                                                       |
+| -------------------------------------------- | ---------------------------------------------------------------- |
+| Hero section (heading, text, buttons, image) | `UPageHero` (`title`, `description`, `links`, default slot)      |
+| Content section with title                   | `UPageSection`                                                   |
+| Grid of cards                                | `UPageGrid` + `UPageCard`                                        |
+| `Button`                                     | `UButton` (`color`, `variant`, `size`, `to`)                     |
+| `Card`                                       | `UCard` / `UPageCard`                                            |
+| `Badge`                                      | `UBadge`                                                         |
+| `Accordion`                                  | `UAccordion`                                                     |
+| `Carousel` (embla)                           | `UCarousel`                                                      |
+| `Dialog` / `Sheet`                           | `UModal` / `USlideover`                                          |
+| `DropdownMenu`                               | `UDropdownMenu`                                                  |
+| `Tabs`                                       | `UTabs`                                                          |
+| `Input`, `Textarea`, `Select`, form + zod    | `UInput`, `UTextarea`, `USelect`, `UForm` + `UFormField` (zod)   |
+| `Avatar`                                     | `UAvatar`                                                        |
+| `Separator`                                  | `USeparator`                                                     |
+| `lucide-react` icons                         | `UIcon name="i-lucide-…"` (same icon set)                        |
+| Toasts (`sonner`)                            | `useToast()`                                                     |
+| Static text from `src/content/*.ts`          | Sanity fields or i18n keys, per the section spec's Content table |
+
+### 12.2 Styling
+
+Values from the spec are expressed with Nuxt UI props first, then the project's semantic tokens
+and Tailwind utilities written for our components (never a class list copied from the prototype),
+custom CSS last, with a note in the spec.
+
+### 12.3 Pictures: from Lovable to Sanity
+
+- `pictures.json` (written by `pnpm design:capture`) lists each section's pictures with their
+  address and alt text.
+- The backend engineer maps them to seed images (`studio/seed/seed.images.ts` holds addresses
+  only). The seed downloads each picture and uploads it to the **Sanity dataset** (`staging`),
+  where editors and the client see and replace them in the Studio. No picture is ever committed.
+- Until a page has its approved design, the seed uses real stock photos chosen by context
+  (addresses in `studio/seed/seed.images.ts`).
+- Because the seed's add mode never overwrites an existing field, replacing pictures that are
+  already in staging takes one deliberate `pnpm studio:seed --reset`.
 
 ---
 
-## 13. Pixel-perfect
+## 13. Pixel-perfect: the design gate
 
-### 13.1 Reference screenshots come from the prototype, rendered like the site
+### 13.1 Capture (at D2) and verify (before the PR)
 
-- At D2, `pnpm design:snap <changeset>` renders the approved prototype (the published link or a
-  local build of the synced repository at the approved commit) in **the same headless Chromium**
-  as our tests, with the **same fonts**, at **375 / 768 / 1440**, in **DE and EN**, and screenshots
-  every `[data-section]` into `baseline/`.
-- Rendering happens **on Linux only** (CI, or the Playwright Docker image locally), because font
-  rasterisation differs between operating systems.
-- Animations off (`reducedMotion: 'reduce'`), time frozen, states opened through `?state=`.
+|                   | `pnpm design:capture <change>`                                                  | `pnpm design:verify <change>`                                                                                                   |
+| ----------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Renders           | the approved Lovable prototype                                                  | our app: a **production build** (`nuxt build`, Node server) on the developer's `.env` (staging, seeded with the design content) |
+| Per               | section × locale (in that locale's browser language) × width (375 / 768 / 1440) | the same                                                                                                                        |
+| Writes / compares | stable screenshots → `baseline/`                                                | `toHaveScreenshot()` against `baseline/`, tolerance from `verify.json`                                                          |
+| Output            | baselines + `pictures.json`                                                     | pass/fail per section, diff images, HTML report (`playwright-report/design/`)                                                   |
 
-### 13.2 The visual test
+Rendering on both sides: fonts loaded, animations and transitions off, reduced motion, lazy
+images loaded, network idle. Both sides should run on the same machine type: baselines captured
+on one operating system are compared on the same one (font rasterisation differs between systems).
 
-- Playwright project `visual` (`tests/visual/`, `pnpm test:visual`), the app on the fixture CMS
-  fed with the **seed documents** (the design content).
-- For every row of every page index: the page at each width and locale, the section by
-  `data-section`, compared with its current changeset's baseline with `toHaveScreenshot()`.
-- Tolerance: `maxDiffPixelRatio: 0.002`, `threshold: 0.1`; masks only when declared in the spec.
+### 13.2 Rules
+
+- Tolerance: `maxDiffPixelRatio: 0.002`, `threshold: 0.1` (template defaults); masks only when
+  declared in the spec.
+- The task is not done, and no PR is opened, until `pnpm design:verify <change>` passes.
 - At most 4 fix iterations per section; then the agent proposes a deviation for the reviewer.
+- The gate was proven both ways on this repository: identical pages pass (8/8), a page in the wrong
+  language fails (1 % of pixels different).
 
 ### 13.3 Not covered by pixels, covered otherwise
 
-| Aspect                   | Covered by                                          |
-| ------------------------ | --------------------------------------------------- |
-| Motion                   | spec Motion block, reviewed in the PR               |
-| Widths between the three | spec's fluid rules (+ optional 1024 baseline)       |
-| Long real content        | spec limits, Studio validation, E2E with long texts |
-| Accessibility            | axe (`@axe-core/playwright`), Lighthouse ≥ 95       |
-| Performance              | Lighthouse on staging after deploy                  |
+| Aspect                   | Covered by                                            |
+| ------------------------ | ----------------------------------------------------- |
+| Motion                   | spec Motion block, reviewed in the PR                 |
+| Widths between the three | spec's fluid rules (+ optional 1024 in `verify.json`) |
+| Interactive states       | spec States block; `?state=` captures later (T8)      |
+| Long real content        | spec limits, Studio validation, E2E with long texts   |
+| Accessibility            | axe, Lighthouse ≥ 95                                  |
+| Performance              | Lighthouse on staging after deploy                    |
 
 ### 13.4 Why the loop converges
 
-Same tokens (knowledge mirrors code), same content (seed), same fonts, same browser. The
-remaining differences are layout ones, visible in a diff image.
+Same tokens (knowledge mirrors code), same content and pictures (seed), same fonts, same browser.
+The remaining differences are layout ones, visible in a diff image.
 
 ---
 
 ## 14. Token and credit economy
 
-| Waste avoided                                                     | How                                                        |
-| ----------------------------------------------------------------- | ---------------------------------------------------------- |
-| Many small Lovable prompts                                        | One compiled prompt per iteration, after the discovery     |
-| Repeating conventions in every prompt                             | Project knowledge (free)                                   |
-| Paying credits for tweaks                                         | Git commits on the synced repository (0 credits)           |
-| Agents reading the whole prototype (often 20–60k tokens per page) | Section diffs of the approved delta only (1–4k each)       |
-| Agents looking at screenshots (≈1.5k tokens per image)            | Spec tables carry the facts; images only on a failing test |
-| Agents re-reading design history                                  | The page index points to the current changeset per section |
-| Extracting tokens or comparing visuals by reading                 | Scripts and `toHaveScreenshot()` (0 tokens)                |
-| Asking the same question twice                                    | The brief is persistent                                    |
+| Waste avoided                                                     | How                                                                                       |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Many small Lovable prompts                                        | One compiled prompt per iteration, after the discovery                                    |
+| Repeating conventions in every prompt                             | Project knowledge (free)                                                                  |
+| Paying credits for tweaks                                         | Git commits on the synced repository (0 credits)                                          |
+| Agents reading the whole prototype (often 20–60k tokens per page) | Only the designer reads the changed sections' diff (1–4k each); everyone else reads facts |
+| Agents looking at screenshots (≈1.5k tokens per image)            | Spec tables carry the facts; images only when the gate fails                              |
+| Agents re-reading design history                                  | The page index points to the current changeset per section                                |
+| Extracting values or comparing visuals by reading                 | The designer extracts once; the gate compares (0 tokens)                                  |
+| Asking the same question twice                                    | The brief is persistent                                                                   |
 
 Order of magnitude (to be measured in the pilot):
 
@@ -607,22 +652,19 @@ Order of magnitude (to be measured in the pilot):
 
 ---
 
-## 15. Tooling to build
+## 15. Tooling
 
-| #   | Item                                                                               | Status   |
-| --- | ---------------------------------------------------------------------------------- | -------- |
-| T1  | `/design` command, design workflow, personas, templates, registry                  | **done** |
-| T2  | ADR 0005                                                                           | **done** |
-| T3  | `data-section` on every section component root in Nuxt                             | next     |
-| T4  | `tests/visual/design.snap.ts` (`pnpm design:snap`): prototype → baselines, Linux   | next     |
-| T5  | Playwright project `visual` + `pnpm test:visual`, fixture CMS from the seed        | next     |
-| T6  | CI: `test:visual` in `ci.yml`, report artifact on failure                          | next     |
-| T7  | Seed: pictures from a changeset's `assets/`                                        | next     |
-| T8  | `@axe-core/playwright` in the visual project                                       | next     |
-| T9  | Token extraction from the prototype theme → diff with `app.config.ts` / `main.css` | later    |
-
-Until T4–T6 exist, changesets say "baselines pending" and the reviewer compares screenshots of
-staging with the Lovable preview by eye.
+| #   | Item                                                                             | Status                        |
+| --- | -------------------------------------------------------------------------------- | ----------------------------- |
+| T1  | `/design` command, design workflow, personas, templates, registry                | **done**                      |
+| T2  | ADR 0005                                                                         | **done**                      |
+| T3  | Design gate: `pnpm design:capture` / `pnpm design:verify` (`tests/visual/`)      | **done**                      |
+| T4  | Seed pictures by address, uploaded to Sanity (stock photos now, Lovable's later) | **done**                      |
+| T5  | `data-section` on every section component root in Nuxt                           | with the first design feature |
+| T6  | Design gate in CI (Linux baselines, report artifact)                             | later                         |
+| T7  | `@axe-core/playwright` in the gate                                               | later                         |
+| T8  | Interactive states (`?state=`) captured and compared                             | later                         |
+| T9  | Token extraction from the prototype theme → diff with the code theme             | later                         |
 
 ---
 
@@ -689,9 +731,9 @@ The changeset format is tool-independent: a Figma or code-first change produces 
 
 ## 20. Rollout
 
-| Phase             | Content                                 | Exit criterion                                                      |
-| ----------------- | --------------------------------------- | ------------------------------------------------------------------- |
-| 1. Track          | T1, T2 (this change)                    | `/design` runs discovery → brief → prompt → build → D2 → changeset  |
-| 2. Pilot          | Home page through §9.2, Git sync set up | Approved changeset and task; feature merged; staging matches by eye |
-| 3. Visual tooling | T3–T8                                   | `pnpm test:visual` green in CI on the home page                     |
-| 4. Generalise     | Remaining pages, T9                     | Every page has a page index and baselines                           |
+| Phase             | Content                                               | Exit criterion                                                                                                |
+| ----------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| 1. Track and gate | T1–T4 (done)                                          | `/design` runs discovery → brief → prompt → build → D2 → changeset; the design gate proven on this repository |
+| 2. Pilot          | Offers (brief 0001) through §9.2–§10, Git sync set up | Approved changeset and task; `pnpm design:verify` green; feature merged; staging shows the design             |
+| 3. Harden         | T5–T8                                                 | Gate in CI on Linux, axe, states                                                                              |
+| 4. Generalise     | Remaining pages, T9                                   | Every page has a page index and baselines                                                                     |

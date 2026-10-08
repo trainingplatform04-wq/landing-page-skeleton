@@ -11,8 +11,8 @@ import { getCliClient } from 'sanity/cli'
 
 import { SANITY_API_VERSION } from '../../constants/sanity.constants'
 import { seedDocuments } from './seed.data'
-import { SEED_IMAGES, type SeedImage, seedImageFile } from './seed.images'
-import { MANIFEST_ID, planSeed, type SeedManifest } from './seed.plan'
+import { SEED_IMAGES, seedImageUrl } from './seed.images'
+import { MANIFEST_ID, type ManifestImage, planSeed, type SeedManifest } from './seed.plan'
 
 /** Demo content never reaches production: editors write it there. */
 const SEEDABLE_DATASETS = ['staging']
@@ -34,25 +34,46 @@ if (!SEEDABLE_DATASETS.includes(dataset)) {
   )
 }
 
-/** Uploads the demo pictures. Sanity keeps one asset per file content, so re-runs reuse them. */
-async function uploadImages(): Promise<Record<SeedImage, string>> {
-  const entries = await Promise.all(
-    SEED_IMAGES.map(async (name) => {
-      if (dryRun) return [name, `image-dry-run-${name}`] as const
-      const { filename, svg } = seedImageFile(name)
-      const asset = await client.assets.upload('image', Buffer.from(svg), {
-        filename,
-        contentType: 'image/svg+xml',
+const manifest = await client.getDocument<SeedManifest>(MANIFEST_ID)
+
+/**
+ * The demo pictures as Sanity assets. An address the manifest already knows is reused as is (no
+ * download), as long as its asset still exists: an address that stops answering later (e.g. a
+ * prototype rebuilt in Lovable) never breaks the seed. New or changed addresses are downloaded
+ * and uploaded; Sanity keeps one asset per file content.
+ */
+async function resolveImages(): Promise<ManifestImage[]> {
+  const known = manifest?.images ?? []
+  const stillThere = new Set(
+    await client.fetch<string[]>(
+      '*[_id in $ids]._id',
+      { ids: known.map(({ assetId }) => assetId) },
+      { perspective: 'raw' },
+    ),
+  )
+  return Promise.all(
+    SEED_IMAGES.map(async (name): Promise<ManifestImage> => {
+      const source = seedImageUrl(name)
+      const reusable = known.find(
+        (image) => image.name === name && image.source === source && stillThere.has(image.assetId),
+      )
+      if (reusable) return reusable
+      if (dryRun) return { _key: name, name, source, assetId: `image-dry-run-${name}` }
+      // Downloaded from its address and uploaded to the dataset: the picture lives in Sanity only.
+      const response = await fetch(source)
+      if (!response.ok) throw new Error(`[seed] ${name}: HTTP ${response.status} from ${source}`)
+      const asset = await client.assets.upload('image', Buffer.from(await response.arrayBuffer()), {
+        filename: `seed-${name}.jpg`,
+        contentType: response.headers.get('content-type') ?? 'image/jpeg',
       })
-      return [name, asset._id] as const
+      return { _key: name, name, source, assetId: asset._id }
     }),
   )
-  return Object.fromEntries(entries) as Record<SeedImage, string>
 }
 
-const images = await uploadImages()
-const documents = seedDocuments((name) => images[name])
-const manifest = await client.getDocument<SeedManifest>(MANIFEST_ID)
+const images = await resolveImages()
+const assetOf = new Map(images.map(({ name, assetId }) => [name, assetId]))
+const documents = seedDocuments((name) => assetOf.get(name) ?? '')
 const candidates = documents.flatMap(({ _id }) => [_id, `drafts.${_id}`])
 // `raw`: drafts included (the default perspective only returns published documents).
 const existing = await client.fetch<string[]>(
@@ -60,10 +81,15 @@ const existing = await client.fetch<string[]>(
   { ids: candidates },
   { perspective: 'raw' },
 )
-const plan = planSeed(documents, manifest ?? null, mode, new Set(existing))
+const plan = planSeed(documents, manifest ?? null, mode, new Set(existing), images)
 
 log(`[seed] ${projectId}/${dataset} · mode ${mode}${dryRun ? ' · dry run' : ''}`)
-log(`[seed] ${documents.length} documents, ${SEED_IMAGES.length} images`)
+const downloaded = images.filter(
+  (image) => !manifest?.images?.some(({ assetId }) => assetId === image.assetId),
+)
+log(
+  `[seed] ${documents.length} documents, ${images.length} images (${downloaded.length} new, ${images.length - downloaded.length} reused)`,
+)
 log(`[seed] new documents: ${list(plan.created)}`)
 if (mode === 'add') log(`[seed] new fields: ${list(plan.filled)}`)
 if (mode === 'reset') log(`[seed] deleted (removed from seed.data.ts): ${list(plan.removed)}`)

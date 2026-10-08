@@ -1,0 +1,12 @@
+{
+  "reference": {
+    "baseUrl": "https://id-preview--<lovable-project-id>.lovable.app",
+    "paths": { "de": "/offers", "en": "/offers?lang=en" }
+  },
+  "app": {
+    "paths": { "de": "/angebote", "en": "/en/offers" }
+  },
+  "sections": [{ "name": "offers-hero" }, { "name": "offers-grid" }, { "name": "offers-help" }],
+  "widths": [375, 768, 1440],
+  "tolerance": { "maxDiffPixelRatio": 0.002, "threshold": 0.1 }
+}

@@ -28,10 +28,19 @@ interface ManifestEntry {
   paths: string[]
 }
 
+/** Which address produced which Sanity asset: unchanged addresses are reused, never re-downloaded. */
+export interface ManifestImage {
+  _key: string
+  name: string
+  source: string
+  assetId: string
+}
+
 export type SeedManifest = {
   _id: typeof MANIFEST_ID
   _type: 'seed.manifest'
   documents: ManifestEntry[]
+  images?: ManifestImage[]
   /** Written by the first version of the seed (ids only): their fields count as known. */
   ids?: string[]
 }
@@ -87,10 +96,11 @@ function previousState(manifest: SeedManifest | null) {
   return { ids, pathsOf }
 }
 
-const manifestOf = (entries: ManifestEntry[]): SeedManifest => ({
+const manifestOf = (entries: ManifestEntry[], images: ManifestImage[]): SeedManifest => ({
   _id: MANIFEST_ID,
   _type: 'seed.manifest',
   documents: entries,
+  images,
 })
 
 const entryOf = (document: SeedDocument): ManifestEntry => ({
@@ -132,6 +142,8 @@ export function planSeed(
   mode: SeedMode,
   /** Ids (published and `drafts.`) of the seeded documents that exist in the dataset. */
   existingIds: ReadonlySet<string> = new Set(),
+  /** The pictures of this run, recorded so the next run can reuse their assets. */
+  images: ManifestImage[] = [],
 ): SeedPlan {
   const previous = previousState(manifest)
   const ids = documents.map(({ _id }) => _id)
@@ -147,7 +159,7 @@ export function planSeed(
           { delete: { id: draftId(document._id) } },
         ]),
         ...removed.flatMap((id) => [{ delete: { id } }, { delete: { id: draftId(id) } }]),
-        { createOrReplace: manifestOf(documents.map(entryOf)) },
+        { createOrReplace: manifestOf(documents.map(entryOf), images) },
       ],
       created,
       filled: [],
@@ -177,7 +189,7 @@ export function planSeed(
   return {
     mutations: [
       ...mutations,
-      { createOrReplace: manifestOf([...documents.map(entryOf), ...kept, ...legacy]) },
+      { createOrReplace: manifestOf([...documents.map(entryOf), ...kept, ...legacy], images) },
     ],
     created,
     filled,
