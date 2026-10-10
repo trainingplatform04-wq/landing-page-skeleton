@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { isUniqueInTypeAndLanguage } from './slug.utils'
+import { isUniqueInTypeAndLanguage, matchesTranslations } from './slug.utils'
 
 describe('isUniqueInTypeAndLanguage', () => {
   const context = (document: { _id: string; _type: string; language?: string } | undefined) => {
@@ -34,5 +34,39 @@ describe('isUniqueInTypeAndLanguage', () => {
 
     expect(await isUniqueInTypeAndLanguage('yoga', ctx)).toBe(true)
     expect(fetch).not.toHaveBeenCalled()
+  })
+})
+
+describe('matchesTranslations', () => {
+  const context = (slugs: Array<string | null> | null) => {
+    const fetch = vi.fn().mockResolvedValue(slugs)
+    return {
+      fetch,
+      context: {
+        document: { _id: 'drafts.category-nutrition-de', _type: 'category' },
+        getClient: () => ({ fetch }),
+      } as unknown as Parameters<typeof matchesTranslations>[1],
+    }
+  }
+
+  it('accepts the slug its translations use', async () => {
+    const { fetch, context: ctx } = context(['nutrition', 'nutrition'])
+
+    expect(await matchesTranslations({ current: 'nutrition' }, ctx)).toBe(true)
+    expect(fetch).toHaveBeenCalledWith(expect.any(String), { id: 'category-nutrition-de' })
+  })
+
+  it('names the slug of the other language when they differ', async () => {
+    const { context: ctx } = context(['ernaehrung', 'nutrition'])
+
+    expect(await matchesTranslations({ current: 'ernaehrung' }, ctx)).toBe(
+      'Use "nutrition", as in the other language: the address is shared.',
+    )
+  })
+
+  it('accepts any slug while the category has no translation yet', async () => {
+    const { context: ctx } = context(null)
+
+    expect(await matchesTranslations({ current: 'training' }, ctx)).toBe(true)
   })
 })

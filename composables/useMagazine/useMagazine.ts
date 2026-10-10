@@ -211,11 +211,11 @@ export async function useMagazine(): Promise<MagazineView> {
 
   const filter = route.query[CATEGORY_PARAM]
   const category = typeof filter === 'string' ? filter : ''
-  // Page 1 has no `page` parameter: only 2, 3, … are pages of their own (no duplicates).
-  const page = route.query.page === undefined ? 1 : Number(route.query.page)
-  if (!Number.isInteger(page) || page < 2) {
-    if (route.query.page !== undefined) throw createError({ status: 404, fatal: true })
-  }
+  // Page 1 has no `page` parameter; only "2", "3", … name a page (no duplicate of another URL).
+  const requested = route.query.page
+  const page = requested === undefined ? 1 : Number(requested)
+  const isPage = requested === undefined || (String(page) === requested && page >= 2)
+  if (!isPage) throw createError({ status: 404, fatal: true })
   const range = magazineRange(page, category)
 
   const fetchMagazine = () =>

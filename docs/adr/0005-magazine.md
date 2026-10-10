@@ -19,5 +19,7 @@ The owner wants a content-heavy page to test the design track end to end (Lovabl
 
 ## 3. Consequences
 
+- A category's slug is one value for every language: the Studio checks it against the category's translations and copies it to a new one.
+- `?page=n` is copied to the other language as it is: when that language has fewer articles, its page n answers 404 (accepted: both languages are written together, and the switcher still reaches the magazine).
 - The skeleton has 8 pages (9 with the article page). The blog recipe in ARCHITECTURE.md is now an example in the code.
 - Structured data stays as in ADR 0004 (no `Article` JSON-LD until a later decision).

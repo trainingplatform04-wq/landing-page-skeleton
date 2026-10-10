@@ -54,8 +54,7 @@ below the grid.
 | Cards                      | `post` (see magazine-featured)    | —     | posts 4–6 with "All"                    | idem                              |
 | Empty text                 | i18n `magazine.empty`             | —     | Noch keine Artikel in dieser Kategorie. | No articles in this category yet. |
 | Empty link                 | i18n `magazine.showAll`           | —     | Alle Artikel                            | All articles                      |
-| Previous / Next            | i18n `magazine.previous`, `.next` | —     | Zurück · Weiter                         | Previous · Next                   |
-| Page label                 | i18n `magazine.page`              | —     | Seite {n}                               | Page {n}                          |
+| Empty magazine text        | i18n `magazine.none`              | —     | Noch keine Artikel.                     | No articles yet.                  |
 | Pagination label           | i18n `magazine.paginationLabel`   | —     | Artikelseiten                           | Article pages                     |
 
 Filter in the URL: `?category=<slug>`, the same in every language; page `?page=<n>`.

@@ -1,7 +1,8 @@
 import { TagsIcon } from '@sanity/icons/Tags'
 import { defineField, defineType } from 'sanity'
 
-import { languageField, slugField, titleField } from '../fields'
+import { isUniqueInTypeAndLanguage, matchesTranslations } from '../../utils/slug/slug.utils'
+import { languageField, titleField } from '../fields'
 
 /** A magazine category: a tab on the magazine page (`?category=<slug>`). */
 export const categorySchema = defineType({
@@ -12,11 +13,17 @@ export const categorySchema = defineType({
   fields: [
     languageField,
     titleField,
-    {
-      ...slugField,
+    // Not generated from the title and copied to new translations: one value for every language.
+    defineField({
+      name: 'slug',
+      title: 'Address key',
+      type: 'slug',
       description:
-        'The same in every language (e.g. "nutrition"): it identifies the category in the address, so the German and English pages link to each other.',
-    },
+        'The same in every language (e.g. "nutrition"): it identifies the category in the address (?category=…), so the German and English pages link to each other.',
+      options: { maxLength: 48, isUnique: isUniqueInTypeAndLanguage },
+      validation: (rule) =>
+        rule.required().custom((slug, context) => matchesTranslations(slug, context)),
+    }),
     defineField({
       name: 'order',
       title: 'Order',

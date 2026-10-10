@@ -144,7 +144,7 @@ describe('useMagazine', () => {
   it('is a 404 for a page parameter that is not a page of its own', async () => {
     fetchMock.mockResolvedValue({ page, categories, total: 30, posts: [] })
 
-    for (const value of ['1', '0', 'abc']) {
+    for (const value of ['1', '0', 'abc', '02', '2.0', '2e0']) {
       expect(await thrownBy(useMagazine, `/en/magazine?page=${value}`)).toMatchObject({
         status: 404,
       })
