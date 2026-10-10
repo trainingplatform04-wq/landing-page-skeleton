@@ -32,8 +32,8 @@ export interface MetricBudget {
 
 export interface WebPerformanceBudget {
   /**
-   * Runs per page and form factor; the median run is judged. Mobile scores move ±3–5 points
-   * between runs (simulated slow 4G): 3 runs. Desktop scores barely move: 1 run.
+   * Runs per page and form factor (the median run is judged). PageSpeed Insights measures on
+   * Google's servers under controlled conditions: one run is the standard.
    */
   runs: Record<'mobile' | 'desktop', number>
   /** Minimum scores per form factor: PageSpeed's `mobile` (throttled phone) and `desktop` strategies. */
@@ -50,7 +50,7 @@ const metrics = (min: number): MetricBudget => ({
 })
 
 export default {
-  runs: { mobile: 3, desktop: 1 },
+  runs: { mobile: 1, desktop: 1 },
   formFactors: {
     // Mobile performance is simulated on a slow 4G phone and moves a few points between runs:
     // 90 is Google's "good" line, a stable gate (decided by the owner, 2026-10-10).

@@ -36,8 +36,8 @@ const API = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed'
 const CATEGORIES = ['performance', 'accessibility', 'best-practices', 'seo']
 /** Audits left out of the SEO score on noindex previews. */
 const NOINDEX_AUDITS = new Set(['is-crawlable'])
-/** Google allows a few hundred requests per minute with a key: stay well below. */
-const CONCURRENCY = 8
+/** Every request at once (28 for 14 pages × 2): Google allows ~400 per 100 s with a key. */
+const CONCURRENCY = 50
 const ATTEMPTS = 3
 
 const base = process.argv.find((arg) => arg.startsWith('--url='))?.slice('--url='.length)
