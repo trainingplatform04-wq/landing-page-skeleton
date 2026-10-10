@@ -34,6 +34,14 @@ jobs:
     name: CI
     uses: ./.github/workflows/ci.yml
     secrets: inherit
+    # The most any job of ci.yml asks for (Deploy dev, PR report): GitHub refuses to start the
+    # run when a called workflow asks for more than its caller grants. Those jobs run on pull
+    # requests only, so on a push nothing here writes.
+    permissions:
+      contents: read
+      deployments: write
+      issues: write
+      pull-requests: write
 
   deploy:
     name: Deploy ${{ matrix.app }} (${{ github.ref_name == 'main' && 'production' || 'staging' }})
