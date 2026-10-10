@@ -75,7 +75,7 @@ export default defineNuxtConfig({
     },
   },
 
-  // Built assets ship pre-compressed (brotli, gzip): the Node server (E2E, Lighthouse) then
+  // Built assets ship pre-compressed (brotli, gzip): the Node server (E2E) then
   // serves the same transfer sizes as Vercel, which compresses on its own.
   nitro: { compressPublicAssets: true },
 
@@ -90,7 +90,7 @@ export default defineNuxtConfig({
 
   hooks: {
     // Only the entry chunk is preloaded; it imports the rest itself. Preloading every chunk put
-    // ~30 requests ahead of the first paint (mobile FCP 3 s in Lighthouse instead of 1.5-2 s).
+    // ~30 requests ahead of the first paint (mobile FCP 3 s in PageSpeed scoring instead of 1.5-2 s).
     'build:manifest'(manifest) {
       for (const chunk of Object.values(manifest)) {
         if (!chunk.isEntry) chunk.preload = false

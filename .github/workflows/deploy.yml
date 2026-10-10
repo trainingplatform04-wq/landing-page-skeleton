@@ -2,7 +2,7 @@
 # Deploy — the ONLY way code reaches Vercel (Git auto-deploys are disabled in
 # vercel.json / studio/vercel.json).
 #
-#   push develop → CI → deploy webapp + studio to Preview    → alias → smoke + seed → Lighthouse (STAGING)
+#   push develop → CI → deploy webapp + studio to Preview    → alias → smoke + seed → web performance (STAGING)
 #   push main    → CI → deploy webapp + studio to Production          → smoke  (PRODUCTION)
 #   workflow_dispatch on develop/main → same as a push to that branch
 #
@@ -188,25 +188,30 @@ jobs:
         env:
           PLAYWRIGHT_BASE_URL: ${{ env.WEBAPP_URL }}
 
-  # Staging only: the same budget (lighthouse.config.ts) on the real deployment, after the smoke
-  # test proved it serves. It cannot block the merged PR; it fails this run loudly instead.
-  # Production starts with an empty dataset (ADR 0004), so it is not audited here.
-  lighthouse:
-    name: Lighthouse staging
+  # Staging only: the same budget (webPerformance.config.ts) on the real deployment, measured by Google
+  # PageSpeed Insights, after the smoke test proved it serves. It cannot block the merged PR; it
+  # fails this run loudly instead. Production starts with an empty dataset (ADR 0004).
+  web-performance:
+    name: Web performance staging
     needs: smoke
     if: github.ref_name == 'develop'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup
-      - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm lighthouse --url="${{ vars.STAGING_WEBAPP_URL }}"
-      - name: Upload Lighthouse reports
+      - name: PageSpeed Insights on staging
+        env:
+          PAGESPEED_API_KEY: ${{ secrets.PAGESPEED_API_KEY }}
+        run: pnpm web-performance --url="${{ vars.STAGING_WEBAPP_URL }}"
+      - name: Web performance summary
+        if: always()
+        run: node tests/webPerformance/summary.ts >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload web performance reports
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: lighthouse-staging
-          path: .lighthouseci
+          name: web-performance-staging
+          path: .web-performance
           include-hidden-files: true
           retention-days: 14

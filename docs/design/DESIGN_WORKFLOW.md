@@ -612,8 +612,8 @@ rasterisation differs between systems). Playwright never opens the Lovable previ
 | Widths between the three | spec's fluid rules (+ optional 1024 in `verify.json`) |
 | Interactive states       | spec States block; `?state=` captures later (T8)      |
 | Long real content        | spec limits, Studio validation, E2E with long texts   |
-| Accessibility            | axe, Lighthouse ≥ 95                                  |
-| Performance              | Lighthouse on staging after deploy                    |
+| Accessibility            | axe, PageSpeed Insights ≥ 95                          |
+| Performance              | PageSpeed Insights on dev (PR) and staging            |
 
 ### 13.4 Why the loop converges
 

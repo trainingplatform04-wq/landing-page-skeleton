@@ -1,12 +1,12 @@
 /**
- * `node tests/lighthouse/summary.ts`: the Lighthouse results as a Markdown table (one row per
- * page, mobile and desktop, each category against `lighthouse.config.ts`), for the CI job
- * summary and the pull request report. Reads `.lighthouseci/<form factor>/manifest.json`.
+ * `node tests/webPerformance/summary.ts`: the PageSpeed Insights results as a Markdown table (one
+ * row per page, mobile and desktop, each category against `webPerformance.config.ts`), for the
+ * CI job summary and the pull request report. Reads `.web-performance/<form factor>/manifest.json`.
  */
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import budget from '../../lighthouse.config.ts'
+import budget from '../../webPerformance.config.ts'
 
 type FormFactor = keyof typeof budget.formFactors
 type Category = keyof (typeof budget.formFactors)['mobile']['categories']
@@ -32,7 +32,7 @@ const CATEGORIES: Array<[Category, string]> = [
 
 /** The median run of every page, by path. */
 function medianRuns(formFactor: FormFactor): Map<string, Report> {
-  const manifest = join('.lighthouseci', formFactor, 'manifest.json')
+  const manifest = join('.web-performance', formFactor, 'manifest.json')
   const runs = new Map<string, Report>()
   if (!existsSync(manifest)) return runs
   for (const entry of JSON.parse(readFileSync(manifest, 'utf8')) as ManifestEntry[]) {
@@ -60,7 +60,7 @@ const results = Object.fromEntries(FORM_FACTORS.map((ff) => [ff, medianRuns(ff)]
 const paths = [...new Set(FORM_FACTORS.flatMap((ff) => [...results[ff].keys()]))]
 
 if (!paths.length) {
-  process.stdout.write('_No Lighthouse results (the audit did not run)._\n')
+  process.stdout.write('_No web performance results (the audit did not run)._\n')
   process.exit(0)
 }
 
@@ -90,5 +90,5 @@ const verdict = failing
   ? `❌ ${failing} of ${paths.length} pages below the budget (bold: under the minimum; a metric can fail on its own).`
   : `✅ All ${paths.length} pages meet the budget.`
 process.stdout.write(
-  `${verdict}\n\n${lines.join('\n')}\n\nMinimums: \`lighthouse.config.ts\` · median of ${FORM_FACTORS.map((ff) => `${budget.runs[ff]} ${ff}`).join(', ')} run(s) per page.\n`,
+  `${verdict}\n\n${lines.join('\n')}\n\nMinimums: \`webPerformance.config.ts\` · median of ${FORM_FACTORS.map((ff) => `${budget.runs[ff]} ${ff}`).join(', ')} run(s) per page.\n`,
 )

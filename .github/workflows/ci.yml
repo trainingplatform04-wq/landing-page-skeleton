@@ -198,64 +198,48 @@ jobs:
           echo "- https://$DEV_HOST" >> "$GITHUB_STEP_SUMMARY"
           echo "- Deployment: $DEPLOY_URL" >> "$GITHUB_STEP_SUMMARY"
 
-  # Web performance gate on the dev deployment: every page in every language, mobile and
-  # desktop, against lighthouse.config.ts. It audits the deployment's own URL, not the shared
+  # Web performance gate on the dev deployment, measured by Google PageSpeed Insights (Google's
+  # servers, as pagespeed.web.dev): every page in every language, mobile and desktop, against
+  # webPerformance.config.ts. It audits the deployment's own URL, not the shared
   # alias, so another PR moving `-dev` cannot change the result.
-  lighthouse:
-    name: Lighthouse
+  web-performance:
+    name: Web performance
     needs: deploy-dev
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup
 
-      - name: Cache Playwright browsers
-        id: pw-cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-
-      # Lighthouse runs in Playwright's Chromium: the same browser as locally.
-      - name: Install Chromium
+      - name: PageSpeed Insights on the dev deployment
+        env:
+          PAGESPEED_API_KEY: ${{ secrets.PAGESPEED_API_KEY }}
         run: |
-          if [ "${{ steps.pw-cache.outputs.cache-hit }}" = "true" ]; then
-            pnpm exec playwright install-deps chromium
-          else
-            pnpm exec playwright install --with-deps chromium
-          fi
+          [ -n "$PAGESPEED_API_KEY" ] || { echo "::error::Secret PAGESPEED_API_KEY is missing (docs/deployment/DEPLOYMENT.md, Web performance)."; exit 1; }
+          pnpm web-performance --url="${{ needs.deploy-dev.outputs.url }}"
 
-      - run: pnpm lighthouse --url="${{ needs.deploy-dev.outputs.url }}"
-
-      - name: Lighthouse summary
+      - name: Web performance summary
         if: always()
         run: |
-          node tests/lighthouse/summary.ts > lighthouse-summary.md
-          cat lighthouse-summary.md >> "$GITHUB_STEP_SUMMARY"
+          node tests/webPerformance/summary.ts > web-performance-summary.md
+          cat web-performance-summary.md >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Keep the summary for the PR report
+      - name: Upload web performance reports
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: lighthouse-summary
-          path: lighthouse-summary.md
-          retention-days: 14
-
-      - name: Upload Lighthouse reports
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: lighthouse
-          path: .lighthouseci
+          name: web-performance
+          path: |
+            .web-performance
+            web-performance-summary.md
           include-hidden-files: true
           retention-days: 14
 
   # One comment per pull request, rewritten on every push (never a new one): branch, commit, the
-  # dev link, every step's result and the Lighthouse table. Nobody needs Vercel access.
+  # dev link, every step's result and the web performance table. Nobody needs Vercel access.
   report:
     name: PR report
-    needs: [verify, build-e2e, deploy-dev, lighthouse]
+    needs: [verify, build-e2e, deploy-dev, web-performance]
     if: always() && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 3
@@ -267,7 +251,7 @@ jobs:
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         continue-on-error: true
         with:
-          name: lighthouse-summary
+          name: web-performance
 
       - name: Write the report
         env:
@@ -282,7 +266,7 @@ jobs:
           VERIFY: ${{ needs.verify.result }}
           E2E: ${{ needs.build-e2e.result }}
           DEPLOY: ${{ needs.deploy-dev.result }}
-          LIGHTHOUSE: ${{ needs.lighthouse.result }}
+          WEB_PERFORMANCE: ${{ needs.web-performance.result }}
         run: |
           icon() { case "$1" in success) echo "✅";; failure) echo "❌";; cancelled) echo "⏹️";; skipped) echo "⏭️";; *) echo "⏳";; esac; }
           marker='<!-- pr-report -->'
@@ -305,13 +289,13 @@ jobs:
             echo "| Lint · Format · Types · Unit | $(icon "$VERIFY") |"
             echo "| Build · E2E | $(icon "$E2E") |"
             echo "| Deploy dev | $(icon "$DEPLOY") |"
-            echo "| Lighthouse | $(icon "$LIGHTHOUSE") |"
+            echo "| Web performance (PageSpeed Insights) | $(icon "$WEB_PERFORMANCE") |"
             echo
-            echo "### 📊 Lighthouse on dev"
+            echo "### 📊 Web performance on dev (Google PageSpeed Insights)"
             echo
-            if [ -f lighthouse-summary.md ]; then cat lighthouse-summary.md; else echo "_Not run._"; fi
+            if [ -f web-performance-summary.md ]; then cat web-performance-summary.md; else echo "_Not run._"; fi
             echo
-            echo "Full reports: the \`lighthouse\` artifact of the [run]($RUN_URL)."
+            echo "Full reports: the \`web-performance\` artifact of the [run]($RUN_URL), or any page on [pagespeed.web.dev](https://pagespeed.web.dev/analysis?url=$DEPLOYMENT_URL)."
           } > report.md
           id=$(gh api "repos/$REPO/issues/$PR/comments" --paginate --jq ".[] | select(.body | startswith(\"$marker\")) | .id" | head -1)
           if [ -n "$id" ]; then

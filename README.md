@@ -96,15 +96,15 @@ the report comment of every pull request.
 | **production** | [landing-page-skeleton-webapp.vercel.app](https://landing-page-skeleton-webapp.vercel.app)                 | [landing-page-skeleton-studio.vercel.app](https://landing-page-skeleton-studio.vercel.app)                 | every merge into `main`                                        | `production` dataset             |
 
 - **Pull requests**: the report comment shows the branch, the commit, the `-dev` link, every
-  check's result and the Lighthouse scores of every page. "View deployment" on the PR opens it too.
+  check's result and the web performance scores (PageSpeed Insights) of every page. "View deployment" on the PR opens it too.
 - **Which version is live**: the repository home page → **Deployments** (`dev`, `staging`,
   `production`, `staging-studio`, `production-studio`), each with its current URL and commit.
 - Variables per environment: `docs/deployment/DEPLOYMENT.md` §11.1.
 
 ## Delivery flow
 
-- **PR** → `develop`/`main`: CI (lint, format, TypeGen drift, types, unit, both builds, E2E) → web app deployed to **dev** → Lighthouse on dev → report comment on the PR
-- **Merge to `develop`**: full CI → web app + Studio deployed to **staging** → smoke test → Lighthouse on staging
+- **PR** → `develop`/`main`: CI (lint, format, TypeGen drift, types, unit, both builds, E2E) → web app deployed to **dev** → web performance (PageSpeed Insights) on dev → report comment on the PR
+- **Merge to `develop`**: full CI → web app + Studio deployed to **staging** → smoke test → web performance on staging
 - **Merge to `main`**: full CI → web app + Studio deployed to **production** → smoke test
 
 ## License

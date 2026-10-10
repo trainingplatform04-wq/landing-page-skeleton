@@ -32,7 +32,7 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:smoke": "playwright test smoke",
-    "lighthouse": "node tests/lighthouse/lighthouse.ts",
+    "web-performance": "node tests/webPerformance/webPerformance.ts",
     "design:capture": "node tests/visual/design.ts capture",
     "design:verify": "node tests/visual/design.ts verify",
     "studio:build": "pnpm --filter landing-page-studio build",
@@ -55,7 +55,6 @@
   },
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.139",
-    "@lhci/cli": "^0.15.1",
     "@nuxt/eslint": "^1.17.0",
     "@nuxt/test-utils": "^4.3.3",
     "@playwright/test": "^1.63.0",

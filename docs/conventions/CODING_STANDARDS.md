@@ -55,16 +55,15 @@ Every agent and human runs exactly these before opening or updating a PR. CI run
 ```bash
 pnpm verify                         # lint · format:check · typecheck · unit/component tests + coverage
 pnpm build:e2e && CI=1 pnpm test:e2e # E2E on a production build built against the fixture CMS
-pnpm lighthouse                     # web performance budget, once the two above pass
+pnpm web-performance --url=<dev URL> # web performance budget (PageSpeed Insights) on a deployment
 ```
 
 After a schema change, run `pnpm typegen` first and commit `types/sanity.types.ts`.
 
 ### 7.1 Web performance budget
 
-- `lighthouse.config.ts` is the **only** place thresholds live: the minimum Lighthouse score (0–100) of the four categories (Performance, Accessibility, Best Practices, SEO) and of the five performance metrics (FCP, LCP, TBT, CLS, Speed Index), per form factor (mobile, desktop), and the number of runs (the median run is judged).
-- `pnpm lighthouse [mobile|desktop]` builds this commit for production with the `.env` content (staging) and the **production robots settings** (inside the build only: every SEO audit counts), then audits every page of `ROUTE_PATHS` without a slug, in every language, in Playwright's Chromium. Reports: `.lighthouseci/<form factor>/`.
-- In CI, once **Lint · Format · Types · Unit** and **Build · E2E** pass, **Deploy dev** deploys the PR to Vercel (alias `-dev`) and **Lighthouse** audits that real deployment (`pnpm lighthouse --url=<deployment>`; "page is crawlable" is skipped on previews, which are noindex on purpose). After a merge the same budget runs against `-staging`.
-- Locally, `pnpm lighthouse` audits a production build on the Node server: a quick check before pushing; the PR's deployment is the reference.
-- Runs per page are set per form factor in `lighthouse.config.ts` (mobile 3, desktop 1): a single mobile run moves ±3–5 points on an unchanged page, so its median is judged.
+- `webPerformance.config.ts` is the **only** place thresholds live: the minimum score (0–100) of the four categories (Performance, Accessibility, Best Practices, SEO) and of the five performance metrics (FCP, LCP, TBT, CLS, Speed Index), per form factor (mobile, desktop), and the number of runs per page (the median run is judged).
+- Measured by **Google PageSpeed Insights** (its API, Google's servers): never on localhost or a laptop's connection. `pnpm web-performance --url=<deployed URL>` audits every page of `ROUTE_PATHS` without a slug, in every language; it needs `PAGESPEED_API_KEY`. Reports: `.web-performance/<form factor>/`.
+- In CI, once **Lint · Format · Types · Unit** and **Build · E2E** pass, **Deploy dev** deploys the PR to Vercel (alias `-dev`) and **Web performance** audits that deployment; after a merge, **Web performance staging** audits `-staging`. Previews are noindex on purpose: their SEO score is computed without "page is crawlable".
+- Runs per page are set per form factor (mobile 3, desktop 1): a single mobile run moves ±3–5 points on an unchanged page, so its median is judged.
 - Raising a minimum is free; lowering one is a Tech Lead decision recorded in the PR.
