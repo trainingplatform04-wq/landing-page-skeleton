@@ -1,66 +1,59 @@
 /**
- * The web performance budget: the minimum score (0–100) of every KPI, on every page of the
- * site, in every language, measured by Google PageSpeed Insights on a deployed URL.
- * `pnpm web-performance --url=<base>` and the CI job "Web performance" fail when the median of
- * `runs` runs of any page scores below its minimum (tests/webPerformance/webPerformance.ts).
+ * The web performance budget, measured by Google PageSpeed Insights on a deployed URL, on every
+ * page of the site in every language, mobile and desktop (tests/webPerformance/webPerformance.ts).
+ *
+ * - `target` (90): what every page aims for. Pages between `minimum` and `target` pass but are
+ *   flagged "below target" in the PR report: improve them.
+ * - `minimum` (80): the gate. Any category or performance metric below it blocks the PR.
  *
  * Scores, not raw values: PageSpeed Insights maps each metric to a 0–100 score with its own curve
  * per form factor (https://developer.chrome.com/docs/lighthouse/performance/performance-scoring).
- * For reference, a score of 90 is Google's "good" point: mobile FCP 1.8 s, LCP 2.5 s,
- * TBT 200 ms, Speed Index 3.4 s; desktop FCP 0.9 s, LCP 1.2 s, TBT 150 ms, Speed Index 1.3 s;
- * CLS 0.1 on both. 95 asks for clearly better than these.
+ * A score of 90 is Google's "good" point: mobile FCP 1.8 s, LCP 2.5 s, TBT 200 ms, Speed Index
+ * 3.4 s; desktop FCP 0.9 s, LCP 1.2 s, TBT 150 ms, Speed Index 1.3 s; CLS 0.1 on both.
  *
- * Raise a minimum freely; lowering one is a decision for the Tech Lead, recorded in the PR.
+ * A single PageSpeed run moves 10–25 points on an unchanged page (measured on this site): every
+ * page is measured once, and a page below the minimum gets `confirmationRuns` more runs; the
+ * median decides, so a one-off sample cannot block a PR and a real regression still does.
+ *
+ * Raise the numbers freely; lowering one is a decision for the Tech Lead, recorded in the PR.
  */
 
 /** The four categories of the PageSpeed Insights report. */
-export interface CategoryBudget {
-  performance: number
-  accessibility: number
-  'best-practices': number
-  seo: number
-}
+export type Category = 'performance' | 'accessibility' | 'best-practices' | 'seo'
 
 /** The metrics behind the Performance grade (PageSpeed Insights audit ids). */
-export interface MetricBudget {
-  'first-contentful-paint': number
-  'largest-contentful-paint': number
-  'total-blocking-time': number
-  'cumulative-layout-shift': number
-  'speed-index': number
-}
+export type Metric =
+  | 'first-contentful-paint'
+  | 'largest-contentful-paint'
+  | 'total-blocking-time'
+  | 'cumulative-layout-shift'
+  | 'speed-index'
 
 export interface WebPerformanceBudget {
-  /**
-   * Runs per page and form factor (the median run is judged). PageSpeed Insights measures on
-   * Google's servers under controlled conditions: one run is the standard.
-   */
-  runs: Record<'mobile' | 'desktop', number>
-  /** Minimum scores per form factor: PageSpeed's `mobile` (throttled phone) and `desktop` strategies. */
-  formFactors: Record<'mobile' | 'desktop', { categories: CategoryBudget; metrics: MetricBudget }>
+  /** Score every page aims for (0–100). */
+  target: number
+  /** Score below which the PR is blocked (0–100), for every category and metric. */
+  minimum: number
+  /** Extra runs for a page below the minimum; the median of all its runs decides. */
+  confirmationRuns: number
+  /** PageSpeed strategies: `mobile` (throttled phone) and `desktop`. */
+  formFactors: Array<'mobile' | 'desktop'>
+  categories: Category[]
+  metrics: Metric[]
 }
 
-/** Every performance metric at the same minimum. */
-const metrics = (min: number): MetricBudget => ({
-  'first-contentful-paint': min,
-  'largest-contentful-paint': min,
-  'total-blocking-time': min,
-  'cumulative-layout-shift': min,
-  'speed-index': min,
-})
-
 export default {
-  runs: { mobile: 1, desktop: 1 },
-  formFactors: {
-    // Mobile performance is simulated on a slow 4G phone and moves a few points between runs:
-    // 90 is Google's "good" line, a stable gate (decided by the owner, 2026-10-10).
-    mobile: {
-      categories: { performance: 90, accessibility: 95, 'best-practices': 95, seo: 95 },
-      metrics: metrics(90),
-    },
-    desktop: {
-      categories: { performance: 95, accessibility: 95, 'best-practices': 95, seo: 95 },
-      metrics: metrics(95),
-    },
-  },
+  target: 90,
+  // Decided by the owner (2026-10-10): 90+ is the aim, 80 blocks.
+  minimum: 80,
+  confirmationRuns: 2,
+  formFactors: ['mobile', 'desktop'],
+  categories: ['performance', 'accessibility', 'best-practices', 'seo'],
+  metrics: [
+    'first-contentful-paint',
+    'largest-contentful-paint',
+    'total-blocking-time',
+    'cumulative-layout-shift',
+    'speed-index',
+  ],
 } satisfies WebPerformanceBudget

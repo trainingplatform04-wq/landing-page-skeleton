@@ -697,7 +697,12 @@ Services → Library** → enable **PageSpeed Insights API** → **Credentials �
 API key** (restrict it to the PageSpeed Insights API) → GitHub → repo → Settings → Secrets and
 variables → Actions → secret **`PAGESPEED_API_KEY`**. Without it Google answers 429.
 
-Public repository: GitHub Actions minutes on standard runners are free. Budget and rules: `docs/conventions/CODING_STANDARDS.md` §7.1.
+**Budget**: every page aims for 90+ in every category and performance metric; a score under 80
+fails the job (a page under 80 is measured twice more and the median decides). Scores from 80 to
+89 pass and show as 🟡 "below target" in the PR report. Numbers: `webPerformance.config.ts`;
+rules: `docs/conventions/CODING_STANDARDS.md` §7.1.
+
+Public repository: GitHub Actions minutes on standard runners are free.
 
 To make a red check block the merge button, require it on `develop` and `main`
 (public repository: available on GitHub Free): **Settings → Branches → Add branch ruleset**

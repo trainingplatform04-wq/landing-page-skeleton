@@ -54,7 +54,8 @@ Every page composable has the same four parts, top to bottom (see `composables/u
 - **Types**: `pnpm typegen` generates the Sanity schema types (`types/sanity.types.ts`) that groqd uses; query results are typed by groqd itself.
 - **One language per request** ([ADR 0001](../adr/0001-i18n-translated-urls.md)): every query filters `language == $locale`.
 - **`await` in `<script setup>`**: the server sends complete HTML with the right status code, which search engines need.
-- **The layout** (`useLayout`) loads the footer note, the business profile and which legal pages exist. It never throws: on a CMS error the frame shows what the code knows.
+- **The layout** loads no CMS data: `useLayout` builds the header (site name, menu) from code. The footer is `SiteFooter`, which runs `useFooter` (footer note, business profile, which legal pages exist) on the server only. It never throws: on a CMS error the footer shows what the code knows.
+- **Pages without interaction are thin** (magazine, offers, imprint, privacy): the page renders one content component (`MagazineContent`, `OffersContent`, `LegalDocument`) with `hydrate-never`. That component calls the page composable, so the HTML is complete and the status code right, but its data, query code and sections never reach the browser's first JavaScript. Pages that need JavaScript (home and FAQ accordions, contact form, an offer's translated slug for the language switcher) stay hydrated, with their interactive parts lazily hydrated. A new page starts thin and hydrates only what needs it.
 - **Links** chosen by editors (a page, an offer, or an `https:`/`mailto:`/`tel:` address) are resolved in the mappers (`utils/link/link.utils.ts`); editors never type internal URLs.
 
 ## Routing & languages
@@ -86,14 +87,16 @@ The contact form (`UForm`, validated with zod) sends the message in the backgrou
 
 - `useSiteHead()` (in `app.vue`/`error.vue`): the title template and Open Graph defaults. `@nuxtjs/i18n` adds `lang`, canonical, hreflang and og:locale.
 - `usePageMeta(view.seo)` on every page: title, description, share image, `noindex` when asked or unpublished.
-- **Structured data** (nuxt-schema-org): the module's `WebSite`/`WebPage` defaults plus one `LocalBusiness` from the business profile (registered by the layout).
+- **Structured data** (nuxt-schema-org): the module's `WebSite`/`WebPage` defaults plus one `LocalBusiness` from the business profile (registered by `SiteFooter`).
 - `/robots.txt` and `/sitemap.xml`: the sitemap lists the published pages and offers with their language versions, read from Sanity **when building** (`modules/sitemap.ts`). A CMS error fails the build instead of shipping an empty sitemap. Only `NUXT_SITE_ENV=production` is indexable.
 
 ## Rendering & platform
 
 - SSR on Vercel (Node 24). Images through Vercel Image Optimization in deployments, IPX locally and in E2E. `sizes` use a breakpoint on every entry (`sm:100vw lg:50vw`).
 - Security headers are declared in `nuxt.config.ts` (`routeRules`).
-- **JavaScript on the first screen** (web performance budget, `webPerformance.config.ts`): only the entry chunk is preloaded (`build:manifest` hook in `nuxt.config.ts`). Components hydrate as little as possible, the server HTML being the same: links-only sections `hydrate-never` (cards, heroes, footer, legal text), interactive ones below the fold `hydrate-on-visible` (accordions), the header `hydrate-on-idle`. A new component picks the lightest mode that keeps it working.
+- **Web performance: aim 90+, never under 80** (Google PageSpeed Insights, every page, mobile and desktop, every category and performance metric; `webPerformance.config.ts`, `docs/conventions/CODING_STANDARDS.md` §7.1). Every change to a page, the layout, an image, a dependency or hydration is written for 90+.
+- **JavaScript on the first screen**: only the entry chunk is preloaded (`build:manifest` hook in `nuxt.config.ts`). Components hydrate as little as possible, the server HTML being the same: thin pages' content and the footer `hydrate-never` (see Data flow), links-only sections `hydrate-never` (cards, heroes), interactive ones below the fold `hydrate-on-visible` (accordions), the header `hydrate-on-idle`. A new component picks the lightest mode that keeps it working.
+- **Prefetch on interaction only** (`experimental.defaults.nuxtLink.prefetchOn` in `nuxt.config.ts`): a link loads the next page's code when hovered or focused, never because it is visible, so the first screen downloads only what it shows.
 - The largest image of a page loads first (`fetchpriority="high"` + preload); other images are `loading="lazy"`; images request WebP from the local image server (Vercel negotiates WebP/AVIF itself).
 - Dates are formatted in the business time zone (`BUSINESS_TIME_ZONE`), so server and browser render the same text.
 - `app.config.ts` holds only the Nuxt UI theme; environment values go in `runtimeConfig` (`NUXT_*`).

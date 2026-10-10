@@ -40,7 +40,6 @@ jobs:
 
   verify:
     name: Lint · Format · Types · Unit
-    if: false # TEMPORARY (perf iteration): deploy dev + web performance only
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -61,7 +60,6 @@ jobs:
 
   build-e2e:
     name: Build · E2E
-    if: false # TEMPORARY (perf iteration): deploy dev + web performance only
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -123,7 +121,7 @@ jobs:
   # PR can be seen live and audited on the real platform (CDN, compression, image optimisation).
   deploy-dev:
     name: Deploy dev
-    # TEMPORARY (perf iteration): no dependency on the checks above
+    needs: [verify, build-e2e]
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -202,7 +200,7 @@ jobs:
 
   # Web performance gate on the dev deployment, measured by Google PageSpeed Insights (Google's
   # servers, as pagespeed.web.dev): every page in every language, mobile and desktop, against
-  # webPerformance.config.ts. It audits the deployment's own URL, not the shared
+  # webPerformance.config.ts (aim 90+, fails under 80). It audits the deployment's own URL, not the shared
   # alias, so another PR moving `-dev` cannot change the result.
   web-performance:
     name: Web performance
@@ -242,7 +240,7 @@ jobs:
   report:
     name: PR report
     needs: [verify, build-e2e, deploy-dev, web-performance]
-    if: false # TEMPORARY (perf iteration): deploy dev + web performance only
+    if: always() && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 3
     permissions:

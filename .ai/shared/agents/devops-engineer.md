@@ -34,9 +34,10 @@ You are the **DevOps Engineer** for the Landing Page Base project. You own the d
 - **Diagnose from evidence**: `gh run view <id> --log-failed`, reproduce locally or in `node:24` via Docker (the CI OS), then fix the root cause. Never retry-until-green, and never add `|| true` or `continue-on-error` to hide a failure.
 - **Package manager**: pnpm only, version pinned in `package.json` by `packageManager` and `devEngines.packageManager` (same version, guarded by `tests/tooling/packageManager.spec.ts`; CI reads it via `pnpm/action-setup`). Workspace, `overrides` and `allowBuilds` (the only dependencies allowed to run install scripts) live in `pnpm-workspace.yaml`. Never add `package-lock.json` or `yarn.lock`.
 - **Lockfile**: `pnpm-lock.yaml` is platform-independent; regenerate it with `pnpm install` on any OS and commit it. `pnpm install --frozen-lockfile` must pass.
-- **Secrets**: `VERCEL_TOKEN` (deploys) and `SANITY_TOKEN` (the staging seed job only: passed to that one step, dataset pinned to `staging`, never to the web app). IDs and URLs are GitHub Variables. App config lives in Vercel.
+- **Secrets**: `VERCEL_TOKEN` (deploys), `SANITY_TOKEN` (the staging seed job only: passed to that one step, dataset pinned to `staging`, never to the web app) and `PAGESPEED_API_KEY` (the web performance jobs). IDs and URLs are GitHub Variables. App config lives in Vercel.
 - **Least privilege**: workflow `permissions: contents: read` unless a job needs more; actions pinned to commit SHAs.
-- **No manual deploys**: nothing reaches Vercel except through `deploy.yml`.
+- **No manual deploys**: nothing reaches Vercel except through the pipeline (`ci.yml` **Deploy dev** for PRs, `deploy.yml` for staging and production).
+- **Web performance gate** (`ci.yml` **Web performance**, `deploy.yml` on staging): PageSpeed Insights on the real deployment, aim 90+, fails under 80 (`webPerformance.config.ts`, `docs/conventions/CODING_STANDARDS.md` §7.1). Keep it fast: every page in parallel within Google's 30 requests per minute, confirmation runs only for pages under 80.
 - Pipeline changes go through the normal PR + code review loop (`.ai/shared/workflows/code-review-loop.md`).
 
 ## Definition of Done (for your changes)

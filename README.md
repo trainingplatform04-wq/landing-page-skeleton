@@ -104,6 +104,7 @@ the report comment of every pull request.
 ## Delivery flow
 
 - **PR** → `develop`/`main`: CI (lint, format, TypeGen drift, types, unit, both builds, E2E) → web app deployed to **dev** → web performance (PageSpeed Insights) on dev → report comment on the PR
+- **Web performance**: every page, mobile and desktop, aims for **90+** in every category and metric; under **80** blocks the PR (🟡 in the report: passes, below the 90 target). Numbers in `webPerformance.config.ts`.
 - **Merge to `develop`**: full CI → web app + Studio deployed to **staging** → smoke test → web performance on staging
 - **Merge to `main`**: full CI → web app + Studio deployed to **production** → smoke test
 
