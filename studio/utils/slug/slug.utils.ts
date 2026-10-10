@@ -26,7 +26,9 @@ export const isUniqueInTypeAndLanguage: SlugIsUniqueValidator = async (
 
 /**
  * A slug shared by every language version (a magazine category's `?category=` value): the
- * German and English pages link to each other with the same query, so the versions must agree.
+ * German and English pages link to each other with the same query, so the versions should
+ * agree. Compared with the *other* languages only, so a rename is published one language
+ * after the other (the schema shows the result as a warning).
  */
 export async function matchesTranslations(
   slug: { current?: string } | undefined,
@@ -35,10 +37,12 @@ export async function matchesTranslations(
   if (!document || !slug?.current) return true
   const id = document._id.replace(/^drafts\./, '')
   const query = `*[_type == "translation.metadata" && references($id)][0]
-    .translations[].value->slug.current`
+    .translations[value._ref != $id].value->slug.current`
   const slugs = await getClient({ apiVersion: SANITY_API_VERSION }).fetch<Array<
     string | null
   > | null>(query, { id })
   const other = (slugs ?? []).find((value) => value && value !== slug.current)
-  return other ? `Use "${other}", as in the other language: the address is shared.` : true
+  return other
+    ? `The other language uses "${other}": use the same key in both, so their pages link to each other.`
+    : true
 }

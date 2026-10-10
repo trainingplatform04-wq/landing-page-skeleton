@@ -19,10 +19,13 @@ export const categorySchema = defineType({
       title: 'Address key',
       type: 'slug',
       description:
-        'The same in every language (e.g. "nutrition"): it identifies the category in the address (?category=…), so the German and English pages link to each other.',
+        'The same in every language (e.g. "nutrition"): it identifies the category in the address (?category=…), so the German and English pages link to each other. Changing it after publishing breaks existing links.',
       options: { maxLength: 48, isUnique: isUniqueInTypeAndLanguage },
-      validation: (rule) =>
-        rule.required().custom((slug, context) => matchesTranslations(slug, context)),
+      // A warning, not an error: a rename is published in one language, then the other.
+      validation: (rule) => [
+        rule.required(),
+        rule.custom((slug, context) => matchesTranslations(slug, context)).warning(),
+      ],
     }),
     defineField({
       name: 'order',

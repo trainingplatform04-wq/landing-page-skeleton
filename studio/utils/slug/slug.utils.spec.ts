@@ -49,18 +49,21 @@ describe('matchesTranslations', () => {
     }
   }
 
-  it('accepts the slug its translations use', async () => {
-    const { fetch, context: ctx } = context(['nutrition', 'nutrition'])
+  it('accepts the slug the other language uses, never comparing with itself', async () => {
+    const { fetch, context: ctx } = context(['nutrition'])
 
     expect(await matchesTranslations({ current: 'nutrition' }, ctx)).toBe(true)
-    expect(fetch).toHaveBeenCalledWith(expect.any(String), { id: 'category-nutrition-de' })
+    expect(fetch).toHaveBeenCalledWith(expect.stringContaining('value._ref != $id'), {
+      id: 'category-nutrition-de',
+    })
   })
 
-  it('names the slug of the other language when they differ', async () => {
-    const { context: ctx } = context(['ernaehrung', 'nutrition'])
+  it('names the slug of the other language while a rename is in progress', async () => {
+    // German renamed to "food" first; English still says "nutrition" until it is renamed too.
+    const { context: ctx } = context(['nutrition'])
 
-    expect(await matchesTranslations({ current: 'ernaehrung' }, ctx)).toBe(
-      'Use "nutrition", as in the other language: the address is shared.',
+    expect(await matchesTranslations({ current: 'food' }, ctx)).toBe(
+      'The other language uses "nutrition": use the same key in both, so their pages link to each other.',
     )
   })
 
