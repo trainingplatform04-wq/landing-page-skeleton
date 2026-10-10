@@ -255,19 +255,19 @@ Project → **Settings** → **Environment Variables**. For **each row** below: 
 **Value**, tick only the listed **Environments**, leave **Branch** empty, keep **Sensitive OFF**, click **Save**.
 When the same key has different values per environment, add it once per value.
 
-| Key                                            | Value                   | Environments                     |
-| ---------------------------------------------- | ----------------------- | -------------------------------- |
-| `NUXT_PUBLIC_SANITY_PROJECT_ID`                | N1                      | Production, Preview, Development |
-| `NUXT_PUBLIC_SANITY_DATASET`                   | `production`            | Production                       |
-| `NUXT_PUBLIC_SANITY_DATASET`                   | `staging`               | Preview, Development             |
-| `NUXT_PUBLIC_SITE_URL`                         | N5                      | Production                       |
-| `NUXT_PUBLIC_SITE_URL`                         | N7                      | Preview                          |
-| `NUXT_PUBLIC_SITE_URL`                         | `http://localhost:3000` | Development                      |
-| `NUXT_SITE_ENV`                                | `production`            | Production                       |
-| `NUXT_SITE_ENV`                                | `staging`               | Preview                          |
-| `NUXT_SITE_ENV`                                | `development`           | Development                      |
-| `NUXT_PUBLIC_SITE_NAME` _(optional)_           | your site name          | Production, Preview, Development |
-| `NUXT_PUBLIC_CONTACT_FORM_ACTION` _(optional)_ | your form endpoint      | Production, Preview              |
+| Key                                            | Value              | Environments                     |
+| ---------------------------------------------- | ------------------ | -------------------------------- |
+| `NUXT_PUBLIC_SANITY_PROJECT_ID`                | N1                 | Production, Preview, Development |
+| `NUXT_PUBLIC_SANITY_DATASET`                   | `production`       | Production                       |
+| `NUXT_PUBLIC_SANITY_DATASET`                   | `staging`          | Preview, Development             |
+| `NUXT_PUBLIC_SITE_URL`                         | N5                 | Production                       |
+| `NUXT_PUBLIC_SITE_URL`                         | N7                 | Preview                          |
+| `NUXT_PUBLIC_SITE_URL`                         | the `-dev` URL     | Development                      |
+| `NUXT_SITE_ENV`                                | `production`       | Production                       |
+| `NUXT_SITE_ENV`                                | `staging`          | Preview                          |
+| `NUXT_SITE_ENV`                                | `development`      | Development                      |
+| `NUXT_PUBLIC_SITE_NAME` _(optional)_           | your site name     | Production, Preview, Development |
+| `NUXT_PUBLIC_CONTACT_FORM_ACTION` _(optional)_ | your form endpoint | Production, Preview              |
 
 Rules:
 
@@ -634,14 +634,14 @@ pnpm build:e2e && CI=1 pnpm test:e2e  # E2E against a production build (fixture 
 
 **Vercel project `webapp`** (Settings → Environment Variables, Sensitive OFF)
 
-| Name                              | Production    | Preview (= staging)   | Development             | Required |
-| --------------------------------- | ------------- | --------------------- | ----------------------- | -------- |
-| `NUXT_PUBLIC_SANITY_PROJECT_ID`   | N1            | N1                    | N1                      | ✅       |
-| `NUXT_PUBLIC_SANITY_DATASET`      | `production`  | `staging`             | `staging`               | ✅       |
-| `NUXT_PUBLIC_SITE_URL`            | N5            | N7                    | `http://localhost:3000` | ✅       |
-| `NUXT_SITE_ENV`                   | `production`  | `staging`             | `development`           | ✅       |
-| `NUXT_PUBLIC_SITE_NAME`           | site name     | same                  | same                    | optional |
-| `NUXT_PUBLIC_CONTACT_FORM_ACTION` | form endpoint | same (or a test form) | empty                   | optional |
+| Name                              | Production    | Preview (= staging)   | Development    | Required |
+| --------------------------------- | ------------- | --------------------- | -------------- | -------- |
+| `NUXT_PUBLIC_SANITY_PROJECT_ID`   | N1            | N1                    | N1             | ✅       |
+| `NUXT_PUBLIC_SANITY_DATASET`      | `production`  | `staging`             | `staging`      | ✅       |
+| `NUXT_PUBLIC_SITE_URL`            | N5            | N7                    | the `-dev` URL | ✅       |
+| `NUXT_SITE_ENV`                   | `production`  | `staging`             | `development`  | ✅       |
+| `NUXT_PUBLIC_SITE_NAME`           | site name     | same                  | same           | optional |
+| `NUXT_PUBLIC_CONTACT_FORM_ACTION` | form endpoint | same (or a test form) | empty          | optional |
 
 **Vercel project `studio`**
 
@@ -678,10 +678,9 @@ pnpm build:e2e && CI=1 pnpm test:e2e  # E2E against a production build (fixture 
 | `vercel.json`, `studio/vercel.json` | read by Vercel                                | Build commands, Git auto-deploy **off**, Studio SPA rewrite                                                                                                                                                                                                                                                                                           |
 
 The **Deploy dev** job (pull requests only, after the tests) pulls the **Development**
-environment's variables with the Vercel CLI (staging dataset, `NUXT_SITE_ENV=development`), sets
-`NUXT_PUBLIC_SITE_URL` to the dev address instead of `http://localhost:3000`, builds with them,
-deploys the branch with the same variables at run time, and points the alias `-dev` (the staging
-alias with `-dev` instead of `-staging`) to it. Vercel deploys only to Preview or Production
+environment's variables with the Vercel CLI (staging dataset, `NUXT_SITE_ENV=development`,
+`NUXT_PUBLIC_SITE_URL` = the `-dev` URL), builds with them, deploys the branch with the same
+variables at run time, and points the alias `-dev` (the host of `NUXT_PUBLIC_SITE_URL`) to it. Vercel deploys only to Preview or Production
 ("Development" holds variables; custom environments need Vercel Pro), so the deployment is a
 Preview that carries the Development variables. Then the **Lighthouse** job audits **that real
 deployment** on every page in every language, mobile and desktop: Vercel's CDN, compression and

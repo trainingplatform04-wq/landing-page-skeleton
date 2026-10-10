@@ -140,21 +140,17 @@ jobs:
         with:
           vercel-cli: 'true'
 
-      # The Development environment's variables (staging dataset, NUXT_SITE_ENV=development),
-      # with the site address set to `-dev` instead of its local `http://localhost:3000`.
-      # Vercel deploys only to Preview or Production, so the deployment is a Preview that
-      # carries the Development variables, at build time and at run time.
+      # The Development environment's variables, the source of truth in Vercel (staging dataset,
+      # NUXT_SITE_ENV=development, NUXT_PUBLIC_SITE_URL = the `-dev` address). Vercel deploys only
+      # to Preview or Production, so the deployment is a Preview that carries the Development
+      # variables, at build time and at run time.
       - run: vercel pull --yes --environment=development --token="$VERCEL_TOKEN"
-      - name: Use the Development variables with the dev address
-        env:
-          STAGING_URL: ${{ vars.STAGING_WEBAPP_URL }}
+      - name: Use the Development variables for this deployment
         run: |
-          host="${STAGING_URL#https://}"
-          host="${host/-staging/-dev}"
-          vars=.vercel/.env.development.local
-          sed -i "s#^NUXT_PUBLIC_SITE_URL=.*#NUXT_PUBLIC_SITE_URL=\"https://$host\"#" "$vars"
-          cp "$vars" .vercel/.env.preview.local
-          echo "DEV_HOST=$host" >> "$GITHUB_ENV"
+          cp .vercel/.env.development.local .vercel/.env.preview.local
+          site=$(grep -E '^NUXT_PUBLIC_SITE_URL=' .vercel/.env.preview.local | cut -d= -f2- | tr -d '"')
+          [ -n "$site" ] || { echo "::error::NUXT_PUBLIC_SITE_URL is not set in the Vercel Development environment."; exit 1; }
+          echo "DEV_HOST=${site#https://}" >> "$GITHUB_ENV"
 
       - run: vercel build --token="$VERCEL_TOKEN"
         env:
