@@ -30,8 +30,11 @@ export interface MetricBudget {
 }
 
 export interface LighthouseBudget {
-  /** Runs per page; the median run is judged (smooths the noise of a single run). */
-  runs: number
+  /**
+   * Runs per page and form factor; the median run is judged. Mobile scores move ±3–5 points
+   * between runs (simulated slow 4G): 3 runs. Desktop scores barely move: 1 run.
+   */
+  runs: Record<'mobile' | 'desktop', number>
   /** Minimum scores per form factor: `mobile` is Lighthouse's throttled phone, `desktop` its preset. */
   formFactors: Record<'mobile' | 'desktop', { categories: CategoryBudget; metrics: MetricBudget }>
 }
@@ -46,7 +49,7 @@ const metrics = (min: number): MetricBudget => ({
 })
 
 export default {
-  runs: 3,
+  runs: { mobile: 3, desktop: 1 },
   formFactors: {
     // Mobile performance is simulated on a slow 4G phone and moves a few points between runs:
     // 90 is Google's "good" line, a stable gate (decided by the owner, 2026-10-10).
