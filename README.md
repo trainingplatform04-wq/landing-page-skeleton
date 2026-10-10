@@ -84,10 +84,27 @@ created themselves are never touched. **Any schema change updates the seed file 
 - [Deployment & environments](docs/deployment/DEPLOYMENT.md): env contract, pipeline, runbooks
 - [AI agents](CLAUDE.md): orchestration setup and the autonomous delivery workflow
 
+## Environments
+
+No Vercel access needed: every link is here, on the repository's **Deployments** panel, and in
+the report comment of every pull request.
+
+| Environment    | Web app                                                                                                    | Studio                                                                                                     | Deployed from                                                  | Content                          |
+| -------------- | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | -------------------------------- |
+| **dev**        | [landing-page-skeleton-webapp-dev.vercel.app](https://landing-page-skeleton-webapp-dev.vercel.app)         | (uses staging)                                                                                             | every pull request, after its checks pass (the latest PR wins) | `staging` dataset                |
+| **staging**    | [landing-page-skeleton-webapp-staging.vercel.app](https://landing-page-skeleton-webapp-staging.vercel.app) | [landing-page-skeleton-studio-staging.vercel.app](https://landing-page-skeleton-studio-staging.vercel.app) | every merge into `develop`                                     | `staging` dataset (demo content) |
+| **production** | [landing-page-skeleton-webapp.vercel.app](https://landing-page-skeleton-webapp.vercel.app)                 | [landing-page-skeleton-studio.vercel.app](https://landing-page-skeleton-studio.vercel.app)                 | every merge into `main`                                        | `production` dataset             |
+
+- **Pull requests**: the report comment shows the branch, the commit, the `-dev` link, every
+  check's result and the Lighthouse scores of every page. "View deployment" on the PR opens it too.
+- **Which version is live**: the repository home page → **Deployments** (`dev`, `staging`,
+  `production`, `staging-studio`, `production-studio`), each with its current URL and commit.
+- Variables per environment: `docs/deployment/DEPLOYMENT.md` §11.1.
+
 ## Delivery flow
 
-- **PR** → `develop`/`main`: CI (lint, format, TypeGen drift, types, unit, both builds, E2E)
-- **Merge to `develop`**: full CI → web app + Studio deployed to **staging** → smoke test
+- **PR** → `develop`/`main`: CI (lint, format, TypeGen drift, types, unit, both builds, E2E) → web app deployed to **dev** → Lighthouse on dev → report comment on the PR
+- **Merge to `develop`**: full CI → web app + Studio deployed to **staging** → smoke test → Lighthouse on staging
 - **Merge to `main`**: full CI → web app + Studio deployed to **production** → smoke test
 
 ## License

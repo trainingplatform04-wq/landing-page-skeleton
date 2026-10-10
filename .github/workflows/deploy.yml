@@ -39,6 +39,13 @@ jobs:
     name: Deploy ${{ matrix.app }} (${{ github.ref_name == 'main' && 'production' || 'staging' }})
     needs: ci
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    # The repository's Deployments panel lists the current URL of every environment.
+    environment:
+      name: ${{ github.ref_name == 'main' && 'production' || 'staging' }}${{ matrix.app == 'studio' && '-studio' || '' }}
+      url: ${{ matrix.url }}
     # setup + build (~6 min) + the 12 min build wait, with room to report and clean up.
     timeout-minutes: 25
     strategy:
