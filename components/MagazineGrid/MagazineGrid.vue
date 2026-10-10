@@ -8,6 +8,8 @@ defineProps<{
   pages: string[]
   page: number
   allTo: string
+  /** A category is selected: an empty list offers the link back to all articles. */
+  filtered: boolean
   /** The featured block shows articles: an empty grid is then not "no articles". */
   hasFeatured: boolean
 }>()
@@ -41,8 +43,8 @@ const { t } = useI18n()
         v-else-if="!hasFeatured"
         class="border-default flex min-h-64 flex-col items-center justify-center gap-3 border-y py-12 text-center"
       >
-        <p class="text-muted">{{ t('magazine.empty') }}</p>
-        <UButton :to="allTo" :label="t('magazine.showAll')" variant="link" />
+        <p class="text-muted">{{ filtered ? t('magazine.empty') : t('magazine.none') }}</p>
+        <UButton v-if="filtered" :to="allTo" :label="t('magazine.showAll')" variant="link" />
       </div>
 
       <UPagination

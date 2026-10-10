@@ -24,6 +24,7 @@ const props = {
   pages: [],
   page: 1,
   allTo: '/en/magazine',
+  filtered: true,
   hasFeatured: false,
 }
 
@@ -48,6 +49,16 @@ describe('MagazineGrid', () => {
 
     expect(wrapper.text()).toContain('No articles in this category yet.')
     expect(wrapper.find('a[href="/en/magazine"]').exists()).toBe(true)
+  })
+
+  it('says there are no articles yet when the magazine is empty', async () => {
+    const wrapper = await mountSuspended(MagazineGrid, {
+      props: { ...props, posts: [], filtered: false },
+      route: '/en/magazine',
+    })
+
+    expect(wrapper.text()).toContain('No articles yet.')
+    expect(wrapper.text()).not.toContain('All articles')
   })
 
   it('paginates with links when there is more than one page', async () => {

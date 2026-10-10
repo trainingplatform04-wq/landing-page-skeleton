@@ -103,7 +103,7 @@ Each recipe is a short checklist. A complete earlier implementation of the remov
 - **Add a page**: a route in `ROUTE_PATHS` (+ `PAGE_TYPES` if the CMS fills it), a schema in `studio/schemas/pages/` (registered in `studio/schemas/index.ts`), a composable with its four parts, the page file, its UI texts, its test content in `tests/e2e/sanity/fixtures.ts`, its demo content in `studio/seed/seed.data.ts`, and the route in `tests/e2e/smoke.spec.ts`.
 - **Add a collection with its own URL** (like offers): a schema with `languageField`, `titleField`, `slugField`; add it to `TRANSLATED_TYPES` (`studio/utils/singleton/singleton.utils.ts`) and to the desk; a list composable and a detail composable (404 for an unknown slug, `useSetI18nParams` for the switcher); add it to `modules/sitemap.ts`.
 - **Add a list of references on a page** (like testimonials): `referenceListField` in the page schema, filter the references by language before `deref()` in the query, map them to a plain type in `types/content.types.ts`.
-- **Add a blog**: the offers recipe with a date field, ordered by date.
+- **Add a dated, filterable collection**: see the magazine (`post`, `category`, `author`, `useMagazine`, [ADR 0005](../adr/0005-magazine.md)): ordered by date, filter and page in the URL.
 - **Add redirects for changed slugs**: record the old URL when a slug changes (Studio publish action) and turn the records into 301 route rules when building (see the git tag).
 - **Add a locale**: `LOCALES`, a file in `i18n/locales/`, its path in every entry of `ROUTE_PATHS` (TypeScript flags the missing ones).
 

@@ -65,11 +65,9 @@
   "magazine": {
     "all": "All",
     "categoriesLabel": "Article categories",
+    "none": "No articles yet.",
     "empty": "No articles in this category yet.",
     "showAll": "All articles",
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page {n}",
     "paginationLabel": "Article pages",
     "readingTime": "{n} min read"
   }

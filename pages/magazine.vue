@@ -19,6 +19,7 @@ usePageMeta(magazine.seo)
       :posts="magazine.posts"
       :pages="magazine.pages"
       :page="magazine.page"
+      :filtered="magazine.filtered"
       :all-to="magazine.allTo"
       :has-featured="magazine.featured.length > 0"
     />

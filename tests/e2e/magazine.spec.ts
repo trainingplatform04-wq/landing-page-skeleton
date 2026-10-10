@@ -50,6 +50,20 @@ test.describe('Magazine', () => {
     await expect(card.locator('a')).toHaveAttribute('href', '/en/magazine/article-1')
   })
 
+  test('keeps the filter and the page in the canonical URL', async ({ page }) => {
+    await page.goto('/magazin?kategorie=training')
+
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      /\/magazin\?kategorie=training$/,
+    )
+  })
+
+  test('answers 404 for an unknown category or a page past the last one', async ({ page }) => {
+    expect((await page.goto('/magazin?kategorie=yoga'))?.status()).toBe(404)
+    expect((await page.goto('/magazin?page=9'))?.status()).toBe(404)
+  })
+
   test('is in the menu of every page', async ({ page }) => {
     await page.goto('/en')
     await page.getByRole('link', { name: 'Magazine' }).first().click()

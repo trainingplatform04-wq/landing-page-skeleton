@@ -119,7 +119,8 @@ export default defineNuxtConfig({
     baseUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
     // @nuxtjs/i18n writes `lang`, canonical, hreflang and og:locale itself, and leaves out
     // a language an offer has no translation in (set by `useSetI18nParams`).
-    experimental: { strictSeo: true },
+    // The magazine's filter and page are part of its canonical URL: each view is its own page.
+    experimental: { strictSeo: { canonicalQueries: ['page', 'kategorie', 'category'] } },
   },
 
   sitemap: {

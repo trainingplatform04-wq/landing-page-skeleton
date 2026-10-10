@@ -127,6 +127,40 @@ describe('useMagazine', () => {
     expect(view.featured).toHaveLength(1)
   })
 
+  it('is a 404 for an unknown category', async () => {
+    fetchMock.mockResolvedValue({ page, categories, total: 0, posts: [] })
+
+    expect(await thrownBy(useMagazine, '/en/magazine?category=yoga')).toMatchObject({ status: 404 })
+  })
+
+  it('is a 404 for a page past the last one', async () => {
+    fetchMock.mockResolvedValue({ page, categories, total: 5, posts: [] })
+
+    expect(await thrownBy(useMagazine, '/en/magazine?page=3')).toMatchObject({
+      status: 404,
+    })
+  })
+
+  it('keeps an empty magazine on its first page, without the link back', async () => {
+    fetchMock.mockResolvedValue({ page, categories, total: 0, posts: [] })
+    const view = await mountComposable(useMagazine, { route: '/en/magazine' })
+
+    expect(view.posts).toEqual([])
+    expect(view.filtered).toBe(false)
+  })
+
+  it('leaves out a closing that has only a text', async () => {
+    fetchMock.mockResolvedValue({
+      page: { ...page, closingTitle: null, cta: null },
+      categories,
+      total: 0,
+      posts: [],
+    })
+    const view = await mountComposable(useMagazine, { route: '/en/magazine' })
+
+    expect(view.closing).toBeUndefined()
+  })
+
   it('is a 503 when the CMS fails', async () => {
     fetchMock.mockRejectedValue(new Error('Network failure'))
 

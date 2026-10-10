@@ -101,6 +101,8 @@ export interface MagazineView {
   /** Page links, the first page at index 0; one page shows no pagination. */
   pages: string[]
   page: number
+  /** A category is selected: an empty list then offers the link back to all articles. */
+  filtered: boolean
   /** The link that resets the filter (empty state). */
   allTo: string
 }
@@ -137,7 +139,9 @@ function toMagazineView(
   context: MapContext,
   filter: { page: number; category: string },
   texts: { emptyTitle: string; all: string; readingTime: (minutes: number) => string },
-): MagazineView {
+): MagazineView | null {
+  const known = !filter.category || data.categories.some(({ slug }) => slug === filter.category)
+  if (!known) return null
   const base = context.localePath('magazine')
   const param = CATEGORY_PARAM[context.locale] ?? 'category'
   const query = (category: string, page: number) => {
@@ -152,6 +156,7 @@ function toMagazineView(
   const opening = !filter.category && filter.page === 1
   const listed = filter.category ? data.total : Math.max(data.total - FEATURED_COUNT, 0)
   const pageCount = Math.max(1, Math.ceil(listed / PAGE_SIZE))
+  if (filter.page > pageCount) return null
 
   const tabs: MagazineTab[] = [
     { label: texts.all, to: base, active: !filter.category },
@@ -170,19 +175,18 @@ function toMagazineView(
         ? Array.from({ length: pageCount }, (_, index) => query(filter.category, index + 1))
         : [],
     page: filter.page,
+    filtered: Boolean(filter.category),
     allTo: base,
   }
 
   if (!data.page)
     return { seo: unpublishedSeo(texts.emptyTitle), title: texts.emptyTitle, ...shared }
   const { page } = data
+  const cta = toCta(page.cta, context)
+  // Shown with a title or a button; a text alone has nothing to lead to.
   const closing =
-    page.closingTitle || page.closingText || page.cta
-      ? {
-          title: page.closingTitle ?? undefined,
-          text: page.closingText ?? undefined,
-          cta: toCta(page.cta, context),
-        }
+    page.closingTitle || cta
+      ? { title: page.closingTitle ?? undefined, text: page.closingText ?? undefined, cta }
       : undefined
   return {
     seo: toSeo(page.seo, { title: page.title, description: page.intro }),
@@ -194,7 +198,10 @@ function toMagazineView(
   }
 }
 
-/** The magazine page in the active language, filtered and paginated by the URL: 503 on a CMS error. */
+/**
+ * The magazine page in the active language, filtered and paginated by the URL: 404 for an
+ * unknown category or a page past the last one, 503 on a CMS error.
+ */
 export async function useMagazine(): Promise<MagazineView> {
   const { runQuery, context } = useCms()
   const { t } = useI18n()
@@ -215,7 +222,7 @@ export async function useMagazine(): Promise<MagazineView> {
 
   if (error.value || !data.value) throw createError({ status: 503, fatal: true })
 
-  return toMagazineView(
+  const magazine = toMagazineView(
     data.value,
     context,
     { page, category },
@@ -225,4 +232,6 @@ export async function useMagazine(): Promise<MagazineView> {
       readingTime: (minutes) => t('magazine.readingTime', { n: minutes }),
     },
   )
+  if (!magazine) throw createError({ status: 404, fatal: true })
+  return magazine
 }
