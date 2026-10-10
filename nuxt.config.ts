@@ -75,6 +75,12 @@ export default defineNuxtConfig({
     },
   },
 
+  experimental: {
+    // Links prefetch the next page when hovered or touched, not as soon as they are visible: a
+    // phone does not download every linked page's code while the current one is loading.
+    defaults: { nuxtLink: { prefetchOn: { interaction: true, visibility: false } } },
+  },
+
   // Built assets ship pre-compressed (brotli, gzip): the Node server (E2E) then
   // serves the same transfer sizes as Vercel, which compresses on its own.
   nitro: { compressPublicAssets: true },

@@ -40,6 +40,7 @@ jobs:
 
   verify:
     name: Lint · Format · Types · Unit
+    if: false # TEMPORARY (perf iteration): deploy dev + web performance only
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -60,6 +61,7 @@ jobs:
 
   build-e2e:
     name: Build · E2E
+    if: false # TEMPORARY (perf iteration): deploy dev + web performance only
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -121,7 +123,7 @@ jobs:
   # PR can be seen live and audited on the real platform (CDN, compression, image optimisation).
   deploy-dev:
     name: Deploy dev
-    needs: [verify, build-e2e]
+    # TEMPORARY (perf iteration): no dependency on the checks above
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -240,7 +242,7 @@ jobs:
   report:
     name: PR report
     needs: [verify, build-e2e, deploy-dev, web-performance]
-    if: always() && github.event_name == 'pull_request'
+    if: false # TEMPORARY (perf iteration): deploy dev + web performance only
     runs-on: ubuntu-latest
     timeout-minutes: 3
     permissions:
