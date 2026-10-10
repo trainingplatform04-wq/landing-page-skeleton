@@ -31,7 +31,7 @@ lastUpdated: '2026-10-10'
 - **Given** the menu, **when** any page renders, **then** it shows offers, **magazine**, FAQ,
   contact (header and footer).
 - **Given** "All" on page 1, **when** the page renders, **then** the 3 newest posts are in the
-  featured block and the others in the grid; **given** a category (`?kategorie=` / `?category=`),
+  featured block and the others in the grid; **given** a category (`?category=`, the same in every language),
   **then** the featured block is hidden and the grid shows that category's posts, newest first.
 - **Given** more than 9 grid posts, **when** the page renders, **then** numbered pagination
   (`?page=`) appears; with one page it is hidden.

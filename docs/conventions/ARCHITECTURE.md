@@ -73,7 +73,7 @@ Every page composable has the same four parts, top to bottom (see `composables/u
 | Imprint  | `pages/imprint.vue`       | `/impressum`       | `/en/imprint`       |
 | Privacy  | `pages/privacy.vue`       | `/datenschutz`     | `/en/privacy`       |
 
-- **The magazine** filters by category and pages in the URL (`?kategorie=` / `?category=`, `?page=`), [ADR 0005](../adr/0005-magazine.md).
+- **The magazine** filters by category and pages in the URL (`?category=`, `?page=`, the same in every language), [ADR 0005](../adr/0005-magazine.md).
 - **The menu** is a constant (`constants/navigation.constants.ts`): offers, magazine, FAQ, contact. The site name links home; the legal pages are in the footer.
 - **An offer's slug** is set by the editor, unique per language. Changing it later makes the old URL answer 404 (no redirects).
 - **hreflang, canonical and the language switcher** come from `@nuxtjs/i18n` (`experimental.strictSeo`). The offer page passes its translated slugs with `useSetI18nParams`; the switcher uses `<SwitchLocalePathLink>`, which is right from the first server render. An offer without a translation shows the other language disabled.

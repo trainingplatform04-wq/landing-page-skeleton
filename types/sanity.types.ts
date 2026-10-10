@@ -403,6 +403,12 @@ export type Category = {
   order: number
 }
 
+export type Slug = {
+  _type: 'slug'
+  current: string
+  source?: string
+}
+
 export type FaqItem = {
   _id: string
   _type: 'faqItem'
@@ -458,12 +464,6 @@ export type SanityImageHotspot = {
   y: number
   height: number
   width: number
-}
-
-export type Slug = {
-  _type: 'slug'
-  current: string
-  source?: string
 }
 
 export type SanityImagePaletteSwatch = {
@@ -592,12 +592,12 @@ export type AllSanitySchemaTypes =
   | Post
   | Author
   | Category
+  | Slug
   | FaqItem
   | Testimonial
   | Offer
   | SanityImageCrop
   | SanityImageHotspot
-  | Slug
   | SanityImagePaletteSwatch
   | SanityImagePalette
   | SanityImageDimensions

@@ -20,8 +20,11 @@ import type { InferResultType } from 'groqd'
 const FEATURED_COUNT = 3
 const PAGE_SIZE = 9
 
-/** The search parameter of the category filter, in the language of the URL. */
-const CATEGORY_PARAM: Record<string, string> = { de: 'kategorie', en: 'category' }
+/**
+ * The filter, the same in every language (a category's slug is too): @nuxtjs/i18n copies the
+ * query into the other language's links (hreflang, language switcher) unchanged.
+ */
+const CATEGORY_PARAM = 'category'
 
 const POSTS_FILTER =
   'language == $locale && defined(slug.current) && ($category == "" || category->slug.current == $category)'
@@ -143,10 +146,9 @@ function toMagazineView(
   const known = !filter.category || data.categories.some(({ slug }) => slug === filter.category)
   if (!known) return null
   const base = context.localePath('magazine')
-  const param = CATEGORY_PARAM[context.locale] ?? 'category'
   const query = (category: string, page: number) => {
     const search = new URLSearchParams()
-    if (category) search.set(param, category)
+    if (category) search.set(CATEGORY_PARAM, category)
     if (page > 1) search.set('page', String(page))
     const text = search.toString()
     return text ? `${base}?${text}` : base
@@ -207,10 +209,13 @@ export async function useMagazine(): Promise<MagazineView> {
   const { t } = useI18n()
   const route = useRoute()
 
-  const param = CATEGORY_PARAM[context.locale] ?? 'category'
-  const category = typeof route.query[param] === 'string' ? route.query[param] : ''
-  const requested = Number(route.query.page)
-  const page = Number.isInteger(requested) && requested > 1 ? requested : 1
+  const filter = route.query[CATEGORY_PARAM]
+  const category = typeof filter === 'string' ? filter : ''
+  // Page 1 has no `page` parameter: only 2, 3, … are pages of their own (no duplicates).
+  const page = route.query.page === undefined ? 1 : Number(route.query.page)
+  if (!Number.isInteger(page) || page < 2) {
+    if (route.query.page !== undefined) throw createError({ status: 404, fatal: true })
+  }
   const range = magazineRange(page, category)
 
   const fetchMagazine = () =>

@@ -3,7 +3,7 @@ import { defineField, defineType } from 'sanity'
 
 import { languageField, slugField, titleField } from '../fields'
 
-/** A magazine category: a tab on the magazine page (`?kategorie=<slug>`). */
+/** A magazine category: a tab on the magazine page (`?category=<slug>`). */
 export const categorySchema = defineType({
   name: 'category',
   title: 'Category',
@@ -12,7 +12,11 @@ export const categorySchema = defineType({
   fields: [
     languageField,
     titleField,
-    slugField,
+    {
+      ...slugField,
+      description:
+        'The same in every language (e.g. "nutrition"): it identifies the category in the address, so the German and English pages link to each other.',
+    },
     defineField({
       name: 'order',
       title: 'Order',

@@ -60,7 +60,7 @@
     {
       "key": "nutrition",
       "en": { "title": "Nutrition", "slug": "nutrition" },
-      "de": { "title": "Ernährung", "slug": "ernaehrung" }
+      "de": { "title": "Ernährung", "slug": "nutrition" }
     },
     {
       "key": "mindset",

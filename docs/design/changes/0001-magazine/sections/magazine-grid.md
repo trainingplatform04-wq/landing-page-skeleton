@@ -58,7 +58,7 @@ below the grid.
 | Page label                 | i18n `magazine.page`              | —     | Seite {n}                               | Page {n}                          |
 | Pagination label           | i18n `magazine.paginationLabel`   | —     | Artikelseiten                           | Article pages                     |
 
-Filter in the URL: `?kategorie=<slug>` (DE), `?category=<slug>` (EN); page `?page=<n>`.
+Filter in the URL: `?category=<slug>`, the same in every language; page `?page=<n>`.
 
 ## States
 
@@ -82,5 +82,5 @@ is a `nav` with an accessible name; page buttons named "Page {n}".
 
 ## Open questions
 
-- Tabs as links (`?kategorie=`) rather than buttons would be crawlable; the frontend may use
+- Tabs as links (`?category=`) rather than buttons would be crawlable; the frontend may use
   links styled as tabs (same pixels).

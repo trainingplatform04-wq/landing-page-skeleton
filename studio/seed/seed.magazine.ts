@@ -47,7 +47,7 @@ export const CATEGORIES = [
   {
     key: 'nutrition',
     order: 2,
-    de: { title: 'Ernährung', slug: 'ernaehrung' },
+    de: { title: 'Ernährung', slug: 'nutrition' },
     en: { title: 'Nutrition', slug: 'nutrition' },
   },
   {

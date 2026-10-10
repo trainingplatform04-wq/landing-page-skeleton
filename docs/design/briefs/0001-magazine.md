@@ -364,7 +364,7 @@ Excerpt: Progress happens during recovery. Why good sleep beats an extra session
 | Closing              | Bereit für den ersten Schritt? · Probier es aus: Das erste Training mit einem Coach ist kostenlos. · Kostenloses Probetraining                            |
 | Toc, author, related | In diesem Artikel · Geschrieben von · Weiterlesen                                                                                                         |
 | Share, video, tip    | Teilen · Link kopieren · Link kopiert · Beim Abspielen werden Daten an YouTube übertragen. · Video laden · Coach-Tipp                                     |
-| Category slugs       | training · ernaehrung · mindset                                                                                                                           |
+| Category slugs       | training · nutrition · mindset (the same in every language)                                                                                               |
 | Author roles         | Head Coach, Kraft & Technik · Ernährungscoach · Coach für Mindset & Gewohnheiten                                                                          |
 | Article slugs        | krafttraining-ab-40 · protein-ohne-pulver · dranbleiben-ohne-motivation · mobility-am-morgen · essen-vor-und-nach-dem-training · schlaf-als-trainingstool |
 
@@ -404,7 +404,7 @@ at gate D2, into the changeset's `content/` (seed), before the task starts.
 - **Routes** (`constants/routes.constants.ts`): `magazine` (`/magazin`, `/magazine`),
   `magazine-slug` (`/magazin/[slug]`, `/magazine/[slug]`); `PAGE_TYPES.magazine =
 'magazinePage'`; `NAVIGATION`: offers, **magazine**, faq, contact. Category filter as a search
-  param (`?kategorie=` / `?category=`), pagination `?page=`.
+  param `?category=` (same in every language), pagination `?page=`.
 - **Schema**: page `magazinePage`; collections `post`, `category`, `author` (one document per
   language, translation links as offers, references with `sameLanguageFilter`); body type
   `articleBody` = `richText` + the four blocks. `pnpm typegen`, `types/sanity.types.ts`.

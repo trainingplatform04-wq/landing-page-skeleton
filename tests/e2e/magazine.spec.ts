@@ -31,7 +31,7 @@ test.describe('Magazine', () => {
     const tabs = page.getByRole('navigation', { name: 'Artikelkategorien' })
     await tabs.getByRole('link', { name: 'Ernährung' }).click()
 
-    await expect(page).toHaveURL(/\/magazin\?kategorie=ernaehrung$/)
+    await expect(page).toHaveURL(/\/magazin\?category=nutrition$/)
     await expect(page.locator('[data-section="magazine-featured"]')).toHaveCount(0)
     await expect(page.locator('[data-section="magazine-grid"] article')).toHaveCount(7)
 
@@ -50,17 +50,28 @@ test.describe('Magazine', () => {
     await expect(card.locator('a')).toHaveAttribute('href', '/en/magazine/article-1')
   })
 
-  test('keeps the filter and the page in the canonical URL', async ({ page }) => {
-    await page.goto('/magazin?kategorie=training')
+  test('keeps the filter and the page in the canonical and hreflang URLs', async ({ page }) => {
+    await page.goto('/magazin?category=training')
 
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       'href',
-      /\/magazin\?kategorie=training$/,
+      /\/magazin\?category=training$/,
+    )
+    // The English version of the same view: the filter is the same in every language.
+    await expect(page.locator('link[rel="alternate"][hreflang="en-US"]')).toHaveAttribute(
+      'href',
+      /\/en\/magazine\?category=training$/,
+    )
+
+    await page.goto('/magazin?page=2')
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      /\/magazin\?page=2$/,
     )
   })
 
   test('answers 404 for an unknown category or a page past the last one', async ({ page }) => {
-    expect((await page.goto('/magazin?kategorie=yoga'))?.status()).toBe(404)
+    expect((await page.goto('/magazin?category=yoga'))?.status()).toBe(404)
     expect((await page.goto('/magazin?page=9'))?.status()).toBe(404)
   })
 

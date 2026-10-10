@@ -87,7 +87,7 @@ describe('useMagazine', () => {
 
   it('filters by the category of the German URL and hides the featured block', async () => {
     fetchMock.mockResolvedValue({ page, categories, total: 2, posts: posts(2) })
-    const view = await mountComposable(useMagazine, { route: '/magazin?kategorie=training' })
+    const view = await mountComposable(useMagazine, { route: '/magazin?category=training' })
 
     expect(fetchMock).toHaveBeenCalledWith(expect.any(String), {
       locale: 'de',
@@ -99,8 +99,8 @@ describe('useMagazine', () => {
     expect(view.posts).toHaveLength(2)
     expect(view.tabs).toEqual([
       { label: 'Alle', to: '/magazin', active: false },
-      { label: 'Training', to: '/magazin?kategorie=training', active: true },
-      { label: 'Nutrition', to: '/magazin?kategorie=nutrition', active: false },
+      { label: 'Training', to: '/magazin?category=training', active: true },
+      { label: 'Nutrition', to: '/magazin?category=nutrition', active: false },
     ])
   })
 
@@ -139,6 +139,16 @@ describe('useMagazine', () => {
     expect(await thrownBy(useMagazine, '/en/magazine?page=3')).toMatchObject({
       status: 404,
     })
+  })
+
+  it('is a 404 for a page parameter that is not a page of its own', async () => {
+    fetchMock.mockResolvedValue({ page, categories, total: 30, posts: [] })
+
+    for (const value of ['1', '0', 'abc']) {
+      expect(await thrownBy(useMagazine, `/en/magazine?page=${value}`)).toMatchObject({
+        status: 404,
+      })
+    }
   })
 
   it('keeps an empty magazine on its first page, without the link back', async () => {

@@ -13,7 +13,7 @@ The owner wants a content-heavy page to test the design track end to end (Lovabl
 - **Route**: `magazine` (`/magazin`, `/en/magazine`) in `ROUTE_PATHS`, with the page document `magazinePage`. Menu: offers, magazine, FAQ, contact.
 - **Collections**: `post` (title, slug, excerpt, cover, category, author, `publishedAt`, body, SEO), `category` (title, slug, `order`) and `author` (name, role, bio, photo). One document per language, linked as translations like offers.
 - **Body**: `articleBody` = the site's rich text plus four blocks (coach tip, pull quote, image with caption, YouTube video). The video loads only after a click (privacy); the article page renders it.
-- **Filter and pages in the URL**: `?kategorie=<slug>` (DE) / `?category=<slug>` (EN) and `?page=<n>`, links rather than buttons, so every view can be crawled and shared. "All", page 1 shows the 3 newest articles, then 9 per page.
+- **Filter and pages in the URL**: `?category=<slug>` and `?page=<n>` (page 1 has none), the same in every language: a category's slug is an identifier shared by its language versions, because @nuxtjs/i18n copies the query into hreflang and the language switcher unchanged. Both parameters are part of the canonical URL (`strictSeo.canonicalQueries`); an unknown category or page answers 404. Filters are links rather than buttons, so every view can be crawled and shared. "All", page 1 shows the 3 newest articles, then 9 per page.
 - **No article route yet**: cards link to `/magazin/<slug>`, which answers 404 until the article page's design is approved. Its route (`magazine-slug`), sitemap entries and `useSetI18nParams` come with it.
 - **Reading time** is computed from the body text (200 words per minute); dates use `formatShortDate` in the business time zone.
 

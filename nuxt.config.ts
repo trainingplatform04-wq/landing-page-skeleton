@@ -120,7 +120,7 @@ export default defineNuxtConfig({
     // @nuxtjs/i18n writes `lang`, canonical, hreflang and og:locale itself, and leaves out
     // a language an offer has no translation in (set by `useSetI18nParams`).
     // The magazine's filter and page are part of its canonical URL: each view is its own page.
-    experimental: { strictSeo: { canonicalQueries: ['page', 'kategorie', 'category'] } },
+    experimental: { strictSeo: { canonicalQueries: ['page', 'category'] } },
   },
 
   sitemap: {

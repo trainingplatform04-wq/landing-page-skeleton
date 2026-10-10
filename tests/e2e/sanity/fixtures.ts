@@ -171,13 +171,7 @@ const magazineIn = (language: 'de' | 'en') => [
     cta: routeCta(language === 'de' ? 'Probetraining' : 'Free trial', 'contact'),
   }),
   category('training', language, 'Training', 'training', 1),
-  category(
-    'nutrition',
-    language,
-    language === 'de' ? 'Ernährung' : 'Nutrition',
-    language === 'de' ? 'ernaehrung' : 'nutrition',
-    2,
-  ),
+  category('nutrition', language, language === 'de' ? 'Ernährung' : 'Nutrition', 'nutrition', 2),
   category('mindset', language, 'Mindset', 'mindset', 3),
   { _id: `author-lena-${language}`, _type: 'author', language, name: 'Lena Hoffmann' },
 ]
