@@ -12,7 +12,7 @@ defineProps<{
   <section
     v-if="title || cta"
     data-section="magazine-closing"
-    class="bg-inverted text-inverted py-12 md:py-16"
+    class="bg-neutral-900 py-12 text-white md:py-16"
   >
     <UContainer class="flex flex-col gap-7 md:flex-row md:items-center md:justify-between">
       <div>
@@ -22,7 +22,7 @@ defineProps<{
         >
           {{ title }}
         </h2>
-        <p v-if="text" class="text-dimmed mt-4 text-sm leading-6 md:text-base">{{ text }}</p>
+        <p v-if="text" class="mt-4 text-sm leading-6 text-neutral-400 md:text-base">{{ text }}</p>
       </div>
       <UButton
         v-if="cta"

@@ -85,8 +85,9 @@ export default withNuxt(
     },
   },
   {
-    // Loaded with nuxt.config.ts, before the `~/` alias exists: relative imports only.
-    files: ['modules/**/*.ts'],
+    // Loaded before the `~/` alias exists (modules/, with nuxt.config.ts) or run by plain Node
+    // (tests/lighthouse/): relative imports only.
+    files: ['modules/**/*.ts', 'tests/lighthouse/**/*.ts'],
     rules: {
       'no-restricted-imports': 'off',
     },

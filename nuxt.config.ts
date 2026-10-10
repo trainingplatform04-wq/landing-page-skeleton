@@ -75,6 +75,10 @@ export default defineNuxtConfig({
     },
   },
 
+  // Built assets ship pre-compressed (brotli, gzip): the Node server (E2E, Lighthouse) then
+  // serves the same transfer sizes as Vercel, which compresses on its own.
+  nitro: { compressPublicAssets: true },
+
   compatibilityDate: '2026-09-01',
 
   typescript: {

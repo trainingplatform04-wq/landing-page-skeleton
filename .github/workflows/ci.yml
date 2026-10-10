@@ -115,3 +115,55 @@ jobs:
           name: playwright-report
           path: playwright-report
           retention-days: 7
+
+  # Web performance gate: only once the code is proven (lint, types, unit, E2E). Every page in
+  # every language, mobile and desktop in parallel, judged against lighthouse.config.ts.
+  lighthouse:
+    name: Lighthouse · ${{ matrix.form-factor }}
+    needs: [verify, build-e2e]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      # Report both form factors even when one fails.
+      fail-fast: false
+      matrix:
+        form-factor: [mobile, desktop]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup
+        with:
+          vercel-cli: 'true'
+
+      # The staging content (real texts and pictures): what visitors get.
+      - name: Pull staging env from Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          WEBAPP_PROJECT_ID: ${{ vars.VERCEL_WEBAPP_PROJECT_ID }}
+        run: VERCEL_PROJECT_ID="$WEBAPP_PROJECT_ID" vercel env pull .env --environment=preview --yes --token="$VERCEL_TOKEN"
+
+      - name: Cache Playwright browsers
+        id: pw-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      # Lighthouse runs in Playwright's Chromium: the same browser as locally.
+      - name: Install Chromium
+        run: |
+          if [ "${{ steps.pw-cache.outputs.cache-hit }}" = "true" ]; then
+            pnpm exec playwright install-deps chromium
+          else
+            pnpm exec playwright install --with-deps chromium
+          fi
+
+      # Builds with the production robots settings (inside this job only, never deployed).
+      - run: pnpm lighthouse ${{ matrix.form-factor }}
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: lighthouse-${{ matrix.form-factor }}
+          path: .lighthouseci/${{ matrix.form-factor }}
+          retention-days: 14

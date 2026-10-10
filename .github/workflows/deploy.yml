@@ -2,7 +2,7 @@
 # Deploy — the ONLY way code reaches Vercel (Git auto-deploys are disabled in
 # vercel.json / studio/vercel.json).
 #
-#   push develop → CI → deploy webapp + studio to Preview    → alias → smoke + seed (STAGING)
+#   push develop → CI → deploy webapp + studio to Preview    → alias → smoke + seed → Lighthouse (STAGING)
 #   push main    → CI → deploy webapp + studio to Production          → smoke  (PRODUCTION)
 #   workflow_dispatch on develop/main → same as a push to that branch
 #
@@ -180,3 +180,29 @@ jobs:
         run: pnpm test:smoke
         env:
           PLAYWRIGHT_BASE_URL: ${{ env.WEBAPP_URL }}
+
+  # Staging only: the same budget (lighthouse.config.ts) on the real deployment, after the smoke
+  # test proved it serves. It cannot block the merged PR; it fails this run loudly instead.
+  # Production starts with an empty dataset (ADR 0004), so it is not audited here.
+  lighthouse:
+    name: Lighthouse staging · ${{ matrix.form-factor }}
+    needs: smoke
+    if: github.ref_name == 'develop'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        form-factor: [mobile, desktop]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm lighthouse ${{ matrix.form-factor }} --url="${{ vars.STAGING_WEBAPP_URL }}"
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: lighthouse-staging-${{ matrix.form-factor }}
+          path: .lighthouseci/${{ matrix.form-factor }}
+          retention-days: 14
