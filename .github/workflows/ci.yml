@@ -40,6 +40,7 @@ jobs:
 
   verify:
     name: Lint · Format · Types · Unit
+    if: false # TEMPORARY: web performance only (revert this commit)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -60,6 +61,7 @@ jobs:
 
   build-e2e:
     name: Build · E2E
+    if: false # TEMPORARY: web performance only (revert this commit)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -122,7 +124,7 @@ jobs:
   deploy-dev:
     name: Deploy dev
     needs: [verify, build-e2e]
-    if: github.event_name == 'pull_request'
+    if: false # TEMPORARY: web performance only (revert this commit)
     runs-on: ubuntu-latest
     timeout-minutes: 25
     # One PR deployment at a time: Vercel Hobby builds one at a time and `-dev` is one alias.
@@ -204,7 +206,7 @@ jobs:
   # alias, so another PR moving `-dev` cannot change the result.
   web-performance:
     name: Web performance
-    needs: deploy-dev
+    # TEMPORARY: no dependency, audits the -dev deployment already live (revert this commit)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -216,7 +218,8 @@ jobs:
           PAGESPEED_API_KEY: ${{ secrets.PAGESPEED_API_KEY }}
         run: |
           [ -n "$PAGESPEED_API_KEY" ] || { echo "::error::Secret PAGESPEED_API_KEY is missing (docs/deployment/DEPLOYMENT.md, Web performance)."; exit 1; }
-          pnpm web-performance --url="${{ needs.deploy-dev.outputs.url }}"
+          dev="${{ vars.STAGING_WEBAPP_URL }}"
+          pnpm web-performance --url="${dev/-staging/-dev}"
 
       - name: Web performance summary
         if: always()
@@ -240,7 +243,7 @@ jobs:
   report:
     name: PR report
     needs: [verify, build-e2e, deploy-dev, web-performance]
-    if: always() && github.event_name == 'pull_request'
+    if: false # TEMPORARY: web performance only (revert this commit)
     runs-on: ubuntu-latest
     timeout-minutes: 3
     permissions:
