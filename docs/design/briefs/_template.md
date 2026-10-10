@@ -19,23 +19,54 @@ One paragraph, in the human's words: what we want and why.
 - **Message**: the one sentence to remember; the proof.
 - **Calls to action**: label → target, one primary per section.
 
+---
+
+# Part 1: Design (the only input of the Lovable prompt)
+
+Lovable only designs. This part says **what** to build, in English, with nothing about how our
+site works: no Sanity, no Nuxt, no field names, no translations, no theme values (the theme and
+conventions are in the Lovable project knowledge).
+
+## Pages
+
+| Page | Prototype URL | Menu |
+| ---- | ------------- | ---- |
+|      |               |      |
+
 ## Sections (Designer)
 
 | Order | `data-section` | Purpose | New / changed / unchanged |
 | ----- | -------------- | ------- | ------------------------- |
 | 1     | hero           |         | new                       |
 
-For each new or changed section: layout at 375 / 768 / 1440, states, motion, media.
+For each new or changed section: what it shows, layout at 1440 / 768 / 375, states (with the
+`?state=` names), motion, media.
 
-## Content (every locale)
+## Content (English, in full)
 
-| Section | Element  | DE  | EN  | Sanity field or i18n key |
-| ------- | -------- | --- | --- | ------------------------ |
-| hero    | headline |     |     | homePage.hero.title      |
+Every text the prototype shows, item by item. This is the text Lovable puts on the page.
+
+## Do not change
+
+- Pages, sections or files Lovable must leave identical.
+
+---
+
+# Part 2: Implementation (our side, never sent to Lovable)
+
+## Content model (Tech Lead)
+
+| Element | Sanity field, i18n key or decoration |
+| ------- | ------------------------------------ |
+|         |                                      |
+
+## Other locales (Product Owner)
+
+The same content in every other locale (German), for the i18n files and the staging seed.
 
 ## Technical notes (Tech Lead, Frontend)
 
-- Route and schema impact; reused components; Nuxt UI equivalents; token changes; risks.
+- Routes, schemas, seed, composables, Nuxt UI equivalents, token changes, ADRs, risks.
 
 ## Out of scope
 
@@ -48,10 +79,10 @@ For each new or changed section: layout at 375 / 768 / 1440, states, motion, med
 ## Definition of ready (gate D1)
 
 - [ ] Goal, audience and primary call to action are stated
-- [ ] Every section has a `data-section` name, a purpose and a status
+- [ ] Part 1 names every page with its URL, and every section with a `data-section`, a purpose and a status
 - [ ] Layout at 375 / 768 / 1440 is described for every new or changed section
 - [ ] States and motion are listed (or "none")
-- [ ] Content exists in every locale, or its provider and date are named
+- [ ] The English content is complete in Part 1; every other locale exists in Part 2, or its provider and date are named
 - [ ] Every element is classified: Sanity field, i18n key, or decoration
 - [ ] Token changes are listed (or "none")
 - [ ] Out of scope is written; no open question blocks the build
