@@ -36,9 +36,29 @@ const API = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed'
 const CATEGORIES = ['performance', 'accessibility', 'best-practices', 'seo']
 /** Audits left out of the SEO score on noindex previews. */
 const NOINDEX_AUDITS = new Set(['is-crawlable'])
-/** Every request at once (28 for 14 pages × 2): Google allows ~400 per 100 s with a key. */
-const CONCURRENCY = 50
-const ATTEMPTS = 3
+/**
+ * Google's default quota for this API: 30 requests per minute per Google Cloud project. Requests
+ * go out in parallel up to that, then wait for the next minute (28 for 14 pages × 2 = one minute).
+ */
+const REQUESTS_PER_MINUTE = 30
+const ATTEMPTS = 4
+const MINUTE = 60_000
+
+const sentAt: number[] = []
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+/** Waits until one more request fits in Google's per-minute quota, then books it. */
+async function quotaSlot(): Promise<void> {
+  for (;;) {
+    const now = Date.now()
+    while (sentAt.length && now - sentAt[0]! >= MINUTE) sentAt.shift()
+    if (sentAt.length < REQUESTS_PER_MINUTE) {
+      sentAt.push(now)
+      return
+    }
+    await sleep(MINUTE - (now - sentAt[0]!) + 100)
+  }
+}
 
 const base = process.argv.find((arg) => arg.startsWith('--url='))?.slice('--url='.length)
 const key = process.env.PAGESPEED_API_KEY
@@ -67,6 +87,7 @@ async function runPageSpeed(url: string, formFactor: FormFactor): Promise<Report
   for (const category of CATEGORIES) query.append('category', category)
   if (key) query.set('key', key)
   for (let attempt = 1; ; attempt++) {
+    await quotaSlot()
     const response = await fetch(`${API}?${query}`)
     if (response.ok)
       return ((await response.json()) as { lighthouseResult: Report }).lighthouseResult
@@ -75,7 +96,8 @@ async function runPageSpeed(url: string, formFactor: FormFactor): Promise<Report
         `PageSpeed ${response.status} for ${url} (${formFactor}): ${await response.text()}`,
       )
     }
-    await new Promise((resolve) => setTimeout(resolve, attempt * 5000))
+    // Quota (429): the next minute window; Google's transient errors: a short pause.
+    await sleep(response.status === 429 ? MINUTE : attempt * 5000)
   }
 }
 
@@ -121,7 +143,7 @@ process.stdout.write(
 )
 const reports = await pool(
   jobs.map((job) => () => runPageSpeed(job.url, job.formFactor)),
-  CONCURRENCY,
+  REQUESTS_PER_MINUTE,
 )
 
 const failures: string[] = []
