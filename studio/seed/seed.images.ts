@@ -31,6 +31,17 @@ const IMAGES = {
   training: unsplash('photo-1536922246289-88c42f957773', 1200, 700),
   // unsplash.com/photos/man-holding-black-barbell-hOuJYX2K5DA
   share: unsplash('photo-1517838277536-f5f99be501cd', 1200, 630),
+  // Magazine (docs/design/changes/0001-magazine): covers 16:10 and author portraits, chosen to
+  // match the prototype's picture descriptions.
+  postStrength: unsplash('photo-1517836357463-d25dfeac3438', 1600, 1000),
+  postProtein: unsplash('photo-1546069901-ba9599a7e63c', 1600, 1000),
+  postMotivation: unsplash('photo-1594381898411-846e7d193883', 1600, 1000),
+  postMobility: unsplash('photo-1518611012118-696072aa579a', 1600, 1000),
+  postEating: unsplash('photo-1490645935967-10de6ba17061', 1600, 1000),
+  postSleep: unsplash('photo-1520206183501-b80df61043c2', 1600, 1000),
+  authorLena: unsplash('photo-1438761681033-6461ffad8d80', 400, 400),
+  authorJonas: unsplash('photo-1500648767791-00dcc994a43e', 400, 400),
+  authorMira: unsplash('photo-1544005313-94ddf0286df2', 400, 400),
 } as const
 
 export type SeedImage = keyof typeof IMAGES

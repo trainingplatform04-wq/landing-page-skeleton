@@ -1,0 +1,544 @@
+{
+  "page": {
+    "en": {
+      "kicker": "Magazine",
+      "title": "Know-how that moves you forward.",
+      "intro": "Training, nutrition and mindset: articles from our coaches, for real life.",
+      "closingTitle": "Ready for the first step?",
+      "closingText": "Try it: your first session with a coach is free.",
+      "cta": { "label": "Request a free trial", "route": "contact" },
+      "seo": {
+        "title": "Magazine – FitFlow",
+        "description": "Articles on training, nutrition and mindset from the FitFlow coaches."
+      }
+    },
+    "de": {
+      "kicker": "Magazin",
+      "title": "Wissen, das dich weiterbringt.",
+      "intro": "Training, Ernährung und Mindset: Artikel von unseren Coaches, fürs echte Leben.",
+      "closingTitle": "Bereit für den ersten Schritt?",
+      "closingText": "Probier es aus: Das erste Training mit einem Coach ist kostenlos.",
+      "cta": { "label": "Kostenloses Probetraining", "route": "contact" },
+      "seo": {
+        "title": "Magazin – FitFlow",
+        "description": "Artikel zu Training, Ernährung und Mindset von den FitFlow-Coaches."
+      }
+    }
+  },
+  "i18n": {
+    "en": {
+      "nav.magazine": "Magazine",
+      "magazine.all": "All",
+      "magazine.categoriesLabel": "Article categories",
+      "magazine.empty": "No articles in this category yet.",
+      "magazine.showAll": "All articles",
+      "magazine.previous": "Previous",
+      "magazine.next": "Next",
+      "magazine.page": "Page {n}",
+      "magazine.paginationLabel": "Article pages",
+      "magazine.readingTime": "{n} min read"
+    },
+    "de": {
+      "nav.magazine": "Magazin",
+      "magazine.all": "Alle",
+      "magazine.categoriesLabel": "Artikelkategorien",
+      "magazine.empty": "Noch keine Artikel in dieser Kategorie.",
+      "magazine.showAll": "Alle Artikel",
+      "magazine.previous": "Zurück",
+      "magazine.next": "Weiter",
+      "magazine.page": "Seite {n}",
+      "magazine.paginationLabel": "Artikelseiten",
+      "magazine.readingTime": "{n} Min. Lesezeit"
+    }
+  },
+  "categories": [
+    {
+      "key": "training",
+      "en": { "title": "Training", "slug": "training" },
+      "de": { "title": "Training", "slug": "training" }
+    },
+    {
+      "key": "nutrition",
+      "en": { "title": "Nutrition", "slug": "nutrition" },
+      "de": { "title": "Ernährung", "slug": "ernaehrung" }
+    },
+    {
+      "key": "mindset",
+      "en": { "title": "Mindset", "slug": "mindset" },
+      "de": { "title": "Mindset", "slug": "mindset" }
+    }
+  ],
+  "authors": [
+    {
+      "key": "lena",
+      "name": "Lena Hoffmann",
+      "picture": "lena-hoffmann",
+      "en": {
+        "role": "Head coach, strength & technique",
+        "bio": "Lena has coached in Berlin for twelve years and gets people of every age safely under the bar."
+      },
+      "de": {
+        "role": "Head Coach, Kraft & Technik",
+        "bio": "Lena coacht seit zwölf Jahren in Berlin und bringt Menschen jeden Alters sicher unter die Hantel."
+      }
+    },
+    {
+      "key": "jonas",
+      "name": "Jonas Weber",
+      "picture": "jonas-weber",
+      "en": {
+        "role": "Nutrition coach",
+        "bio": "Jonas is a nutrition scientist who believes in food that tastes good and fits a busy calendar."
+      },
+      "de": {
+        "role": "Ernährungscoach",
+        "bio": "Jonas ist Ökotrophologe und glaubt an Essen, das schmeckt und in einen vollen Kalender passt."
+      }
+    },
+    {
+      "key": "mira",
+      "name": "Mira Schulz",
+      "picture": "mira-schulz",
+      "en": {
+        "role": "Mindset & habits coach",
+        "bio": "Mira combines training with behavioural psychology so good intentions become habits."
+      },
+      "de": {
+        "role": "Coach für Mindset & Gewohnheiten",
+        "bio": "Mira verbindet Training mit Verhaltenspsychologie, damit gute Vorsätze zu Gewohnheiten werden."
+      }
+    }
+  ],
+  "posts": [
+    {
+      "key": "strength-after-40",
+      "category": "training",
+      "author": "lena",
+      "publishedAt": "2026-09-28T08:00:00+02:00",
+      "picture": "strength-training-after-40",
+      "en": {
+        "title": "Strength training after 40: how to start safely",
+        "slug": "strength-training-after-40",
+        "excerpt": "Muscles respond to training at any age. Here is how to build a safe foundation in four weeks.",
+        "body": [
+          {
+            "p": "At 40, it isn't too late to start strength training. It's exactly the right time. Muscles, bones and joints respond to training at any age, as long as you start smart."
+          },
+          { "h2": "Why strength matters after 40" },
+          {
+            "p": "Without training, we lose muscle mass every decade from around 30. Strength training slows that loss, strengthens your bones and makes everyday life easier: stairs, shopping, lifting your kids."
+          },
+          {
+            "quote": "The best time to start was ten years ago. The second best is today.",
+            "attribution": "Lena Hoffmann"
+          },
+          { "h2": "The first four weeks" },
+          {
+            "p": "Start with two full-body sessions a week. Pick five basic exercises and learn the technique before you add weight:"
+          },
+          { "ul": ["Box squat", "Hip thrust", "Cable row", "Incline push-up", "Farmer's walk"] },
+          {
+            "tip": "Stop before your technique breaks down. Keeping two reps in reserve is just right at the start."
+          },
+          {
+            "figure": "box-squat",
+            "caption": "Box squat: the box sets the depth and keeps you safe."
+          },
+          { "h2": "How to progress" },
+          {
+            "p": "Only add weight once you complete every set cleanly. Small steps of one to two kilos are enough. Log every session: progress you can see in black and white keeps you going."
+          },
+          { "video": "M7lc1UVf-VE", "title": "The box squat, step by step" },
+          { "h2": "When to ask a coach" },
+          {
+            "p": "If something hurts, after an old injury, or if you're stuck after four weeks. A free trial session shows you in one hour where you stand and what comes next."
+          }
+        ]
+      },
+      "de": {
+        "title": "Krafttraining ab 40: So startest du sicher",
+        "slug": "krafttraining-ab-40",
+        "excerpt": "Muskeln reagieren in jedem Alter auf Training. So legst du in vier Wochen ein sicheres Fundament.",
+        "body": [
+          {
+            "p": "Mit 40 ist es nicht zu spät für Krafttraining. Es ist genau der richtige Zeitpunkt. Muskeln, Knochen und Gelenke reagieren in jedem Alter auf Training, wenn du klug startest."
+          },
+          { "h2": "Warum Kraft ab 40 zählt" },
+          {
+            "p": "Ohne Training verlieren wir ab etwa 30 mit jedem Jahrzehnt Muskelmasse. Krafttraining bremst diesen Verlust, stärkt die Knochen und macht den Alltag leichter: Treppen, Einkäufe, Kinder hochheben."
+          },
+          {
+            "quote": "Der beste Zeitpunkt für den Start war vor zehn Jahren. Der zweitbeste ist heute.",
+            "attribution": "Lena Hoffmann"
+          },
+          { "h2": "Die ersten vier Wochen" },
+          {
+            "p": "Starte mit zwei Ganzkörper-Einheiten pro Woche. Wähle fünf Grundübungen und lerne die Technik, bevor du das Gewicht steigerst:"
+          },
+          {
+            "ul": [
+              "Kniebeuge an der Box",
+              "Hüftheben",
+              "Rudern am Kabel",
+              "Liegestütz an der Bank",
+              "Farmer's Walk"
+            ]
+          },
+          {
+            "tip": "Hör auf, bevor die Technik bricht. Zwei Wiederholungen Reserve sind am Anfang genau richtig."
+          },
+          {
+            "figure": "box-squat",
+            "caption": "Kniebeuge an der Box: Die Box gibt Tiefe und Sicherheit vor."
+          },
+          { "h2": "So steigerst du dich" },
+          {
+            "p": "Erhöhe das Gewicht erst, wenn du alle Sätze sauber schaffst. Kleine Schritte von ein bis zwei Kilo reichen. Notiere jede Einheit: Fortschritt, den du schwarz auf weiß siehst, motiviert."
+          },
+          { "video": "M7lc1UVf-VE", "title": "Die Kniebeuge an der Box, Schritt für Schritt" },
+          { "h2": "Wann du einen Coach fragen solltest" },
+          {
+            "p": "Bei Schmerzen, nach alten Verletzungen oder wenn du nach vier Wochen nicht weiterkommst. Ein Probetraining zeigt dir in einer Stunde, wo du stehst und was als Nächstes kommt."
+          }
+        ]
+      }
+    },
+    {
+      "key": "protein",
+      "category": "nutrition",
+      "author": "jonas",
+      "publishedAt": "2026-09-21T08:00:00+02:00",
+      "picture": "protein-without-powder",
+      "en": {
+        "title": "Protein without powder: 5 simple meals",
+        "slug": "protein-without-powder",
+        "excerpt": "Enough protein without shakes. Five meals ready in 15 minutes.",
+        "body": [
+          {
+            "p": "You don't need shakes to eat enough protein. You need a few go-to meals that are quick, tasty and easy to repeat."
+          },
+          { "h2": "How much protein you need" },
+          {
+            "p": "Most active adults do well with 1.6 grams of protein per kilo of body weight a day. For someone who weighs 70 kilos, that's about 110 grams, spread over three or four meals."
+          },
+          { "h2": "Five meals in 15 minutes" },
+          {
+            "ul": [
+              "Greek yoghurt with oats, berries and walnuts (about 30 g)",
+              "Scrambled eggs with spinach and wholegrain toast (about 28 g)",
+              "Lentil salad with feta and cherry tomatoes (about 26 g)",
+              "Salmon with rice and peas (about 38 g)",
+              "Wholegrain wrap with chicken, cottage cheese and peppers (about 40 g)"
+            ]
+          },
+          { "tip": "Cook a double portion in the evening. Tomorrow's lunch is then already done." },
+          { "h2": "Your shopping list" },
+          {
+            "p": "Keep eggs, Greek yoghurt, cottage cheese, canned lentils, frozen salmon and chicken breast at home. With these six basics, a protein-rich meal is never more than 15 minutes away."
+          }
+        ]
+      },
+      "de": {
+        "title": "Protein ohne Pulver: 5 einfache Mahlzeiten",
+        "slug": "protein-ohne-pulver",
+        "excerpt": "Genug Eiweiß geht auch ohne Shakes. Fünf Mahlzeiten, die in 15 Minuten fertig sind.",
+        "body": [
+          {
+            "p": "Für genug Eiweiß brauchst du keine Shakes. Du brauchst ein paar Lieblingsgerichte, die schnell gehen, schmecken und sich leicht wiederholen lassen."
+          },
+          { "h2": "Wie viel Protein du brauchst" },
+          {
+            "p": "Die meisten aktiven Erwachsenen kommen mit 1,6 Gramm Protein pro Kilo Körpergewicht am Tag gut aus. Bei 70 Kilo sind das rund 110 Gramm, verteilt auf drei oder vier Mahlzeiten."
+          },
+          { "h2": "Fünf Mahlzeiten in 15 Minuten" },
+          {
+            "ul": [
+              "Griechischer Joghurt mit Haferflocken, Beeren und Walnüssen (ca. 30 g)",
+              "Rührei mit Spinat und Vollkorntoast (ca. 28 g)",
+              "Linsensalat mit Feta und Kirschtomaten (ca. 26 g)",
+              "Lachs mit Reis und Erbsen (ca. 38 g)",
+              "Vollkorn-Wrap mit Hähnchen, Hüttenkäse und Paprika (ca. 40 g)"
+            ]
+          },
+          {
+            "tip": "Koch abends die doppelte Portion. Dann ist das Mittagessen für morgen schon fertig."
+          },
+          { "h2": "Deine Einkaufsliste" },
+          {
+            "p": "Halte Eier, griechischen Joghurt, Hüttenkäse, Linsen aus der Dose, TK-Lachs und Hähnchenbrust im Haus. Mit diesen sechs Basics bist du nie mehr als 15 Minuten von einer eiweißreichen Mahlzeit entfernt."
+          }
+        ]
+      }
+    },
+    {
+      "key": "motivation",
+      "category": "mindset",
+      "author": "mira",
+      "publishedAt": "2026-09-14T08:00:00+02:00",
+      "picture": "keep-going-without-motivation",
+      "en": {
+        "title": "Keep going when motivation fades",
+        "slug": "keep-going-without-motivation",
+        "excerpt": "Motivation comes and goes. Habits stay. Three strategies for the weak weeks.",
+        "body": [
+          {
+            "p": "Motivation is a great starter but a poor engine. The people who make progress aren't more motivated. They have built habits that carry them through the weak weeks."
+          },
+          { "h2": "Why motivation isn't enough" },
+          {
+            "p": "Motivation depends on mood, sleep and stress. If you only train when you feel like it, you won't train often. A habit runs on a cue and a routine, not on a feeling."
+          },
+          {
+            "quote": "Don't wait to feel ready. Start, and the feeling follows.",
+            "attribution": "Mira Schulz"
+          },
+          { "h2": "Three strategies" },
+          {
+            "ol": [
+              "Fix the time: same days, same hour, in your calendar like a meeting.",
+              "Make it small: on bad days, do ten minutes. Ten minutes still count.",
+              "Train with someone: a partner or a group expects you, and that changes everything."
+            ]
+          },
+          { "h2": "When you miss a week" },
+          {
+            "p": "Missing one week changes nothing. Missing the restart does. Don't make up for lost sessions: just do the next planned one."
+          }
+        ]
+      },
+      "de": {
+        "title": "Dranbleiben, wenn die Motivation fehlt",
+        "slug": "dranbleiben-ohne-motivation",
+        "excerpt": "Motivation kommt und geht. Gewohnheiten bleiben. Drei Strategien für die schwachen Wochen.",
+        "body": [
+          {
+            "p": "Motivation ist ein guter Anlasser, aber ein schwacher Motor. Wer Fortschritte macht, ist nicht motivierter. Er hat Gewohnheiten, die ihn durch die schwachen Wochen tragen."
+          },
+          { "h2": "Warum Motivation nicht reicht" },
+          {
+            "p": "Motivation hängt von Laune, Schlaf und Stress ab. Wenn du nur trainierst, wenn du Lust hast, trainierst du selten. Eine Gewohnheit läuft über einen Auslöser und eine Routine, nicht über ein Gefühl."
+          },
+          {
+            "quote": "Warte nicht, bis du dich bereit fühlst. Fang an, das Gefühl kommt nach.",
+            "attribution": "Mira Schulz"
+          },
+          { "h2": "Drei Strategien" },
+          {
+            "ol": [
+              "Leg die Zeit fest: gleiche Tage, gleiche Uhrzeit, im Kalender wie ein Termin.",
+              "Mach es klein: An schlechten Tagen reichen zehn Minuten. Zehn Minuten zählen.",
+              "Trainiere mit anderen: Partner oder Gruppe erwarten dich, und das ändert alles."
+            ]
+          },
+          { "h2": "Wenn du eine Woche verpasst" },
+          {
+            "p": "Eine verpasste Woche ändert nichts. Ein verpasster Neustart schon. Hol nichts nach: Mach einfach die nächste geplante Einheit."
+          }
+        ]
+      }
+    },
+    {
+      "key": "mobility",
+      "category": "training",
+      "author": "lena",
+      "publishedAt": "2026-09-07T08:00:00+02:00",
+      "picture": "morning-mobility",
+      "en": {
+        "title": "10-minute morning mobility",
+        "slug": "morning-mobility",
+        "excerpt": "Stiff after waking up? This routine wakes up your hips, back and shoulders.",
+        "body": [
+          {
+            "p": "Stiff after waking up? Ten minutes are enough to wake up your hips, back and shoulders, with no equipment and no warm-up."
+          },
+          { "h2": "Why in the morning" },
+          {
+            "p": "After a night of lying still, your joints need movement to feel free again. A short routine also wakes up your mind, without the stress of a workout."
+          },
+          { "h2": "The routine" },
+          { "p": "One minute per exercise, calmly, breathing through your nose:" },
+          {
+            "ol": [
+              "Cat-cow on all fours",
+              "World's greatest stretch, both sides",
+              "Standing hip circles",
+              "Upper-back rotations, both sides",
+              "Deep squat hold, holding a door frame",
+              "Arm circles and shoulder rolls"
+            ]
+          },
+          {
+            "figure": "worlds-greatest-stretch",
+            "caption": "World's greatest stretch: hips, back and shoulders in one move."
+          },
+          { "h2": "When you need more" },
+          {
+            "p": "If one area stays stiff or painful for more than two weeks, have it checked. A coach finds the cause in a movement assessment."
+          }
+        ]
+      },
+      "de": {
+        "title": "Mobility in 10 Minuten am Morgen",
+        "slug": "mobility-am-morgen",
+        "excerpt": "Steif nach dem Aufstehen? Diese Routine macht Hüfte, Rücken und Schultern wach.",
+        "body": [
+          {
+            "p": "Steif nach dem Aufstehen? Zehn Minuten reichen, um Hüfte, Rücken und Schultern aufzuwecken, ohne Geräte und ohne Aufwärmen."
+          },
+          { "h2": "Warum morgens" },
+          {
+            "p": "Nach einer Nacht im Liegen brauchen deine Gelenke Bewegung, um sich wieder frei anzufühlen. Eine kurze Routine weckt auch den Kopf, ohne den Stress eines Workouts."
+          },
+          { "h2": "Die Routine" },
+          { "p": "Eine Minute pro Übung, ruhig, mit Atmung durch die Nase:" },
+          {
+            "ol": [
+              "Katze-Kuh im Vierfüßlerstand",
+              "World's Greatest Stretch, beide Seiten",
+              "Hüftkreisen im Stand",
+              "Rotationen der Brustwirbelsäule, beide Seiten",
+              "Tiefe Hocke halten, am Türrahmen festhalten",
+              "Armkreisen und Schulterrollen"
+            ]
+          },
+          {
+            "figure": "worlds-greatest-stretch",
+            "caption": "World's Greatest Stretch: Hüfte, Rücken und Schultern in einer Bewegung."
+          },
+          { "h2": "Wann du mehr brauchst" },
+          {
+            "p": "Bleibt eine Stelle länger als zwei Wochen steif oder schmerzt, lass sie prüfen. Ein Coach findet die Ursache in einer Bewegungsanalyse."
+          }
+        ]
+      }
+    },
+    {
+      "key": "eating",
+      "category": "nutrition",
+      "author": "jonas",
+      "publishedAt": "2026-08-31T08:00:00+02:00",
+      "picture": "eating-before-and-after-training",
+      "en": {
+        "title": "What to eat before and after training",
+        "slug": "eating-before-and-after-training",
+        "excerpt": "Timing matters less than you think, but it still matters. What really counts.",
+        "body": [
+          {
+            "p": "Timing matters less than you think, but it still matters. Here is what really counts around your sessions."
+          },
+          { "h2": "Before training" },
+          {
+            "p": "Eat a normal meal two to three hours before, or a small snack 30 to 60 minutes before: a banana, bread with honey, or a yoghurt. Avoid a lot of fat and fibre right before training."
+          },
+          { "h2": "After training" },
+          {
+            "p": "Within a few hours, eat a meal with protein and carbohydrates: rice with chicken and vegetables, an omelette with potatoes, or yoghurt with fruit and oats."
+          },
+          {
+            "tip": "Drink a large glass of water before and after every session. Many people mistake thirst for tiredness."
+          },
+          { "h2": "Myths" },
+          {
+            "p": "The 30-minute \"anabolic window\" is a myth for most people. What counts is what you eat across the whole day."
+          }
+        ]
+      },
+      "de": {
+        "title": "Was du vor und nach dem Training essen solltest",
+        "slug": "essen-vor-und-nach-dem-training",
+        "excerpt": "Timing ist weniger wichtig als gedacht, aber nicht egal. Was wirklich zählt.",
+        "body": [
+          {
+            "p": "Timing ist weniger wichtig als gedacht, aber nicht egal. Das zählt rund um deine Einheiten wirklich."
+          },
+          { "h2": "Vor dem Training" },
+          {
+            "p": "Iss zwei bis drei Stunden vorher eine normale Mahlzeit oder 30 bis 60 Minuten vorher einen kleinen Snack: eine Banane, ein Brot mit Honig oder einen Joghurt. Viel Fett und Ballaststoffe direkt vor dem Training lieber meiden."
+          },
+          { "h2": "Nach dem Training" },
+          {
+            "p": "Iss innerhalb weniger Stunden eine Mahlzeit mit Eiweiß und Kohlenhydraten: Reis mit Hähnchen und Gemüse, ein Omelett mit Kartoffeln oder Joghurt mit Obst und Haferflocken."
+          },
+          {
+            "tip": "Trink vor und nach jeder Einheit ein großes Glas Wasser. Viele verwechseln Durst mit Müdigkeit."
+          },
+          { "h2": "Mythen" },
+          {
+            "p": "Das 30-Minuten-„anabole Fenster“ ist für die meisten ein Mythos. Entscheidend ist, was du über den ganzen Tag isst."
+          }
+        ]
+      }
+    },
+    {
+      "key": "sleep",
+      "category": "mindset",
+      "author": "mira",
+      "publishedAt": "2026-08-24T08:00:00+02:00",
+      "picture": "sleep-as-a-training-tool",
+      "en": {
+        "title": "Sleep: the underrated training tool",
+        "slug": "sleep-as-a-training-tool",
+        "excerpt": "Progress happens during recovery. Why good sleep beats an extra session.",
+        "body": [
+          {
+            "p": "Your muscles don't grow during training. They grow while you recover, and most of that recovery happens at night."
+          },
+          { "h2": "What happens while you sleep" },
+          {
+            "p": "In deep sleep your body releases growth hormone, repairs muscle tissue and stores what you practised, movement patterns included."
+          },
+          {
+            "quote": "An extra hour of sleep often does more than an extra session.",
+            "attribution": "Mira Schulz"
+          },
+          { "h2": "Five rules for better sleep" },
+          {
+            "ul": [
+              "The same bedtime and wake-up time, weekends included",
+              "No screens for 30 minutes before bed",
+              "A cool, dark bedroom (16 to 19 °C)",
+              "No caffeine after 2 pm",
+              "Hard sessions before 8 pm"
+            ]
+          },
+          { "h2": "Planning sleep and training" },
+          {
+            "p": "After a short night, train lighter and focus on technique. Progress comes from what you can recover from, not from what you can endure."
+          }
+        ]
+      },
+      "de": {
+        "title": "Schlaf: das unterschätzte Trainingstool",
+        "slug": "schlaf-als-trainingstool",
+        "excerpt": "Fortschritt passiert in der Erholung. Warum guter Schlaf mehr bringt als ein Extra-Training.",
+        "body": [
+          {
+            "p": "Deine Muskeln wachsen nicht beim Training. Sie wachsen in der Erholung, und die findet größtenteils nachts statt."
+          },
+          { "h2": "Was im Schlaf passiert" },
+          {
+            "p": "Im Tiefschlaf schüttet dein Körper Wachstumshormon aus, repariert Muskelgewebe und speichert, was du geübt hast, Bewegungsmuster inklusive."
+          },
+          {
+            "quote": "Eine Stunde mehr Schlaf bringt oft mehr als eine Einheit mehr.",
+            "attribution": "Mira Schulz"
+          },
+          { "h2": "Fünf Regeln für besseren Schlaf" },
+          {
+            "ul": [
+              "Gleiche Schlafens- und Aufstehzeit, auch am Wochenende",
+              "30 Minuten vor dem Schlafen keine Bildschirme",
+              "Ein kühles, dunkles Schlafzimmer (16 bis 19 °C)",
+              "Kein Koffein nach 14 Uhr",
+              "Harte Einheiten vor 20 Uhr"
+            ]
+          },
+          { "h2": "Schlaf und Training planen" },
+          {
+            "p": "Trainiere nach einer kurzen Nacht leichter und konzentrier dich auf die Technik. Fortschritt kommt von dem, wovon du dich erholen kannst, nicht von dem, was du aushältst."
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -15,6 +15,23 @@ export function formatDate(isoDate: string, language: string, timeZone: string):
   return toPlainSpaces(format.format(date))
 }
 
+/** e.g. "28. Sept. 2026" / "28 Sep 2026": the short date of article cards. */
+export function formatShortDate(isoDate: string, language: string, timeZone: string): string {
+  const format = new Intl.DateTimeFormat(language, {
+    timeZone,
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+  const date = new Date(isoDate)
+  if (!language.startsWith('en')) return toPlainSpaces(format.format(date))
+  // English as in the design, day first with the US month ("Sep"): en-GB writes "Sept".
+  const parts = format.formatToParts(date)
+  const part = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((entry) => entry.type === type)?.value
+  return `${part('day')} ${part('month')} ${part('year')}`
+}
+
 /** The year of `now` in `timeZone` (for the copyright line). */
 export function getZonedYear(now: Date, timeZone: string): number {
   return Number(new Intl.DateTimeFormat('en-US', { timeZone, year: 'numeric' }).format(now))

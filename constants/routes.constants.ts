@@ -11,6 +11,7 @@ export const ROUTE_PATHS = {
   index: { de: '/', en: '/' },
   offers: { de: '/angebote', en: '/offers' },
   'offers-slug': { de: '/angebote/[slug]', en: '/offers/[slug]' },
+  magazine: { de: '/magazin', en: '/magazine' },
   faq: { de: '/faq', en: '/faq' },
   contact: { de: '/kontakt', en: '/contact' },
   imprint: { de: '/impressum', en: '/imprint' },
@@ -23,6 +24,7 @@ export type RouteName = keyof typeof ROUTE_PATHS
 export const PAGE_TYPES = {
   index: 'homePage',
   offers: 'offersPage',
+  magazine: 'magazinePage',
   faq: 'faqPage',
   contact: 'contactPage',
   imprint: 'imprintPage',

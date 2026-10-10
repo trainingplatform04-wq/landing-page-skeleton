@@ -3,6 +3,7 @@
     "label": "Main navigation",
     "home": "Home",
     "offers": "Offers",
+    "magazine": "Magazine",
     "contact": "Contact",
     "faq": "FAQ"
   },
@@ -60,5 +61,16 @@
       "title": "Something went wrong",
       "message": "An unexpected error occurred. Please try again later."
     }
+  },
+  "magazine": {
+    "all": "All",
+    "categoriesLabel": "Article categories",
+    "empty": "No articles in this category yet.",
+    "showAll": "All articles",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {n}",
+    "paginationLabel": "Article pages",
+    "readingTime": "{n} min read"
   }
 }

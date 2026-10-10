@@ -9,6 +9,8 @@
  *   "Online coaching" is German only (no English link, no hreflang).
  * - On the home page, one testimonial has the client's consent, one has not (never shown).
  * - An offer slug that makes the CMS fail, for the 503 page.
+ * - The German magazine has 14 articles (Training and Ernährung): page 1 shows the 3 newest
+ *   and 9 more, page 2 the last 2. "Mindset" has no article (empty state).
  */
 
 /** The slug that answers an error from server.ts: the page must answer 503. */
@@ -136,6 +138,50 @@ const pagesIn = (language: 'de' | 'en') => [
   },
 ]
 
+const category = (key: string, language: string, title: string, slug: string, order: number) => ({
+  _id: `category-${key}-${language}`,
+  _type: 'category',
+  language,
+  title,
+  slug: { _type: 'slug', current: slug },
+  order,
+})
+
+/** Article `index` of the German magazine: the higher the index, the older it is. */
+const post = (index: number, language: string, categoryKey: string) => ({
+  _id: `post-${index}-${language}`,
+  _type: 'post',
+  _updatedAt: UPDATED,
+  language,
+  title: `${language === 'de' ? 'Artikel' : 'Article'} ${index}`,
+  slug: { _type: 'slug', current: `${language === 'de' ? 'artikel' : 'article'}-${index}` },
+  excerpt: `Excerpt ${index}.`,
+  category: reference(`category-${categoryKey}-${language}`),
+  author: reference(`author-lena-${language}`),
+  publishedAt: `2026-09-${String(29 - index).padStart(2, '0')}T08:00:00Z`,
+  body: text('Kraft beginnt mit Technik.'),
+})
+
+const magazineIn = (language: 'de' | 'en') => [
+  page('magazinePage', language, {
+    kicker: language === 'de' ? 'Magazin' : 'Magazine',
+    title:
+      language === 'de' ? 'Wissen, das dich weiterbringt.' : 'Know-how that moves you forward.',
+    closingTitle: language === 'de' ? 'Bereit?' : 'Ready?',
+    cta: routeCta(language === 'de' ? 'Probetraining' : 'Free trial', 'contact'),
+  }),
+  category('training', language, 'Training', 'training', 1),
+  category(
+    'nutrition',
+    language,
+    language === 'de' ? 'Ernährung' : 'Nutrition',
+    language === 'de' ? 'ernaehrung' : 'nutrition',
+    2,
+  ),
+  category('mindset', language, 'Mindset', 'mindset', 3),
+  { _id: `author-lena-${language}`, _type: 'author', language, name: 'Lena Hoffmann' },
+]
+
 /** The whole dataset. */
 export const documents = () => [
   {
@@ -148,6 +194,13 @@ export const documents = () => [
   },
   ...pagesIn('de'),
   ...pagesIn('en'),
+  ...magazineIn('de'),
+  ...magazineIn('en'),
+  ...Array.from({ length: 14 }, (_, index) =>
+    post(index + 1, 'de', index % 2 ? 'nutrition' : 'training'),
+  ),
+  post(1, 'en', 'training'),
+  post(2, 'en', 'nutrition'),
 
   // German only.
   page('faqPage', 'de', { title: 'Häufige Fragen', intro: 'Alles, was Sie wissen möchten.' }),

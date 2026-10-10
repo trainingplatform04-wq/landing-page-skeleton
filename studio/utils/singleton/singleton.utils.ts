@@ -13,7 +13,14 @@ const LANGUAGE_SINGLETON_TYPES: readonly string[] = [...Object.values(PAGE_TYPES
 const GLOBAL_SINGLETON_TYPES: readonly string[] = ['businessProfile']
 
 /** Translated collections: editors create them per language, linked by the translation plugin. */
-export const TRANSLATED_TYPES: readonly string[] = ['offer', 'testimonial', 'faqItem']
+export const TRANSLATED_TYPES: readonly string[] = [
+  'offer',
+  'testimonial',
+  'faqItem',
+  'post',
+  'category',
+  'author',
+]
 
 const SINGLETON_TYPES = new Set([...LANGUAGE_SINGLETON_TYPES, ...GLOBAL_SINGLETON_TYPES])
 
