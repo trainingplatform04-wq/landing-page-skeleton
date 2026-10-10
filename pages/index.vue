@@ -19,7 +19,7 @@ const highlights = home.about?.highlights.map((title) => ({ title, icon: 'i-luci
 
 <template>
   <div>
-    <HomeHero v-bind="home.hero" />
+    <LazyHomeHero hydrate-never v-bind="home.hero" />
 
     <UPageSection
       v-if="home.offers.length"
@@ -27,7 +27,7 @@ const highlights = home.about?.highlights.map((title) => ({ title, icon: 'i-luci
       :links="[moreLink(t('home.allOffers'), localePath('offers'))]"
     >
       <UPageGrid>
-        <OfferCard v-for="offer in home.offers" :key="offer.id" :offer="offer" />
+        <LazyOfferCard v-for="offer in home.offers" :key="offer.id" hydrate-never :offer="offer" />
       </UPageGrid>
     </UPageSection>
 
@@ -54,7 +54,7 @@ const highlights = home.about?.highlights.map((title) => ({ title, icon: 'i-luci
     </UPageSection>
 
     <UPageSection v-if="home.testimonials.length" :title="t('testimonials.title')">
-      <TestimonialList :testimonials="home.testimonials" />
+      <LazyTestimonialList hydrate-never :testimonials="home.testimonials" />
     </UPageSection>
 
     <UPageSection
@@ -62,7 +62,7 @@ const highlights = home.about?.highlights.map((title) => ({ title, icon: 'i-luci
       :title="t('faq.title')"
       :links="[moreLink(t('faq.all'), localePath('faq'))]"
     >
-      <FaqList :items="home.faq" />
+      <LazyFaqList hydrate-on-visible :items="home.faq" />
     </UPageSection>
 
     <UPageSection v-if="home.closing">

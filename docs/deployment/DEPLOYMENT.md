@@ -669,23 +669,25 @@ pnpm build:e2e && CI=1 pnpm test:e2e  # E2E against a production build (fixture 
 
 ### 11.2 Pipeline files
 
-| File                                | Trigger                                       | What it does                                                                                                                                                                                                                                                          |
-| ----------------------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.github/actions/setup/action.yml`  | used by every job                             | pnpm pinned in `package.json`, Node from `.nvmrc`, cached `pnpm install --frozen-lockfile`, optionally the **pinned** Vercel CLI                                                                                                                                      |
-| `.github/workflows/ci.yml`          | PR → `develop`/`main`; called by `deploy.yml` | **Branch policy** (PRs to `main` only from `develop`/`hotfix/*`) · lint · format · Sanity type drift · types · unit tests (coverage ≥ 80 %) · build both apps · E2E · then, only if all of these pass, **Lighthouse** mobile + desktop against `lighthouse.config.ts` |
-| `.github/workflows/deploy.yml`      | push to `develop` / `main`                    | Full `ci.yml` again, then for **webapp + studio**, one at a time: `vercel pull` → `vercel build` → `vercel deploy --prebuilt` → `vercel inspect --wait` → (staging) `vercel alias set` → **smoke test**; (staging) **seed**: `pnpm studio:seed` (add only)            |
-| `.github/dependabot.yml`            | weekly                                        | pnpm and GitHub Actions updates, PRs into `develop`                                                                                                                                                                                                                   |
-| `vercel.json`, `studio/vercel.json` | read by Vercel                                | Build commands, Git auto-deploy **off**, Studio SPA rewrite                                                                                                                                                                                                           |
+| File                                | Trigger                                       | What it does                                                                                                                                                                                                                                                                                                                       |
+| ----------------------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.github/actions/setup/action.yml`  | used by every job                             | pnpm pinned in `package.json`, Node from `.nvmrc`, cached `pnpm install --frozen-lockfile`, optionally the **pinned** Vercel CLI                                                                                                                                                                                                   |
+| `.github/workflows/ci.yml`          | PR → `develop`/`main`; called by `deploy.yml` | **Branch policy** (PRs to `main` only from `develop`/`hotfix/*`) · lint · format · Sanity type drift · types · unit tests (coverage ≥ 80 %) · build both apps · E2E · then, only if all of these pass, **Lighthouse**: one build, 8 parallel audits (mobile/desktop × 4 shards), one summary check, against `lighthouse.config.ts` |
+| `.github/workflows/deploy.yml`      | push to `develop` / `main`                    | Full `ci.yml` again, then for **webapp + studio**, one at a time: `vercel pull` → `vercel build` → `vercel deploy --prebuilt` → `vercel inspect --wait` → (staging) `vercel alias set` → **smoke test**; (staging) **seed**: `pnpm studio:seed` (add only)                                                                         |
+| `.github/dependabot.yml`            | weekly                                        | pnpm and GitHub Actions updates, PRs into `develop`                                                                                                                                                                                                                                                                                |
+| `vercel.json`, `studio/vercel.json` | read by Vercel                                | Build commands, Git auto-deploy **off**, Studio SPA rewrite                                                                                                                                                                                                                                                                        |
 
-The Lighthouse job builds the commit with the staging content and the production robots
-settings (never deployed) and audits every page in every language; after a staging deploy,
-`deploy.yml` runs the same budget against the staging URL. Reports are attached to the run as
-artifacts (`lighthouse-mobile`, `lighthouse-desktop`). Budget and rules: `docs/conventions/CODING_STANDARDS.md` §7.1.
+The Lighthouse jobs build the commit once with the staging content and the production robots
+settings (never deployed), then audit every page in every language in 8 parallel jobs (mobile and
+desktop × 4 shards of the pages, about 2–3 minutes); the summary job **Lighthouse** is green only
+when every shard met the budget. After a staging deploy, `deploy.yml` runs the same budget against
+the staging URL, also in shards. Reports are attached to the runs as artifacts (`lighthouse-<form factor>-<shard>`).
+Public repository: GitHub Actions minutes on standard runners are free. Budget and rules: `docs/conventions/CODING_STANDARDS.md` §7.1.
 
 To make a red Lighthouse check block the merge button, require it on `develop` and `main`
 (public repository: available on GitHub Free): **Settings → Branches → Add branch ruleset**
 → target `develop` and `main` → **Require status checks to pass** → add `Lint · Format · Types · Unit`,
-`Build · E2E`, `Lighthouse · mobile`, `Lighthouse · desktop`.
+`Build · E2E` and `Lighthouse`.
 
 Why CI runs again after a merge: without branch protection anyone could push directly, and the
 merged commit is not always the commit that was tested in the PR.

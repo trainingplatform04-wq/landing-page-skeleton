@@ -59,7 +59,7 @@ Every page composable has the same four parts, top to bottom (see `composables/u
 
 ## Routing & languages
 
-- **URLs**: German at `/…`, English at `/en/…`, every URL translated. A first visit to `/` redirects once to the browser language; the choice is remembered in a cookie. Deep links are never redirected.
+- **URLs**: German at `/…`, English at `/en/…`, every URL translated. There is no redirect by browser language: `/` is German, `/en` English, and the language switcher is in the header.
 - **Routes** are declared once in `constants/routes.constants.ts` (`ROUTE_PATHS`), read by `nuxt.config.ts` (`i18n.pages`), the Studio's link picker and the sitemap.
 
 | Page     | File                      | German             | English             |
@@ -93,6 +93,8 @@ The contact form (`UForm`, validated with zod) sends the message in the backgrou
 
 - SSR on Vercel (Node 24). Images through Vercel Image Optimization in deployments, IPX locally and in E2E. `sizes` use a breakpoint on every entry (`sm:100vw lg:50vw`).
 - Security headers are declared in `nuxt.config.ts` (`routeRules`).
+- **JavaScript on the first screen** (web performance budget, `lighthouse.config.ts`): only the entry chunk is preloaded (`build:manifest` hook in `nuxt.config.ts`). Components hydrate as little as possible, the server HTML being the same: links-only sections `hydrate-never` (cards, heroes, footer, legal text), interactive ones below the fold `hydrate-on-visible` (accordions), the header `hydrate-on-idle`. A new component picks the lightest mode that keeps it working.
+- The largest image of a page loads first (`fetchpriority="high"` + preload); other images are `loading="lazy"`; images request WebP from the local image server (Vercel negotiates WebP/AVIF itself).
 - Dates are formatted in the business time zone (`BUSINESS_TIME_ZONE`), so server and browser render the same text.
 - `app.config.ts` holds only the Nuxt UI theme; environment values go in `runtimeConfig` (`NUXT_*`).
 

@@ -36,18 +36,27 @@ export interface LighthouseBudget {
   formFactors: Record<'mobile' | 'desktop', { categories: CategoryBudget; metrics: MetricBudget }>
 }
 
-const ALL_95 = {
-  categories: { performance: 95, accessibility: 95, 'best-practices': 95, seo: 95 },
-  metrics: {
-    'first-contentful-paint': 95,
-    'largest-contentful-paint': 95,
-    'total-blocking-time': 95,
-    'cumulative-layout-shift': 95,
-    'speed-index': 95,
-  },
-} satisfies LighthouseBudget['formFactors']['mobile']
+/** Every performance metric at the same minimum. */
+const metrics = (min: number): MetricBudget => ({
+  'first-contentful-paint': min,
+  'largest-contentful-paint': min,
+  'total-blocking-time': min,
+  'cumulative-layout-shift': min,
+  'speed-index': min,
+})
 
 export default {
   runs: 3,
-  formFactors: { mobile: ALL_95, desktop: ALL_95 },
+  formFactors: {
+    // Mobile performance is simulated on a slow 4G phone and moves a few points between runs:
+    // 90 is Google's "good" line, a stable gate (decided by the owner, 2026-10-10).
+    mobile: {
+      categories: { performance: 90, accessibility: 95, 'best-practices': 95, seo: 95 },
+      metrics: metrics(90),
+    },
+    desktop: {
+      categories: { performance: 95, accessibility: 95, 'best-practices': 95, seo: 95 },
+      metrics: metrics(95),
+    },
+  },
 } satisfies LighthouseBudget

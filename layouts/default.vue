@@ -9,7 +9,8 @@ if (layout.value.localBusiness) useSchemaOrg([defineLocalBusiness(layout.value.l
 
 <template>
   <div>
-    <AppHeader
+    <LazyAppHeader
+      hydrate-on-idle
       :site-name="layout.siteName"
       :home-path="layout.homePath"
       :navigation="layout.navigation"
@@ -17,6 +18,6 @@ if (layout.value.localBusiness) useSchemaOrg([defineLocalBusiness(layout.value.l
     <UMain>
       <slot />
     </UMain>
-    <AppFooter :site-name="layout.siteName" v-bind="layout.footer" />
+    <LazyAppFooter hydrate-never :site-name="layout.siteName" v-bind="layout.footer" />
   </div>
 </template>

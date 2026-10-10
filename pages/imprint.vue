@@ -8,5 +8,10 @@ usePageMeta(legal.seo)
 </script>
 
 <template>
-  <LegalContent :title="legal.title" :body="legal.body" :updated-at="legal.updatedAt" />
+  <LazyLegalContent
+    hydrate-never
+    :title="legal.title"
+    :body="legal.body"
+    :updated-at="legal.updatedAt"
+  />
 </template>

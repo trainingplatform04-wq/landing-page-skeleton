@@ -64,5 +64,6 @@ After a schema change, run `pnpm typegen` first and commit `types/sanity.types.t
 
 - `lighthouse.config.ts` is the **only** place thresholds live: the minimum Lighthouse score (0–100) of the four categories (Performance, Accessibility, Best Practices, SEO) and of the five performance metrics (FCP, LCP, TBT, CLS, Speed Index), per form factor (mobile, desktop), and the number of runs (the median run is judged).
 - `pnpm lighthouse [mobile|desktop]` builds this commit for production with the `.env` content (staging) and the **production robots settings** (inside the build only: every SEO audit counts), then audits every page of `ROUTE_PATHS` without a slug, in every language, in Playwright's Chromium. Reports: `.lighthouseci/<form factor>/`.
-- In CI the job **Lighthouse** runs only after **Lint · Format · Types · Unit** and **Build · E2E** pass; after a staging deploy the same budget runs against the live staging URL (there "page is crawlable" is skipped: staging is noindex on purpose).
+- In CI the Lighthouse jobs run only after **Lint · Format · Types · Unit** and **Build · E2E** pass: one build (`--build-only`), 8 parallel audits (`--skip-build --shard=k/4`, mobile and desktop), one summary check **Lighthouse**. After a staging deploy the same budget runs against the live staging URL (there "page is crawlable" is skipped: staging is noindex on purpose).
+- 3 runs per page, the median judged: a single Lighthouse run moves ±3–5 points on an unchanged page.
 - Raising a minimum is free; lowering one is a Tech Lead decision recorded in the PR.

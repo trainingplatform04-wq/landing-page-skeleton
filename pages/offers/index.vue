@@ -19,7 +19,13 @@ usePageMeta(offersPage.seo)
         :title="t('offers.empty')"
       />
       <UPageGrid v-else>
-        <OfferCard v-for="offer in offersPage.offers" :key="offer.id" :offer="offer" />
+        <LazyOfferCard
+          v-for="(offer, index) in offersPage.offers"
+          :key="offer.id"
+          hydrate-never
+          :offer="offer"
+          :priority="index === 0"
+        />
       </UPageGrid>
 
       <CtaLink v-if="offersPage.cta" :cta="offersPage.cta" class="mt-8" />

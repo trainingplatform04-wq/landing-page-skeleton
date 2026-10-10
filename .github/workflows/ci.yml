@@ -116,18 +116,14 @@ jobs:
           path: playwright-report
           retention-days: 7
 
-  # Web performance gate: only once the code is proven (lint, types, unit, E2E). Every page in
-  # every language, mobile and desktop in parallel, judged against lighthouse.config.ts.
-  lighthouse:
-    name: Lighthouse · ${{ matrix.form-factor }}
+  # Web performance gate, only once the code is proven (lint, types, unit, E2E): build once, audit
+  # every page in parallel (mobile and desktop × 4 shards, separate runners so timings stay clean),
+  # then one summary check, "Lighthouse", for branch rules. Budget: lighthouse.config.ts.
+  lighthouse-build:
+    name: Lighthouse · build
     needs: [verify, build-e2e]
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    strategy:
-      # Report both form factors even when one fails.
-      fail-fast: false
-      matrix:
-        form-factor: [mobile, desktop]
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup
@@ -140,6 +136,45 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           WEBAPP_PROJECT_ID: ${{ vars.VERCEL_WEBAPP_PROJECT_ID }}
         run: VERCEL_PROJECT_ID="$WEBAPP_PROJECT_ID" vercel env pull .env --environment=preview --yes --token="$VERCEL_TOKEN"
+
+      # Production robots settings, inside this build only (never deployed).
+      - run: pnpm lighthouse --build-only
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: lighthouse-build
+          path: .output
+          include-hidden-files: true
+          retention-days: 1
+
+  lighthouse-audit:
+    name: Lighthouse · ${{ matrix.form-factor }} ${{ matrix.shard }}/4
+    needs: lighthouse-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      # Report every shard even when one fails.
+      fail-fast: false
+      matrix:
+        form-factor: [mobile, desktop]
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup
+        with:
+          vercel-cli: 'true'
+
+      # The server reads its runtime config (Sanity project, dataset) from the same env.
+      - name: Pull staging env from Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          WEBAPP_PROJECT_ID: ${{ vars.VERCEL_WEBAPP_PROJECT_ID }}
+        run: VERCEL_PROJECT_ID="$WEBAPP_PROJECT_ID" vercel env pull .env --environment=preview --yes --token="$VERCEL_TOKEN"
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: lighthouse-build
+          path: .output
 
       - name: Cache Playwright browsers
         id: pw-cache
@@ -157,13 +192,29 @@ jobs:
             pnpm exec playwright install --with-deps chromium
           fi
 
-      # Builds with the production robots settings (inside this job only, never deployed).
-      - run: pnpm lighthouse ${{ matrix.form-factor }}
+      - run: pnpm lighthouse ${{ matrix.form-factor }} --skip-build --shard=${{ matrix.shard }}/4
 
       - name: Upload Lighthouse reports
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: lighthouse-${{ matrix.form-factor }}
-          path: .lighthouseci/${{ matrix.form-factor }}
+          name: lighthouse-${{ matrix.form-factor }}-${{ matrix.shard }}
+          path: .lighthouseci
+          include-hidden-files: true
           retention-days: 14
+
+  # The one check branch rules require: green only when every shard met the budget.
+  lighthouse:
+    name: Lighthouse
+    needs: lighthouse-audit
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Every page met the budget
+        env:
+          RESULT: ${{ needs.lighthouse-audit.result }}
+        run: |
+          [ "$RESULT" = success ] && exit 0
+          echo "::error::Lighthouse budget not met on at least one page (see the shard jobs and their report artifacts)."
+          exit 1

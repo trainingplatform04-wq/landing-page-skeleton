@@ -1,5 +1,6 @@
 /**
- * `pnpm lighthouse [mobile|desktop] [--skip-build] [--url=<base>]`: the web performance gate.
+ * `pnpm lighthouse [mobile|desktop] [--skip-build|--build-only] [--shard=<k>/<n>] [--url=<base>]`:
+ * the web performance gate.
  *
  * Lighthouse (through Lighthouse CI) audits every page of the site in every language and fails
  * when a category or a performance metric of the median run scores below its minimum in
@@ -7,7 +8,9 @@
  *
  * - Default: a production build of this commit, the developer's `.env` content (staging) and
  *   the production robots settings (`NUXT_SITE_ENV=production`, local only, never deployed),
- *   so every SEO audit counts. `--skip-build` reuses `.output/` (CI builds in its own step).
+ *   so every SEO audit counts. `--skip-build` reuses `.output/`; `--build-only` stops after the
+ *   build (CI builds once, then audits in parallel jobs).
+ * - `--shard=<k>/<n>`: audits the k-th of n equal shares of the pages (one CI job each).
  * - `--url=<base>`: audits a deployed site (the staging check after a deploy). Staging is
  *   noindex on purpose, so there the "page is crawlable" audit is skipped.
  *
@@ -33,10 +36,17 @@ const args = process.argv.slice(2)
 const requested = args.find((arg) => !arg.startsWith('--'))
 const remote = args.find((arg) => arg.startsWith('--url='))?.slice('--url='.length)
 const skipBuild = args.includes('--skip-build') || Boolean(remote)
+const buildOnly = args.includes('--build-only')
+const shard = args
+  .find((arg) => arg.startsWith('--shard='))
+  ?.slice('--shard='.length)
+  .split('/')
+  .map(Number)
 
-if (requested && !FORM_FACTORS.includes(requested as FormFactor)) {
+const validShard = !shard || (shard.length === 2 && shard[0]! >= 1 && shard[0]! <= shard[1]!)
+if ((requested && !FORM_FACTORS.includes(requested as FormFactor)) || !validShard) {
   process.stderr.write(
-    `Usage: pnpm lighthouse [${FORM_FACTORS.join('|')}] [--skip-build] [--url=<base>]\n`,
+    `Usage: pnpm lighthouse [${FORM_FACTORS.join('|')}] [--skip-build|--build-only] [--shard=<k>/<n>] [--url=<base>]\n`,
   )
   process.exit(2)
 }
@@ -53,6 +63,14 @@ function pagePaths(): string[] {
         return path === '/' ? `/${code}` : `/${code}${path}`
       }),
     )
+}
+
+/** The k-th of n equal shares of the pages (`--shard=k/n`), or every page. */
+function inShard<T>(items: T[]): T[] {
+  if (!shard) return items
+  const [k, n] = shard as [number, number]
+  const size = Math.ceil(items.length / n)
+  return items.slice((k - 1) * size, k * size)
 }
 
 /** Lighthouse CI's assertions from the budget: scores 0–100 become its 0–1 `minScore`. */
@@ -82,16 +100,17 @@ if (
 ) {
   process.exit(1)
 }
+if (buildOnly) process.exit(0)
 
 const base = remote ?? `http://localhost:${PORT}`
-const urls = pagePaths().map((path) => `${base}${path}`)
+const urls = inShard(pagePaths()).map((path) => `${base}${path}`)
 // The Chromium Playwright installs: the same browser locally and in CI.
 const chromePath = chromium.executablePath()
 
 // Every form factor runs, so one run reports every failing page; the exit code sums them up.
 const failed: FormFactor[] = []
 for (const formFactor of requested ? [requested as FormFactor] : FORM_FACTORS) {
-  const outputDir = join('.lighthouseci', formFactor)
+  const outputDir = join('.lighthouseci', shard ? `${formFactor}-${shard[0]}` : formFactor)
   rmSync(outputDir, { recursive: true, force: true })
   mkdirSync(outputDir, { recursive: true })
   const config = {

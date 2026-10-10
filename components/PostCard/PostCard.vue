@@ -39,6 +39,7 @@ const imageSizes = computed(() => (large.value ? 'sm:100vw xl:900px' : 'sm:100vw
           width="640"
           height="400"
           :sizes="imageSizes"
+          format="webp"
           :loading="large ? 'eager' : 'lazy'"
           :fetchpriority="large ? 'high' : 'auto'"
           :preload="large ? { fetchPriority: 'high' } : false"
@@ -82,6 +83,7 @@ const imageSizes = computed(() => (large.value ? 'sm:100vw xl:900px' : 'sm:100vw
             :width="large ? 32 : 24"
             :height="large ? 32 : 24"
             loading="lazy"
+            format="webp"
             class="size-6 shrink-0 rounded-full object-cover object-[center_35%]"
             :class="{ 'size-8': large }"
           />

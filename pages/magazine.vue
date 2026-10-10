@@ -12,9 +12,15 @@ usePageMeta(magazine.seo)
 
 <template>
   <div>
-    <MagazineHero :kicker="magazine.kicker" :title="magazine.title" :intro="magazine.intro" />
-    <MagazineFeatured :posts="magazine.featured" />
-    <MagazineGrid
+    <LazyMagazineHero
+      hydrate-never
+      :kicker="magazine.kicker"
+      :title="magazine.title"
+      :intro="magazine.intro"
+    />
+    <LazyMagazineFeatured hydrate-never :posts="magazine.featured" />
+    <LazyMagazineGrid
+      hydrate-never
       :tabs="magazine.tabs"
       :posts="magazine.posts"
       :pages="magazine.pages"
@@ -23,6 +29,6 @@ usePageMeta(magazine.seo)
       :all-to="magazine.allTo"
       :has-featured="magazine.featured.length > 0"
     />
-    <MagazineClosing v-if="magazine.closing" v-bind="magazine.closing" />
+    <LazyMagazineClosing v-if="magazine.closing" hydrate-never v-bind="magazine.closing" />
   </div>
 </template>

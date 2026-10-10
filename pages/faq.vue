@@ -14,7 +14,7 @@ usePageMeta(faq.seo)
 
     <UPageBody>
       <UEmpty v-if="!faq.items.length" icon="i-lucide-circle-help" :title="t('faq.empty')" />
-      <FaqList v-else :items="faq.items" />
+      <LazyFaqList v-else hydrate-on-visible :items="faq.items" />
     </UPageBody>
   </UContainer>
 </template>
