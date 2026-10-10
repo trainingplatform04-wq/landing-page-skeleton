@@ -606,14 +606,14 @@ rasterisation differs between systems). Playwright never opens the Lovable previ
 
 ### 13.3 Not covered by pixels, covered otherwise
 
-| Aspect                   | Covered by                                            |
-| ------------------------ | ----------------------------------------------------- |
-| Motion                   | spec Motion block, reviewed in the PR                 |
-| Widths between the three | spec's fluid rules (+ optional 1024 in `verify.json`) |
-| Interactive states       | spec States block; `?state=` captures later (T8)      |
-| Long real content        | spec limits, Studio validation, E2E with long texts   |
-| Accessibility            | axe, Lighthouse ≥ 95                                  |
-| Performance              | Lighthouse on staging after deploy                    |
+| Aspect                   | Covered by                                                |
+| ------------------------ | --------------------------------------------------------- |
+| Motion                   | spec Motion block, reviewed in the PR                     |
+| Widths between the three | spec's fluid rules (+ optional 1024 in `verify.json`)     |
+| Interactive states       | spec States block; `?state=` captures later (T8)          |
+| Long real content        | spec limits, Studio validation, E2E with long texts       |
+| Accessibility            | axe, PageSpeed Insights 90+ (blocks under 80)             |
+| Performance              | PageSpeed Insights 90+ (blocks under 80), dev and staging |
 
 ### 13.4 Why the loop converges
 

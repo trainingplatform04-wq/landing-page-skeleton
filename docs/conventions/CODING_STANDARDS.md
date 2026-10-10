@@ -55,6 +55,17 @@ Every agent and human runs exactly these before opening or updating a PR. CI run
 ```bash
 pnpm verify                         # lint · format:check · typecheck · unit/component tests + coverage
 pnpm build:e2e && CI=1 pnpm test:e2e # E2E on a production build built against the fixture CMS
+pnpm web-performance --url=<dev URL> # web performance (PageSpeed Insights): aim 90+, blocks under 80
 ```
 
 After a schema change, run `pnpm typegen` first and commit `types/sanity.types.ts`.
+
+### 7.1 Web performance budget
+
+- **Aim 90+, block under 80** (owner, 2026-10-10). Every page, mobile and desktop, aims for **90 or more** on the four categories (Performance, Accessibility, Best Practices, SEO) and the five performance metrics (FCP, LCP, TBT, CLS, Speed Index): Google's "good" line. A score under **80** blocks the PR. A score from 80 to 89 passes but is flagged "below target" in the PR report, and the next change to that page brings it back to 90+.
+- `webPerformance.config.ts` is the **only** place these numbers live: `target` (90), `minimum` (80), `confirmationRuns`.
+- Measured by **Google PageSpeed Insights** (its API, Google's servers): never on localhost or a laptop's connection. `pnpm web-performance --url=<deployed URL>` audits every page of `ROUTE_PATHS` without a slug, in every language; it needs `PAGESPEED_API_KEY`. Reports: `.web-performance/<form factor>/`.
+- In CI, once **Lint · Format · Types · Unit** and **Build · E2E** pass, **Deploy dev** deploys the PR to Vercel (alias `-dev`) and **Web performance** audits that deployment; after a merge, **Web performance staging** audits `-staging`. Previews are noindex on purpose: their SEO score is computed without "page is crawlable".
+- One run per page and form factor, all at the same time (the job lasts about as long as the slowest page). A single PageSpeed run moves 10–25 points on an unchanged page, so a page under the minimum gets `confirmationRuns` (2) more runs and the **median of each score** decides: noise cannot block a PR, a real regression still does.
+- Code that affects the first screen (a page, the layout, an image, a dependency, hydration) is written for the 90 target, not the 80 gate: `docs/conventions/ARCHITECTURE.md` "JavaScript on the first screen".
+- Raising a number is free; lowering one is a Tech Lead decision recorded in the PR.

@@ -44,6 +44,7 @@ Principles: **KISS & SOLID**, **co-location** (`composables/<useName>/<useName>.
 - **Early returns** (Bouncer Pattern). No deeply nested `if/else`.
 - **No hardcoded text**: `t()` / `$t()`; every key exists in every locale.
 - **Dates**: always pass an explicit time zone (`utils/date/date.utils.ts`); never render `new Date()` output directly.
+- **Web performance: aim 90+, blocks under 80** (Google PageSpeed Insights, every page, mobile and desktop, every category and metric; `webPerformance.config.ts`). Write for 90+: thin pages with never-hydrated content, the lightest hydration that works, the largest image first, no new client JavaScript on the first screen ([ARCHITECTURE](docs/conventions/ARCHITECTURE.md) "Rendering & platform").
 
 ## 5. Autonomous Feature Delivery Workflow
 

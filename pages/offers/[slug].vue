@@ -29,7 +29,9 @@ setI18nParams(offer.slugs)
         width="800"
         height="600"
         sizes="sm:100vw lg:50vw"
-        preload
+        format="webp"
+        fetchpriority="high"
+        :preload="{ fetchPriority: 'high' }"
         class="w-full rounded-lg object-cover shadow-xl"
       />
     </UPageHero>

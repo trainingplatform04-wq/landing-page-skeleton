@@ -23,7 +23,7 @@ You are fluent in Nuxt 4 SSR and hydration, Nuxt UI v4, Sanity v6 (schemas, GROQ
 - **Contracts**: view types (in each composable, built from `types/content.types.ts`), composable signatures (`composables/<useName>/<useName>.ts`), groqd queries (in their composable), Studio schema changes (`studio/schemas/`), component props and emits, i18n keys.
 - **Directory tree** of added and changed files (co-located specs).
 - **Owner → task list**, with dependencies.
-- **Risks**: SSR/hydration, empty CMS data, i18n, SEO, performance.
+- **Risks**: SSR/hydration, empty CMS data, i18n, SEO, performance (the plan keeps every page at 90+ on PageSpeed Insights, mobile and desktop; under 80 blocks the PR: say which pages are thin, what hydrates and why).
 
 Then **stop and wait for human approval** (Gate G1). That is your only stop.
 

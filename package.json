@@ -32,6 +32,7 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:smoke": "playwright test smoke",
+    "web-performance": "node tests/webPerformance/webPerformance.ts",
     "design:capture": "node tests/visual/design.ts capture",
     "design:verify": "node tests/visual/design.ts verify",
     "studio:build": "pnpm --filter landing-page-studio build",
@@ -49,6 +50,7 @@
     "groqd": "^1.7.1",
     "nuxt": "^4.5.2",
     "nuxt-schema-org": "^6.4.3",
+    "tailwindcss": "^4.3.3",
     "zod": "^3.25.76"
   },
   "devDependencies": {

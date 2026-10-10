@@ -85,8 +85,9 @@ export default withNuxt(
     },
   },
   {
-    // Loaded with nuxt.config.ts, before the `~/` alias exists: relative imports only.
-    files: ['modules/**/*.ts'],
+    // Loaded before the `~/` alias exists (modules/, with nuxt.config.ts) or run by plain Node
+    // (tests/webPerformance/): relative imports only.
+    files: ['modules/**/*.ts', 'tests/webPerformance/**/*.ts'],
     rules: {
       'no-restricted-imports': 'off',
     },
@@ -112,6 +113,13 @@ export default withNuxt(
     // The seed is a Node command-line script, not app code: it downloads the demo pictures
     // (`fetch`) to upload them to Sanity. The "data only through composables" rule is the app's.
     files: ['studio/seed/**/*.ts'],
+    rules: {
+      'no-restricted-globals': 'off',
+    },
+  },
+  {
+    // A Node command-line script calling Google's PageSpeed Insights API, not app code.
+    files: ['tests/webPerformance/webPerformance.ts'],
     rules: {
       'no-restricted-globals': 'off',
     },

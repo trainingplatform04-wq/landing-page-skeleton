@@ -75,6 +75,16 @@ export default defineNuxtConfig({
     },
   },
 
+  experimental: {
+    // Links prefetch the next page when hovered or touched, not as soon as they are visible: a
+    // phone does not download every linked page's code while the current one is loading.
+    defaults: { nuxtLink: { prefetchOn: { interaction: true, visibility: false } } },
+  },
+
+  // Built assets ship pre-compressed (brotli, gzip): the Node server (E2E) then
+  // serves the same transfer sizes as Vercel, which compresses on its own.
+  nitro: { compressPublicAssets: true },
+
   compatibilityDate: '2026-09-01',
 
   typescript: {
@@ -85,6 +95,13 @@ export default defineNuxtConfig({
   },
 
   hooks: {
+    // Only the entry chunk is preloaded; it imports the rest itself. Preloading every chunk put
+    // ~30 requests ahead of the first paint (mobile FCP 3 s in PageSpeed scoring instead of 1.5-2 s).
+    'build:manifest'(manifest) {
+      for (const chunk of Object.values(manifest)) {
+        if (!chunk.isEntry) chunk.preload = false
+      }
+    },
     // Fail fast (dev server and production build alike): never run bound to a
     // missing project or silently fall back to the wrong dataset.
     'nitro:build:before'() {
@@ -109,12 +126,9 @@ export default defineNuxtConfig({
     strategy: 'prefix_except_default',
     customRoutes: 'config',
     pages: ROUTE_PATHS,
-    // Visiting `/` redirects once to the browser language (e.g. `/en`); the choice is
-    // remembered in the `i18n_redirected` cookie so the switcher always wins.
-    // Deep links are never redirected.
-    detectBrowserLanguage: {
-      redirectOn: 'root',
-    },
+    // No redirect by browser language: `/` is German, `/en` English, the switcher in the header
+    // (one URL per language, as Google recommends; no extra round trip before the home page).
+    detectBrowserLanguage: false,
     // Absolute URLs for canonical and hreflang links.
     baseUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
     // @nuxtjs/i18n writes `lang`, canonical, hreflang and og:locale itself, and leaves out

@@ -22,7 +22,7 @@ const { t } = useI18n()
     <UContainer>
       <nav
         :aria-label="t('magazine.categoriesLabel')"
-        class="mb-8 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        class="mb-8 flex [scrollbar-width:none] gap-2 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden"
       >
         <UButton
           v-for="tab in tabs"

@@ -12,6 +12,10 @@ const props = withDefaults(
 
 const large = computed(() => props.variant === 'large')
 const compact = computed(() => props.variant === 'compact')
+
+// The large card opens the magazine (the page's largest image: loaded first); the others wait
+// until they are near the screen.
+const imageSizes = computed(() => (large.value ? 'sm:100vw xl:900px' : 'sm:100vw md:50vw xl:440px'))
 </script>
 
 <template>
@@ -34,7 +38,11 @@ const compact = computed(() => props.variant === 'compact')
           :alt="post.image.alt"
           width="640"
           height="400"
-          :sizes="large ? 'sm:100vw xl:900px' : 'sm:100vw md:50vw xl:440px'"
+          :sizes="imageSizes"
+          format="webp"
+          :loading="large ? 'eager' : 'lazy'"
+          :fetchpriority="large ? 'high' : 'auto'"
+          :preload="large ? { fetchPriority: 'high' } : false"
           class="h-full w-full object-cover object-[center_35%] transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
         />
       </div>
@@ -74,6 +82,8 @@ const compact = computed(() => props.variant === 'compact')
             :alt="post.author.photo.alt"
             :width="large ? 32 : 24"
             :height="large ? 32 : 24"
+            loading="lazy"
+            format="webp"
             class="size-6 shrink-0 rounded-full object-cover object-[center_35%]"
             :class="{ 'size-8': large }"
           />

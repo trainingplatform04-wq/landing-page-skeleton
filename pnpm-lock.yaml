@@ -238,6 +238,9 @@ importers:
       nuxt-schema-org:
         specifier: ^6.4.3
         version: 6.4.3(a4f02253300973f3716b3dd17a9d4402)
+      tailwindcss:
+        specifier: ^4.3.3
+        version: 4.3.3
       zod:
         specifier: ^3.25.76
         version: 3.25.76

@@ -100,12 +100,13 @@ Every environment always gets **both** apps, deployed together from the same com
  feat/* ──PR──▶ develop ──PR──▶ main
     │              │              │
     ▼              ▼              ▼
-  ci.yml       deploy.yml      deploy.yml
- (checks)     CI → deploy      CI → deploy
-              both apps        both apps (--prod)
-              → alias          → smoke test
-              → smoke test
-               STAGING         PRODUCTION
+  ci.yml         deploy.yml      deploy.yml
+ checks         CI → deploy     CI → deploy
+ → deploy dev   both apps       both apps (--prod)
+ → web perf.    → alias         → smoke test
+ → PR report    → smoke test
+                → web perf.
+   DEV            STAGING        PRODUCTION
 ```
 
 ---
@@ -254,19 +255,19 @@ Project → **Settings** → **Environment Variables**. For **each row** below: 
 **Value**, tick only the listed **Environments**, leave **Branch** empty, keep **Sensitive OFF**, click **Save**.
 When the same key has different values per environment, add it once per value.
 
-| Key                                            | Value                   | Environments                     |
-| ---------------------------------------------- | ----------------------- | -------------------------------- |
-| `NUXT_PUBLIC_SANITY_PROJECT_ID`                | N1                      | Production, Preview, Development |
-| `NUXT_PUBLIC_SANITY_DATASET`                   | `production`            | Production                       |
-| `NUXT_PUBLIC_SANITY_DATASET`                   | `staging`               | Preview, Development             |
-| `NUXT_PUBLIC_SITE_URL`                         | N5                      | Production                       |
-| `NUXT_PUBLIC_SITE_URL`                         | N7                      | Preview                          |
-| `NUXT_PUBLIC_SITE_URL`                         | `http://localhost:3000` | Development                      |
-| `NUXT_SITE_ENV`                                | `production`            | Production                       |
-| `NUXT_SITE_ENV`                                | `staging`               | Preview                          |
-| `NUXT_SITE_ENV`                                | `development`           | Development                      |
-| `NUXT_PUBLIC_SITE_NAME` _(optional)_           | your site name          | Production, Preview, Development |
-| `NUXT_PUBLIC_CONTACT_FORM_ACTION` _(optional)_ | your form endpoint      | Production, Preview              |
+| Key                                            | Value              | Environments                     |
+| ---------------------------------------------- | ------------------ | -------------------------------- |
+| `NUXT_PUBLIC_SANITY_PROJECT_ID`                | N1                 | Production, Preview, Development |
+| `NUXT_PUBLIC_SANITY_DATASET`                   | `production`       | Production                       |
+| `NUXT_PUBLIC_SANITY_DATASET`                   | `staging`          | Preview, Development             |
+| `NUXT_PUBLIC_SITE_URL`                         | N5                 | Production                       |
+| `NUXT_PUBLIC_SITE_URL`                         | N7                 | Preview                          |
+| `NUXT_PUBLIC_SITE_URL`                         | the `-dev` URL     | Development                      |
+| `NUXT_SITE_ENV`                                | `production`       | Production                       |
+| `NUXT_SITE_ENV`                                | `staging`          | Preview                          |
+| `NUXT_SITE_ENV`                                | `development`      | Development                      |
+| `NUXT_PUBLIC_SITE_NAME` _(optional)_           | your site name     | Production, Preview, Development |
+| `NUXT_PUBLIC_CONTACT_FORM_ACTION` _(optional)_ | your form endpoint | Production, Preview              |
 
 Rules:
 
@@ -633,14 +634,14 @@ pnpm build:e2e && CI=1 pnpm test:e2e  # E2E against a production build (fixture 
 
 **Vercel project `webapp`** (Settings → Environment Variables, Sensitive OFF)
 
-| Name                              | Production    | Preview (= staging)   | Development             | Required |
-| --------------------------------- | ------------- | --------------------- | ----------------------- | -------- |
-| `NUXT_PUBLIC_SANITY_PROJECT_ID`   | N1            | N1                    | N1                      | ✅       |
-| `NUXT_PUBLIC_SANITY_DATASET`      | `production`  | `staging`             | `staging`               | ✅       |
-| `NUXT_PUBLIC_SITE_URL`            | N5            | N7                    | `http://localhost:3000` | ✅       |
-| `NUXT_SITE_ENV`                   | `production`  | `staging`             | `development`           | ✅       |
-| `NUXT_PUBLIC_SITE_NAME`           | site name     | same                  | same                    | optional |
-| `NUXT_PUBLIC_CONTACT_FORM_ACTION` | form endpoint | same (or a test form) | empty                   | optional |
+| Name                              | Production    | Preview (= staging)   | Development    | Required |
+| --------------------------------- | ------------- | --------------------- | -------------- | -------- |
+| `NUXT_PUBLIC_SANITY_PROJECT_ID`   | N1            | N1                    | N1             | ✅       |
+| `NUXT_PUBLIC_SANITY_DATASET`      | `production`  | `staging`             | `staging`      | ✅       |
+| `NUXT_PUBLIC_SITE_URL`            | N5            | N7                    | the `-dev` URL | ✅       |
+| `NUXT_SITE_ENV`                   | `production`  | `staging`             | `development`  | ✅       |
+| `NUXT_PUBLIC_SITE_NAME`           | site name     | same                  | same           | optional |
+| `NUXT_PUBLIC_CONTACT_FORM_ACTION` | form endpoint | same (or a test form) | empty          | optional |
 
 **Vercel project `studio`**
 
@@ -651,11 +652,11 @@ pnpm build:e2e && CI=1 pnpm test:e2e  # E2E against a production build (fixture 
 
 **GitHub** (repo → Settings → Secrets and variables → Actions)
 
-| Kind     | Name                                                                                             |
-| -------- | ------------------------------------------------------------------------------------------------ |
-| Secret   | `VERCEL_TOKEN` (Actions **and** Dependabot secrets), `SANITY_TOKEN` (Actions only, staging seed) |
-| Variable | `VERCEL_ORG_ID`, `VERCEL_WEBAPP_PROJECT_ID`, `VERCEL_STUDIO_PROJECT_ID`                          |
-| Variable | `STAGING_WEBAPP_URL`, `STAGING_STUDIO_URL`, `PRODUCTION_WEBAPP_URL`, `PRODUCTION_STUDIO_URL`     |
+| Kind     | Name                                                                                                                                             |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Secret   | `VERCEL_TOKEN` (Actions **and** Dependabot secrets), `SANITY_TOKEN` (Actions only, staging seed), `PAGESPEED_API_KEY` (Actions, web performance) |
+| Variable | `VERCEL_ORG_ID`, `VERCEL_WEBAPP_PROJECT_ID`, `VERCEL_STUDIO_PROJECT_ID`                                                                          |
+| Variable | `STAGING_WEBAPP_URL`, `STAGING_STUDIO_URL`, `PRODUCTION_WEBAPP_URL`, `PRODUCTION_STUDIO_URL`                                                     |
 
 **How they are used**
 
@@ -668,13 +669,45 @@ pnpm build:e2e && CI=1 pnpm test:e2e  # E2E against a production build (fixture 
 
 ### 11.2 Pipeline files
 
-| File                                | Trigger                                       | What it does                                                                                                                                                                                                                                               |
-| ----------------------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.github/actions/setup/action.yml`  | used by every job                             | pnpm pinned in `package.json`, Node from `.nvmrc`, cached `pnpm install --frozen-lockfile`, optionally the **pinned** Vercel CLI                                                                                                                           |
-| `.github/workflows/ci.yml`          | PR → `develop`/`main`; called by `deploy.yml` | **Branch policy** (PRs to `main` only from `develop`/`hotfix/*`) · lint · format · Sanity type drift · types · unit tests (coverage ≥ 80 %) · build both apps · E2E                                                                                        |
-| `.github/workflows/deploy.yml`      | push to `develop` / `main`                    | Full `ci.yml` again, then for **webapp + studio**, one at a time: `vercel pull` → `vercel build` → `vercel deploy --prebuilt` → `vercel inspect --wait` → (staging) `vercel alias set` → **smoke test**; (staging) **seed**: `pnpm studio:seed` (add only) |
-| `.github/dependabot.yml`            | weekly                                        | pnpm and GitHub Actions updates, PRs into `develop`                                                                                                                                                                                                        |
-| `vercel.json`, `studio/vercel.json` | read by Vercel                                | Build commands, Git auto-deploy **off**, Studio SPA rewrite                                                                                                                                                                                                |
+| File                                | Trigger                                       | What it does                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ----------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `.github/actions/setup/action.yml`  | used by every job                             | pnpm pinned in `package.json`, Node from `.nvmrc`, cached `pnpm install --frozen-lockfile`, optionally the **pinned** Vercel CLI                                                                                                                                                                                                                                                                                   |
+| `.github/workflows/ci.yml`          | PR → `develop`/`main`; called by `deploy.yml` | **Branch policy** (PRs to `main` only from `develop`/`hotfix/*`) · lint · format · Sanity type drift · types · unit tests (coverage ≥ 80 %) · build both apps · E2E · then (pull requests), only if all of these pass, **Deploy dev** (the branch to Vercel Preview, alias `-dev`) → **Web performance** (Google PageSpeed Insights) on that deployment against `webPerformance.config.ts` → **PR report** comment |
+| `.github/workflows/deploy.yml`      | push to `develop` / `main`                    | Full `ci.yml` again, then for **webapp + studio**, one at a time: `vercel pull` → `vercel build` → `vercel deploy --prebuilt` → `vercel inspect --wait` → (staging) `vercel alias set` → **smoke test**; (staging) **seed**: `pnpm studio:seed` (add only)                                                                                                                                                         |
+| `.github/dependabot.yml`            | weekly                                        | pnpm and GitHub Actions updates, PRs into `develop`                                                                                                                                                                                                                                                                                                                                                                |
+| `vercel.json`, `studio/vercel.json` | read by Vercel                                | Build commands, Git auto-deploy **off**, Studio SPA rewrite                                                                                                                                                                                                                                                                                                                                                        |
+
+The **Deploy dev** job (pull requests only, after the tests) pulls the **Development**
+environment's variables with the Vercel CLI (staging dataset, `NUXT_SITE_ENV=development`,
+`NUXT_PUBLIC_SITE_URL` = the `-dev` URL), builds with them, deploys the branch with the same
+variables at run time, and points the alias `-dev` (the host of `NUXT_PUBLIC_SITE_URL`) to it. Vercel deploys only to Preview or Production
+("Development" holds variables; custom environments need Vercel Pro), so the deployment is a
+Preview that carries the Development variables. Then the **Web performance** job asks
+**Google PageSpeed Insights** (its API: Google's servers, the same measurement as
+pagespeed.web.dev) to audit **that real deployment** on every page in every language, mobile and
+desktop: Vercel's CDN, compression and image optimisation included, nothing measured from a
+laptop or localhost. It audits the deployment's own URL, so another PR moving `-dev` cannot
+change the result. The dev site is noindex (`NUXT_SITE_ENV=development`, and Vercel marks
+previews), so its SEO score is computed without "page is crawlable"; every other audit counts.
+After a merge, `deploy.yml` runs the same budget on `-staging`. Reports are artifacts
+(`web-performance`), and the **PR report** comment shows the table with the dev link.
+
+**PageSpeed Insights API key** (one time, free): Google Cloud Console → a project → **APIs &
+Services → Library** → enable **PageSpeed Insights API** → **Credentials → Create credentials →
+API key** (restrict it to the PageSpeed Insights API) → GitHub → repo → Settings → Secrets and
+variables → Actions → secret **`PAGESPEED_API_KEY`**. Without it Google answers 429.
+
+**Budget**: every page aims for 90+ in every category and performance metric; a score under 80
+fails the job (a page under 80 is measured twice more and the median decides). Scores from 80 to
+89 pass and show as 🟡 "below target" in the PR report. Numbers: `webPerformance.config.ts`;
+rules: `docs/conventions/CODING_STANDARDS.md` §7.1.
+
+Public repository: GitHub Actions minutes on standard runners are free.
+
+To make a red check block the merge button, require it on `develop` and `main`
+(public repository: available on GitHub Free): **Settings → Branches → Add branch ruleset**
+→ target `develop` and `main` → **Require status checks to pass** → add `Lint · Format · Types · Unit`,
+`Build · E2E` and `Web performance`.
 
 Why CI runs again after a merge: without branch protection anyone could push directly, and the
 merged commit is not always the commit that was tested in the PR.

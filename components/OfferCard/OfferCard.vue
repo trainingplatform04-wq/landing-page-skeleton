@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import type { OfferCard } from '~/types/content.types'
 
-defineProps<{ offer: OfferCard }>()
+defineProps<{
+  offer: OfferCard
+  /** The first card of the page: its image is the page's largest, loaded first. */
+  priority?: boolean
+}>()
 </script>
 
 <template>
@@ -13,6 +17,10 @@ defineProps<{ offer: OfferCard }>()
         width="480"
         height="320"
         sizes="sm:100vw md:50vw lg:33vw"
+        format="webp"
+        :loading="priority ? 'eager' : 'lazy'"
+        :fetchpriority="priority ? 'high' : 'auto'"
+        :preload="priority ? { fetchPriority: 'high' } : false"
         class="aspect-3/2 w-full rounded-md object-cover"
       />
     </template>

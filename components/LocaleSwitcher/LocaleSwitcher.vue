@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { locale, locales, t, setLocaleCookie } = useI18n()
+const { locale, locales, t } = useI18n()
 const switchLocalePath = useSwitchLocalePath()
 
 const otherLocales = computed(() => locales.value.filter(({ code }) => code !== locale.value))
@@ -9,13 +9,6 @@ const otherLocales = computed(() => locales.value.filter(({ code }) => code !== 
 const mounted = ref(false)
 onMounted(() => (mounted.value = true))
 const isMissing = (code: typeof locale.value) => mounted.value && !switchLocalePath(code)
-
-/** Stores the chosen language, so the next visit to `/` keeps it. */
-function choose(event: MouseEvent, code: typeof locale.value) {
-  const link = event.currentTarget as HTMLElement | null
-  if (link?.hasAttribute('data-i18n-disabled')) return event.preventDefault()
-  setLocaleCookie(code)
-}
 </script>
 
 <template>
@@ -34,7 +27,6 @@ function choose(event: MouseEvent, code: typeof locale.value) {
       :aria-disabled="isMissing(item.code) || undefined"
       :tabindex="isMissing(item.code) ? -1 : undefined"
       class="text-default hover:bg-elevated rounded-md px-2.5 py-1.5 text-sm font-medium data-i18n-disabled:pointer-events-none data-i18n-disabled:opacity-50"
-      @click="choose($event, item.code)"
     >
       {{ item.code.toUpperCase() }}
     </SwitchLocalePathLink>

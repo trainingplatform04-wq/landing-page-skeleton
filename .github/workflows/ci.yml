@@ -115,3 +115,191 @@ jobs:
           name: playwright-report
           path: playwright-report
           retention-days: 7
+
+  # Pull requests only, once the code is proven (lint, types, unit, E2E): the branch is deployed
+  # to Vercel with the Development environment's variables and the alias `-dev` points to it, so the
+  # PR can be seen live and audited on the real platform (CDN, compression, image optimisation).
+  deploy-dev:
+    name: Deploy dev
+    needs: [verify, build-e2e]
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    # One PR deployment at a time: Vercel Hobby builds one at a time and `-dev` is one alias.
+    concurrency:
+      group: deploy-dev
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      deployments: write
+    # GitHub shows "View deployment" on the PR and the latest dev URL in the Deployments panel.
+    environment:
+      name: dev
+      url: ${{ steps.alias.outputs.url }}
+    outputs:
+      url: ${{ steps.deploy.outputs.url }}
+      dev-url: ${{ steps.alias.outputs.url }}
+    env:
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_WEBAPP_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup
+        with:
+          vercel-cli: 'true'
+
+      # The Development environment's variables, the source of truth in Vercel (staging dataset,
+      # NUXT_SITE_ENV=development, NUXT_PUBLIC_SITE_URL = the `-dev` address). Vercel deploys only
+      # to Preview or Production, so the deployment is a Preview that carries the Development
+      # variables, at build time and at run time.
+      - run: vercel pull --yes --environment=development --token="$VERCEL_TOKEN"
+      - name: Use the Development variables for this deployment
+        run: |
+          cp .vercel/.env.development.local .vercel/.env.preview.local
+          site=$(grep -E '^NUXT_PUBLIC_SITE_URL=' .vercel/.env.preview.local | cut -d= -f2- | tr -d '"')
+          [ -n "$site" ] || { echo "::error::NUXT_PUBLIC_SITE_URL is not set in the Vercel Development environment."; exit 1; }
+          echo "DEV_HOST=${site#https://}" >> "$GITHUB_ENV"
+
+      - run: vercel build --token="$VERCEL_TOKEN"
+        env:
+          NITRO_PRESET: vercel
+
+      - name: Deploy the branch
+        id: deploy
+        timeout-minutes: 5
+        run: |
+          runtime=()
+          while IFS= read -r line; do runtime+=(-e "${line//\"/}"); done < <(grep -E '^NUXT_' .vercel/.env.preview.local)
+          url=$(vercel deploy --prebuilt --no-wait "${runtime[@]}" --token="$VERCEL_TOKEN")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for the deployment
+        timeout-minutes: 12
+        env:
+          DEPLOY_URL: ${{ steps.deploy.outputs.url }}
+        run: vercel inspect "$DEPLOY_URL" --wait --timeout 10m --token="$VERCEL_TOKEN"
+
+      # A failed wait leaves the deployment building on Vercel: never leave one behind.
+      - name: Discard an unfinished deployment
+        if: failure() && steps.deploy.outputs.url != ''
+        env:
+          DEPLOY_URL: ${{ steps.deploy.outputs.url }}
+        run: vercel remove "$DEPLOY_URL" --yes --token="$VERCEL_TOKEN" || true
+
+      # `-dev` always shows the latest PR deployment (the staging alias with `-dev`).
+      - name: Point the dev alias
+        id: alias
+        env:
+          DEPLOY_URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          vercel alias set "$DEPLOY_URL" "$DEV_HOST" --token="$VERCEL_TOKEN"
+          echo "url=https://$DEV_HOST" >> "$GITHUB_OUTPUT"
+          echo "### This PR is live" >> "$GITHUB_STEP_SUMMARY"
+          echo "- https://$DEV_HOST" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Deployment: $DEPLOY_URL" >> "$GITHUB_STEP_SUMMARY"
+
+  # Web performance gate on the dev deployment, measured by Google PageSpeed Insights (Google's
+  # servers, as pagespeed.web.dev): every page in every language, mobile and desktop, against
+  # webPerformance.config.ts (aim 90+, fails under 80). It audits the deployment's own URL, not the shared
+  # alias, so another PR moving `-dev` cannot change the result.
+  web-performance:
+    name: Web performance
+    needs: deploy-dev
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup
+
+      - name: PageSpeed Insights on the dev deployment
+        env:
+          PAGESPEED_API_KEY: ${{ secrets.PAGESPEED_API_KEY }}
+        run: |
+          [ -n "$PAGESPEED_API_KEY" ] || { echo "::error::Secret PAGESPEED_API_KEY is missing (docs/deployment/DEPLOYMENT.md, Web performance)."; exit 1; }
+          pnpm web-performance --url="${{ needs.deploy-dev.outputs.url }}"
+
+      - name: Web performance summary
+        if: always()
+        run: |
+          node tests/webPerformance/summary.ts > web-performance-summary.md
+          cat web-performance-summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload web performance reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: web-performance
+          path: |
+            .web-performance
+            web-performance-summary.md
+          include-hidden-files: true
+          retention-days: 14
+
+  # One comment per pull request, rewritten on every push (never a new one): branch, commit, the
+  # dev link, every step's result and the web performance table. Nobody needs Vercel access.
+  report:
+    name: PR report
+    needs: [verify, build-e2e, deploy-dev, web-performance]
+    if: always() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        continue-on-error: true
+        with:
+          name: web-performance
+
+      - name: Write the report
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          BRANCH: ${{ github.head_ref }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          DEV_URL: ${{ needs.deploy-dev.outputs.dev-url }}
+          DEPLOYMENT_URL: ${{ needs.deploy-dev.outputs.url }}
+          VERIFY: ${{ needs.verify.result }}
+          E2E: ${{ needs.build-e2e.result }}
+          DEPLOY: ${{ needs.deploy-dev.result }}
+          WEB_PERFORMANCE: ${{ needs.web-performance.result }}
+        run: |
+          icon() { case "$1" in success) echo "✅";; failure) echo "❌";; cancelled) echo "⏹️";; skipped) echo "⏭️";; *) echo "⏳";; esac; }
+          marker='<!-- pr-report -->'
+          {
+            echo "$marker"
+            echo "## 🚀 Pull request report"
+            echo
+            echo "**Branch** \`$BRANCH\` · **Commit** \`${SHA:0:7}\` · [Run details]($RUN_URL)"
+            echo
+            if [ "$DEPLOY" = success ]; then
+              echo "### 🔗 Live on dev: **$DEV_URL**"
+              echo
+              echo "Deployment of this commit: $DEPLOYMENT_URL (stays valid when \`-dev\` moves to another PR)."
+            else
+              echo "### 🔗 Not deployed to dev (the checks before it did not pass)"
+            fi
+            echo
+            echo "| Step | Result |"
+            echo "| --- | :---: |"
+            echo "| Lint · Format · Types · Unit | $(icon "$VERIFY") |"
+            echo "| Build · E2E | $(icon "$E2E") |"
+            echo "| Deploy dev | $(icon "$DEPLOY") |"
+            echo "| Web performance (PageSpeed Insights) | $(icon "$WEB_PERFORMANCE") |"
+            echo
+            echo "### 📊 Web performance on dev (Google PageSpeed Insights)"
+            echo
+            if [ -f web-performance-summary.md ]; then cat web-performance-summary.md; else echo "_Not run._"; fi
+            echo
+            echo "Full reports: the \`web-performance\` artifact of the [run]($RUN_URL), or any page on [pagespeed.web.dev](https://pagespeed.web.dev/analysis?url=$DEPLOYMENT_URL)."
+          } > report.md
+          id=$(gh api "repos/$REPO/issues/$PR/comments" --paginate --jq ".[] | select(.body | startswith(\"$marker\")) | .id" | head -1)
+          if [ -n "$id" ]; then
+            gh api "repos/$REPO/issues/comments/$id" --method PATCH -F body=@report.md > /dev/null
+          else
+            gh api "repos/$REPO/issues/$PR/comments" --method POST -F body=@report.md > /dev/null
+          fi

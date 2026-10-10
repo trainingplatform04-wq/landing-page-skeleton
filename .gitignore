@@ -33,6 +33,7 @@ coverage
 playwright-report
 test-results
 blob-report
+.web-performance
 
 # Husky
 .husky/_

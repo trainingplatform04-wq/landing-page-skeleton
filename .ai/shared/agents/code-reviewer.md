@@ -30,6 +30,7 @@ Lint, types and tests are already enforced by CI. Focus on what tools can't catc
 - [ ] **Tests**: behaviour asserted (rendered text, attributes, returned values), not `exists()`; the network boundary (`useSanity`) is the only mock; E2E updated for new pages.
 - [ ] **Simplicity**: no dead code, no speculative abstractions, early returns, names that say what things are.
 - [ ] **Security**: no secrets, no `v-html` with CMS content, external links safe.
+- [ ] **Web performance**: the CI job **Web performance** (PageSpeed Insights on the dev deployment) is green (no score under 80); the aim is 90+, so a page the PR touches that shows 🟡 "below target" in the PR report is a comment to fix, not a pass. A lowered number in `webPerformance.config.ts` comes with the Tech Lead's recorded decision. Page changes don't add render-blocking work (a large image without priority, a heavy script on the first screen).
 - [ ] **Docs**: if a convention, env var or workflow changed, the matching doc changed in the same PR.
 
 ## Operating rules
