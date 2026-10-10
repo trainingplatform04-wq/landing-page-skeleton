@@ -117,7 +117,7 @@ jobs:
           retention-days: 7
 
   # Pull requests only, once the code is proven (lint, types, unit, E2E): the branch is deployed
-  # to Vercel (Preview: staging content and settings) and the alias `-dev` points to it, so the
+  # to Vercel with the Development environment's variables and the alias `-dev` points to it, so the
   # PR can be seen live and audited on the real platform (CDN, compression, image optimisation).
   deploy-dev:
     name: Deploy dev
@@ -140,7 +140,22 @@ jobs:
         with:
           vercel-cli: 'true'
 
-      - run: vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
+      # The Development environment's variables (staging dataset, NUXT_SITE_ENV=development),
+      # with the site address set to `-dev` instead of its local `http://localhost:3000`.
+      # Vercel deploys only to Preview or Production, so the deployment is a Preview that
+      # carries the Development variables, at build time and at run time.
+      - run: vercel pull --yes --environment=development --token="$VERCEL_TOKEN"
+      - name: Use the Development variables with the dev address
+        env:
+          STAGING_URL: ${{ vars.STAGING_WEBAPP_URL }}
+        run: |
+          host="${STAGING_URL#https://}"
+          host="${host/-staging/-dev}"
+          vars=.vercel/.env.development.local
+          sed -i "s#^NUXT_PUBLIC_SITE_URL=.*#NUXT_PUBLIC_SITE_URL=\"https://$host\"#" "$vars"
+          cp "$vars" .vercel/.env.preview.local
+          echo "DEV_HOST=$host" >> "$GITHUB_ENV"
+
       - run: vercel build --token="$VERCEL_TOKEN"
         env:
           NITRO_PRESET: vercel
@@ -149,7 +164,9 @@ jobs:
         id: deploy
         timeout-minutes: 5
         run: |
-          url=$(vercel deploy --prebuilt --no-wait --token="$VERCEL_TOKEN")
+          runtime=()
+          while IFS= read -r line; do runtime+=(-e "${line//\"/}"); done < <(grep -E '^NUXT_' .vercel/.env.preview.local)
+          url=$(vercel deploy --prebuilt --no-wait "${runtime[@]}" --token="$VERCEL_TOKEN")
           echo "url=$url" >> "$GITHUB_OUTPUT"
 
       - name: Wait for the deployment
@@ -169,13 +186,10 @@ jobs:
       - name: Point the dev alias
         env:
           DEPLOY_URL: ${{ steps.deploy.outputs.url }}
-          STAGING_URL: ${{ vars.STAGING_WEBAPP_URL }}
         run: |
-          dev="${STAGING_URL#https://}"
-          dev="${dev/-staging/-dev}"
-          vercel alias set "$DEPLOY_URL" "$dev" --token="$VERCEL_TOKEN"
+          vercel alias set "$DEPLOY_URL" "$DEV_HOST" --token="$VERCEL_TOKEN"
           echo "### This PR is live" >> "$GITHUB_STEP_SUMMARY"
-          echo "- https://$dev" >> "$GITHUB_STEP_SUMMARY"
+          echo "- https://$DEV_HOST" >> "$GITHUB_STEP_SUMMARY"
           echo "- Deployment: $DEPLOY_URL" >> "$GITHUB_STEP_SUMMARY"
 
   # Web performance gate on the dev deployment: every page in every language, mobile and

@@ -677,16 +677,19 @@ pnpm build:e2e && CI=1 pnpm test:e2e  # E2E against a production build (fixture 
 | `.github/dependabot.yml`            | weekly                                        | pnpm and GitHub Actions updates, PRs into `develop`                                                                                                                                                                                                                                                                                                   |
 | `vercel.json`, `studio/vercel.json` | read by Vercel                                | Build commands, Git auto-deploy **off**, Studio SPA rewrite                                                                                                                                                                                                                                                                                           |
 
-The **Deploy dev** job (pull requests only, after the tests) deploys the branch to Vercel as a
-Preview deployment (staging content and settings), points the alias `-dev` (same name as the
-staging alias, `-dev` instead of `-staging`) to it; then the **Lighthouse** job audits **that real deployment** on every
-page in every language, mobile and desktop: Vercel's CDN, compression and image optimisation
-included. It audits the deployment's own URL, so another PR moving `-dev` cannot change the
-result. Previews are noindex (Vercel and `NUXT_SITE_ENV`), so "page is crawlable" is skipped
-there; every other audit counts. After a merge, `deploy.yml` runs the same budget on `-staging`.
-Reports are artifacts (`lighthouse`). Vercel deploys only to Preview or Production ("Development"
-holds env vars for `vercel dev`; custom environments need Vercel Pro), hence a Preview with its
-own alias. Public repository: GitHub Actions minutes on standard runners are free. Budget and rules: `docs/conventions/CODING_STANDARDS.md` §7.1.
+The **Deploy dev** job (pull requests only, after the tests) pulls the **Development**
+environment's variables with the Vercel CLI (staging dataset, `NUXT_SITE_ENV=development`), sets
+`NUXT_PUBLIC_SITE_URL` to the dev address instead of `http://localhost:3000`, builds with them,
+deploys the branch with the same variables at run time, and points the alias `-dev` (the staging
+alias with `-dev` instead of `-staging`) to it. Vercel deploys only to Preview or Production
+("Development" holds variables; custom environments need Vercel Pro), so the deployment is a
+Preview that carries the Development variables. Then the **Lighthouse** job audits **that real
+deployment** on every page in every language, mobile and desktop: Vercel's CDN, compression and
+image optimisation included. It audits the deployment's own URL, so another PR moving `-dev`
+cannot change the result. The dev site is noindex (`NUXT_SITE_ENV=development`, and Vercel marks
+previews), so "page is crawlable" is skipped there; every other audit counts. After a merge,
+`deploy.yml` runs the same budget on `-staging`. Reports are artifacts (`lighthouse`). Public
+repository: GitHub Actions minutes on standard runners are free. Budget and rules: `docs/conventions/CODING_STANDARDS.md` §7.1.
 
 To make a red Lighthouse check block the merge button, require it on `develop` and `main`
 (public repository: available on GitHub Free): **Settings → Branches → Add branch ruleset**
