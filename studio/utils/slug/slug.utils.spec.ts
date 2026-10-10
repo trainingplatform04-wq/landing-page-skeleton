@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { isUniqueInTypeAndLanguage } from './slug.utils'
+import { isUniqueInTypeAndLanguage, matchesTranslations } from './slug.utils'
 
 describe('isUniqueInTypeAndLanguage', () => {
   const context = (document: { _id: string; _type: string; language?: string } | undefined) => {
@@ -34,5 +34,42 @@ describe('isUniqueInTypeAndLanguage', () => {
 
     expect(await isUniqueInTypeAndLanguage('yoga', ctx)).toBe(true)
     expect(fetch).not.toHaveBeenCalled()
+  })
+})
+
+describe('matchesTranslations', () => {
+  const context = (slugs: Array<string | null> | null) => {
+    const fetch = vi.fn().mockResolvedValue(slugs)
+    return {
+      fetch,
+      context: {
+        document: { _id: 'drafts.category-nutrition-de', _type: 'category' },
+        getClient: () => ({ fetch }),
+      } as unknown as Parameters<typeof matchesTranslations>[1],
+    }
+  }
+
+  it('accepts the slug the other language uses, never comparing with itself', async () => {
+    const { fetch, context: ctx } = context(['nutrition'])
+
+    expect(await matchesTranslations({ current: 'nutrition' }, ctx)).toBe(true)
+    expect(fetch).toHaveBeenCalledWith(expect.stringContaining('value._ref != $id'), {
+      id: 'category-nutrition-de',
+    })
+  })
+
+  it('names the slug of the other language while a rename is in progress', async () => {
+    // German renamed to "food" first; English still says "nutrition" until it is renamed too.
+    const { context: ctx } = context(['nutrition'])
+
+    expect(await matchesTranslations({ current: 'food' }, ctx)).toBe(
+      'The other language uses "nutrition": use the same key in both, so their pages link to each other.',
+    )
+  })
+
+  it('accepts any slug while the category has no translation yet', async () => {
+    const { context: ctx } = context(null)
+
+    expect(await matchesTranslations({ current: 'training' }, ctx)).toBe(true)
   })
 })

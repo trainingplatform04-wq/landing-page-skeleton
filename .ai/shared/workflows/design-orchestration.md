@@ -11,6 +11,8 @@ description: >-
 
 You are the **Orchestrator** of the design track. The reference document is `docs/design/DESIGN_WORKFLOW.md`: read §1–§4 once per session, and the section of the step you are on. Obey `.ai/shared/workflows/operating-model.md` (blockers, signatures). The design track is **human-driven**: its two gates, **D1 (brief)** and **D2 (design)**, are the human's, and they sit before the feature pipeline, whose own gates (G1, G2) are unchanged.
 
+**Page by page.** One brief covers **one page** (or one change of a page). A page goes all the way through (brief → D1 → build → D2 → changeset → task → `/feature`) before the next page's brief starts. A Lovable prompt builds one page only, sized to the credits available.
+
 The design tool is **Lovable**, through the `lovable` MCP server. Lovable builds a **React prototype**, never production code: production is this Nuxt repository.
 
 ## Entry points
@@ -30,13 +32,13 @@ The design tool is **Lovable**, through the `lovable` MCP server. Lovable builds
 - If the Lovable workspace and project are not recorded there, call `get_me` and `list_workspaces`, show them, and ask which workspace to use. The project is created at Step 5 (its first build is the first credit spent).
 - If the project knowledge is missing or older than `app.config.ts` / `assets/css/main.css`, regenerate it (DESIGN_WORKFLOW §6.3) and write it with `set_project_knowledge` (free). Record the date in `docs/design/design-system.md`.
 - Never touch a Lovable project that is not listed in `docs/design/design-system.md`.
-- If the registry says "Conventions applied: not yet" (a project bound before the conventions existed), check it with `list_files` (free): sections in `src/components/sections/` with `data-section`, pages composed of sections, content in `src/content/<page>.<locale>.ts`. When they are missing, propose **one** restructuring prompt that changes no visual, show it, and send it only after the human's go (credits). Then record "Conventions applied" with the date and the commit.
+- If the registry says "Conventions applied: not yet" (a project bound before the conventions existed), check it with `list_files` (free): sections in `src/components/sections/` with `data-section`, pages composed of sections, content in `src/content/<page>.ts`. When they are missing, propose **one** restructuring prompt that changes no visual, show it, and send it only after the human's go (credits). Then record "Conventions applied" with the date and the commit.
 
 **Step 1: Intake.** Ask the human to describe the idea in their own words, if `/design` came without one. Classify it (DESIGN_WORKFLOW §9.1): content change (→ Sanity, stop here and say so), bug (→ fix PR, stop), design change or new design (→ continue), design-system change (→ continue, Step 2 focuses on tokens).
 
 **Step 2: Discovery.** Play the four roles in your own context (no subagents), reading each persona's "Discovery questions" block in `.ai/shared/agents/`:
 
-1. `product-owner`: goal, audience, message, call to action, content in every locale.
+1. `product-owner`: goal, audience, message, call to action, the content (English for the prototype; every locale for our code).
 2. `designer-engineer`: layout, style, references, sections, states, breakpoints, motion.
 3. `tech-lead`: scope against ADR 0004 (pages are code), CMS fields versus code text, routes, risks.
 4. `frontend-engineer`: Nuxt UI equivalents, existing tokens, pixel-perfect risks.
@@ -49,7 +51,7 @@ Rules:
 
 **Step 3: Brief → 🚦 Gate D1.** Write `docs/design/briefs/<id>-<page>.md` from `docs/design/briefs/_template.md` (ids are sequential, shared with changesets). Show it in full. **Stop and wait for the human's approval** of the brief. Changes requested → update the brief, show it again.
 
-**Step 4: Compile the Lovable prompt.** The `designer-engineer` turns the brief into **one** prompt (DESIGN_WORKFLOW §7): self-contained, sections in order with their `data-section` names, the content of every locale, states, breakpoints, and what must not change. The conventions are already in the project knowledge: the prompt does not repeat them. Show the prompt and its expected credit use, and ask for the go. This is the **only** step that spends Lovable credits, so nothing is sent without that explicit go.
+**Step 4: Compile the Lovable prompt.** The `designer-engineer` turns the brief's **Design** part into **one** prompt (DESIGN_WORKFLOW §7.3): the page, its URL, its sections in order with their `data-section` names, and for each section what it shows and how (layout per width, states, motion) with its **English** content in full. Lovable only designs: the prompt never mentions Sanity, Nuxt, our code, translations, the theme or the conventions (the theme and conventions are already in the project knowledge). The brief's **Implementation** part is never sent. Show the prompt and its expected credit use, and ask for the go. This is the **only** step that spends Lovable credits, so nothing is sent without that explicit go.
 
 **Step 5: Build.**
 
@@ -67,11 +69,11 @@ Rules:
 **Step 7: Approval → 🚦 Gate D2.** Only after the human chose **Approve** (or typed `/design approve <page>`):
 
 1. Record the approved Lovable commit of the page (`list_edits`) in `docs/design/pages/<page>.md` and, when Git sync is set up, tag it `design/<page>-v<n>` in the Lovable repository (tags only: never rewrite its history).
-2. **Capture at once** (the Lovable preview always shows the latest state): write the changeset's `verify.json` from `docs/design/changes/_template/verify.json` (preview URL and path per locale, our app's path per locale, the new or changed sections, widths, tolerance) and run `pnpm design:capture <change>`: baselines of every listed section, and `pictures.json` (picture addresses and alt texts; no picture file is ever committed). DESIGN_WORKFLOW §10.2.
-3. Create the changeset `docs/design/changes/<id>-<page>[-<what>]/` from `docs/design/changes/_template/` (DESIGN_WORKFLOW §10): for every section file that is new or changed since the page's previous approved commit, store its diff as evidence (one `get_diff` call with `base_sha` = the previous approved commit and `sha` = the new one, split per file; `read_file` at the new commit for a new section), the content per locale, and a section spec from `docs/design/changes/_template/section.md` written as **facts** (measurements per width, typography, our tokens, states, motion; no React, no JSX, no class list: DESIGN_WORKFLOW §10.3). Unchanged sections are neither copied nor read.
+2. Write the changeset's `verify.json` from `docs/design/changes/_template/verify.json` (our app's path per locale, the new or changed sections, widths, tolerance; DESIGN_WORKFLOW §10.2). Lovable is read only through the `lovable` MCP server: never open its preview with Playwright or a browser. Baselines are captured later, from our app (DESIGN_WORKFLOW §13).
+3. Create the changeset `docs/design/changes/<id>-<page>[-<what>]/` from `docs/design/changes/_template/` (DESIGN_WORKFLOW §10): for every section file that is new or changed since the page's previous approved commit, store its diff as evidence (one `get_diff` call with `base_sha` = the previous approved commit and `sha` = the new one, split per file; `read_file` at the new commit for a new section), the content (English from the prototype, plus every other locale drafted by the `product-owner` for the seed), and a section spec from `docs/design/changes/_template/section.md` written as **facts** (measurements per width, typography, our tokens, states, motion; no React, no JSX, no class list: DESIGN_WORKFLOW §10.3). Unchanged sections are neither copied nor read.
 4. Copy the client approval (who, when, channel) into the changeset's Approval block.
 5. Draft the task `docs/tasks/<name>.md` from `docs/tasks/template.md`, with the `Design change` field set.
-6. Ask: "Start `/feature docs/tasks/<name>.md` now?" Yes → run `.ai/shared/workflows/feature-orchestration.md` from Step 2.
+6. Start `/feature docs/tasks/<name>.md` at once, without asking: run `.ai/shared/workflows/feature-orchestration.md` from Step 2 (its own gate G1 still applies). When the change depends on another task (for example a theme task), start that one first.
 
 ## Output discipline
 

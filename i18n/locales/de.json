@@ -3,6 +3,7 @@
     "label": "Hauptnavigation",
     "home": "Startseite",
     "offers": "Angebote",
+    "magazine": "Magazin",
     "contact": "Kontakt",
     "faq": "FAQ"
   },
@@ -60,5 +61,14 @@
       "title": "Etwas ist schiefgelaufen",
       "message": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
     }
+  },
+  "magazine": {
+    "all": "Alle",
+    "categoriesLabel": "Artikelkategorien",
+    "none": "Noch keine Artikel.",
+    "empty": "Noch keine Artikel in dieser Kategorie.",
+    "showAll": "Alle Artikel",
+    "paginationLabel": "Artikelseiten",
+    "readingTime": "{n} Min. Lesezeit"
   }
 }

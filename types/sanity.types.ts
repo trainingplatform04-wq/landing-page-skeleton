@@ -122,6 +122,28 @@ export type FaqPage = {
   seo?: Seo
 }
 
+export type MagazinePage = {
+  _id: string
+  _type: 'magazinePage'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  language?: string
+  kicker?: string
+  title: string
+  intro?: string
+  closingTitle?: string
+  closingText?: string
+  cta?: Cta
+  seo?: Seo
+}
+
+export type Cta = {
+  _type: 'cta'
+  label?: string
+  link?: Link
+}
+
 export type OfferReference = {
   _ref: string
   _type: 'reference'
@@ -145,12 +167,6 @@ export type OffersPage = {
   >
   cta?: Cta
   seo?: Seo
-}
-
-export type Cta = {
-  _type: 'cta'
-  label?: string
-  link?: Link
 }
 
 export type TestimonialReference = {
@@ -243,10 +259,54 @@ export type AccessibleImage = {
   alt: string
 }
 
+export type ArticleBody = Array<
+  | {
+      children?: Array<{
+        marks?: Array<string>
+        text?: string
+        _type: 'span'
+        _key: string
+      }>
+      style?: 'normal' | 'h2' | 'h3'
+      listItem?: 'bullet' | 'number'
+      markDefs?: Array<
+        {
+          _key: string
+        } & Link
+      >
+      level?: number
+      _type: 'block'
+      _key: string
+    }
+  | {
+      text: string
+      _type: 'coachTip'
+      _key: string
+    }
+  | {
+      text: string
+      attribution?: string
+      _type: 'pullQuote'
+      _key: string
+    }
+  | {
+      image: AccessibleImage
+      caption?: string
+      _type: 'figure'
+      _key: string
+    }
+  | {
+      videoId: string
+      title: string
+      _type: 'youtubeVideo'
+      _key: string
+    }
+>
+
 export type Link = {
   _type: 'link'
   kind?: 'route' | 'reference' | 'external'
-  route?: 'index' | 'offers' | 'faq' | 'contact' | 'imprint' | 'privacy'
+  route?: 'index' | 'offers' | 'magazine' | 'faq' | 'contact' | 'imprint' | 'privacy'
   reference?: OfferReference
   href?: string
 }
@@ -267,10 +327,86 @@ export type InternationalizedArrayReference = Array<
   } & InternationalizedArrayReferenceValue
 >
 
+export type PostReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+  [internalGroqTypeReferenceTo]?: 'post'
+}
+
+export type CategoryReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+  [internalGroqTypeReferenceTo]?: 'category'
+}
+
+export type AuthorReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+  [internalGroqTypeReferenceTo]?: 'author'
+}
+
 export type InternationalizedArrayReferenceValue = {
   _type: 'internationalizedArrayReferenceValue'
-  value?: OfferReference | TestimonialReference | FaqItemReference
+  value?:
+    | OfferReference
+    | TestimonialReference
+    | FaqItemReference
+    | PostReference
+    | CategoryReference
+    | AuthorReference
   language: string
+}
+
+export type Post = {
+  _id: string
+  _type: 'post'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  language?: string
+  title: string
+  slug: Slug
+  excerpt: string
+  cover?: AccessibleImage
+  category?: CategoryReference
+  author?: AuthorReference
+  publishedAt: string
+  body?: ArticleBody
+  seo?: Seo
+}
+
+export type Author = {
+  _id: string
+  _type: 'author'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  language?: string
+  name: string
+  role?: string
+  bio?: string
+  photo?: AccessibleImage
+}
+
+export type Category = {
+  _id: string
+  _type: 'category'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  language?: string
+  title: string
+  slug: Slug
+  order: number
+}
+
+export type Slug = {
+  _type: 'slug'
+  current: string
+  source?: string
 }
 
 export type FaqItem = {
@@ -328,12 +464,6 @@ export type SanityImageHotspot = {
   y: number
   height: number
   width: number
-}
-
-export type Slug = {
-  _type: 'slug'
-  current: string
-  source?: string
 }
 
 export type SanityImagePaletteSwatch = {
@@ -441,25 +571,33 @@ export type AllSanitySchemaTypes =
   | ImprintPage
   | ContactPage
   | FaqPage
+  | MagazinePage
+  | Cta
   | OfferReference
   | OffersPage
-  | Cta
   | TestimonialReference
   | FaqItemReference
   | HomePage
   | SanityImageAssetReference
   | Seo
   | AccessibleImage
+  | ArticleBody
   | Link
   | TranslationMetadata
   | InternationalizedArrayReference
+  | PostReference
+  | CategoryReference
+  | AuthorReference
   | InternationalizedArrayReferenceValue
+  | Post
+  | Author
+  | Category
+  | Slug
   | FaqItem
   | Testimonial
   | Offer
   | SanityImageCrop
   | SanityImageHotspot
-  | Slug
   | SanityImagePaletteSwatch
   | SanityImagePalette
   | SanityImageDimensions

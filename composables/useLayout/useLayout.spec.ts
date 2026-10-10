@@ -24,6 +24,7 @@ describe('useLayout', () => {
     expect(view.value.homePath).toBe('/en')
     expect(view.value.navigation).toEqual([
       { label: 'Offers', to: '/en/offers' },
+      { label: 'Magazine', to: '/en/magazine' },
       { label: 'FAQ', to: '/en/faq' },
       { label: 'Contact', to: '/en/contact' },
     ])
@@ -44,6 +45,6 @@ describe('useLayout', () => {
       business: undefined,
       legalLinks: { imprint: '/en/imprint', privacy: '/en/privacy' },
     })
-    expect(view.value.navigation).toHaveLength(3)
+    expect(view.value.navigation).toHaveLength(4)
   })
 })

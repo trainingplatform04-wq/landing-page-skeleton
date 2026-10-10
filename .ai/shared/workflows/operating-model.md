@@ -77,6 +77,6 @@ Examples:
 
 Escalate to the human, with a summary and the options, only when:
 
-- review round 3 still ends in `CHANGES REQUESTED`;
+- the Tech Lead's round-5 verdict (`.ai/shared/workflows/code-review-loop.md` §2b) would change scope, architecture or cost beyond the approved plan; otherwise round 5 is settled by the Tech Lead alone;
 - a decision changes scope, architecture or cost beyond the approved plan (the Tech Lead decides whether it does);
 - two agents disagree after one exchange (the Tech Lead states both positions).

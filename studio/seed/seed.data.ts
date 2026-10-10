@@ -11,7 +11,10 @@
  */
 import type {
   AccessibleImage,
+  ArticleBody,
+  Author,
   BusinessProfile,
+  Category,
   ContactPage,
   Cta,
   FaqItem,
@@ -19,8 +22,10 @@ import type {
   HomePage,
   ImprintPage,
   Link,
+  MagazinePage,
   Offer,
   OffersPage,
+  Post,
   PrivacyPage,
   RichText,
   Seo,
@@ -33,6 +38,7 @@ import { type LocaleCode, LOCALES } from '../../constants/i18n.constants'
 import { PAGE_TYPES } from '../../constants/routes.constants'
 import { singletonId } from '../utils/singleton/singleton.utils'
 import type { SeedImage } from './seed.images'
+import { AUTHORS, type BodyPart, CATEGORIES, MAGAZINE_PAGE, POSTS } from './seed.magazine'
 
 /** A document as it is written: Sanity adds the timestamps and the revision. */
 type Stored<T> = Omit<T, '_createdAt' | '_updatedAt' | '_rev'>
@@ -46,9 +52,13 @@ export type SeedDocument =
   | Stored<ContactPage>
   | Stored<ImprintPage>
   | Stored<PrivacyPage>
+  | Stored<MagazinePage>
   | Stored<Offer>
   | Stored<Testimonial>
   | Stored<FaqItem>
+  | Stored<Post>
+  | Stored<Category>
+  | Stored<Author>
   | Stored<TranslationMetadata>
 
 /** The id of an uploaded demo picture (`image-…`), resolved by the seed script. */
@@ -114,6 +124,36 @@ function richText(parts: Part[]): RichText {
       markDefs: [],
       children: [span(part.text)],
     }
+  })
+}
+
+/** An article's text from short parts: paragraphs, headings, lists and the magazine blocks. */
+function articleBody(parts: BodyPart[]): ArticleBody {
+  const span = (text: string) => ({ _type: 'span' as const, _key: 's0', text, marks: [] })
+  const block = (_key: string, text: string, style: 'normal' | 'h2' = 'normal') => ({
+    _type: 'block' as const,
+    _key,
+    style,
+    markDefs: [],
+    children: [span(text)],
+  })
+  return parts.flatMap((part, index): ArticleBody => {
+    const _key = `b${index}`
+    if ('p' in part) return [block(_key, part.p)]
+    if ('h2' in part) return [block(_key, part.h2, 'h2')]
+    if ('tip' in part) return [{ _type: 'coachTip', _key, text: part.tip }]
+    if ('quote' in part) {
+      return [{ _type: 'pullQuote', _key, text: part.quote, attribution: part.attribution }]
+    }
+    if ('video' in part)
+      return [{ _type: 'youtubeVideo', _key, videoId: part.video, title: part.title }]
+    const listItem = 'ul' in part ? 'bullet' : 'number'
+    const items = 'ul' in part ? part.ul : part.ol
+    return items.map((text, item) => ({
+      ...block(`${_key}i${item}`, text),
+      listItem,
+      level: 1,
+    }))
   })
 }
 
@@ -398,6 +438,9 @@ const COPY = {
 const offerId = (key: string, locale: LocaleCode) => `offer-${key}-${locale}`
 const testimonialId = (key: string, locale: LocaleCode) => `testimonial-${key}-${locale}`
 const faqId = (key: string, locale: LocaleCode) => `faq-${key}-${locale}`
+const postId = (key: string, locale: LocaleCode) => `post-${key}-${locale}`
+const categoryId = (key: string, locale: LocaleCode) => `category-${key}-${locale}`
+const authorId = (key: string, locale: LocaleCode) => `author-${key}-${locale}`
 
 /** Public ids (no dot): the web app reads the translations for hreflang and the switcher. */
 const translationId = (type: string, key: string) => `seed-translation-${type}-${key}`
@@ -569,6 +612,54 @@ export function seedDocuments(imageAssetId: ImageAssetId): SeedDocument[] {
       seo: pageSeo(locale, copy.privacy.title, copy.privacy.heading),
     }
 
+    const categories = CATEGORIES.map(({ key, order, [locale]: category }) => ({
+      _id: categoryId(key, locale),
+      _type: 'category' as const,
+      language: locale,
+      title: category.title,
+      slug: { _type: 'slug' as const, current: category.slug },
+      order,
+    }))
+
+    const authors = AUTHORS.map(({ key, name, image: picture, [locale]: author }) => ({
+      _id: authorId(key, locale),
+      _type: 'author' as const,
+      language: locale,
+      name,
+      role: author.role,
+      bio: author.bio,
+      photo: image(picture, name),
+    }))
+
+    const posts = POSTS.map(
+      ({ key, category, author, publishedAt, image: picture, [locale]: post }) => ({
+        _id: postId(key, locale),
+        _type: 'post' as const,
+        language: locale,
+        title: post.title,
+        slug: { _type: 'slug' as const, current: post.slug },
+        excerpt: post.excerpt,
+        cover: image(picture, post.imageAlt),
+        category: reference(categoryId(category, locale)),
+        author: reference(authorId(author, locale)),
+        publishedAt,
+        body: articleBody(post.body),
+        seo: pageSeo(locale, post.title, post.excerpt),
+      }),
+    )
+
+    const magazine = MAGAZINE_PAGE[locale]
+    const magazinePage: Stored<MagazinePage> = {
+      ...page(PAGE_TYPES.magazine, locale),
+      kicker: magazine.kicker,
+      title: magazine.title,
+      intro: magazine.intro,
+      closingTitle: magazine.closingTitle,
+      closingText: magazine.closingText,
+      cta: cta(magazine.cta, routeLink('contact')),
+      seo: pageSeo(locale, magazine.kicker, magazine.seoDescription),
+    }
+
     const siteSettings: Stored<SiteSettings> = {
       ...page('siteSettings', locale),
       footerNote: copy.footerNote,
@@ -578,6 +669,7 @@ export function seedDocuments(imageAssetId: ImageAssetId): SeedDocument[] {
       siteSettings,
       home,
       offersPage,
+      magazinePage,
       faqPage,
       contactPage,
       imprintPage,
@@ -585,6 +677,9 @@ export function seedDocuments(imageAssetId: ImageAssetId): SeedDocument[] {
       ...offers,
       ...testimonials,
       ...faqItems,
+      ...categories,
+      ...authors,
+      ...posts,
     ]
   }
 
@@ -612,5 +707,8 @@ export function seedDocuments(imageAssetId: ImageAssetId): SeedDocument[] {
     ...OFFERS.map(({ key }) => translation('offer', key, offerId)),
     ...TESTIMONIALS.map(({ key }) => translation('testimonial', key, testimonialId)),
     ...FAQ.map(({ key }) => translation('faqItem', key, faqId)),
+    ...POSTS.map(({ key }) => translation('post', key, postId)),
+    ...CATEGORIES.map(({ key }) => translation('category', key, categoryId)),
+    ...AUTHORS.map(({ key }) => translation('author', key, authorId)),
   ]
 }

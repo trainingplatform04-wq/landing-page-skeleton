@@ -1,8 +1,4 @@
 {
-  "reference": {
-    "baseUrl": "https://id-preview--<lovable-project-id>.lovable.app",
-    "paths": { "de": "/offers", "en": "/offers?lang=en" }
-  },
   "app": {
     "paths": { "de": "/angebote", "en": "/en/offers" }
   },

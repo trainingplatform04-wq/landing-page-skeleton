@@ -4,17 +4,17 @@ The registry the design track (`/design`) reads first. Agents use the `lovable` 
 
 ## Lovable
 
-| Item                   | Value                                                                              |
-| ---------------------- | ---------------------------------------------------------------------------------- |
-| Workspace              | Training's Lovable · `d594d1d442339de3be60`                                        |
-| Project                | FitFlow Platform · `c69a43a6-c055-4de5-9929-e1aad1913e87`                          |
-| Editor                 | https://lovable.dev/projects/c69a43a6-c055-4de5-9929-e1aad1913e87                  |
-| Preview                | https://id-preview--c69a43a6-c055-4de5-9929-e1aad1913e87.lovable.app               |
-| Bound on               | 2026-10-08 (existing project, created before the conventions)                      |
-| Plan                   | Free (optimised)                                                                   |
-| Git sync repository    | not linked yet                                                                     |
-| Project knowledge from | 2026-10-08: conventions + FitFlow theme (brief 0001)                               |
-| Conventions applied    | offers pages and header with brief 0001; home, FAQ, contact when their briefs come |
+| Item                   | Value                                                                |
+| ---------------------- | -------------------------------------------------------------------- |
+| Workspace              | Training's Lovable · `d594d1d442339de3be60`                          |
+| Project                | FitFlow Platform · `c69a43a6-c055-4de5-9929-e1aad1913e87`            |
+| Editor                 | https://lovable.dev/projects/c69a43a6-c055-4de5-9929-e1aad1913e87    |
+| Preview                | https://id-preview--c69a43a6-c055-4de5-9929-e1aad1913e87.lovable.app |
+| Bound on               | 2026-10-08 (existing project, created before the conventions)        |
+| Plan                   | Free (optimised)                                                     |
+| Git sync repository    | not linked yet                                                       |
+| Project knowledge from | 2026-10-10: conventions (design only, English only) + FitFlow theme  |
+| Conventions applied    | not yet: each page when its first brief is built                     |
 
 Changing the project is a change to this file, reviewed like any other.
 

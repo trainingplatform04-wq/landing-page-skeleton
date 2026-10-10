@@ -3,8 +3,11 @@ import type { StructureBuilder, StructureResolver } from 'sanity/structure'
 
 import { LOCALES } from '../constants/i18n.constants'
 import { SANITY_API_VERSION } from '../constants/sanity.constants'
+import { authorSchema } from './schemas/collections/author.schema'
+import { categorySchema } from './schemas/collections/category.schema'
 import { faqItemSchema } from './schemas/collections/faqItem.schema'
 import { offerSchema } from './schemas/collections/offer.schema'
+import { postSchema } from './schemas/collections/post.schema'
 import { testimonialSchema } from './schemas/collections/testimonial.schema'
 import { PAGE_SCHEMAS } from './schemas/index'
 import { businessProfileSchema } from './schemas/settings/businessProfile.schema'
@@ -103,6 +106,10 @@ export const structure: StructureResolver = (S) => {
       listByLanguage(offerSchema),
       listByLanguage(testimonialSchema, { field: 'author', direction: 'asc' }),
       listByLanguage(faqItemSchema, { field: 'question', direction: 'asc' }),
+      S.divider(),
+      listByLanguage(postSchema, { field: 'publishedAt', direction: 'desc' }),
+      listByLanguage(categorySchema, { field: 'order', direction: 'asc' }),
+      listByLanguage(authorSchema, { field: 'name', direction: 'asc' }),
       S.divider(),
       S.listItem()
         .id(businessProfileSchema.name)

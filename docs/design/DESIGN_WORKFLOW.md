@@ -56,9 +56,12 @@ and **client validation** work together, from the first page to the tenth change
    the sections changed between the two approved commits.
 5. **Agents read deltas.** A change to one section is one section spec and one section diff.
    Nobody re-reads unchanged sections, other pages or the design history.
-6. **Pixel-perfect is a test.** The approved prototype is rendered into reference screenshots;
-   the Nuxt implementation must match them within a tolerance, with the same content.
-7. **Design content is the staging seed.** The copy and pictures of the prototype become the
+6. **Lovable through MCP, Playwright on our code.** The prototype is read only through the
+   `lovable` MCP server (files, diffs), never opened in a browser. Playwright screenshots **our**
+   sections; the human compares them with the Lovable preview, and once approved they are the
+   baselines every later change must match within a tolerance.
+7. **Design content is the staging seed.** The copy of the prototype (and stock pictures that
+   match its picture descriptions) become the
    demo content of `studio/seed/seed.data.ts`: staging looks like the design and the visual test
    runs on the same content.
 8. **Code owns tokens.** Colours, fonts, radii and spacing live in `app.config.ts` and
@@ -136,9 +139,8 @@ docs/design/
     │   │   ├── hero.md         ← behaviour spec
     │   │   └── hero.diff       ← Lovable diff of that section (whole file for a first version)
     │   ├── content/hero.json   ← the section's content per locale (→ seed)
-    │   ├── verify.json         ← what the design gate compares (prototype vs app, sections, widths)
-    │   ├── pictures.json       ← the prototype's pictures (address, alt): the seed uploads them to Sanity
-    │   └── baseline/           ← reference screenshots of the approved prototype (§13)
+    │   ├── verify.json         ← what the design gate renders (our app's paths, sections, widths)
+    │   └── baseline/           ← approved screenshots of our sections (§13)
     └── 0002-home-testimonials/ ← a later change: only the changed sections
 
 tests/visual/                   ← the design gate: pnpm design:capture / design:verify (§13)
@@ -218,8 +220,8 @@ knowledge** (free to write), never in prompts:
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
 | One React component per section: `src/components/sections/<Name>.tsx`, root element `data-section="<name>"`, names equal to our component names                  | Section-level diffs and screenshots                                |
 | Route files in `src/routes/<route>.tsx` (TanStack Start, as Lovable generates) only compose section components, in order                                         | One page = one ordered list of sections                            |
-| **Content separated from markup**: `src/content/<page>.<locale>.ts` (`de`, `en`), sections read their text from there                                            | Content goes straight into the seed and the changeset's `content/` |
-| A language switch in the prototype (DE / EN)                                                                                                                     | The client reviews both languages                                  |
+| **Content separated from markup**: `src/content/<page>.ts`, sections read their text from there                                                                  | Content goes straight into the seed and the changeset's `content/` |
+| **English only**: no language switch, no translations; other locales exist only in our code and seed                                                             | No credits spent on translations                                   |
 | Colours, radii, spacing, fonts only from the theme mirrored from our tokens (§6.3); shadcn components restyled through those variables; no raw hex in components | Token changes are explicit                                         |
 | Tailwind breakpoints used as 375 / 768 / 1440 designs (`md:`, `xl:`); every section checked at the three widths                                                  | Same widths as the visual tests                                    |
 | States visible on demand (`?state=error`, `?state=open`) for forms, menus, empty lists                                                                           | States get baselines too                                           |
@@ -316,19 +318,18 @@ so nothing is asked twice.
 The designer engineer turns the brief into **one** Lovable prompt. Structure:
 
 ```
-Goal: <one line>
-Page: <Page> (route src/routes/<route>.tsx). Sections in this order:
-1. <Name> (data-section="<name>") — <purpose>
-   Layout: 375 … / 768 … / 1440 …
-   Content: see src/content/<page>.<locale>.ts keys <…> (DE and EN given below)
-   States: … Motion: …
+Goal: <one line: what the page is for>
+Page: <Page>, URL <path> (new route). Menu: <where the link goes, if any>.
+Sections in this order:
+1. <Name> (data-section="<name>"): <what it shows and why>
+   Layout: 1440 … / 768 … / 375 …
+   Content: <the exact English text, every item>
+   States: … (?state=<name> where needed). Motion: …
 2. …
-Content DE: { … }  Content EN: { … }
-Do not change: <sections or files that must stay identical>
-Acceptance: every section renders at 375/768/1440 in DE and EN; no raw colours; no new dependency.
+Do not change: <other pages, sections or files>
 ```
 
-It never repeats the conventions (they are in the project knowledge). For a change, it names
+Lovable only designs. The prompt describes **what to build** (page, URL, sections, layout, states, the full English content) and nothing about **how our site works**: no Sanity, no Nuxt, no field names, no translations, no theme values, no conventions (those are in the project knowledge). The brief's Implementation part stays on our side. For a change, it names
 only the sections to change and lists what must stay identical. It is shown to you with the
 expected credit use; you give the go; it is sent once.
 
@@ -390,7 +391,7 @@ answers with `respond_to_approval`. It never decides for you.
 4. Client approves (email) → **Approve** → **D2**:
    - approved commit recorded, tag `design/home-v1`;
    - `docs/design/changes/0001-home/` with every section (first version: the whole section files
-     as "diff"), specs, content per locale, `verify.json`, baselines and `pictures.json`;
+     as "diff"), specs, content per locale, `verify.json` (baselines come after implementation);
    - `docs/design/pages/home.md` created;
    - task `docs/tasks/home-page.md` drafted with `Design change: docs/design/changes/0001-home/`.
 5. "Start `/feature` now?" → yes → plan → **G1** → implementation, visual loop, PR, review, merge →
@@ -466,24 +467,18 @@ At **Approve**, `/design` reads `list_edits`, takes the latest commit of the pro
 `docs/design/pages/<page>.md` (`Approved commit: <sha> (design/<page>-v<n>)`) and to the brief,
 and tags it in the synced repository when Git sync is set up (tags only).
 
-### 10.2 Capturing the approved design (immediately, before anything changes in Lovable)
+### 10.2 What the design gate will render
 
-The Lovable preview always shows the **latest** state, so the approved state is captured at once:
-
-1. `/design` writes `verify.json` in the changeset (`docs/design/changes/_template/verify.json`):
-   the prototype's preview URL and its path per locale, our app's path per locale (from
-   `constants/routes.constants.ts`), the new or changed sections, the widths, the tolerance.
-2. `pnpm design:capture <change>` renders every listed section of the prototype in each locale's
-   own browser language and at each width, and stores Playwright's **stable** screenshot (two
-   identical frames in a row) in `baseline/<section>-<locale>-<width>.png`. It also lists the
-   pictures each section shows in `pictures.json` (address, alt text, locale). **No picture file is
-   stored in the repository**: the seed downloads them and uploads them to Sanity (§12.3).
+`/design` writes `verify.json` in the changeset (`docs/design/changes/_template/verify.json`): our
+app's path per locale (from `constants/routes.constants.ts`), the new or changed sections, the
+widths, the tolerance. Nothing is captured from Lovable: the approved commit (§10.1) and the
+MCP-read facts (§10.3) are the record. Baselines are made from our app once it is built (§13).
 
 ### 10.3 Extracting the delta, as facts
 
 Only the **designer engineer** reads Lovable code. The page's files are derived from its route file:
 `src/routes/<route>.tsx`, the section components it imports (`src/components/sections/*.tsx`) and
-its content files (`src/content/<page>.<locale>.ts`). The project knowledge in Lovable is the
+its content files (`src/content/<page>.ts`). The project knowledge in Lovable is the
 reference for these paths; this document mirrors it.
 
 - **One** `get_diff` call: `base_sha` = the previous approved commit, `sha` = the new one (free,
@@ -495,14 +490,14 @@ reference for these paths; this document mirrors it.
   ratios), typography (font, size, weight, case, line height per width), colours **as our tokens**,
   borders, radii, shadows, states, motion (duration, easing, trigger), accessibility. **No React,
   no JSX, no class list**: values only.
-- Content: the changed keys per locale → `content/<section>.json`.
+- Content: the changed keys → `content/<section>.json`: English from the prototype, the other locales drafted by the product owner (for the seed and i18n).
 
 First version of a page: every section is "new".
 
 ### 10.4 Writing the changeset and the task
 
 From `docs/design/changes/_template/`: `change.md` (source commits, sections, approval, acceptance,
-deviations), the section specs, `verify.json`, `pictures.json`, `baseline/`. Anything the designer
+deviations), the section specs, `verify.json`, `baseline/` (after implementation). Anything the designer
 cannot infer goes under Open questions, answered at G1. Then the task `docs/tasks/<name>.md` from
 `docs/tasks/template.md`, `Design change: docs/design/changes/<id>/`, acceptance from `change.md`,
 and: "Start `/feature` now?"
@@ -516,7 +511,7 @@ and: "Start `/feature` now?"
 | Scope             | Product Owner                           | task, `change.md`                                             | scope confirmation                                                      |
 | Plan              | Tech Lead                               | `change.md`, page index, specs' Components and Content tables | plan → **G1**                                                           |
 | Design map        | Designer engineer                       | section specs (facts)                                         | component map (§12), token changes                                      |
-| Data              | Backend engineer                        | Content tables, `content/*.json`, `pictures.json`             | schema fields, `pnpm typegen`, seed = design content and pictures       |
+| Data              | Backend engineer                        | Content tables, `content/*.json`                              | schema fields, `pnpm typegen`, seed = design content and pictures       |
 | UI                | Frontend engineer                       | one section spec at a time + its baselines                    | section components with `data-section`, **under our architecture only** |
 | **Design gate**   | QA engineer                             | `verify.json`                                                 | `pnpm design:verify <change>` green (§13), plus E2E and axe             |
 | Loop              | Frontend ↔ design gate                  | the failing section's diff image only                         | fixes; deviations recorded                                              |
@@ -574,13 +569,12 @@ custom CSS last, with a note in the spec.
 
 ### 12.3 Pictures: from Lovable to Sanity
 
-- `pictures.json` (written by `pnpm design:capture`) lists each section's pictures with their
-  address and alt text.
-- The backend engineer maps them to seed images (`studio/seed/seed.images.ts` holds addresses
-  only). The seed downloads each picture and uploads it to the **Sanity dataset** (`staging`),
-  where editors and the client see and replace them in the Studio. No picture is ever committed.
-- Until a page has its approved design, the seed uses real stock photos chosen by context
-  (addresses in `studio/seed/seed.images.ts`).
+- The prototype's generated pictures stay in Lovable (its preview needs a login and is never
+  opened by our tools). The seed uses real stock photos chosen to match each picture's
+  description (the alt texts in the prototype's content file, read through MCP); addresses in
+  `studio/seed/seed.images.ts`. The seed downloads each one and uploads it to the **Sanity
+  dataset** (`staging`), where editors and the client see and replace them. No picture is ever
+  committed.
 - Because the seed's add mode never overwrites an existing field, replacing pictures that are
   already in staging takes one deliberate `pnpm studio:seed --reset`.
 
@@ -588,18 +582,18 @@ custom CSS last, with a note in the spec.
 
 ## 13. Pixel-perfect: the design gate
 
-### 13.1 Capture (at D2) and verify (before the PR)
+### 13.1 Capture (after implementation, approved by the human) and verify (before every PR)
 
-|                   | `pnpm design:capture <change>`                                                  | `pnpm design:verify <change>`                                                                                                   |
-| ----------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| Renders           | the approved Lovable prototype                                                  | our app: a **production build** (`nuxt build`, Node server) on the developer's `.env` (staging, seeded with the design content) |
-| Per               | section × locale (in that locale's browser language) × width (375 / 768 / 1440) | the same                                                                                                                        |
-| Writes / compares | stable screenshots → `baseline/`                                                | `toHaveScreenshot()` against `baseline/`, tolerance from `verify.json`                                                          |
-| Output            | baselines + `pictures.json`                                                     | pass/fail per section, diff images, HTML report (`playwright-report/design/`)                                                   |
+|                   | `pnpm design:capture <change>`                                                        | `pnpm design:verify <change>`                                                                                                   |
+| ----------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Renders           | our app, same server as verify; the human compares the shots with the Lovable preview | our app: a **production build** (`nuxt build`, Node server) on the developer's `.env` (staging, seeded with the design content) |
+| Per               | section × locale × width (375 / 768 / 1440)                                           | the same                                                                                                                        |
+| Writes / compares | stable screenshots → `baseline/`                                                      | `toHaveScreenshot()` against `baseline/`, tolerance from `verify.json`                                                          |
+| Output            | baselines, committed once the human approves them                                     | pass/fail per section, diff images, HTML report (`playwright-report/design/`)                                                   |
 
-Rendering on both sides: fonts loaded, animations and transitions off, reduced motion, lazy
-images loaded, network idle. Both sides should run on the same machine type: baselines captured
-on one operating system are compared on the same one (font rasterisation differs between systems).
+Rendering: fonts loaded, animations and transitions off, reduced motion, lazy images loaded,
+network idle. Baselines captured on one operating system are compared on the same one (font
+rasterisation differs between systems). Playwright never opens the Lovable preview.
 
 ### 13.2 Rules
 
@@ -731,9 +725,9 @@ The changeset format is tool-independent: a Figma or code-first change produces 
 
 ## 20. Rollout
 
-| Phase             | Content                                               | Exit criterion                                                                                                |
-| ----------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| 1. Track and gate | T1–T4 (done)                                          | `/design` runs discovery → brief → prompt → build → D2 → changeset; the design gate proven on this repository |
-| 2. Pilot          | Offers (brief 0001) through §9.2–§10, Git sync set up | Approved changeset and task; `pnpm design:verify` green; feature merged; staging shows the design             |
-| 3. Harden         | T5–T8                                                 | Gate in CI on Linux, axe, states                                                                              |
-| 4. Generalise     | Remaining pages, T9                                   | Every page has a page index and baselines                                                                     |
+| Phase             | Content                                       | Exit criterion                                                                                                |
+| ----------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| 1. Track and gate | T1–T4 (done)                                  | `/design` runs discovery → brief → prompt → build → D2 → changeset; the design gate proven on this repository |
+| 2. Pilot          | First brief through §9.2–§10, Git sync set up | Approved changeset and task; `pnpm design:verify` green; feature merged; staging shows the design             |
+| 3. Harden         | T5–T8                                         | Gate in CI on Linux, axe, states                                                                              |
+| 4. Generalise     | Remaining pages, T9                           | Every page has a page index and baselines                                                                     |

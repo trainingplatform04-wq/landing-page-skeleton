@@ -1,0 +1,13 @@
+{
+  "app": {
+    "paths": { "de": "/magazin", "en": "/en/magazine" }
+  },
+  "sections": [
+    { "name": "magazine-hero" },
+    { "name": "magazine-featured" },
+    { "name": "magazine-grid" },
+    { "name": "magazine-closing" }
+  ],
+  "widths": [375, 768, 1440],
+  "tolerance": { "maxDiffPixelRatio": 0.002, "threshold": 0.1 }
+}

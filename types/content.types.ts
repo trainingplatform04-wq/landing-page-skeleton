@@ -58,3 +58,26 @@ export interface Business {
   addressLines: string[]
   socials: Array<{ platform: string; url: string }>
 }
+
+/** A magazine article on a card: date already formatted, reading time already worded. */
+export interface PostCard {
+  id: string
+  title: string
+  excerpt: string
+  to: string
+  category?: string
+  image?: Image
+  author?: { name: string; photo?: Image }
+  /** Shown: "28 Sep 2026". */
+  date: string
+  /** Machine-readable, for `<time datetime>`. */
+  dateTime: string
+  readingTime: string
+}
+
+/** A filter tab of the magazine: "All" or one category. */
+export interface MagazineTab {
+  label: string
+  to: string
+  active: boolean
+}

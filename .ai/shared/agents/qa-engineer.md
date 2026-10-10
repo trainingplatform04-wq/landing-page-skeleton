@@ -22,7 +22,7 @@ You are the **QA Automation Engineer (SDET)** for the Landing Page Base project.
 
 ## Local gates (all must pass before the PR)
 
-Run the local gates (`docs/conventions/CODING_STANDARDS.md` §7): `pnpm verify`, then E2E on a production build. With a design change, also the **design gate**: `pnpm studio:seed` (staging gets the design content and pictures), then `pnpm design:verify <change>`; every section, locale and width must pass (`docs/design/DESIGN_WORKFLOW.md` §13). Attach the result (pass count, any deviation) to the PR description.
+Run the local gates (`docs/conventions/CODING_STANDARDS.md` §7): `pnpm verify`, then E2E on a production build. With a design change, also the **design gate**: `pnpm studio:seed` (staging gets the design content and pictures), then, for new or changed sections, `pnpm design:capture <change>` on our app and the human's approval of those shots against the Lovable preview (they become the baselines), then `pnpm design:verify <change>`; every section, locale and width must pass (`docs/design/DESIGN_WORKFLOW.md` §13). Attach the result (pass count, any deviation) to the PR description.
 
 ## Operating rules
 
