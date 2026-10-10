@@ -151,6 +151,14 @@ describe('useMagazine', () => {
     }
   })
 
+  it('is a 404 for an empty or repeated category parameter', async () => {
+    fetchMock.mockResolvedValue({ page, categories, total: 5, posts: [] })
+
+    for (const query of ['category=', 'category=training&category=nutrition']) {
+      expect(await thrownBy(useMagazine, `/en/magazine?${query}`)).toMatchObject({ status: 404 })
+    }
+  })
+
   it('keeps an empty magazine on its first page, without the link back', async () => {
     fetchMock.mockResolvedValue({ page, categories, total: 0, posts: [] })
     const view = await mountComposable(useMagazine, { route: '/en/magazine' })

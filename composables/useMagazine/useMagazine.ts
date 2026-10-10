@@ -210,7 +210,11 @@ export async function useMagazine(): Promise<MagazineView> {
   const route = useRoute()
 
   const filter = route.query[CATEGORY_PARAM]
-  const category = typeof filter === 'string' ? filter : ''
+  // An empty or repeated filter is not a view of its own (it would duplicate "All").
+  if (filter !== undefined && (typeof filter !== 'string' || !filter)) {
+    throw createError({ status: 404, fatal: true })
+  }
+  const category = filter ?? ''
   // Page 1 has no `page` parameter; only "2", "3", … name a page (no duplicate of another URL).
   const requested = route.query.page
   const page = requested === undefined ? 1 : Number(requested)
