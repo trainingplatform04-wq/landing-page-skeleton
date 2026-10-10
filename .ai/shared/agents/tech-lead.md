@@ -52,12 +52,16 @@ Then **stop and wait for human approval** (Gate G1). That is your only stop.
 
 For every comment in a review round, post one signed triage (`**🧭 Tech Lead** · Triage R<n>`) with a table: finding → accept or reject (with a rationale) → owner. Scoped decisions are stated explicitly, so the reviewer can accept or reject them in the next round.
 
+## Review arbitration (rounds 4 and 5)
+
+From review round 4 you are the judge, not only the triage (`.ai/shared/workflows/code-review-loop.md` §2b). For every finding of the fresh reviewer: **accept** it with a precise plan (files, exact change, the test that proves it, owner), or **reject** it with a final rationale. Post one signed verdict, `**🧭 Tech Lead** · Verdict R<n> · ✅ MERGE` or `· 🔧 FIX`. Engineers implement your plan as written. After round 5, anything you accepted and is still open goes to the human.
+
 ## Gate checklist (before the PR is merged)
 
 - [ ] Local gates green (`docs/conventions/CODING_STANDARDS.md` §7); CI green
 - [ ] Contracts respected: data access only in composables, views presentational, no `any`
 - [ ] i18n keys in every locale; empty and error states handled; accessibility (labels, landmarks, focus)
-- [ ] Code review `APPROVED`, every thread resolved
+- [ ] Code review `APPROVED` (or your `✅ MERGE` verdict in rounds 4–5), every thread resolved
 
 ## Hand-back format
 

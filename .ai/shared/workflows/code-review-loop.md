@@ -22,7 +22,10 @@ Every PR goes through this loop. No step may be skipped, and nothing is merged w
 
 - **Every comment must be resolved before approval**, including `[nit]`. Nothing is deferred silently.
 - Comment labels: `[blocking]` (bug, security, data loss, broken build) · `[major]` (architecture/standards violation, missing test) · `[nit]` (naming, wording, style).
-- Maximum **3 review rounds**. If round 3 still ends in `CHANGES REQUESTED`, stop and escalate to the human with a summary of the open threads.
+- Maximum **5 review rounds**:
+  - **Rounds 1–3**: the reviewer's verdict decides; the Tech Lead triages, engineers fix.
+  - **Rounds 4–5: Tech Lead arbitration.** A fresh reviewer still reviews, but the **Tech Lead gives the binding verdict** on every finding (§2b) and writes the fix plan before any engineer works. A finding the Tech Lead rejects is closed: the reviewer may not reopen it.
+  - If round 5 still has an accepted finding open, stop and escalate to the human with a summary of the open threads.
 - Reviews are posted from the operator's GitHub account, and GitHub forbids approving your own PR. Every review is therefore submitted with `event: COMMENT`, and the **verdict is in the signed first line of the review body** (operating-model §4):
   - `**🔍 Code Reviewer** · Review R<n> · ❌ CHANGES REQUESTED`
   - `**🔍 Code Reviewer** · Review R<n> · ✅ APPROVED`
@@ -84,17 +87,32 @@ The orchestrator spawns a **new** reviewer subagent for every round and passes i
    gh api graphql -F id=<threadId> -f query='mutation($id:ID!){ resolveReviewThread(input:{threadId:$id}){ thread{ isResolved } } }'
    ```
 
+### 2b. Tech Lead arbitration (rounds 4 and 5)
+
+After the reviewer's round 4 or 5, the Tech Lead decides alone, in one signed comment:
+
+```text
+**🧭 Tech Lead** · Verdict R<n> · ✅ MERGE | 🔧 FIX
+| Finding | Decision (accept / reject + rationale) | Plan: files, exact change, test | Owner |
+<!-- agent=tech-lead; kind=verdict; round=<n> -->
+```
+
+- **Accept** → the plan says exactly what changes in which file and which test proves it; the engineer implements the plan as written (no redesign), runs the local gates, replies on the thread with the SHA and resolves it.
+- **Reject** → the rationale is final; the Tech Lead resolves the thread.
+- **✅ MERGE**: every finding is rejected or a `[nit]` already fixed; the PR merges once CI is green (§5), without another review round.
+- **🔧 FIX**: after the fixes, round 5 runs (fresh reviewer, then this verdict again). There is no round 6.
+
 ### 3. Re-review (Code Reviewer)
 
 - Verify every thread is resolved **and** actually fixed in code. Reopen (reply + unresolve) anything that isn't.
 - Review the new commits as well. New problems become new threads.
-- Submit round N+1. Repeat until `APPROVED` or the round limit.
+- Submit round N+1. Repeat until `APPROVED`, or until the Tech Lead's verdict decides (rounds 4–5, §2b).
 
 ### 4. CI green (DevOps Engineer)
 
 CI runs on every push. If a check fails, the **DevOps Engineer** reads `gh run view <id> --log-failed`. Platform failures (install, lockfile, env vars, runners) are fixed by DevOps. Code failures (lint, types, tests) go to the Tech Lead with the failing step and log excerpt. Fixes follow the same commit, push and reply flow. Never re-run a job hoping for green.
 
-### 5. Merge (after `APPROVED` and green CI)
+### 5. Merge (after `APPROVED`, or the Tech Lead's `✅ MERGE` in rounds 4–5, and green CI)
 
 ```bash
 gh pr checks $PR --watch --fail-fast          # CI must be fully green

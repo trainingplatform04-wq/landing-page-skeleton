@@ -32,7 +32,7 @@ _AI agents run `.ai/shared/workflows/feature-orchestration.md` from Step 2, unde
 3. **Implement**: follow `docs/conventions/ARCHITECTURE.md` and `CODING_STANDARDS.md`. After schema/query changes run `pnpm typegen` and update the demo content (`studio/seed/seed.data.ts`).
 4. **Local gates**: `docs/conventions/CODING_STANDARDS.md` §7 (`pnpm verify` + E2E). Fix everything.
 5. **Commit & PR**: Conventional Commits, push, `gh pr create --base develop`, set `status: 'Review'` above.
-6. **Code Review Loop**: `.ai/shared/workflows/code-review-loop.md`. Fresh reviewer subagent, signed inline GitHub review → Tech Lead triage → fixes → re-review until `APPROVED` (all comments resolved, max 3 rounds).
+6. **Code Review Loop**: `.ai/shared/workflows/code-review-loop.md`. Fresh reviewer subagent, signed inline GitHub review → Tech Lead triage → fixes → re-review until `APPROVED` (all comments resolved, max 5 rounds; from round 4 the Tech Lead decides and plans the fixes).
 7. **Merge & Deploy**: green CI → squash-merge → verify the staging deploy → set `status: 'Done'`.
 
 ## 📋 Definition of Done

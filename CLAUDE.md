@@ -51,6 +51,6 @@ For a request, `/feature`, or a task file (e.g. "Implement `docs/tasks/<name>.md
 
 1. **Scope** (task file) → **Plan** → 🚦 **Gate G1: wait for human approval**.
 2. **Implement** on `feat/<name>` from `develop` → local gates (`pnpm verify` + E2E, defined once in `docs/conventions/CODING_STANDARDS.md` §7).
-3. **PR** into `develop` → [review loop](.ai/shared/workflows/code-review-loop.md) with a **fresh reviewer subagent** each round, until `APPROVED` (every comment resolved, max 3 rounds).
+3. **PR** into `develop` → [review loop](.ai/shared/workflows/code-review-loop.md) with a **fresh reviewer subagent** each round, until `APPROVED` (every comment resolved, max 5 rounds; from round 4 the Tech Lead gives the verdict and plans the fixes before engineers work).
 4. **Merge** (squash) after green CI → verify the staging deploy. Blockers are reported, never held.
 5. **Production**: [`release.md`](.ai/shared/workflows/release.md), 🚦 **Gate G2: human "go"**.

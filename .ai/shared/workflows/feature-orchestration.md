@@ -35,7 +35,7 @@ For each step, declare the delegation (`→ tech-lead: …`) and print `--- Step
 
 **Step 5: Pull Request.** Conventional Commits, `git push -u origin HEAD`, `gh pr create --base develop` with a description (what, why, verification). Set the task `status: Review`.
 
-**Step 6: Review loop.** Run `.ai/shared/workflows/code-review-loop.md`: independent reviewer subagent → Tech Lead triage → fixes → replies and resolved threads → re-review, until `APPROVED` (max 3 rounds).
+**Step 6: Review loop.** Run `.ai/shared/workflows/code-review-loop.md`: independent reviewer subagent → Tech Lead triage → fixes → replies and resolved threads → re-review, until `APPROVED` (max 5 rounds; rounds 4–5 are decided by the Tech Lead's verdict and fix plan).
 
 **Step 7: Merge & staging (devops-engineer).** After `APPROVED` and green CI: squash-merge, watch the `Deploy` run and verify staging. Blockers follow operating-model §2 (never hold, report).
 
