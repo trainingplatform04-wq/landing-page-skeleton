@@ -76,4 +76,4 @@ tokens; the frontend maps each to our closest Nuxt UI semantic token (`primary`,
   frontend never reads it.
 - `verify.json`: what the design gate compares
 - `content/magazine.json`: the page's content, English from the prototype and German
-- `baseline/`: approved screenshots of our sections (`pnpm design:capture`, after implementation)
+- `baseline/`: our screenshots for the design gate, local only (gitignored)

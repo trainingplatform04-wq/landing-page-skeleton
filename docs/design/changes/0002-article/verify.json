@@ -1,0 +1,16 @@
+{
+  "app": {
+    "paths": { "de": "/magazin/protein-ohne-pulver", "en": "/en/magazine/protein-without-powder" }
+  },
+  "sections": [
+    { "name": "article-hero" },
+    { "name": "article-takeaways" },
+    { "name": "article-body" },
+    { "name": "article-faq" },
+    { "name": "article-author" },
+    { "name": "article-related" },
+    { "name": "article-closing" }
+  ],
+  "widths": [375, 768, 1440],
+  "tolerance": { "maxDiffPixelRatio": 0.002, "threshold": 0.1 }
+}

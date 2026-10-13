@@ -45,4 +45,4 @@ Every accepted difference from the design, with its reason.
 - `sections/<name>.diff`: the Lovable diff of that section between `from` and `to` (evidence for the designer and the reviewer; the frontend never reads it)
 - `verify.json`: what the design gate compares
 - `content/<name>.json`: the section's content, English from the prototype plus every other locale (seed)
-- `baseline/`: approved screenshots of our sections (`pnpm design:capture`, after implementation)
+- `baseline/`: our screenshots for the design gate, local only (gitignored)

@@ -48,3 +48,6 @@ studio/schema.json
 
 # Vercel CLI (`vercel build` / `vercel pull` output and project link)
 .vercel
+
+# Design gate screenshots: local working files (docs/design/DESIGN_WORKFLOW.md §13)
+docs/design/changes/*/baseline/

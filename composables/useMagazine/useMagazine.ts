@@ -1,17 +1,9 @@
 import { z } from 'zod'
 
 import { useCms } from '~/composables/useCms/useCms'
-import { BUSINESS_TIME_ZONE } from '~/constants/date.constants'
-import {
-  type MapContext,
-  toCta,
-  toImage,
-  toSeo,
-  unpublishedSeo,
-} from '~/utils/content/content.utils'
-import { formatShortDate } from '~/utils/date/date.utils'
-import { ctaFragment, imageFragment, q, seoFragment } from '~/utils/groqd/groqd.utils'
-import { readingMinutes } from '~/utils/readingTime/readingTime.utils'
+import { type MapContext, toCta, toSeo, unpublishedSeo } from '~/utils/content/content.utils'
+import { ctaFragment, postCardFragment, q, seoFragment } from '~/utils/groqd/groqd.utils'
+import { toPostCard } from '~/utils/post/post.utils'
 
 import type { Cta, MagazineTab, PostCard, Seo } from '~/types/content.types'
 import type { InferResultType } from 'groqd'
@@ -57,35 +49,7 @@ const magazineQuery = q
       .filterRaw(POSTS_FILTER)
       .order('publishedAt desc')
       .raw('[$start...$end]', 'passthrough')
-      .project((post) => ({
-        id: ['_id', z.string()],
-        title: z.string(),
-        slug: ['slug.current', z.string()],
-        excerpt: z.string(),
-        publishedAt: z.string(),
-        cover: post.field('cover').project(imageFragment).nullable(true),
-        category: post.field('category').deref().field('title', z.string()).nullable(true),
-        author: post
-          .field('author')
-          .deref()
-          .project((author) => ({
-            name: z.string(),
-            photo: author.field('photo').project(imageFragment).nullable(true),
-          }))
-          .nullable(true),
-        // The text of every block, for the reading time.
-        words: post.raw(
-          'body[]{ text, children[]{ text } }',
-          z
-            .array(
-              z.object({
-                text: z.string().nullish(),
-                children: z.array(z.object({ text: z.string().nullish() })).nullish(),
-              }),
-            )
-            .nullable(),
-        ),
-      })),
+      .project(postCardFragment),
   }))
 
 type MagazineData = InferResultType<typeof magazineQuery>
@@ -116,25 +80,6 @@ export function magazineRange(page: number, category: string): { start: number; 
   if (page === 1) return { start: 0, end: FEATURED_COUNT + PAGE_SIZE }
   const start = FEATURED_COUNT + (page - 1) * PAGE_SIZE
   return { start, end: start + PAGE_SIZE }
-}
-
-function toPostCard(
-  post: MagazineData['posts'][number],
-  context: MapContext,
-  readingTime: (minutes: number) => string,
-): PostCard {
-  return {
-    id: post.id,
-    title: post.title,
-    excerpt: post.excerpt,
-    to: `${context.localePath('magazine')}/${post.slug}`,
-    category: post.category ?? undefined,
-    image: toImage(post.cover),
-    author: post.author ? { name: post.author.name, photo: toImage(post.author.photo) } : undefined,
-    date: formatShortDate(post.publishedAt, context.language, BUSINESS_TIME_ZONE),
-    dateTime: post.publishedAt,
-    readingTime: readingTime(readingMinutes(post.words ?? [])),
-  }
 }
 
 function toMagazineView(

@@ -15,7 +15,13 @@ interface SitemapEntry {
   alternatives: Array<{ hreflang: string; href: string }>
 }
 
-/** Published pages and offers, each with the languages it exists in. */
+/** Documents with their own URL (a slug), by the route that shows them. */
+const SLUG_ROUTES = { offer: 'offers-slug', post: 'magazine-slug' } as const satisfies Record<
+  string,
+  RouteName
+>
+
+/** Published pages, offers and articles, each with the languages it exists in. */
 const sitemapQuery = q.project((root) => ({
   pages: root.star
     .filterByType(...Object.values(PAGE_TYPES))
@@ -25,14 +31,15 @@ const sitemapQuery = q.project((root) => ({
       language: z.string().nullable(),
       updatedAt: ['_updatedAt', z.string()],
     }),
-  offers: root.star
-    .filterByType('offer')
+  slugged: root.star
+    .filterByType('offer', 'post')
     .filterRaw('defined(language) && defined(slug.current) && seo.noIndex != true')
-    .project((offer) => ({
+    .project((document) => ({
+      type: ['_type', z.enum(['offer', 'post'])],
       language: z.string().nullable(),
       slug: ['slug.current', z.string()],
       updatedAt: ['_updatedAt', z.string()],
-      translations: offer.raw(
+      translations: document.raw(
         '*[_type == "translation.metadata" && references(^._id)][0].translations[].value->{ language, "slug": slug.current }',
         z.array(z.object({ language: z.string(), slug: z.string() }).nullable()).nullable(),
       ),
@@ -72,7 +79,7 @@ async function fetchSitemapEntries(): Promise<SitemapEntry[]> {
     useCdn: false,
   })
   const runQuery = makeSafeQueryRunner((query, { parameters }) => client.fetch(query, parameters))
-  const { pages, offers } = await runQuery(sitemapQuery)
+  const { pages, slugged } = await runQuery(sitemapQuery)
 
   const published = pages.flatMap(({ type, language, updatedAt }) => {
     const route = ROUTE_OF_PAGE_TYPE[type]
@@ -89,32 +96,28 @@ async function fetchSitemapEntries(): Promise<SitemapEntry[]> {
     }
   })
 
-  const offerEntries = offers.flatMap(({ language, slug, updatedAt, translations }) => {
+  const sluggedEntries = slugged.flatMap(({ type, language, slug, updatedAt, translations }) => {
     if (!language) return []
+    const route = SLUG_ROUTES[type]
     const versions = (translations ?? [{ language, slug }]).flatMap((version) =>
       version
-        ? [
-            {
-              language: version.language,
-              path: pathOf('offers-slug', version.language, version.slug),
-            },
-          ]
+        ? [{ language: version.language, path: pathOf(route, version.language, version.slug) }]
         : [],
     )
     return [
       {
-        loc: pathOf('offers-slug', language, slug),
+        loc: pathOf(route, language, slug),
         lastmod: updatedAt,
         alternatives: alternativesOf(versions),
       },
     ]
   })
 
-  return [...pageEntries, ...offerEntries]
+  return [...pageEntries, ...sluggedEntries]
 }
 
 /**
- * Reads the published pages and offers from Sanity when building for production, so the
+ * Reads the published pages, offers and articles from Sanity when building for production, so the
  * sitemap lists them with their language versions. A CMS error fails the build instead
  * of shipping an empty sitemap. Never runs in dev, `nuxt prepare` or tests.
  * Listed before @nuxtjs/sitemap in nuxt.config.ts, which then reads `sitemap.urls`.

@@ -6,6 +6,9 @@
  * - Every page is measured once, all in parallel. A page with a score under `minimum` gets
  *   `confirmationRuns` more runs, and the median of each score decides: a one-off sample cannot
  *   block a PR, a real regression still does. Scores under `target` pass but are reported.
+ * - A run Google cannot complete (quota, a server error, a Lighthouse runtime error such as
+ *   `NO_FCP`) is retried; a page with no completed run is reported as not measured and fails the
+ *   gate at the end, after every other page has been measured.
  *
  * - `PAGESPEED_API_KEY` (env): a Google Cloud API key with the PageSpeed Insights API enabled.
  *   Without it Google's anonymous quota is tiny and requests fail with 429.
@@ -25,12 +28,16 @@ import budget from '../../webPerformance.config.ts'
 
 type FormFactor = (typeof budget.formFactors)[number]
 
-/** The median scores (0–100) of one page on one form factor, by category and metric id. */
+/**
+ * The median scores (0–100) of one page on one form factor, by category and metric id. A page
+ * that could not be measured has no runs, no scores and the reason in `error`.
+ */
 export interface PageResult {
   formFactor: FormFactor
   path: string
   runs: number
   scores: Record<string, number>
+  error?: string
 }
 
 interface AuditRef {
@@ -52,6 +59,10 @@ const NOINDEX_AUDITS = new Set(['is-crawlable'])
  */
 const REQUESTS_PER_MINUTE = 30
 const ATTEMPTS = 4
+/** Google's transient errors: quota (429) and server errors. */
+const RETRY_STATUSES = [429, 500, 502, 503]
+/** A Lighthouse runtime error (e.g. `NO_FCP`): answered as 400, but the next run often passes. */
+const LIGHTHOUSE_ERROR = /Lighthouse returned error|\bNO_FCP\b/i
 const MINUTE = 60_000
 
 const sentAt: number[] = []
@@ -78,9 +89,12 @@ if (!base) {
 }
 if (!key) process.stderr.write('PAGESPEED_API_KEY is not set: Google may refuse requests (429).\n')
 
-/** Every page of the site in every language; pages with a slug belong to editors (as in smoke). */
+/**
+ * Every page of the site in every language; for templates with a slug (their pages belong to
+ * editors), the examples of `budget.slugPages`.
+ */
 function pagePaths(): string[] {
-  return Object.entries(ROUTE_PATHS)
+  const pages = Object.entries(ROUTE_PATHS)
     .filter(([route]) => !route.endsWith('-slug'))
     .flatMap(([, paths]) =>
       LOCALES.map(({ code }, index) => {
@@ -89,11 +103,29 @@ function pagePaths(): string[] {
         return path === '/' ? `/${code}` : `/${code}${path}`
       }),
     )
+  return [...pages, ...budget.slugPages]
 }
 
-/** One PageSpeed Insights run (Google's report); retried on Google's transient errors. */
+/** The error message of a failed PageSpeed response, or its body. */
+function errorMessage(body: string): string {
+  try {
+    return (JSON.parse(body) as { error?: { message?: string } }).error?.message ?? body
+  } catch {
+    return body
+  }
+}
+
+/** Every run gets its own URL: PageSpeed returns its cached report for a URL it measured recently. */
+let runCount = 0
+const freshUrl = (url: string) =>
+  `${url}${url.includes('?') ? '&' : '?'}wp=${Date.now()}-${++runCount}`
+
+/**
+ * One PageSpeed Insights run (Google's report, measured fresh); retried on Google's transient
+ * errors and on Lighthouse runtime errors.
+ */
 async function runPageSpeed(url: string, formFactor: FormFactor): Promise<Report> {
-  const query = new URLSearchParams({ url, strategy: formFactor })
+  const query = new URLSearchParams({ url: freshUrl(url), strategy: formFactor })
   for (const category of budget.categories) query.append('category', category)
   if (key) query.set('key', key)
   for (let attempt = 1; ; attempt++) {
@@ -101,11 +133,12 @@ async function runPageSpeed(url: string, formFactor: FormFactor): Promise<Report
     const response = await fetch(`${API}?${query}`)
     if (response.ok)
       return ((await response.json()) as { lighthouseResult: Report }).lighthouseResult
-    if (attempt >= ATTEMPTS || ![429, 500, 502, 503].includes(response.status)) {
-      throw new Error(
-        `PageSpeed ${response.status} for ${url} (${formFactor}): ${await response.text()}`,
-      )
-    }
+    const message = errorMessage(await response.text())
+    const retryable =
+      RETRY_STATUSES.includes(response.status) ||
+      (response.status === 400 && LIGHTHOUSE_ERROR.test(message))
+    if (attempt >= ATTEMPTS || !retryable)
+      throw new Error(`PageSpeed ${response.status}: ${message}`)
     // Quota (429): the next minute window; Google's transient errors: a short pause.
     await sleep(response.status === 429 ? MINUTE : attempt * 5000)
   }
@@ -167,15 +200,24 @@ interface Page {
   formFactor: FormFactor
   url: string
   reports: Report[]
+  /** Why the last run failed; reported when the page has no completed run. */
+  error?: string
 }
 
-/** Measures every page once more, all in parallel within Google's quota. */
+/**
+ * Measures every page once more, all in parallel within Google's quota. A run that still fails
+ * after its retries is logged on the page; the other pages go on.
+ */
 async function measure(targets: Page[]): Promise<void> {
-  const reports = await pool(
-    targets.map((page) => () => runPageSpeed(page.url, page.formFactor)),
-    REQUESTS_PER_MINUTE,
-  )
-  targets.forEach((page, index) => page.reports.push(reports[index]!))
+  const tasks = targets.map((page) => async () => {
+    try {
+      page.reports.push(await runPageSpeed(page.url, page.formFactor))
+    } catch (error) {
+      page.error = error instanceof Error ? error.message : String(error)
+      process.stderr.write(`${page.formFactor} ${page.url}: ${page.error}\n`)
+    }
+  })
+  await pool(tasks, REQUESTS_PER_MINUTE)
 }
 
 const urls = pagePaths().map((path) => `${base.replace(/\/$/, '')}${path}`)
@@ -189,7 +231,7 @@ process.stdout.write(
 )
 await measure(pages)
 
-const suspects = pages.filter((page) => belowMinimum(scoresOf(page.reports[0]!)))
+const suspects = pages.filter((page) => page.reports[0] && belowMinimum(scoresOf(page.reports[0])))
 if (suspects.length) {
   process.stdout.write(
     `${suspects.length} page(s) under ${budget.minimum}: ${budget.confirmationRuns} confirmation run(s) each
@@ -212,6 +254,10 @@ for (const page of pages) {
       JSON.stringify(report),
     )
   })
+  if (!page.reports.length) {
+    results.push({ formFactor: page.formFactor, path, runs: 0, scores: {}, error: page.error })
+    continue
+  }
   results.push({
     formFactor: page.formFactor,
     path,
@@ -223,9 +269,11 @@ writeFileSync(join('.web-performance', 'results.json'), JSON.stringify(results, 
 
 const label = ({ formFactor, path }: PageResult) => `${formFactor} ${path}`
 const failures = results.flatMap((result) =>
-  Object.entries(result.scores)
-    .filter(([, score]) => score < budget.minimum)
-    .map(([id, score]) => `${label(result)} · ${id} ${score} < ${budget.minimum}`),
+  result.runs
+    ? Object.entries(result.scores)
+        .filter(([, score]) => score < budget.minimum)
+        .map(([id, score]) => `${label(result)} · ${id} ${score} < ${budget.minimum}`)
+    : [`${label(result)} · could not be measured: ${result.error}`],
 )
 const belowTarget = results.flatMap((result) =>
   Object.entries(result.scores)
@@ -240,7 +288,7 @@ if (belowTarget.length) {
 }
 if (failures.length) {
   process.stderr.write(
-    `\nUnder the ${budget.minimum} minimum (webPerformance.config.ts):\n${failures.map((f) => `  ✘ ${f}`).join('\n')}\n`,
+    `\nUnder the ${budget.minimum} minimum (webPerformance.config.ts) or not measured:\n${failures.map((f) => `  ✘ ${f}`).join('\n')}\n`,
   )
   process.exit(1)
 }

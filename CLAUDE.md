@@ -12,7 +12,7 @@ This is an **Enterprise Nuxt 4 Starter Skeleton** designed to support **Autonomo
 - **Tools (MCP)**: Agents use the Model Context Protocol for GitHub, Sanity and Jira.
 - **Operating model** ([`.ai/shared/workflows/operating-model.md`](.ai/shared/workflows/operating-model.md)): the two human gates (G1 plan, G2 production), blockers (never hold, report), mandatory independent reviewer subagent, and signed GitHub comments. It overrides anything conflicting.
 - **Commands**: `/design [idea]`, `/feature <request>`, `/review <PR>`, `/release [hotfix <name>]`, `/agents`.
-- **Design track** ([`docs/design/DESIGN_WORKFLOW.md`](docs/design/DESIGN_WORKFLOW.md)): `/design` runs discovery → brief (gate D1) → one Lovable prompt → approved design (gate D2) → a design changeset in `docs/design/changes/` that a task points to. Lovable builds a React prototype only; production code is always this Nuxt repository: the frontend never reads Lovable code, it implements the changeset's facts under our architecture, and `pnpm design:verify <change>` (pixel comparison with our approved screenshots) must pass before the PR. Lovable is read only through its MCP server; Playwright runs on our app only. Pictures live in Sanity only, uploaded by the seed.
+- **Design track** ([`docs/design/DESIGN_WORKFLOW.md`](docs/design/DESIGN_WORKFLOW.md)): `/design` runs discovery → brief (gate D1) → one Lovable prompt → approved design (gate D2) → a design changeset in `docs/design/changes/` that a task points to. Lovable builds a React prototype only; production code is always this Nuxt repository: the frontend never reads Lovable code, it implements the changeset's facts under our architecture, and `pnpm design:verify <change>` (pixel comparison with screenshots of our build, checked against the specs by an independent designer reviewer; never committed) must pass before the PR. Lovable is read only through its MCP server; Playwright runs on our app only. Pictures live in Sanity only, uploaded by the seed.
 - **Drift guard**: `tests/orchestration/orchestration.spec.ts` fails CI if personas, pointers or referenced paths drift.
 
 ## 2. Architecture (read before writing code)
@@ -50,7 +50,7 @@ Principles: **KISS & SOLID**, **co-location** (`composables/<useName>/<useName>.
 
 For a request, `/feature`, or a task file (e.g. "Implement `docs/tasks/<name>.md`"), run the single pipeline [`.ai/shared/workflows/feature-orchestration.md`](.ai/shared/workflows/feature-orchestration.md):
 
-1. **Scope** (task file) → **Plan** → 🚦 **Gate G1: wait for human approval**.
+1. **Scope** (task file) → **Plan** → 🚦 **Gate G1: wait for human approval** (passed by the Tech Lead when the task comes from a design approved at D2: no human stop until G2).
 2. **Implement** on `feat/<name>` from `develop` → local gates (`pnpm verify` + E2E, defined once in `docs/conventions/CODING_STANDARDS.md` §7).
 3. **PR** into `develop` → [review loop](.ai/shared/workflows/code-review-loop.md) with a **fresh reviewer subagent** each round, until `APPROVED` (every comment resolved, max 5 rounds; in round 5 the Tech Lead settles every conflict and plans the fixes before engineers work).
 4. **Merge** (squash) after green CI → verify the staging deploy. Blockers are reported, never held.

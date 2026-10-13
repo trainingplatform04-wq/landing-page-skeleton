@@ -374,7 +374,14 @@ export type Post = {
   category?: CategoryReference
   author?: AuthorReference
   publishedAt: string
+  keyTakeaways?: Array<string>
   body?: ArticleBody
+  faq?: Array<{
+    question: string
+    answer: string
+    _type: 'question'
+    _key: string
+  }>
   seo?: Seo
 }
 

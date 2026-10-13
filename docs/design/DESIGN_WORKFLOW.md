@@ -58,8 +58,9 @@ and **client validation** work together, from the first page to the tenth change
    Nobody re-reads unchanged sections, other pages or the design history.
 6. **Lovable through MCP, Playwright on our code.** The prototype is read only through the
    `lovable` MCP server (files, diffs), never opened in a browser. Playwright screenshots **our**
-   sections; the human compares them with the Lovable preview, and once approved they are the
-   baselines every later change must match within a tolerance.
+   sections; an independent designer reviewer checks them against the changeset's specs, and
+   they are the local baselines the implementation must match within a tolerance before its PR.
+   Screenshots are working files, never committed.
 7. **Design content is the staging seed.** The copy of the prototype (and stock pictures that
    match its picture descriptions) become the
    demo content of `studio/seed/seed.data.ts`: staging looks like the design and the visual test
@@ -140,7 +141,7 @@ docs/design/
     │   │   └── hero.diff       ← Lovable diff of that section (whole file for a first version)
     │   ├── content/hero.json   ← the section's content per locale (→ seed)
     │   ├── verify.json         ← what the design gate renders (our app's paths, sections, widths)
-    │   └── baseline/           ← approved screenshots of our sections (§13)
+    │   └── baseline/           ← screenshots of our sections, local only (§13)
     └── 0002-home-testimonials/ ← a later change: only the changed sections
 
 tests/visual/                   ← the design gate: pnpm design:capture / design:verify (§13)
@@ -178,8 +179,8 @@ That repository is a design artefact, never deployed by our pipeline.
 
 - The MCP connection has **the whole Lovable account**, not one project. Agents only touch the
   project recorded in `docs/design/design-system.md`.
-- Credits are real money or real daily quota: nothing that spends credits is sent without the
-  human's explicit go (`/design` Step 4).
+- Credits are real money or real daily quota: nothing that spends credits is sent for a brief
+  the human has not approved at D1; that approval is the go (`/design` Steps 3–5).
 - `deploy_project` publishes a link anyone can open on Free and Pro: asked every time.
 - `query_database` and `enable_database` are never used: the prototype has no backend; content is
   static in the prototype and real content lives in Sanity.
@@ -391,10 +392,10 @@ answers with `respond_to_approval`. It never decides for you.
 4. Client approves (email) → **Approve** → **D2**:
    - approved commit recorded, tag `design/home-v1`;
    - `docs/design/changes/0001-home/` with every section (first version: the whole section files
-     as "diff"), specs, content per locale, `verify.json` (baselines come after implementation);
+     as "diff"), specs, content per locale, `verify.json` (screenshots come after implementation, locally);
    - `docs/design/pages/home.md` created;
    - task `docs/tasks/home-page.md` drafted with `Design change: docs/design/changes/0001-home/`.
-5. "Start `/feature` now?" → yes → plan → **G1** → implementation, visual loop, PR, review, merge →
+5. `/feature` starts at once (the Tech Lead passes G1) → plan → implementation, visual loop, PR, review, merge →
    staging, seeded with the design content.
 
 ### 9.3 Two days later the client changes a section
@@ -419,8 +420,8 @@ The client wants the testimonials as a carousel with a star rating, and a "trust
    `0001-home`.
 5. The feature reads two section specs and two diffs. The backend adds `testimonial.rating` and
    `homePage.trust`, updates the seed (the staging seed adds the new fields without touching what
-   the client edited). The visual test checks **every** section of the page (the unchanged ones
-   against their 0001 baselines: the regression net), but agents only open the failing ones.
+   the client edited). The visual test checks the changed sections against fresh captures
+   checked by the designer reviewer; agents only open the failing ones.
 
 ### 9.4 A change of mind before implementation
 
@@ -433,14 +434,14 @@ updates `0002`), the feature branch picks it up. Already merged: a new changeset
 (`constants/routes.constants.ts`) or is new; the task then includes everything a page needs
 (ARCHITECTURE "Add a page"): route, schema, composable, page, i18n keys, seed documents with the
 design content, E2E fixtures, smoke route, visual test entries. Shared sections (e.g. `closing`)
-are reused, with page-specific baselines.
+are reused, captured again on the new page.
 
 ### 9.6 A design-system change
 
 `/design warmer primary colour` → a design-system brief → the project knowledge is updated (free)
 → one compiled prompt "apply the new theme everywhere" → approve → a changeset with **tokens only**
-→ a small feature changes `app.config.ts` / `assets/css/main.css`; every page's baselines are
-re-rendered from the new approved commit.
+→ a small feature changes `app.config.ts` / `assets/css/main.css`; every page's sections are
+captured again and checked by the designer reviewer.
 
 ### 9.7 The implementation reveals a design problem
 
@@ -497,10 +498,10 @@ First version of a page: every section is "new".
 ### 10.4 Writing the changeset and the task
 
 From `docs/design/changes/_template/`: `change.md` (source commits, sections, approval, acceptance,
-deviations), the section specs, `verify.json`, `baseline/` (after implementation). Anything the designer
+deviations), the section specs, `verify.json` (screenshots are captured after implementation, locally). Anything the designer
 cannot infer goes under Open questions, answered at G1. Then the task `docs/tasks/<name>.md` from
 `docs/tasks/template.md`, `Design change: docs/design/changes/<id>/`, acceptance from `change.md`,
-and: "Start `/feature` now?"
+and `/feature` starts at once (the Tech Lead passes G1).
 
 ---
 
@@ -512,13 +513,13 @@ and: "Start `/feature` now?"
 | Plan              | Tech Lead                               | `change.md`, page index, specs' Components and Content tables | plan → **G1**                                                           |
 | Design map        | Designer engineer                       | section specs (facts)                                         | component map (§12), token changes                                      |
 | Data              | Backend engineer                        | Content tables, `content/*.json`                              | schema fields, `pnpm typegen`, seed = design content and pictures       |
-| UI                | Frontend engineer                       | one section spec at a time + its baselines                    | section components with `data-section`, **under our architecture only** |
+| UI                | Frontend engineer                       | one section spec at a time                                    | section components with `data-section`, **under our architecture only** |
 | **Design gate**   | QA engineer                             | `verify.json`                                                 | `pnpm design:verify <change>` green (§13), plus E2E and axe             |
 | Loop              | Frontend ↔ design gate                  | the failing section's diff image only                         | fixes; deviations recorded                                              |
 | PR, review, merge | Tech Lead, fresh reviewer, Orchestrator | diff, gate report, deviations                                 | merge → staging, seeded with the design content and pictures            |
 
 **Strict architecture.** The frontend engineer **never reads Lovable code** (`.diff` files, the
-Lovable project). It implements from the section spec and the baselines, following
+Lovable project). It implements from the section spec, following
 `docs/conventions/ARCHITECTURE.md` and `docs/conventions/CODING_STANDARDS.md` exactly: Nuxt UI
 first, composables own data, components get plain props, every text through Sanity or i18n, the
 project's file layout. The design gate proves the result is pixel-perfect; resemblance to the
@@ -582,17 +583,22 @@ custom CSS last, with a note in the spec.
 
 ## 13. Pixel-perfect: the design gate
 
-### 13.1 Capture (after implementation, approved by the human) and verify (before every PR)
+### 13.1 Capture (after implementation, checked by a designer reviewer) and verify (before every PR)
 
-|                   | `pnpm design:capture <change>`                                                        | `pnpm design:verify <change>`                                                                                                   |
-| ----------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| Renders           | our app, same server as verify; the human compares the shots with the Lovable preview | our app: a **production build** (`nuxt build`, Node server) on the developer's `.env` (staging, seeded with the design content) |
-| Per               | section × locale × width (375 / 768 / 1440)                                           | the same                                                                                                                        |
-| Writes / compares | stable screenshots → `baseline/`                                                      | `toHaveScreenshot()` against `baseline/`, tolerance from `verify.json`                                                          |
-| Output            | baselines, committed once the human approves them                                     | pass/fail per section, diff images, HTML report (`playwright-report/design/`)                                                   |
+|                   | `pnpm design:capture <change>`                                                                                | `pnpm design:verify <change>`                                                                                                   |
+| ----------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Renders           | our app, same server as verify; a fresh designer-reviewer subagent checks the shots against the section specs | our app: a **production build** (`nuxt build`, Node server) on the developer's `.env` (staging, seeded with the design content) |
+| Per               | section × locale × width (375 / 768 / 1440)                                                                   | the same                                                                                                                        |
+| Writes / compares | stable screenshots → `baseline/`                                                                              | `toHaveScreenshot()` against `baseline/`, tolerance from `verify.json`                                                          |
+| Output            | baselines in `baseline/`: local working files, never committed (gitignored)                                   | pass/fail per section, diff images, HTML report (`playwright-report/design/`)                                                   |
+
+What verify proves: the build matches the screenshots checked by the reviewer, at every section, locale and width (and stays so while fixes land during the PR); fidelity to the design comes from that review against the specs. No human step: after D2 the human has approved the design; the reviewer subagent checks our
+shots against the changeset's facts (layout per width, sizes, content, states), and any
+mismatch is fixed in code before verify. The screenshots are deleted once verify passes; the PR
+description records the result (sections × locales × widths passed).
 
 Rendering: fonts loaded, animations and transitions off, reduced motion, lazy images loaded,
-network idle. Baselines captured on one operating system are compared on the same one (font
+network idle; sticky elements kept in place and fixed overlays hidden. Baselines captured on one operating system are compared on the same one (font
 rasterisation differs between systems). Playwright never opens the Lovable preview.
 
 ### 13.2 Rules

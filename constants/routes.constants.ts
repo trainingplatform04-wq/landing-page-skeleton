@@ -12,6 +12,7 @@ export const ROUTE_PATHS = {
   offers: { de: '/angebote', en: '/offers' },
   'offers-slug': { de: '/angebote/[slug]', en: '/offers/[slug]' },
   magazine: { de: '/magazin', en: '/magazine' },
+  'magazine-slug': { de: '/magazin/[slug]', en: '/magazine/[slug]' },
   faq: { de: '/faq', en: '/faq' },
   contact: { de: '/kontakt', en: '/contact' },
   imprint: { de: '/impressum', en: '/imprint' },

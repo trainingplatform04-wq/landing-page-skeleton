@@ -38,6 +38,11 @@ export interface WebPerformanceBudget {
   confirmationRuns: number
   /** PageSpeed strategies: `mobile` (throttled phone) and `desktop`. */
   formFactors: Array<'mobile' | 'desktop'>
+  /**
+   * Pages with a slug belong to editors, so the audit takes one published example of each
+   * such template (from the staging seed, which the dev deployment reads).
+   */
+  slugPages: string[]
   categories: Category[]
   metrics: Metric[]
 }
@@ -48,6 +53,7 @@ export default {
   minimum: 80,
   confirmationRuns: 2,
   formFactors: ['mobile', 'desktop'],
+  slugPages: ['/magazin/protein-ohne-pulver', '/en/magazine/protein-without-powder'],
   categories: ['performance', 'accessibility', 'best-practices', 'seo'],
   metrics: [
     'first-contentful-paint',

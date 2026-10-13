@@ -6,10 +6,17 @@ defineProps<{
   /** The first card of the page: its image is the page's largest, loaded first. */
   priority?: boolean
 }>()
+// The card's header is full width: Nuxt UI aligns it to the start, which made the image box
+// 0px wide (and the cards below jump down) until the picture had loaded.
 </script>
 
 <template>
-  <UPageCard :title="offer.title" :description="offer.summary" :to="offer.to">
+  <UPageCard
+    :title="offer.title"
+    :description="offer.summary"
+    :to="offer.to"
+    :ui="{ header: 'mb-4 w-full' }"
+  >
     <template v-if="offer.image" #header>
       <NuxtImg
         :src="offer.image.url"

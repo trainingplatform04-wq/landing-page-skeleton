@@ -37,8 +37,9 @@ const baselineName = (section: string, locale: string, width: number) =>
   `${section}-${locale}-${width}.png`
 
 /**
- * Same rendering every time: fonts loaded, no motion, no caret, lazy images loaded, and the
- * sticky header kept in place, so it never covers the section being shot.
+ * Same rendering every time: fonts loaded, no motion, no caret, lazy images loaded, the sticky
+ * header and every sticky element kept in place, and fixed overlays hidden, so nothing covers
+ * or moves into the section being shot.
  */
 async function settle(page: Page) {
   await page.emulateMedia({ reducedMotion: 'reduce' })
@@ -50,12 +51,28 @@ async function settle(page: Page) {
   await page.evaluate(async () => {
     window.scrollTo(0, document.body.scrollHeight)
     await document.fonts.ready
+    // Only shown images: a lazy image in a hidden element (a card hidden at this width) never
+    // loads. A broken image ends the wait too, so the screenshot shows it.
     await Promise.all(
-      [...document.images].map((image) =>
-        image.complete ? null : new Promise((done) => image.addEventListener('load', done)),
-      ),
+      [...document.images]
+        .filter((image) => !image.complete && image.checkVisibility())
+        .map(
+          (image) =>
+            new Promise((done) => {
+              image.addEventListener('load', done)
+              image.addEventListener('error', done)
+            }),
+        ),
     )
     window.scrollTo(0, 0)
+    // A section screenshot scrolls the page: sticky elements (a table of contents) stay in
+    // their place in the flow, and overlays fixed to the window (a reading progress bar, a
+    // toast) are left out, as the header already is.
+    for (const element of document.querySelectorAll<HTMLElement>('body *')) {
+      const { position } = getComputedStyle(element)
+      if (position === 'sticky') element.style.position = 'static'
+      if (position === 'fixed' && !element.closest('header')) element.style.visibility = 'hidden'
+    }
   })
 }
 

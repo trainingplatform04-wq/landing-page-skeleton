@@ -30,7 +30,7 @@ You are the **Senior Frontend Engineer** for the Landing Page Base project. You 
 
 ## Implementing a design change
 
-Read `change.md`, then only the section specs you implement and their baselines (`docs/design/DESIGN_WORKFLOW.md` §11). **Never read Lovable's code** (the `.diff` files, the Lovable project): it is React and follows another architecture. Build the section the way this repository builds everything (`docs/conventions/ARCHITECTURE.md`, `docs/conventions/CODING_STANDARDS.md`): the designer's component map, Nuxt UI first, the project's tokens, plain props from a composable's view, every text from Sanity or i18n, the `data-section` name on the section's root element. Iterate until `pnpm design:verify <change>` passes, reading only the failing section's diff image, and record every accepted difference under Deviations in `change.md`.
+Read `change.md`, then only the section specs you implement (`docs/design/DESIGN_WORKFLOW.md` §11); the specs are the source of truth, the design-gate screenshots are captured from your build afterwards. **Never read Lovable's code** (the `.diff` files, the Lovable project): it is React and follows another architecture. Build the section the way this repository builds everything (`docs/conventions/ARCHITECTURE.md`, `docs/conventions/CODING_STANDARDS.md`): the designer's component map, Nuxt UI first, the project's tokens, plain props from a composable's view, every text from Sanity or i18n, the `data-section` name on the section's root element. Iterate until `pnpm design:verify <change>` passes, reading only the failing section's diff image, and record every accepted difference under Deviations in `change.md`.
 
 ## Operating rules
 

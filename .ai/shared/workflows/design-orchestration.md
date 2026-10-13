@@ -11,7 +11,7 @@ description: >-
 
 You are the **Orchestrator** of the design track. The reference document is `docs/design/DESIGN_WORKFLOW.md`: read §1–§4 once per session, and the section of the step you are on. Obey `.ai/shared/workflows/operating-model.md` (blockers, signatures). The design track is **human-driven**: its two gates, **D1 (brief)** and **D2 (design)**, are the human's, and they sit before the feature pipeline, whose own gates (G1, G2) are unchanged.
 
-**Page by page.** One brief covers **one page** (or one change of a page). A page goes all the way through (brief → D1 → build → D2 → changeset → task → `/feature`) before the next page's brief starts. A Lovable prompt builds one page only, sized to the credits available.
+**Scope of a brief.** A brief covers one page, a change of a page, or several pages when they belong together. The Lovable prompt is sized to the credits available: one page per prompt on the free plan (5 credits a day), several pages on a paid plan. Its pages go through D2, changeset, task and `/feature` together.
 
 The design tool is **Lovable**, through the `lovable` MCP server. Lovable builds a **React prototype**, never production code: production is this Nuxt repository.
 
@@ -23,7 +23,7 @@ The design tool is **Lovable**, through the `lovable` MCP server. Lovable builds
 | `/design approve <page>`                                                                   | Step 7 (the last Lovable result of the page) |
 | `/design changes <page>`                                                                   | Step 2, in change mode, on that page         |
 | `/design status`                                                                           | Print `docs/design/pages/` and open briefs   |
-| `/design send <id>`, or `/design` while a brief is `approved` with a saved compiled prompt | Step 5 (the go was already given at Step 4)  |
+| `/design send <id>`, or `/design` while a brief is `approved` with a saved compiled prompt | Step 5 (the go was given at D1)              |
 
 ## Steps
 
@@ -32,7 +32,7 @@ The design tool is **Lovable**, through the `lovable` MCP server. Lovable builds
 - If the Lovable workspace and project are not recorded there, call `get_me` and `list_workspaces`, show them, and ask which workspace to use. The project is created at Step 5 (its first build is the first credit spent).
 - If the project knowledge is missing or older than `app.config.ts` / `assets/css/main.css`, regenerate it (DESIGN_WORKFLOW §6.3) and write it with `set_project_knowledge` (free). Record the date in `docs/design/design-system.md`.
 - Never touch a Lovable project that is not listed in `docs/design/design-system.md`.
-- If the registry says "Conventions applied: not yet" (a project bound before the conventions existed), check it with `list_files` (free): sections in `src/components/sections/` with `data-section`, pages composed of sections, content in `src/content/<page>.ts`. When they are missing, propose **one** restructuring prompt that changes no visual, show it, and send it only after the human's go (credits). Then record "Conventions applied" with the date and the commit.
+- If the registry says "Conventions applied: not yet" (a project bound before the conventions existed), check it with `list_files` (free): sections in `src/components/sections/` with `data-section`, pages composed of sections, content in `src/content/<page>.ts`. When they are missing, send **one** restructuring prompt that changes no visual, together with the build (Step 5), and log it. Then record "Conventions applied" with the date and the commit.
 
 **Step 1: Intake.** Ask the human to describe the idea in their own words, if `/design` came without one. Classify it (DESIGN_WORKFLOW §9.1): content change (→ Sanity, stop here and say so), bug (→ fix PR, stop), design change or new design (→ continue), design-system change (→ continue, Step 2 focuses on tokens).
 
@@ -49,9 +49,9 @@ Rules:
 - After each round, update the brief draft (Step 3) and show what is still open.
 - Stop when the **definition of ready** of `docs/design/briefs/_template.md` is fully checked, or when the human says "enough": then the open points go into the brief's Open questions.
 
-**Step 3: Brief → 🚦 Gate D1.** Write `docs/design/briefs/<id>-<page>.md` from `docs/design/briefs/_template.md` (ids are sequential, shared with changesets). Show it in full. **Stop and wait for the human's approval** of the brief. Changes requested → update the brief, show it again.
+**Step 3: Brief → 🚦 Gate D1.** Write `docs/design/briefs/<id>-<page>.md` from `docs/design/briefs/_template.md` (ids are sequential, shared with changesets). Show it in full. **Stop and wait for the human's approval** of the brief. Changes requested → update the brief, show it again. **Approving the brief is the go to build it in Lovable**: nothing else is asked before Step 5.
 
-**Step 4: Compile the Lovable prompt.** The `designer-engineer` turns the brief's **Design** part into **one** prompt (DESIGN_WORKFLOW §7.3): the page, its URL, its sections in order with their `data-section` names, and for each section what it shows and how (layout per width, states, motion) with its **English** content in full. Lovable only designs: the prompt never mentions Sanity, Nuxt, our code, translations, the theme or the conventions (the theme and conventions are already in the project knowledge). The brief's **Implementation** part is never sent. Show the prompt and its expected credit use, and ask for the go. This is the **only** step that spends Lovable credits, so nothing is sent without that explicit go.
+**Step 4: Compile the Lovable prompt.** The `designer-engineer` turns the brief's **Design** part into **one** prompt (DESIGN_WORKFLOW §7.3): the page, its URL, its sections in order with their `data-section` names, and for each section what it shows and how (layout per width, states, motion) with its **English** content in full. Lovable only designs: the prompt never mentions Sanity, Nuxt, our code, translations, the theme or the conventions (the theme and conventions are already in the project knowledge). The brief's **Implementation** part is never sent. Save it in the brief with its expected credit use and send it at once (Step 5): the human's D1 approval is the go. If the prompt needs more credits than the workspace has today, split it by page and send what fits; the rest is sent by `/design send <id>`.
 
 **Step 5: Build.**
 
@@ -73,7 +73,7 @@ Rules:
 3. Create the changeset `docs/design/changes/<id>-<page>[-<what>]/` from `docs/design/changes/_template/` (DESIGN_WORKFLOW §10): for every section file that is new or changed since the page's previous approved commit, store its diff as evidence (one `get_diff` call with `base_sha` = the previous approved commit and `sha` = the new one, split per file; `read_file` at the new commit for a new section), the content (English from the prototype, plus every other locale drafted by the `product-owner` for the seed), and a section spec from `docs/design/changes/_template/section.md` written as **facts** (measurements per width, typography, our tokens, states, motion; no React, no JSX, no class list: DESIGN_WORKFLOW §10.3). Unchanged sections are neither copied nor read.
 4. Copy the client approval (who, when, channel) into the changeset's Approval block.
 5. Draft the task `docs/tasks/<name>.md` from `docs/tasks/template.md`, with the `Design change` field set.
-6. Start `/feature docs/tasks/<name>.md` at once, without asking: run `.ai/shared/workflows/feature-orchestration.md` from Step 2 (its own gate G1 still applies). When the change depends on another task (for example a theme task), start that one first.
+6. Start `/feature docs/tasks/<name>.md` at once, without asking: run `.ai/shared/workflows/feature-orchestration.md` from Step 2. Gate G1 is passed by the Tech Lead (operating-model §1: the human approved the design at D2), so nothing stops for the human until G2. When the change depends on another task (for example a theme task), start that one first.
 
 ## Output discipline
 

@@ -39,6 +39,8 @@ const IMAGES = {
   postMobility: unsplash('photo-1518611012118-696072aa579a', 1600, 1000),
   postEating: unsplash('photo-1490645935967-10de6ba17061', 1600, 1000),
   postSleep: unsplash('photo-1520206183501-b80df61043c2', 1600, 1000),
+  // Article figure (docs/design/changes/0002-article): fresh ingredients in bowls on a counter.
+  postProteinBasics: unsplash('photo-1498837167922-ddd27525d352', 1500, 1000),
   authorLena: unsplash('photo-1438761681033-6461ffad8d80', 400, 400),
   authorJonas: unsplash('photo-1500648767791-00dcc994a43e', 400, 400),
   authorMira: unsplash('photo-1544005313-94ddf0286df2', 400, 400),

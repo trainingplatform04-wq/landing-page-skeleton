@@ -17,9 +17,14 @@ This file is the single source of truth for **autonomy, human gates, blockers, r
 | **G1: Plan approval**      | After the Tech Lead's plan, before any code | Tech Lead    | Plan, directory tree, owner → task list, risks |
 | **G2: Production release** | Before `develop` → `main` is merged         | Orchestrator | Release PR, changelog, staging verification    |
 
+**G1 is passed by the Tech Lead, not the human, when the task comes from an approved design**
+(a `Design change` approved at gate D2): the human already decided the scope, the look and the
+content at D1 and D2. The Tech Lead writes the plan into the task file and implementation starts
+at once. G1 stops for the human only for a feature without an approved design.
+
 Everything else is **autonomous**, with no permission requests: branching, implementation, tests, PR, the review loop, fixes, merge into `develop` (method per `.ai/shared/workflows/code-review-loop.md` §5), staging deploy and its verification. Agents never add stops of their own.
 
-The **design track** (`.ai/shared/workflows/design-orchestration.md`, `/design`) is human-driven and runs before a feature: its gates **D1 (brief)** and **D2 (design)** belong to it, not to the feature pipeline, which keeps exactly G1 and G2.
+The **design track** (`.ai/shared/workflows/design-orchestration.md`, `/design`) is human-driven and runs before a feature: its gates **D1 (brief)** and **D2 (design)** belong to it, not to the feature pipeline. After D2 nothing stops for the human until G2: the plan (above), the screenshots of the design gate (checked by an independent designer reviewer, DESIGN_WORKFLOW §13) and the merge into `develop` are autonomous.
 
 The only exceptions are named ones:
 
@@ -80,3 +85,24 @@ Escalate to the human, with a summary and the options, only when:
 - the Tech Lead's round-5 verdict (`.ai/shared/workflows/code-review-loop.md` §2b) would change scope, architecture or cost beyond the approved plan; otherwise round 5 is settled by the Tech Lead alone;
 - a decision changes scope, architecture or cost beyond the approved plan (the Tech Lead decides whether it does);
 - two agents disagree after one exchange (the Tech Lead states both positions).
+
+## 6. Working agreements with the owner
+
+These are part of the repository on purpose: every clone, machine and colleague gets the same
+behaviour. Agents keep nothing in local or per-machine memory; a new rule goes into this file,
+a persona, a workflow or `CLAUDE.md`, in a PR.
+
+- **Questions once, then work.** Ask everything still open in one round (multiple choice with a
+  recommendation), then run to the end. Never ask for approvals that §1 does not list.
+- **The owner is not a reviewer.** After D2 there is no owner step until G2: the Tech Lead
+  approves the plan, an independent designer reviewer checks the design-gate screenshots,
+  fresh reviewer subagents review the PR, and the PR is squash-merged into `develop`.
+- **Clean before committing.** Design-gate screenshots, Playwright reports, test results and
+  web-performance reports are working files: never committed (`.gitignore`). Pictures live in
+  Sanity, uploaded by the seed.
+- **No HTML comments** in templates or Markdown; explain in the script block or in prose.
+- **Reference implementation** for design → code: the magazine (brief `0001`, changeset
+  `docs/design/changes/0001-magazine/`) and the article page (`0002`). Every page follows them.
+- **Shared data is not ours to break.** `pnpm studio:seed --reset` (discards Studio edits on
+  staging) and other destructive actions on shared environments need the owner's go; everything
+  else runs without asking.
