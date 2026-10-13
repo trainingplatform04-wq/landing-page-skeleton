@@ -14,10 +14,15 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
-const breadcrumb = computed(() => [
-  { label: t('article.breadcrumb'), to: props.magazineTo },
-  ...(props.category ? [{ label: props.category.title, to: props.category.to }] : []),
-])
+// Both crumbs are links to the magazine, so neither is the active (bold) page.
+const breadcrumb = computed(() =>
+  props.category
+    ? [
+        { label: t('article.breadcrumb'), to: props.magazineTo, active: false },
+        { label: props.category.title, to: props.category.to, active: false },
+      ]
+    : [],
+)
 // The cover is the page's largest image: it loads first; the author photo waits.
 </script>
 
@@ -25,11 +30,17 @@ const breadcrumb = computed(() => [
   <section data-section="article-hero" class="flex flex-col pt-8 pb-8 md:pt-12 md:pb-12 xl:pt-16">
     <div class="mx-auto w-[calc(100%-2rem)] max-w-[760px] md:w-[calc(100%-3rem)]">
       <UBreadcrumb
+        v-if="category"
         :items="breadcrumb"
         :aria-label="t('article.breadcrumb')"
         separator-icon="i-lucide-chevron-right"
         class="mb-7"
-        :ui="{ link: 'text-sm text-muted underline underline-offset-4 hover:text-primary' }"
+        :ui="{
+          list: 'flex-wrap gap-2',
+          link: 'text-muted hover:text-primary focus-visible:outline-primary text-sm font-normal underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4',
+          linkLabel: 'whitespace-normal',
+          separatorIcon: 'size-3',
+        }"
       />
 
       <UBadge
@@ -51,12 +62,19 @@ const breadcrumb = computed(() => [
         :name="author.name"
         :avatar="
           author.photo
-            ? { src: author.photo.url, alt: author.photo.alt, loading: 'lazy' }
+            ? {
+                src: author.photo.url,
+                alt: author.photo.alt,
+                loading: 'lazy',
+                ui: { image: 'object-[center_35%]' },
+              }
             : undefined
         "
         size="lg"
         class="mt-6"
         :ui="{
+          root: 'gap-3',
+          avatar: 'size-10',
           name: 'text-highlighted text-sm font-bold',
           description: 'text-muted text-xs leading-5',
         }"

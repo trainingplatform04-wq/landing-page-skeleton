@@ -13,6 +13,10 @@
  *   and 9 more, page 2 the last 2. "Mindset" has no article (empty state).
  * - Article 2 (Ernährung / Nutrition) is the full article page: translated with its own slug,
  *   key takeaways, questions, two H2s, a coach tip and a video. The others have none of them.
+ * - The English magazine has 6 articles, newest first: 1 (Training), 2 (Nutrition),
+ *   3 (Nutrition), 4 (Training), 5 (Nutrition) and 6 (no category). "Keep reading" on article 2
+ *   is 3, 5 (same category, newest first), then 1 (the newest other one); on article 6, the
+ *   3 newest: 1, 2, 3.
  */
 
 /** The slug that answers an error from server.ts: the page must answer 503. */
@@ -149,8 +153,8 @@ const category = (key: string, language: string, title: string, slug: string, or
   order,
 })
 
-/** Article `index` of the German magazine: the higher the index, the older it is. */
-const post = (index: number, language: string, categoryKey: string) => ({
+/** Article `index` of a magazine: the higher the index, the older it is. No category: none. */
+const post = (index: number, language: string, categoryKey?: string) => ({
   _id: `post-${index}-${language}`,
   _type: 'post',
   _updatedAt: UPDATED,
@@ -158,7 +162,7 @@ const post = (index: number, language: string, categoryKey: string) => ({
   title: `${language === 'de' ? 'Artikel' : 'Article'} ${index}`,
   slug: { _type: 'slug', current: `${language === 'de' ? 'artikel' : 'article'}-${index}` },
   excerpt: `Excerpt ${index}.`,
-  category: reference(`category-${categoryKey}-${language}`),
+  ...(categoryKey && { category: reference(`category-${categoryKey}-${language}`) }),
   author: reference(`author-lena-${language}`),
   publishedAt: `2026-09-${String(29 - index).padStart(2, '0')}T08:00:00Z`,
   body: text('Kraft beginnt mit Technik.'),
@@ -230,6 +234,10 @@ export const documents = () => [
   ),
   post(1, 'en', 'training'),
   fullArticle('en'),
+  post(3, 'en', 'nutrition'),
+  post(4, 'en', 'training'),
+  post(5, 'en', 'nutrition'),
+  post(6, 'en'),
   translations('post-2', { de: 'post-2-de', en: 'post-2-en' }, 'post'),
 
   // German only.

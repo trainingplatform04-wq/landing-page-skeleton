@@ -40,12 +40,21 @@ describe('ArticleHero', () => {
     expect(cover.attributes('loading')).not.toBe('lazy')
   })
 
-  it('hides the category, the author row and the cover when they are missing', async () => {
+  it('loads the author photo after the cover', async () => {
+    const wrapper = await mountSuspended(ArticleHero, {
+      props: { ...props, author: { ...props.author, photo: { url: '/jonas.jpg', alt: 'Jonas' } } },
+    })
+
+    expect(wrapper.find('img[alt="Jonas"]').attributes('loading')).toBe('lazy')
+  })
+
+  it('hides the breadcrumb, the badge, the author row and the cover when they are missing', async () => {
     const wrapper = await mountSuspended(ArticleHero, {
       props: { ...props, category: undefined, author: undefined, cover: undefined },
     })
 
-    expect(wrapper.findAll('nav a')).toHaveLength(1)
+    expect(wrapper.find('nav').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('Nutrition')
     expect(wrapper.find('time').exists()).toBe(false)
     expect(wrapper.find('img').exists()).toBe(false)
   })

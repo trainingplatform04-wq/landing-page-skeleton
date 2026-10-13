@@ -395,7 +395,7 @@ answers with `respond_to_approval`. It never decides for you.
      as "diff"), specs, content per locale, `verify.json` (screenshots come after implementation, locally);
    - `docs/design/pages/home.md` created;
    - task `docs/tasks/home-page.md` drafted with `Design change: docs/design/changes/0001-home/`.
-5. "Start `/feature` now?" → yes → plan → **G1** → implementation, visual loop, PR, review, merge →
+5. `/feature` starts at once (the Tech Lead passes G1) → plan → implementation, visual loop, PR, review, merge →
    staging, seeded with the design content.
 
 ### 9.3 Two days later the client changes a section
@@ -501,7 +501,7 @@ From `docs/design/changes/_template/`: `change.md` (source commits, sections, ap
 deviations), the section specs, `verify.json` (screenshots are captured after implementation, locally). Anything the designer
 cannot infer goes under Open questions, answered at G1. Then the task `docs/tasks/<name>.md` from
 `docs/tasks/template.md`, `Design change: docs/design/changes/<id>/`, acceptance from `change.md`,
-and: "Start `/feature` now?"
+and `/feature` starts at once (the Tech Lead passes G1).
 
 ---
 

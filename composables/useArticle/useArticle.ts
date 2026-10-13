@@ -24,7 +24,7 @@ import type { InferResultType } from 'groqd'
  * first. Picked by the query, so only these 3 cards reach the page.
  */
 const RELATED = `| order(
-  (category._ref == *[_type == "post" && language == $locale && slug.current == $slug][0].category._ref) desc,
+  (defined(category) && category._ref == *[_type == "post" && language == $locale && slug.current == $slug][0].category._ref) desc,
   publishedAt desc
 )[0...3]`
 

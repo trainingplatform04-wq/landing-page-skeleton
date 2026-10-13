@@ -31,7 +31,32 @@ test.describe('Article', () => {
       'About 1.6 g per kilo.',
     )
     await expect(page.locator('[data-section="article-author"]')).toContainText('Lena Hoffmann')
-    await expect(page.locator('[data-section="article-related"] article')).toHaveCount(1)
+    await expect(page.locator('[data-section="article-related"] article')).toHaveCount(3)
+  })
+
+  test('keeps reading with the same category first, then the newest others', async ({ page }) => {
+    await page.goto('/en/magazine/protein-without-powder')
+
+    await expect(page.locator('[data-section="article-related"] article h2')).toHaveText([
+      'Article 3',
+      'Article 5',
+      'Article 1',
+    ])
+  })
+
+  test('hides the breadcrumb and the badge on an article without a category', async ({ page }) => {
+    const response = await page.goto('/en/magazine/article-6')
+
+    expect(response?.status()).toBe(200)
+    const hero = page.locator('[data-section="article-hero"]')
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Article 6')
+    await expect(hero.locator('nav')).toHaveCount(0)
+    await expect(hero.getByText(/^(Training|Nutrition)$/)).toHaveCount(0)
+    await expect(page.locator('[data-section="article-related"] article h2')).toHaveText([
+      'Article 1',
+      'Article 2',
+      'Article 3',
+    ])
   })
 
   test('tells search engines it is an article with questions', async ({ page }) => {
@@ -116,7 +141,7 @@ test.describe('Article', () => {
 
     await page.getByRole('button', { name: 'Copy link' }).click()
 
-    await expect(page.getByText('Link copied')).toBeVisible()
+    await expect(page.getByText('Link copied', { exact: true })).toBeVisible()
   })
 
   test('switches language to the translated article', async ({ page }) => {

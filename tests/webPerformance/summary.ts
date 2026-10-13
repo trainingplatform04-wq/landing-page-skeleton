@@ -3,7 +3,8 @@
  * row per page, mobile and desktop, each category's median score), for the CI job summary and the
  * pull request report. Reads `.web-performance/results.json` (tests/webPerformance/webPerformance.ts).
  *
- * ✅ every score meets the target · 🟡 passes the minimum, under the target · ❌ under the minimum.
+ * ✅ every score meets the target · 🟡 passes the minimum, under the target · ❌ under the minimum
+ * or not measured.
  */
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -46,9 +47,10 @@ const lines = [
 const count = { failing: 0, belowTarget: 0 }
 for (const path of paths) {
   const pageResults = budget.formFactors.map((ff) => find(ff, path))
-  // Every score counts, the performance metrics included (a metric can fail on its own).
+  // Every score counts, the performance metrics included (a metric can fail on its own); a page
+  // not measured fails.
   const lowest = Math.min(
-    ...pageResults.flatMap((result) => (result ? Object.values(result.scores) : [0])),
+    ...pageResults.flatMap((result) => (result?.runs ? Object.values(result.scores) : [0])),
   )
   const status = lowest < budget.minimum ? '❌' : lowest < budget.target ? '🟡' : '✅'
   if (status === '❌') count.failing++
@@ -59,12 +61,21 @@ for (const path of paths) {
   lines.push(`| \`${path}\` | ${cells.join(' | ')} | ${status} |`)
 }
 
+const unmeasured = results
+  .filter((result) => !result.runs)
+  .map(
+    ({ formFactor, path, error }) =>
+      `- ❌ \`${path}\` (${formFactor}) could not be measured: ${error}`,
+  )
+  .join('\n')
+
 const verdict = count.failing
-  ? `❌ ${count.failing} of ${paths.length} pages under the ${budget.minimum} minimum.`
+  ? `❌ ${count.failing} of ${paths.length} pages under the ${budget.minimum} minimum or not measured.`
   : count.belowTarget
     ? `🟡 All ${paths.length} pages pass the ${budget.minimum} minimum; ${count.belowTarget} under the ${budget.target} target.`
     : `✅ All ${paths.length} pages meet the ${budget.target} target.`
 process.stdout.write(
   `${verdict}\n\n${lines.join('\n')}\n\n` +
+    (unmeasured ? `${unmeasured}\n\n` : '') +
     `Target ${budget.target}, minimum ${budget.minimum} (\`webPerformance.config.ts\`), for every category and performance metric · **bold**: under the minimum · _italic_: under the target · median of 1 + ${budget.confirmationRuns} runs for pages under the minimum.\n`,
 )
