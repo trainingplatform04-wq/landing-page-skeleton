@@ -56,6 +56,7 @@ Every page composable has the same four parts, top to bottom (see `composables/u
 - **`await` in `<script setup>`**: the server sends complete HTML with the right status code, which search engines need.
 - **The layout** loads no CMS data: `useLayout` builds the header (site name, menu) from code. The footer is `SiteFooter`, which runs `useFooter` (footer note, business profile, which legal pages exist) on the server only. It never throws: on a CMS error the footer shows what the code knows.
 - **Pages without interaction are thin** (magazine, offers, imprint, privacy): the page renders one content component (`MagazineContent`, `OffersContent`, `LegalDocument`) with `hydrate-never`. That component calls the page composable, so the HTML is complete and the status code right, but its data, query code and sections never reach the browser's first JavaScript. Pages that need JavaScript (home and FAQ accordions, contact form, an offer's translated slug for the language switcher) stay hydrated, with their interactive parts lazily hydrated. A new page starts thin and hydrates only what needs it.
+- **A thin page with a few interactions** (the article): the content component (`ArticleContent`) never hydrates; one small component without CMS data (`ArticleEnhancer`, `hydrate-on-idle`) adds the interactions to its HTML through `data-` attributes (progress bar, current heading, video after the click, share buttons). Disclosures (FAQ, mobile table of contents) are native `<details>`: no JavaScript. Without JavaScript the page still reads in full.
 - **Links** chosen by editors (a page, an offer, or an `https:`/`mailto:`/`tel:` address) are resolved in the mappers (`utils/link/link.utils.ts`); editors never type internal URLs.
 
 ## Routing & languages
@@ -63,21 +64,22 @@ Every page composable has the same four parts, top to bottom (see `composables/u
 - **URLs**: German at `/…`, English at `/en/…`, every URL translated. There is no redirect by browser language: `/` is German, `/en` English, and the language switcher is in the header.
 - **Routes** are declared once in `constants/routes.constants.ts` (`ROUTE_PATHS`), read by `nuxt.config.ts` (`i18n.pages`), the Studio's link picker and the sitemap.
 
-| Page     | File                      | German             | English             |
-| -------- | ------------------------- | ------------------ | ------------------- |
-| Home     | `pages/index.vue`         | `/`                | `/en`               |
-| Offers   | `pages/offers/index.vue`  | `/angebote`        | `/en/offers`        |
-| Offer    | `pages/offers/[slug].vue` | `/angebote/<slug>` | `/en/offers/<slug>` |
-| Magazine | `pages/magazine.vue`      | `/magazin`         | `/en/magazine`      |
-| FAQ      | `pages/faq.vue`           | `/faq`             | `/en/faq`           |
-| Contact  | `pages/contact.vue`       | `/kontakt`         | `/en/contact`       |
-| Imprint  | `pages/imprint.vue`       | `/impressum`       | `/en/imprint`       |
-| Privacy  | `pages/privacy.vue`       | `/datenschutz`     | `/en/privacy`       |
+| Page     | File                        | German             | English               |
+| -------- | --------------------------- | ------------------ | --------------------- |
+| Home     | `pages/index.vue`           | `/`                | `/en`                 |
+| Offers   | `pages/offers/index.vue`    | `/angebote`        | `/en/offers`          |
+| Offer    | `pages/offers/[slug].vue`   | `/angebote/<slug>` | `/en/offers/<slug>`   |
+| Magazine | `pages/magazine/index.vue`  | `/magazin`         | `/en/magazine`        |
+| Article  | `pages/magazine/[slug].vue` | `/magazin/<slug>`  | `/en/magazine/<slug>` |
+| FAQ      | `pages/faq.vue`             | `/faq`             | `/en/faq`             |
+| Contact  | `pages/contact.vue`         | `/kontakt`         | `/en/contact`         |
+| Imprint  | `pages/imprint.vue`         | `/impressum`       | `/en/imprint`         |
+| Privacy  | `pages/privacy.vue`         | `/datenschutz`     | `/en/privacy`         |
 
 - **The magazine** filters by category and pages in the URL (`?category=`, `?page=`, the same in every language), [ADR 0005](../adr/0005-magazine.md).
 - **The menu** is a constant (`constants/navigation.constants.ts`): offers, magazine, FAQ, contact. The site name links home; the legal pages are in the footer.
-- **An offer's slug** is set by the editor, unique per language. Changing it later makes the old URL answer 404 (no redirects).
-- **hreflang, canonical and the language switcher** come from `@nuxtjs/i18n` (`experimental.strictSeo`). The offer page passes its translated slugs with `useSetI18nParams`; the switcher uses `<SwitchLocalePathLink>`, which is right from the first server render. An offer without a translation shows the other language disabled.
+- **An offer's or an article's slug** is set by the editor, unique per language. Changing it later makes the old URL answer 404 (no redirects).
+- **hreflang, canonical and the language switcher** come from `@nuxtjs/i18n` (`experimental.strictSeo`). The offer and article pages pass their translated slugs with `useSetI18nParams`; the switcher uses `<SwitchLocalePathLink>`, which is right from the first server render. An offer without a translation shows the other language disabled.
 
 ## Forms
 

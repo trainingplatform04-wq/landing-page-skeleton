@@ -73,7 +73,7 @@ Rules:
 3. Create the changeset `docs/design/changes/<id>-<page>[-<what>]/` from `docs/design/changes/_template/` (DESIGN_WORKFLOW §10): for every section file that is new or changed since the page's previous approved commit, store its diff as evidence (one `get_diff` call with `base_sha` = the previous approved commit and `sha` = the new one, split per file; `read_file` at the new commit for a new section), the content (English from the prototype, plus every other locale drafted by the `product-owner` for the seed), and a section spec from `docs/design/changes/_template/section.md` written as **facts** (measurements per width, typography, our tokens, states, motion; no React, no JSX, no class list: DESIGN_WORKFLOW §10.3). Unchanged sections are neither copied nor read.
 4. Copy the client approval (who, when, channel) into the changeset's Approval block.
 5. Draft the task `docs/tasks/<name>.md` from `docs/tasks/template.md`, with the `Design change` field set.
-6. Start `/feature docs/tasks/<name>.md` at once, without asking: run `.ai/shared/workflows/feature-orchestration.md` from Step 2 (its own gate G1 still applies). When the change depends on another task (for example a theme task), start that one first.
+6. Start `/feature docs/tasks/<name>.md` at once, without asking: run `.ai/shared/workflows/feature-orchestration.md` from Step 2. Gate G1 is passed by the Tech Lead (operating-model §1: the human approved the design at D2), so nothing stops for the human until G2. When the change depends on another task (for example a theme task), start that one first.
 
 ## Output discipline
 

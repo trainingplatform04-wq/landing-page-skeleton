@@ -18,6 +18,17 @@ describe('MagazineClosing', () => {
     expect(wrapper.find('a').attributes('href')).toBe('/en/contact')
   })
 
+  it('names its section for the page it closes', async () => {
+    const props = { title: 'Ready?' }
+    const magazine = await mountSuspended(MagazineClosing, { props })
+    const article = await mountSuspended(MagazineClosing, {
+      props: { ...props, section: 'article-closing' as const },
+    })
+
+    expect(magazine.find('[data-section="magazine-closing"]').exists()).toBe(true)
+    expect(article.find('[data-section="article-closing"]').exists()).toBe(true)
+  })
+
   it('renders nothing without a title and a button', async () => {
     const wrapper = await mountSuspended(MagazineClosing, { props: { text: 'Alone' } })
 

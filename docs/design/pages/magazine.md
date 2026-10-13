@@ -9,5 +9,4 @@ Approved commit: 06635773527081b4baaa25a5074840a725aca3d6 (design/magazine-v1, n
 | 3     | magazine-grid     | 0001-magazine     | 0663557        |
 | 4     | magazine-closing  | 0001-magazine     | 0663557        |
 
-The article page (`/magazin/<slug>`, `/en/magazine/<slug>`) has no approved design yet: its own
-brief comes next.
+The article page (`/magazin/<slug>`, `/en/magazine/<slug>`): `docs/design/pages/magazine-slug.md`.

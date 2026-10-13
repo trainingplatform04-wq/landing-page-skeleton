@@ -50,7 +50,7 @@ Principles: **KISS & SOLID**, **co-location** (`composables/<useName>/<useName>.
 
 For a request, `/feature`, or a task file (e.g. "Implement `docs/tasks/<name>.md`"), run the single pipeline [`.ai/shared/workflows/feature-orchestration.md`](.ai/shared/workflows/feature-orchestration.md):
 
-1. **Scope** (task file) → **Plan** → 🚦 **Gate G1: wait for human approval**.
+1. **Scope** (task file) → **Plan** → 🚦 **Gate G1: wait for human approval** (passed by the Tech Lead when the task comes from a design approved at D2: no human stop until G2).
 2. **Implement** on `feat/<name>` from `develop` → local gates (`pnpm verify` + E2E, defined once in `docs/conventions/CODING_STANDARDS.md` §7).
 3. **PR** into `develop` → [review loop](.ai/shared/workflows/code-review-loop.md) with a **fresh reviewer subagent** each round, until `APPROVED` (every comment resolved, max 5 rounds; in round 5 the Tech Lead settles every conflict and plans the fixes before engineers work).
 4. **Merge** (squash) after green CI → verify the staging deploy. Blockers are reported, never held.

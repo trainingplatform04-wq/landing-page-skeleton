@@ -1,7 +1,8 @@
 /**
  * The magazine's demo content (docs/design/changes/0001-magazine/content/magazine.json, approved
- * at gate D2): the page, its categories, authors and articles in every language. Figure blocks
- * of the article bodies come with the article page's design.
+ * at gate D2): the page, its categories, authors and articles in every language. The protein
+ * article has every block of the article page (docs/design/changes/0002-article/content/
+ * article.json): key takeaways, questions, a pull quote, a video and a figure.
  */
 import type { LocaleCode } from '../../constants/i18n.constants'
 import type { SeedImage } from './seed.images'
@@ -15,6 +16,18 @@ export type BodyPart =
   | { tip: string }
   | { quote: string; attribution: string }
   | { video: string; title: string }
+  | { figure: SeedImage; alt: string; caption: string }
+
+/** What a translated article says: its texts, plus the optional takeaways and questions. */
+export interface PostCopy {
+  title: string
+  slug: string
+  excerpt: string
+  imageAlt: string
+  body: BodyPart[]
+  keyTakeaways?: string[]
+  faq?: Array<{ question: string; answer: string }>
+}
 
 export const MAGAZINE_PAGE = {
   de: {
@@ -107,10 +120,7 @@ export const POSTS: Array<
     author: (typeof AUTHORS)[number]['key']
     publishedAt: string
     image: SeedImage
-  } & Record<
-    LocaleCode,
-    { title: string; slug: string; excerpt: string; imageAlt: string; body: BodyPart[] }
-  >
+  } & Record<LocaleCode, PostCopy>
 > = [
   {
     key: 'strength-after-40',
@@ -221,6 +231,7 @@ export const POSTS: Array<
         {
           p: 'Die meisten aktiven Erwachsenen kommen mit 1,6 Gramm Protein pro Kilo Körpergewicht am Tag gut aus. Bei 70 Kilo sind das rund 110 Gramm, verteilt auf drei oder vier Mahlzeiten.',
         },
+        { quote: 'Protein ist eine Gewohnheit, kein Supplement.', attribution: 'Jonas Weber' },
         { h2: 'Fünf Mahlzeiten in 15 Minuten' },
         {
           ul: [
@@ -234,9 +245,43 @@ export const POSTS: Array<
         {
           tip: 'Koch abends die doppelte Portion. Dann ist das Mittagessen für morgen schon fertig.',
         },
+        { video: 'M7lc1UVf-VE', title: 'Drei Eiweiß-Mittagessen in 15 Minuten' },
         { h2: 'Deine Einkaufsliste' },
         {
+          figure: 'postProteinBasics',
+          alt: 'Schalen mit frischen Zutaten auf einer Küchenarbeitsplatte: Gemüse, Bohnen, Käse und Hähnchen',
+          caption: 'Sechs Basics, unzählige Mahlzeiten.',
+        },
+        {
           p: 'Halte Eier, griechischen Joghurt, Hüttenkäse, Linsen aus der Dose, TK-Lachs und Hähnchenbrust im Haus. Mit diesen sechs Basics bist du nie mehr als 15 Minuten von einer eiweißreichen Mahlzeit entfernt.',
+        },
+      ],
+      keyTakeaways: [
+        'Die meisten aktiven Erwachsenen brauchen etwa 1,6 g Protein pro Kilo Körpergewicht am Tag.',
+        'Verteil es auf drei oder vier Mahlzeiten mit je 25 bis 40 g.',
+        'Fünf alltägliche Mahlzeiten bringen dich in 15 Minuten ans Ziel, ganz ohne Shakes.',
+        'Sechs Basics im Kühlschrank machen es jeden Tag leicht.',
+      ],
+      faq: [
+        {
+          question: 'Ist Proteinpulver schlecht für mich?',
+          answer:
+            'Nein. Pulver ist ein praktisches Lebensmittel, kein Muss. Wenn deine Mahlzeiten dir schon genug Eiweiß liefern, brauchst du es nicht.',
+        },
+        {
+          question: 'Bekomme ich als Vegetarier genug Protein?',
+          answer:
+            'Ja. Kombinier über den Tag Milchprodukte, Eier, Linsen, Bohnen, Tofu und Vollkorn. Zwei der fünf Mahlzeiten oben sind vegetarisch.',
+        },
+        {
+          question: 'Sollte ich vor oder nach dem Training Protein essen?',
+          answer:
+            'Am wichtigsten ist die Menge pro Tag. Eine eiweißreiche Mahlzeit ein paar Stunden nach dem Training ist eine gute Gewohnheit.',
+        },
+        {
+          question: 'Woran merke ich, ob ich genug esse?',
+          answer:
+            'Schreib einen normalen Tag mit einer App oder einem Ernährungstagebuch mit. Liegst du deutlich unter 1,6 g pro Kilo, ergänze eine der fünf Mahlzeiten.',
         },
       ],
     },
@@ -253,6 +298,7 @@ export const POSTS: Array<
         {
           p: "Most active adults do well with 1.6 grams of protein per kilo of body weight a day. For someone who weighs 70 kilos, that's about 110 grams, spread over three or four meals.",
         },
+        { quote: 'Protein is a habit, not a supplement.', attribution: 'Jonas Weber' },
         { h2: 'Five meals in 15 minutes' },
         {
           ul: [
@@ -264,9 +310,43 @@ export const POSTS: Array<
           ],
         },
         { tip: "Cook a double portion in the evening. Tomorrow's lunch is then already done." },
+        { video: 'M7lc1UVf-VE', title: 'Three protein lunches in 15 minutes' },
         { h2: 'Your shopping list' },
         {
+          figure: 'postProteinBasics',
+          alt: 'Bowls of fresh ingredients on a kitchen counter: vegetables, beans, cheese and chicken',
+          caption: 'Six basics, endless meals.',
+        },
+        {
           p: 'Keep eggs, Greek yoghurt, cottage cheese, canned lentils, frozen salmon and chicken breast at home. With these six basics, a protein-rich meal is never more than 15 minutes away.',
+        },
+      ],
+      keyTakeaways: [
+        'Most active adults need about 1.6 g of protein per kilo of body weight a day.',
+        'Spread it over three or four meals of 25 to 40 g each.',
+        'Five everyday meals get you there in 15 minutes, without shakes.',
+        'Six basics in your fridge make it easy every day.',
+      ],
+      faq: [
+        {
+          question: 'Is protein powder bad for me?',
+          answer:
+            "No. Powder is a convenient food, not a must. If your meals already give you enough protein, you don't need it.",
+        },
+        {
+          question: 'Can I get enough protein as a vegetarian?',
+          answer:
+            'Yes. Combine dairy, eggs, lentils, beans, tofu and wholegrains over the day. Two of the five meals above are vegetarian.',
+        },
+        {
+          question: 'Should I eat protein before or after training?',
+          answer:
+            'Your daily total matters most. A protein-rich meal within a few hours after training is a good habit.',
+        },
+        {
+          question: 'How do I know if I eat enough?',
+          answer:
+            'Track one normal day with an app or a food diary. If you are well below 1.6 g per kilo, add one of the five meals.',
         },
       ],
     },

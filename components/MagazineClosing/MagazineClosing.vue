@@ -5,13 +5,15 @@ defineProps<{
   title?: string
   text?: string
   cta?: Cta
+  /** The band closes the magazine and every article: the design gate compares both. */
+  section?: 'magazine-closing' | 'article-closing'
 }>()
 </script>
 
 <template>
   <section
     v-if="title || cta"
-    data-section="magazine-closing"
+    :data-section="section ?? 'magazine-closing'"
     class="bg-neutral-900 py-12 text-white md:py-16"
   >
     <UContainer class="flex flex-col gap-7 md:flex-row md:items-center md:justify-between">

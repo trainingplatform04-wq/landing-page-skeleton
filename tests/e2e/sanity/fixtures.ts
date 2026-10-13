@@ -11,6 +11,8 @@
  * - An offer slug that makes the CMS fail, for the 503 page.
  * - The German magazine has 14 articles (Training and Ernährung): page 1 shows the 3 newest
  *   and 9 more, page 2 the last 2. "Mindset" has no article (empty state).
+ * - Article 2 (Ernährung / Nutrition) is the full article page: translated with its own slug,
+ *   key takeaways, questions, two H2s, a coach tip and a video. The others have none of them.
  */
 
 /** The slug that answers an error from server.ts: the page must answer 503. */
@@ -49,10 +51,10 @@ const page = (type: string, language: string, fields: object) => ({
 })
 
 /** Links language versions, as the Studio's translation plugin does. */
-const translations = (id: string, versions: Record<string, string>) => ({
+const translations = (id: string, versions: Record<string, string>, type = 'offer') => ({
   _id: `translation.metadata.${id}`,
   _type: 'translation.metadata',
-  schemaTypes: ['offer'],
+  schemaTypes: [type],
   translations: Object.entries(versions).map(([language, ref]) => ({
     _key: language,
     _type: 'internationalizedArrayReferenceValue',
@@ -162,6 +164,39 @@ const post = (index: number, language: string, categoryKey: string) => ({
   body: text('Kraft beginnt mit Technik.'),
 })
 
+const heading = (key: string, value: string) => ({
+  _type: 'block',
+  _key: key,
+  style: 'h2',
+  markDefs: [],
+  children: [{ _type: 'span', _key: `${key}s`, text: value, marks: [] }],
+})
+
+/** Article 2 with every part of the article page, in both languages. */
+const fullArticle = (language: 'de' | 'en') => {
+  const de = language === 'de'
+  return {
+    ...post(2, language, 'nutrition'),
+    slug: { _type: 'slug', current: de ? 'protein-ohne-pulver' : 'protein-without-powder' },
+    keyTakeaways: [de ? 'Etwa 1,6 g pro Kilo.' : 'About 1.6 g per kilo.'],
+    body: [
+      ...text(de ? 'Kraft beginnt mit Technik.' : 'Strength starts with technique.'),
+      heading('h1', de ? 'Wie viel Protein du brauchst' : 'How much protein you need'),
+      { _type: 'coachTip', _key: 'tip', text: de ? 'Koch doppelt.' : 'Cook twice.' },
+      { _type: 'youtubeVideo', _key: 'video', videoId: 'M7lc1UVf-VE', title: 'Lunch' },
+      heading('h2', de ? 'Deine Einkaufsliste' : 'Your shopping list'),
+    ],
+    faq: [
+      {
+        _key: 'q1',
+        _type: 'question',
+        question: de ? 'Ist Pulver schlecht?' : 'Is powder bad?',
+        answer: de ? 'Nein.' : 'No.',
+      },
+    ],
+  }
+}
+
 const magazineIn = (language: 'de' | 'en') => [
   page('magazinePage', language, {
     kicker: language === 'de' ? 'Magazin' : 'Magazine',
@@ -191,10 +226,11 @@ export const documents = () => [
   ...magazineIn('de'),
   ...magazineIn('en'),
   ...Array.from({ length: 14 }, (_, index) =>
-    post(index + 1, 'de', index % 2 ? 'nutrition' : 'training'),
+    index === 1 ? fullArticle('de') : post(index + 1, 'de', index % 2 ? 'nutrition' : 'training'),
   ),
   post(1, 'en', 'training'),
-  post(2, 'en', 'nutrition'),
+  fullArticle('en'),
+  translations('post-2', { de: 'post-2-de', en: 'post-2-en' }, 'post'),
 
   // German only.
   page('faqPage', 'de', { title: 'Häufige Fragen', intro: 'Alles, was Sie wissen möchten.' }),

@@ -54,6 +54,40 @@ export const offerCardFragment = q.fragmentForType<'offer'>().project((offer) =>
   price: z.number().nullable(),
 }))
 
+/** The text of every block of an article's body, for its reading time. */
+export const bodyWordsField = [
+  'body[]{ text, children[]{ text } }',
+  z
+    .array(
+      z.object({
+        text: z.string().nullish(),
+        children: z.array(z.object({ text: z.string().nullish() })).nullish(),
+      }),
+    )
+    .nullable(),
+] as const
+
+/** A magazine article on a card (the magazine grid, "Keep reading"). */
+export const postCardFragment = q.fragmentForType<'post'>().project((post) => ({
+  id: ['_id', z.string()],
+  title: z.string(),
+  slug: ['slug.current', z.string()],
+  excerpt: z.string(),
+  publishedAt: z.string(),
+  cover: post.field('cover').project(imageFragment).nullable(true),
+  category: post.field('category').deref().field('title', z.string()).nullable(true),
+  categorySlug: post.field('category').deref().field('slug.current', z.string()).nullable(true),
+  author: post
+    .field('author')
+    .deref()
+    .project((author) => ({
+      name: z.string(),
+      photo: author.field('photo').project(imageFragment).nullable(true),
+    }))
+    .nullable(true),
+  words: post.raw(...bodyWordsField),
+}))
+
 const richTextMark = z
   .object({
     _type: z.string(),
@@ -66,7 +100,8 @@ const richTextMark = z
   })
   .passthrough()
 
-const richTextBlock = z
+/** One block of rich text, links enriched for the mappers (see `richTextField`). */
+export const richTextBlock = z
   .object({ _type: z.string(), _key: z.string(), markDefs: z.array(richTextMark).nullish() })
   .passthrough()
 
@@ -103,5 +138,6 @@ export type ImageData = InferFragmentType<typeof imageFragment>
 export type CtaData = InferFragmentType<typeof ctaFragment>
 export type SeoData = InferFragmentType<typeof seoFragment>
 export type OfferCardData = InferFragmentType<typeof offerCardFragment>
+export type PostCardData = InferFragmentType<typeof postCardFragment>
 export type BusinessData = InferFragmentType<typeof businessFragment>
 export type RichTextData = z.infer<typeof richTextBlock>[]

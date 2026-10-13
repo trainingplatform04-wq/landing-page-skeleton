@@ -78,9 +78,12 @@ if (!base) {
 }
 if (!key) process.stderr.write('PAGESPEED_API_KEY is not set: Google may refuse requests (429).\n')
 
-/** Every page of the site in every language; pages with a slug belong to editors (as in smoke). */
+/**
+ * Every page of the site in every language; for templates with a slug (their pages belong to
+ * editors), the examples of `budget.slugPages`.
+ */
 function pagePaths(): string[] {
-  return Object.entries(ROUTE_PATHS)
+  const pages = Object.entries(ROUTE_PATHS)
     .filter(([route]) => !route.endsWith('-slug'))
     .flatMap(([, paths]) =>
       LOCALES.map(({ code }, index) => {
@@ -89,6 +92,7 @@ function pagePaths(): string[] {
         return path === '/' ? `/${code}` : `/${code}${path}`
       }),
     )
+  return [...pages, ...budget.slugPages]
 }
 
 /** One PageSpeed Insights run (Google's report); retried on Google's transient errors. */

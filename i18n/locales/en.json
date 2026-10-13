@@ -70,5 +70,29 @@
     "showAll": "All articles",
     "paginationLabel": "Article pages",
     "readingTime": "{n} min read"
+  },
+  "article": {
+    "breadcrumb": "Magazine",
+    "takeaways": "At a glance",
+    "toc": "In this article",
+    "progress": "Article reading progress",
+    "coachTip": "Coach tip",
+    "video": {
+      "consent": "Playing sends data to YouTube.",
+      "load": "Load video"
+    },
+    "share": {
+      "label": "Share this article",
+      "copy": "Copy link",
+      "native": "Share",
+      "copied": "Link copied",
+      "copyFailed": "Unable to copy the link. Please try again.",
+      "failed": "Unable to share the article. Please try again.",
+      "dismiss": "Dismiss notification"
+    },
+    "faq": "Frequently asked questions",
+    "writtenBy": "Written by",
+    "moreFrom": "More from {name}",
+    "related": "Keep reading"
   }
 }

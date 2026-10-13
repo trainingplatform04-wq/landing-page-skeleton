@@ -128,7 +128,10 @@ function richText(parts: Part[]): RichText {
 }
 
 /** An article's text from short parts: paragraphs, headings, lists and the magazine blocks. */
-function articleBody(parts: BodyPart[]): ArticleBody {
+function articleBody(
+  parts: BodyPart[],
+  image: (name: SeedImage, alt: string) => AccessibleImage,
+): ArticleBody {
   const span = (text: string) => ({ _type: 'span' as const, _key: 's0', text, marks: [] })
   const block = (_key: string, text: string, style: 'normal' | 'h2' = 'normal') => ({
     _type: 'block' as const,
@@ -147,6 +150,9 @@ function articleBody(parts: BodyPart[]): ArticleBody {
     }
     if ('video' in part)
       return [{ _type: 'youtubeVideo', _key, videoId: part.video, title: part.title }]
+    if ('figure' in part) {
+      return [{ _type: 'figure', _key, image: image(part.figure, part.alt), caption: part.caption }]
+    }
     const listItem = 'ul' in part ? 'bullet' : 'number'
     const items = 'ul' in part ? part.ul : part.ol
     return items.map((text, item) => ({
@@ -643,7 +649,13 @@ export function seedDocuments(imageAssetId: ImageAssetId): SeedDocument[] {
         category: reference(categoryId(category, locale)),
         author: reference(authorId(author, locale)),
         publishedAt,
-        body: articleBody(post.body),
+        keyTakeaways: post.keyTakeaways,
+        body: articleBody(post.body, image),
+        faq: post.faq?.map((item, index) => ({
+          _key: `q${index}`,
+          _type: 'question' as const,
+          ...item,
+        })),
         seo: pageSeo(locale, post.title, post.excerpt),
       }),
     )

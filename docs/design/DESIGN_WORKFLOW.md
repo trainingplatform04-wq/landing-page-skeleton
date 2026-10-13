@@ -58,8 +58,9 @@ and **client validation** work together, from the first page to the tenth change
    Nobody re-reads unchanged sections, other pages or the design history.
 6. **Lovable through MCP, Playwright on our code.** The prototype is read only through the
    `lovable` MCP server (files, diffs), never opened in a browser. Playwright screenshots **our**
-   sections; the human compares them with the Lovable preview, and once approved they are the
-   baselines every later change must match within a tolerance.
+   sections; an independent designer reviewer checks them against the changeset's specs, and
+   they are the local baselines the implementation must match within a tolerance before its PR.
+   Screenshots are working files, never committed.
 7. **Design content is the staging seed.** The copy of the prototype (and stock pictures that
    match its picture descriptions) become the
    demo content of `studio/seed/seed.data.ts`: staging looks like the design and the visual test
@@ -140,7 +141,7 @@ docs/design/
     │   │   └── hero.diff       ← Lovable diff of that section (whole file for a first version)
     │   ├── content/hero.json   ← the section's content per locale (→ seed)
     │   ├── verify.json         ← what the design gate renders (our app's paths, sections, widths)
-    │   └── baseline/           ← approved screenshots of our sections (§13)
+    │   └── baseline/           ← screenshots of our sections, local only (§13)
     └── 0002-home-testimonials/ ← a later change: only the changed sections
 
 tests/visual/                   ← the design gate: pnpm design:capture / design:verify (§13)
@@ -419,8 +420,8 @@ The client wants the testimonials as a carousel with a star rating, and a "trust
    `0001-home`.
 5. The feature reads two section specs and two diffs. The backend adds `testimonial.rating` and
    `homePage.trust`, updates the seed (the staging seed adds the new fields without touching what
-   the client edited). The visual test checks **every** section of the page (the unchanged ones
-   against their 0001 baselines: the regression net), but agents only open the failing ones.
+   the client edited). The visual test checks the changed sections against fresh captures
+   checked by the designer reviewer; agents only open the failing ones.
 
 ### 9.4 A change of mind before implementation
 
@@ -582,17 +583,22 @@ custom CSS last, with a note in the spec.
 
 ## 13. Pixel-perfect: the design gate
 
-### 13.1 Capture (after implementation, approved by the human) and verify (before every PR)
+### 13.1 Capture (after implementation, checked by a designer reviewer) and verify (before every PR)
 
-|                   | `pnpm design:capture <change>`                                                        | `pnpm design:verify <change>`                                                                                                   |
-| ----------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| Renders           | our app, same server as verify; the human compares the shots with the Lovable preview | our app: a **production build** (`nuxt build`, Node server) on the developer's `.env` (staging, seeded with the design content) |
-| Per               | section × locale × width (375 / 768 / 1440)                                           | the same                                                                                                                        |
-| Writes / compares | stable screenshots → `baseline/`                                                      | `toHaveScreenshot()` against `baseline/`, tolerance from `verify.json`                                                          |
-| Output            | baselines, committed once the human approves them                                     | pass/fail per section, diff images, HTML report (`playwright-report/design/`)                                                   |
+|                   | `pnpm design:capture <change>`                                                                                | `pnpm design:verify <change>`                                                                                                   |
+| ----------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Renders           | our app, same server as verify; a fresh designer-reviewer subagent checks the shots against the section specs | our app: a **production build** (`nuxt build`, Node server) on the developer's `.env` (staging, seeded with the design content) |
+| Per               | section × locale × width (375 / 768 / 1440)                                                                   | the same                                                                                                                        |
+| Writes / compares | stable screenshots → `baseline/`                                                                              | `toHaveScreenshot()` against `baseline/`, tolerance from `verify.json`                                                          |
+| Output            | baselines in `baseline/`: local working files, never committed (gitignored)                                   | pass/fail per section, diff images, HTML report (`playwright-report/design/`)                                                   |
+
+No human step: after D2 the human has approved the design; the reviewer subagent checks our
+shots against the changeset's facts (layout per width, sizes, content, states), and any
+mismatch is fixed in code before verify. The screenshots are deleted once verify passes; the PR
+description records the result (sections × locales × widths passed).
 
 Rendering: fonts loaded, animations and transitions off, reduced motion, lazy images loaded,
-network idle. Baselines captured on one operating system are compared on the same one (font
+network idle; sticky elements kept in place and fixed overlays hidden. Baselines captured on one operating system are compared on the same one (font
 rasterisation differs between systems). Playwright never opens the Lovable preview.
 
 ### 13.2 Rules

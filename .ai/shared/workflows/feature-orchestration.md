@@ -23,7 +23,7 @@ For each step, declare the delegation (`→ tech-lead: …`) and print `--- Step
 
 **Step 1: Scope (product-owner).** Write `docs/tasks/<name>.md` from `docs/tasks/template.md`: user story, acceptance criteria, edge cases (empty CMS fields, errors, both locales).
 
-**Step 2: Plan (tech-lead) → 🚦 Gate G1.** Produce the plan: contracts (view types, composable signatures, groqd queries, schema changes), directory tree, owner → task list, risks. **Stop and wait for human approval.** This is the only stop before production.
+**Step 2: Plan (tech-lead) → 🚦 Gate G1.** Produce the plan: contracts (view types, composable signatures, groqd queries, schema changes), directory tree, owner → task list, risks. **Stop and wait for human approval**, except for a task with a `Design change` approved at D2: then the Tech Lead approves the plan, writes it into the task file and continues (operating-model §1). This is the only stop before production.
 
 **Step 3: Design (designer-engineer), only if the task has a `Design change`.** Read the changeset (made by `.ai/shared/workflows/design-orchestration.md`, gate D2): `change.md`, then only the touched section specs. Produce the component map (Nuxt UI first, Tailwind second) and the token changes for the frontend. Without a design change, skip to Step 4.
 

@@ -1,0 +1,143 @@
+{
+  "labels": {
+    "en": {
+      "breadcrumb": "Magazine",
+      "takeaways": "At a glance",
+      "toc": "In this article",
+      "progress": "Article reading progress",
+      "coachTip": "Coach tip",
+      "videoConsent": "Playing sends data to YouTube.",
+      "loadVideo": "Load video",
+      "shareLabel": "Share this article",
+      "copyLink": "Copy link",
+      "share": "Share",
+      "linkCopied": "Link copied",
+      "copyFailed": "Unable to copy the link. Please try again.",
+      "shareFailed": "Unable to share the article. Please try again.",
+      "dismiss": "Dismiss notification",
+      "faq": "Frequently asked questions",
+      "writtenBy": "Written by",
+      "moreFrom": "More from {name}",
+      "related": "Keep reading",
+      "readingTime": "{minutes} min read"
+    },
+    "de": {
+      "breadcrumb": "Magazin",
+      "takeaways": "Auf einen Blick",
+      "toc": "In diesem Artikel",
+      "progress": "Lesefortschritt des Artikels",
+      "coachTip": "Coach-Tipp",
+      "videoConsent": "Beim Abspielen werden Daten an YouTube gesendet.",
+      "loadVideo": "Video laden",
+      "shareLabel": "Artikel teilen",
+      "copyLink": "Link kopieren",
+      "share": "Teilen",
+      "linkCopied": "Link kopiert",
+      "copyFailed": "Der Link konnte nicht kopiert werden. Bitte versuch es noch einmal.",
+      "shareFailed": "Der Artikel konnte nicht geteilt werden. Bitte versuch es noch einmal.",
+      "dismiss": "Hinweis schließen",
+      "faq": "Häufige Fragen",
+      "writtenBy": "Geschrieben von",
+      "moreFrom": "Mehr von {name}",
+      "related": "Weiterlesen",
+      "readingTime": "{minutes} Min. Lesezeit"
+    }
+  },
+  "post": {
+    "key": "protein",
+    "en": {
+      "slug": "protein-without-powder",
+      "keyTakeaways": [
+        "Most active adults need about 1.6 g of protein per kilo of body weight a day.",
+        "Spread it over three or four meals of 25 to 40 g each.",
+        "Five everyday meals get you there in 15 minutes, without shakes.",
+        "Six basics in your fridge make it easy every day."
+      ],
+      "bodyAdditions": {
+        "pullQuote": {
+          "after": "How much protein you need (its paragraph)",
+          "text": "Protein is a habit, not a supplement.",
+          "attribution": "Jonas Weber"
+        },
+        "video": {
+          "after": "the coach tip",
+          "videoId": "M7lc1UVf-VE",
+          "title": "Three protein lunches in 15 minutes"
+        },
+        "figure": {
+          "after": "the H2 Your shopping list",
+          "image": "postProteinBasics",
+          "alt": "Eggs, Greek yoghurt, cottage cheese, canned lentils, salmon and chicken breast on a light kitchen counter",
+          "caption": "Six basics, endless meals."
+        }
+      },
+      "faq": [
+        {
+          "question": "Is protein powder bad for me?",
+          "answer": "No. Powder is a convenient food, not a must. If your meals already give you enough protein, you don't need it."
+        },
+        {
+          "question": "Can I get enough protein as a vegetarian?",
+          "answer": "Yes. Combine dairy, eggs, lentils, beans, tofu and wholegrains over the day. Two of the five meals above are vegetarian."
+        },
+        {
+          "question": "Should I eat protein before or after training?",
+          "answer": "Your daily total matters most. A protein-rich meal within a few hours after training is a good habit."
+        },
+        {
+          "question": "How do I know if I eat enough?",
+          "answer": "Track one normal day with an app or a food diary. If you are well below 1.6 g per kilo, add one of the five meals."
+        }
+      ]
+    },
+    "de": {
+      "slug": "protein-ohne-pulver",
+      "keyTakeaways": [
+        "Die meisten aktiven Erwachsenen brauchen etwa 1,6 g Protein pro Kilo Körpergewicht am Tag.",
+        "Verteil es auf drei oder vier Mahlzeiten mit je 25 bis 40 g.",
+        "Fünf alltägliche Mahlzeiten bringen dich in 15 Minuten ans Ziel, ganz ohne Shakes.",
+        "Sechs Basics im Kühlschrank machen es jeden Tag leicht."
+      ],
+      "bodyAdditions": {
+        "pullQuote": {
+          "after": "Wie viel Protein du brauchst (its paragraph)",
+          "text": "Protein ist eine Gewohnheit, kein Supplement.",
+          "attribution": "Jonas Weber"
+        },
+        "video": {
+          "after": "the coach tip",
+          "videoId": "M7lc1UVf-VE",
+          "title": "Drei Eiweiß-Mittagessen in 15 Minuten"
+        },
+        "figure": {
+          "after": "the H2 Deine Einkaufsliste",
+          "image": "postProteinBasics",
+          "alt": "Eier, griechischer Joghurt, Hüttenkäse, Linsen, Lachs und Hähnchen auf einer Küchenarbeitsplatte",
+          "caption": "Sechs Basics, unzählige Mahlzeiten."
+        }
+      },
+      "faq": [
+        {
+          "question": "Ist Proteinpulver schlecht für mich?",
+          "answer": "Nein. Pulver ist ein praktisches Lebensmittel, kein Muss. Wenn deine Mahlzeiten dir schon genug Eiweiß liefern, brauchst du es nicht."
+        },
+        {
+          "question": "Bekomme ich als Vegetarier genug Protein?",
+          "answer": "Ja. Kombinier über den Tag Milchprodukte, Eier, Linsen, Bohnen, Tofu und Vollkorn. Zwei der fünf Mahlzeiten oben sind vegetarisch."
+        },
+        {
+          "question": "Sollte ich vor oder nach dem Training Protein essen?",
+          "answer": "Am wichtigsten ist die Menge pro Tag. Eine eiweißreiche Mahlzeit ein paar Stunden nach dem Training ist eine gute Gewohnheit."
+        },
+        {
+          "question": "Woran merke ich, ob ich genug esse?",
+          "answer": "Schreib einen normalen Tag mit einer App oder einem Ernährungstagebuch mit. Liegst du deutlich unter 1,6 g pro Kilo, ergänze eine der fünf Mahlzeiten."
+        }
+      ]
+    }
+  },
+  "pictures": {
+    "postProteinBasics": "Stock photo, 3:2, landscape: six protein basics on a light kitchen counter (eggs, a tub of Greek yoghurt, cottage cheese, a can of lentils, a salmon fillet, a chicken breast). No text in the image."
+  },
+  "unchanged": "Title, excerpt, cover, category, author, date and the rest of the body come from the existing seed (studio/seed/seed.magazine.ts). The closing band reuses magazinePage.closingTitle, closingText and cta."
+}

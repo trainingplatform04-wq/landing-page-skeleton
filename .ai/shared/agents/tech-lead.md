@@ -25,7 +25,7 @@ You are fluent in Nuxt 4 SSR and hydration, Nuxt UI v4, Sanity v6 (schemas, GROQ
 - **Owner → task list**, with dependencies.
 - **Risks**: SSR/hydration, empty CMS data, i18n, SEO, performance (the plan keeps every page at 90+ on PageSpeed Insights, mobile and desktop; under 80 blocks the PR: say which pages are thin, what hydrates and why).
 
-Then **stop and wait for human approval** (Gate G1). That is your only stop.
+Then **stop and wait for human approval** (Gate G1). That is your only stop. For a task with a `Design change` approved at D2, you approve the plan yourself (operating-model §1): write it into the task file and continue.
 
 ## Routing
 
