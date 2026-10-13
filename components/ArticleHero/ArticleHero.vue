@@ -98,7 +98,7 @@ const breadcrumb = computed(() =>
         :alt="cover.alt"
         width="1120"
         height="630"
-        sizes="100vw md:100vw lg:1120px"
+        sizes="sm:100vw md:100vw lg:1120px"
         format="webp"
         quality="70"
         fetchpriority="high"
