@@ -3,18 +3,18 @@ import { useArticle } from '~/composables/useArticle/useArticle'
 import { usePageMeta } from '~/composables/usePageMeta/usePageMeta'
 import { ARTICLE_SLUGS_STATE } from '~/constants/article.constants'
 
-// An article's content: rendered on the server only (its page never hydrates it), so its data,
-// sections and code stay out of the page's first JavaScript. ArticleEnhancer adds the
-// interactions to this HTML.
+// An article's content. On a page load it renders on the server only (its page never hydrates
+// it), so its data, sections and code stay out of the page's first JavaScript; after a
+// client-side navigation it renders in the browser. ArticleEnhancer adds the interactions.
 const article = await useArticle()
 const setI18nParams = useSetI18nParams()
 
 usePageMeta(article.seo)
 // The language switcher and hreflang link this article's own slug in each language. The
-// slugs also go to the page's state, so ArticleEnhancer hands them to the switcher in the
-// browser (this component never runs there).
+// slugs also go to the page's state (set on every render, so they always belong to this
+// article), from which ArticleEnhancer hands them to the switcher after a page load.
 setI18nParams(article.slugs)
-useState(ARTICLE_SLUGS_STATE, () => article.slugs)
+useState(ARTICLE_SLUGS_STATE).value = article.slugs
 useSeoMeta({ ogType: 'article', articlePublishedTime: article.dateTime })
 useSchemaOrg([
   defineArticle({

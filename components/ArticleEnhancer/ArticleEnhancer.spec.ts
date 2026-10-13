@@ -55,13 +55,14 @@ describe('ArticleEnhancer', () => {
     article()
     const writeText = vi.fn().mockResolvedValue(undefined)
     vi.stubGlobal('navigator', { ...navigator, clipboard: { writeText } })
-    const wrapper = await mountSuspended(ArticleEnhancer)
+    await mountSuspended(ArticleEnhancer)
 
     document.querySelector<HTMLElement>('[data-share-copy]')!.click()
-    await vi.waitFor(() => expect(wrapper.find('[role="status"]').exists()).toBe(true))
+    await vi.waitFor(() =>
+      expect(useToast().toasts.value.at(-1)).toMatchObject({ title: 'Link kopiert' }),
+    )
 
     expect(writeText).toHaveBeenCalledWith(window.location.href)
-    expect(wrapper.find('[role="status"]').text()).toContain('Link kopiert')
   })
 
   it('shows the native share button only where the browser can share', async () => {

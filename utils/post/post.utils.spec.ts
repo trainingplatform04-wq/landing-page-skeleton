@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { MapContext } from '~/utils/content/content.utils'
 
-import { headingIds, relatedPosts, toPostCard } from './post.utils'
+import { headingIds, toPostCard } from './post.utils'
 
 const context: MapContext = {
   locale: 'en',
@@ -10,8 +10,6 @@ const context: MapContext = {
   localePath: (route) =>
     typeof route === 'string' ? `/en/${route}` : `/en/${route.name}/${route.params.slug}`,
 }
-
-const post = (id: string, categorySlug: string | null) => ({ id, categorySlug })
 
 describe('headingIds', () => {
   it('turns headings into lowercase ids without accents', () => {
@@ -23,26 +21,6 @@ describe('headingIds', () => {
 
   it('numbers repeated headings and names an empty one', () => {
     expect(headingIds(['Tips', 'Tips', '!!!'])).toEqual(['tips', 'tips-2', 'section'])
-  })
-})
-
-describe('relatedPosts', () => {
-  const posts = [
-    post('a', 'training'),
-    post('b', 'nutrition'),
-    post('current', 'nutrition'),
-    post('c', 'mindset'),
-    post('d', 'nutrition'),
-  ]
-
-  it('puts the same category first, keeps the order, and never the current article', () => {
-    const related = relatedPosts(post('current', 'nutrition'), posts, 3)
-
-    expect(related.map(({ id }) => id)).toEqual(['b', 'd', 'a'])
-  })
-
-  it('takes the newest others when the article has no category', () => {
-    expect(relatedPosts(post('x', null), posts, 2).map(({ id }) => id)).toEqual(['a', 'b'])
   })
 })
 

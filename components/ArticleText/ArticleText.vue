@@ -9,6 +9,7 @@ const { t } = useI18n()
 const ULink = resolveComponent('ULink')
 const NuxtImg = resolveComponent('NuxtImg')
 const UIcon = resolveComponent('UIcon')
+const UButton = resolveComponent('UButton')
 
 /**
  * The video is a link to YouTube until ArticleEnhancer turns the click into the embedded player
@@ -20,7 +21,7 @@ const video = (videoId: string, title: string) =>
     {
       'data-video': videoId,
       'data-video-title': title,
-      class: 'my-8 aspect-video overflow-hidden rounded-lg bg-neutral-900 text-white',
+      class: 'bg-inverted text-inverted my-8 aspect-video overflow-hidden rounded-lg',
     },
     h(
       'div',
@@ -39,20 +40,15 @@ const video = (videoId: string, title: string) =>
           { class: 'max-w-sm text-xl leading-tight font-black uppercase md:text-[28px]' },
           title,
         ),
-        h('p', { class: 'text-xs text-neutral-400 md:text-sm' }, t('article.video.consent')),
-        h(
-          'a',
-          {
-            href: `https://www.youtube.com/watch?v=${videoId}`,
-            'data-video-load': '',
-            class:
-              'bg-primary text-inverted focus-visible:outline-primary inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2',
-          },
-          [
-            h(UIcon, { name: 'i-lucide-play', class: 'size-4', 'aria-hidden': 'true' }),
-            t('article.video.load'),
-          ],
-        ),
+        h('p', { class: 'text-xs opacity-70 md:text-sm' }, t('article.video.consent')),
+        h(UButton, {
+          to: `https://www.youtube.com/watch?v=${videoId}`,
+          target: '_blank',
+          size: 'sm',
+          icon: 'i-lucide-play',
+          label: t('article.video.load'),
+          'data-video-load': '',
+        }),
       ],
     ),
   )

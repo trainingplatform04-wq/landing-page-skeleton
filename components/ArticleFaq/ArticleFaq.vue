@@ -2,7 +2,8 @@
 defineProps<{ items: Array<{ question: string; answer: string }> }>()
 
 const { t } = useI18n()
-// Native `<details>`: opens and closes without JavaScript; several can be open at once.
+// Native `<details>`: opens and closes without JavaScript (animated by `.disclosure` in
+// assets/css/main.css); several can be open at once.
 </script>
 
 <template>
@@ -14,7 +15,11 @@ const { t } = useI18n()
         {{ t('article.faq') }}
       </h2>
       <div class="border-default border-t">
-        <details v-for="item in items" :key="item.question" class="group border-default border-b">
+        <details
+          v-for="item in items"
+          :key="item.question"
+          class="disclosure group border-default border-b"
+        >
           <summary
             class="focus-visible:outline-primary flex cursor-pointer list-none items-center justify-between gap-5 py-5 text-[18px] leading-7 font-semibold hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 [&::-webkit-details-marker]:hidden"
           >

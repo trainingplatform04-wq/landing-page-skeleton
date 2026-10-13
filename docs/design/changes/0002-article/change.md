@@ -76,6 +76,11 @@ badge) → `bg-elevated` with `text-highlighted`, `surface-strong` (video poster
   are not downloaded). The figure's photo is the closest free match: fresh ingredients in bowls
   on a counter (vegetables, beans, cheese, chicken) rather than the six exact basics; its alt
   text describes what it shows.
+- The share toast is Nuxt UI's toast (`useToast`, through `UApp`), at the toaster's position
+  for the whole site (bottom right), not bottom centre: one toast style everywhere.
+- The FAQ and the mobile table of contents are native `<details>` (no JavaScript): their 200ms
+  height animation runs in browsers that can animate to `height: auto` (`.disclosure` in
+  `assets/css/main.css`); elsewhere they open at once. The chevron always rotates.
 - German titles hyphenate (`hyphens: auto`) so long uppercase words never overflow at 375.
 
 ## Files

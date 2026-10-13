@@ -1,8 +1,8 @@
 /**
  * The magazine's demo content (docs/design/changes/0001-magazine/content/magazine.json, approved
- * at gate D2): the page, its categories, authors and articles in every language. The protein
- * article has every block of the article page (docs/design/changes/0002-article/content/
- * article.json): key takeaways, questions, a pull quote, a video and a figure.
+ * at gate D2): the page, its categories, authors and articles in every language. Every article
+ * has every block of the article page (docs/design/changes/0002-article), so each one shows the
+ * whole design: key takeaways, questions, a coach tip, a pull quote, a video and a figure.
  */
 import type { LocaleCode } from '../../constants/i18n.constants'
 import type { SeedImage } from './seed.images'
@@ -134,6 +134,33 @@ export const POSTS: Array<
       excerpt:
         'Muskeln reagieren in jedem Alter auf Training. So legst du in vier Wochen ein sicheres Fundament.',
       imageAlt: 'Eine Person hebt eine Langhantel im Studio',
+      keyTakeaways: [
+        'Muskeln reagieren in jedem Alter auf Training.',
+        'Starte mit zwei Ganzkörper-Einheiten pro Woche.',
+        'Lerne die Technik, bevor du das Gewicht steigerst.',
+        'Steigere in kleinen Schritten von ein bis zwei Kilo.',
+      ],
+      faq: [
+        {
+          question: 'Ist Krafttraining ab 40 gefährlich?',
+          answer:
+            'Nein. Mit sauberer Technik und langsamer Steigerung ist es eine der sichersten Trainingsformen.',
+        },
+        {
+          question: 'Wie oft sollte ich trainieren?',
+          answer:
+            'Zwei Ganzkörper-Einheiten pro Woche reichen für den Anfang. Nach vier Wochen kannst du eine dritte ergänzen.',
+        },
+        {
+          question: 'Brauche ich ein Fitnessstudio?',
+          answer:
+            'Für den Start nicht. Viele Grundübungen gehen mit Kurzhanteln oder dem eigenen Körpergewicht.',
+        },
+        {
+          question: 'Was, wenn mir etwas wehtut?',
+          answer: 'Hör auf und frag einen Coach. Schmerz ist kein Zeichen von Fortschritt.',
+        },
+      ],
       body: [
         {
           p: 'Mit 40 ist es nicht zu spät für Krafttraining. Es ist genau der richtige Zeitpunkt. Muskeln, Knochen und Gelenke reagieren in jedem Alter auf Training, wenn du klug startest.',
@@ -162,6 +189,11 @@ export const POSTS: Array<
         {
           tip: 'Hör auf, bevor die Technik bricht. Zwei Wiederholungen Reserve sind am Anfang genau richtig.',
         },
+        {
+          figure: 'offerStrength',
+          alt: 'Drei Personen heben Langhanteln im Studio',
+          caption: 'Technik zuerst, dann das Gewicht.',
+        },
         { h2: 'So steigerst du dich' },
         {
           p: 'Erhöhe das Gewicht erst, wenn du alle Sätze sauber schaffst. Kleine Schritte von ein bis zwei Kilo reichen. Notiere jede Einheit: Fortschritt, den du schwarz auf weiß siehst, motiviert.',
@@ -179,6 +211,32 @@ export const POSTS: Array<
       excerpt:
         'Muscles respond to training at any age. Here is how to build a safe foundation in four weeks.',
       imageAlt: 'A person lifting a barbell in the gym',
+      keyTakeaways: [
+        'Muscles respond to training at any age.',
+        'Start with two full-body sessions a week.',
+        'Learn the technique before you add weight.',
+        'Progress in small steps of one to two kilos.',
+      ],
+      faq: [
+        {
+          question: 'Is strength training after 40 dangerous?',
+          answer:
+            'No. With clean technique and slow progress, it is one of the safest ways to train.',
+        },
+        {
+          question: 'How often should I train?',
+          answer:
+            'Two full-body sessions a week are enough to start. After four weeks you can add a third.',
+        },
+        {
+          question: 'Do I need a gym?',
+          answer: 'Not to start. Many basic exercises work with dumbbells or your own body weight.',
+        },
+        {
+          question: 'What if something hurts?',
+          answer: 'Stop and ask a coach. Pain is not a sign of progress.',
+        },
+      ],
       body: [
         {
           p: "At 40, it isn't too late to start strength training. It's exactly the right time. Muscles, bones and joints respond to training at any age, as long as you start smart.",
@@ -198,6 +256,11 @@ export const POSTS: Array<
         { ul: ['Box squat', 'Hip thrust', 'Cable row', 'Incline push-up', "Farmer's walk"] },
         {
           tip: 'Stop before your technique breaks down. Keeping two reps in reserve is just right at the start.',
+        },
+        {
+          figure: 'offerStrength',
+          alt: 'Three people lifting barbells in the gym',
+          caption: 'Technique first, then the weight.',
         },
         { h2: 'How to progress' },
         {
@@ -363,6 +426,33 @@ export const POSTS: Array<
       excerpt:
         'Motivation kommt und geht. Gewohnheiten bleiben. Drei Strategien für die schwachen Wochen.',
       imageAlt: 'Eine Frau macht sich bereit fürs Training',
+      keyTakeaways: [
+        'Motivation kommt und geht, Gewohnheiten bleiben.',
+        'Feste Termine schlagen gute Vorsätze.',
+        'Kleine Einheiten zählen mehr als perfekte Pläne.',
+        'Eine verpasste Woche ist kein Neustart.',
+      ],
+      faq: [
+        {
+          question: 'Was, wenn ich gar keine Lust habe?',
+          answer:
+            'Fang mit fünf Minuten an. Meist machst du dann weiter, und wenn nicht, hast du trotzdem trainiert.',
+        },
+        {
+          question: 'Hilft ein Trainingspartner?',
+          answer: 'Ja. Eine feste Verabredung macht das Absagen schwerer.',
+        },
+        {
+          question: 'Wie lange dauert es, bis Training zur Gewohnheit wird?',
+          answer:
+            'Meist einige Wochen. Wichtiger als die Dauer ist, dass du regelmäßig zur gleichen Zeit trainierst.',
+        },
+        {
+          question: 'Soll ich mich belohnen?',
+          answer:
+            'Ja, mit etwas Kleinem direkt nach der Einheit. Das verknüpft Training mit einem guten Gefühl.',
+        },
+      ],
       body: [
         {
           p: 'Motivation ist ein guter Anlasser, aber ein schwacher Motor. Wer Fortschritte macht, ist nicht motivierter. Er hat Gewohnheiten, die ihn durch die schwachen Wochen tragen.',
@@ -377,12 +467,19 @@ export const POSTS: Array<
         },
         { h2: 'Drei Strategien' },
         {
+          figure: 'training',
+          alt: 'Menschen springen im Training auf Boxen',
+          caption: 'Gemeinsam fällt der Anfang leichter.',
+        },
+        {
           ol: [
             'Leg die Zeit fest: gleiche Tage, gleiche Uhrzeit, im Kalender wie ein Termin.',
             'Mach es klein: An schlechten Tagen reichen zehn Minuten. Zehn Minuten zählen.',
             'Trainiere mit anderen: Partner oder Gruppe erwarten dich, und das ändert alles.',
           ],
         },
+        { tip: 'Leg deine Sportsachen am Abend bereit. Eine Entscheidung weniger am Morgen.' },
+        { video: 'M7lc1UVf-VE', title: 'Zwei Minuten, die deinen Tag starten' },
         { h2: 'Wenn du eine Woche verpasst' },
         {
           p: 'Eine verpasste Woche ändert nichts. Ein verpasster Neustart schon. Hol nichts nach: Mach einfach die nächste geplante Einheit.',
@@ -394,6 +491,33 @@ export const POSTS: Array<
       slug: 'keep-going-without-motivation',
       excerpt: 'Motivation comes and goes. Habits stay. Three strategies for the weak weeks.',
       imageAlt: 'A woman getting ready for a workout',
+      keyTakeaways: [
+        'Motivation comes and goes, habits stay.',
+        'Fixed appointments beat good intentions.',
+        'Small sessions count more than perfect plans.',
+        'A missed week is not a restart.',
+      ],
+      faq: [
+        {
+          question: "What if I just don't feel like it?",
+          answer:
+            "Start with five minutes. You usually keep going, and if you don't, you still trained.",
+        },
+        {
+          question: 'Does a training partner help?',
+          answer: 'Yes. A fixed appointment makes cancelling harder.',
+        },
+        {
+          question: 'How long until training becomes a habit?',
+          answer:
+            'Usually a few weeks. Training at the same time every week matters more than how long it takes.',
+        },
+        {
+          question: 'Should I reward myself?',
+          answer:
+            'Yes, with something small right after the session. It links training with a good feeling.',
+        },
+      ],
       body: [
         {
           p: "Motivation is a great starter but a poor engine. The people who make progress aren't more motivated. They have built habits that carry them through the weak weeks.",
@@ -408,12 +532,21 @@ export const POSTS: Array<
         },
         { h2: 'Three strategies' },
         {
+          figure: 'training',
+          alt: 'People doing box jumps in a workout',
+          caption: 'Starting is easier together.',
+        },
+        {
           ol: [
             'Fix the time: same days, same hour, in your calendar like a meeting.',
             'Make it small: on bad days, do ten minutes. Ten minutes still count.',
             'Train with someone: a partner or a group expects you, and that changes everything.',
           ],
         },
+        {
+          tip: 'Lay out your training clothes the evening before. One decision less in the morning.',
+        },
+        { video: 'M7lc1UVf-VE', title: 'Two minutes that start your day' },
         { h2: 'When you miss a week' },
         {
           p: "Missing one week changes nothing. Missing the restart does. Don't make up for lost sessions: just do the next planned one.",
@@ -432,6 +565,30 @@ export const POSTS: Array<
       slug: 'mobility-am-morgen',
       excerpt: 'Steif nach dem Aufstehen? Diese Routine macht Hüfte, Rücken und Schultern wach.',
       imageAlt: 'Frauen dehnen sich auf Yogamatten in einem hellen Studio',
+      keyTakeaways: [
+        'Zehn Minuten am Morgen reichen.',
+        'Hüfte, Rücken und Schultern zuerst.',
+        'Langsame Bewegungen, ruhiger Atem.',
+        'Jeden Tag ein bisschen schlägt einmal pro Woche viel.',
+      ],
+      faq: [
+        {
+          question: 'Brauche ich dafür Ausrüstung?',
+          answer: 'Nein. Eine Matte oder ein Teppich reicht.',
+        },
+        {
+          question: 'Ersetzt Mobility das Aufwärmen?',
+          answer: 'Nicht ganz. Vor schwerem Training kommt ein kurzes, gezieltes Aufwärmen dazu.',
+        },
+        {
+          question: 'Was, wenn eine Übung zieht?',
+          answer: 'Ein leichtes Ziehen ist normal. Stechender Schmerz heißt: aufhören.',
+        },
+        {
+          question: 'Wann sehe ich Ergebnisse?',
+          answer: 'Die meisten fühlen sich nach zwei Wochen täglicher Routine beweglicher.',
+        },
+      ],
       body: [
         {
           p: 'Steif nach dem Aufstehen? Zehn Minuten reichen, um Hüfte, Rücken und Schultern aufzuwecken, ohne Geräte und ohne Aufwärmen.',
@@ -440,7 +597,16 @@ export const POSTS: Array<
         {
           p: 'Nach einer Nacht im Liegen brauchen deine Gelenke Bewegung, um sich wieder frei anzufühlen. Eine kurze Routine weckt auch den Kopf, ohne den Stress eines Workouts.',
         },
+        {
+          quote: 'Zehn Minuten am Morgen sparen dir eine Stunde Verspannung am Abend.',
+          attribution: 'Lena Hoffmann',
+        },
         { h2: 'Die Routine' },
+        {
+          figure: 'offerOnline',
+          alt: 'Eine Frau dehnt sich auf einer Yogamatte',
+          caption: 'Langsam bewegen, ruhig atmen.',
+        },
         { p: 'Eine Minute pro Übung, ruhig, mit Atmung durch die Nase:' },
         {
           ol: [
@@ -452,6 +618,8 @@ export const POSTS: Array<
             'Armkreisen und Schulterrollen',
           ],
         },
+        { tip: 'Mach die Routine direkt nach dem Aufstehen, bevor du aufs Handy schaust.' },
+        { video: 'M7lc1UVf-VE', title: 'Die 10-Minuten-Routine zum Mitmachen' },
         { h2: 'Wann du mehr brauchst' },
         {
           p: 'Bleibt eine Stelle länger als zwei Wochen steif oder schmerzt, lass sie prüfen. Ein Coach findet die Ursache in einer Bewegungsanalyse.',
@@ -463,6 +631,27 @@ export const POSTS: Array<
       slug: 'morning-mobility',
       excerpt: 'Stiff after waking up? This routine wakes up your hips, back and shoulders.',
       imageAlt: 'Women stretching on yoga mats in a bright studio',
+      keyTakeaways: [
+        'Ten minutes in the morning are enough.',
+        'Hips, back and shoulders first.',
+        'Slow movements, calm breathing.',
+        'A little every day beats a lot once a week.',
+      ],
+      faq: [
+        { question: 'Do I need any equipment?', answer: 'No. A mat or a rug is enough.' },
+        {
+          question: 'Does mobility replace a warm-up?',
+          answer: 'Not quite. Before heavy training, add a short, targeted warm-up.',
+        },
+        {
+          question: 'What if an exercise pulls?',
+          answer: 'A light pull is normal. A sharp pain means stop.',
+        },
+        {
+          question: 'When will I see results?',
+          answer: 'Most people feel more mobile after two weeks of the daily routine.',
+        },
+      ],
       body: [
         {
           p: 'Stiff after waking up? Ten minutes are enough to wake up your hips, back and shoulders, with no equipment and no warm-up.',
@@ -471,7 +660,16 @@ export const POSTS: Array<
         {
           p: 'After a night of lying still, your joints need movement to feel free again. A short routine also wakes up your mind, without the stress of a workout.',
         },
+        {
+          quote: 'Ten minutes in the morning save you an hour of stiffness in the evening.',
+          attribution: 'Lena Hoffmann',
+        },
         { h2: 'The routine' },
+        {
+          figure: 'offerOnline',
+          alt: 'A woman stretching on a yoga mat',
+          caption: 'Move slowly, breathe calmly.',
+        },
         { p: 'One minute per exercise, calmly, breathing through your nose:' },
         {
           ol: [
@@ -483,6 +681,8 @@ export const POSTS: Array<
             'Arm circles and shoulder rolls',
           ],
         },
+        { tip: 'Do the routine right after getting up, before you check your phone.' },
+        { video: 'M7lc1UVf-VE', title: 'The 10-minute routine to follow along' },
         { h2: 'When you need more' },
         {
           p: 'If one area stays stiff or painful for more than two weeks, have it checked. A coach finds the cause in a movement assessment.',
@@ -501,6 +701,30 @@ export const POSTS: Array<
       slug: 'essen-vor-und-nach-dem-training',
       excerpt: 'Timing ist weniger wichtig als gedacht, aber nicht egal. Was wirklich zählt.',
       imageAlt: 'Ein Teller mit Eiern, Avocado und Gemüse',
+      keyTakeaways: [
+        'Vor dem Training: leicht und kohlenhydratreich.',
+        'Nach dem Training: Eiweiß und Kohlenhydrate.',
+        'Das Timing zählt weniger als die Woche.',
+        'Trinken nicht vergessen.',
+      ],
+      faq: [
+        {
+          question: 'Darf ich nüchtern trainieren?',
+          answer: 'Für leichtes Training ja. Vor intensiven Einheiten hilft ein kleiner Snack.',
+        },
+        {
+          question: 'Gibt es ein anaboles Fenster?',
+          answer: 'Es ist größer als gedacht. Eine Mahlzeit innerhalb einiger Stunden reicht.',
+        },
+        {
+          question: 'Brauche ich Sportgetränke?',
+          answer: 'Bei unter einer Stunde Training reicht Wasser.',
+        },
+        {
+          question: 'Was esse ich am Abend nach dem Training?',
+          answer: 'Eine normale Mahlzeit mit Eiweiß, Gemüse und Kohlenhydraten.',
+        },
+      ],
       body: [
         {
           p: 'Timing ist weniger wichtig als gedacht, aber nicht egal. Das zählt rund um deine Einheiten wirklich.',
@@ -509,12 +733,22 @@ export const POSTS: Array<
         {
           p: 'Iss zwei bis drei Stunden vorher eine normale Mahlzeit oder 30 bis 60 Minuten vorher einen kleinen Snack: eine Banane, ein Brot mit Honig oder einen Joghurt. Viel Fett und Ballaststoffe direkt vor dem Training lieber meiden.',
         },
+        {
+          quote: 'Was du über die Woche isst, zählt mehr als die Stunde ums Training.',
+          attribution: 'Jonas Weber',
+        },
         { h2: 'Nach dem Training' },
         {
           p: 'Iss innerhalb weniger Stunden eine Mahlzeit mit Eiweiß und Kohlenhydraten: Reis mit Hähnchen und Gemüse, ein Omelett mit Kartoffeln oder Joghurt mit Obst und Haferflocken.',
         },
         {
           tip: 'Trink vor und nach jeder Einheit ein großes Glas Wasser. Viele verwechseln Durst mit Müdigkeit.',
+        },
+        { video: 'M7lc1UVf-VE', title: 'Drei schnelle Snacks nach dem Training' },
+        {
+          figure: 'postProteinBasics',
+          alt: 'Schalen mit frischen Zutaten auf einer Küchenarbeitsplatte',
+          caption: 'Einfache Zutaten, schnell kombiniert.',
         },
         { h2: 'Mythen' },
         {
@@ -527,6 +761,30 @@ export const POSTS: Array<
       slug: 'eating-before-and-after-training',
       excerpt: 'Timing matters less than you think, but it still matters. What really counts.',
       imageAlt: 'A plate with eggs, avocado and vegetables',
+      keyTakeaways: [
+        'Before training: light and rich in carbohydrates.',
+        'After training: protein and carbohydrates.',
+        'Timing matters less than the week.',
+        "Don't forget to drink.",
+      ],
+      faq: [
+        {
+          question: 'Can I train on an empty stomach?',
+          answer: 'For light training, yes. Before intense sessions a small snack helps.',
+        },
+        {
+          question: 'Is there an anabolic window?',
+          answer: 'It is wider than people think. A meal within a few hours is enough.',
+        },
+        {
+          question: 'Do I need sports drinks?',
+          answer: 'For less than an hour of training, water is enough.',
+        },
+        {
+          question: 'What do I eat in the evening after training?',
+          answer: 'A normal meal with protein, vegetables and carbohydrates.',
+        },
+      ],
       body: [
         {
           p: 'Timing matters less than you think, but it still matters. Here is what really counts around your sessions.',
@@ -535,12 +793,22 @@ export const POSTS: Array<
         {
           p: 'Eat a normal meal two to three hours before, or a small snack 30 to 60 minutes before: a banana, bread with honey, or a yoghurt. Avoid a lot of fat and fibre right before training.',
         },
+        {
+          quote: 'What you eat over the week matters more than the hour around training.',
+          attribution: 'Jonas Weber',
+        },
         { h2: 'After training' },
         {
           p: 'Within a few hours, eat a meal with protein and carbohydrates: rice with chicken and vegetables, an omelette with potatoes, or yoghurt with fruit and oats.',
         },
         {
           tip: 'Drink a large glass of water before and after every session. Many people mistake thirst for tiredness.',
+        },
+        { video: 'M7lc1UVf-VE', title: 'Three quick snacks after training' },
+        {
+          figure: 'postProteinBasics',
+          alt: 'Bowls of fresh ingredients on a kitchen counter',
+          caption: 'Simple ingredients, quickly combined.',
         },
         { h2: 'Myths' },
         {
@@ -561,11 +829,40 @@ export const POSTS: Array<
       excerpt:
         'Fortschritt passiert in der Erholung. Warum guter Schlaf mehr bringt als ein Extra-Training.',
       imageAlt: 'Eine Frau schläft ruhig auf einem Kissen',
+      keyTakeaways: [
+        'Muskeln wachsen in der Erholung.',
+        'Sieben bis neun Stunden sind das Ziel.',
+        'Feste Schlafenszeiten helfen mehr als Ausschlafen.',
+        'Spätes, hartes Training kann den Schlaf stören.',
+      ],
+      faq: [
+        {
+          question: 'Wie viel Schlaf brauche ich?',
+          answer: 'Die meisten Erwachsenen sieben bis neun Stunden pro Nacht.',
+        },
+        {
+          question: 'Hilft ein Mittagsschlaf?',
+          answer: 'Ja, wenn er kurz ist: zwanzig Minuten reichen.',
+        },
+        {
+          question: 'Darf ich abends trainieren?',
+          answer: 'Ja. Lass zwischen harter Einheit und Schlafengehen zwei bis drei Stunden.',
+        },
+        {
+          question: 'Was tun, wenn ich nicht einschlafen kann?',
+          answer: 'Steh nach zwanzig Minuten auf und mach etwas Ruhiges, ohne Bildschirm.',
+        },
+      ],
       body: [
         {
           p: 'Deine Muskeln wachsen nicht beim Training. Sie wachsen in der Erholung, und die findet größtenteils nachts statt.',
         },
         { h2: 'Was im Schlaf passiert' },
+        {
+          figure: 'offerOnline',
+          alt: 'Eine Frau entspannt auf einer Yogamatte',
+          caption: 'Erholung ist Teil des Trainings.',
+        },
         {
           p: 'Im Tiefschlaf schüttet dein Körper Wachstumshormon aus, repariert Muskelgewebe und speichert, was du geübt hast, Bewegungsmuster inklusive.',
         },
@@ -583,6 +880,8 @@ export const POSTS: Array<
             'Harte Einheiten vor 20 Uhr',
           ],
         },
+        { tip: 'Stell dir einen Wecker fürs Schlafengehen, nicht nur fürs Aufstehen.' },
+        { video: 'M7lc1UVf-VE', title: 'Eine Abendroutine für besseren Schlaf' },
         { h2: 'Schlaf und Training planen' },
         {
           p: 'Trainiere nach einer kurzen Nacht leichter und konzentrier dich auf die Technik. Fortschritt kommt von dem, wovon du dich erholen kannst, nicht von dem, was du aushältst.',
@@ -594,11 +893,37 @@ export const POSTS: Array<
       slug: 'sleep-as-a-training-tool',
       excerpt: 'Progress happens during recovery. Why good sleep beats an extra session.',
       imageAlt: 'A woman sleeping peacefully on a pillow',
+      keyTakeaways: [
+        'Muscles grow during recovery.',
+        'Seven to nine hours is the goal.',
+        'Regular bedtimes help more than sleeping in.',
+        'Late, hard training can disturb sleep.',
+      ],
+      faq: [
+        {
+          question: 'How much sleep do I need?',
+          answer: 'Most adults need seven to nine hours a night.',
+        },
+        { question: 'Does a nap help?', answer: 'Yes, if it is short: twenty minutes are enough.' },
+        {
+          question: 'Can I train in the evening?',
+          answer: 'Yes. Leave two to three hours between a hard session and going to bed.',
+        },
+        {
+          question: "What if I can't fall asleep?",
+          answer: 'Get up after twenty minutes and do something calm, without a screen.',
+        },
+      ],
       body: [
         {
           p: "Your muscles don't grow during training. They grow while you recover, and most of that recovery happens at night.",
         },
         { h2: 'What happens while you sleep' },
+        {
+          figure: 'offerOnline',
+          alt: 'A woman relaxing on a yoga mat',
+          caption: 'Recovery is part of training.',
+        },
         {
           p: 'In deep sleep your body releases growth hormone, repairs muscle tissue and stores what you practised, movement patterns included.',
         },
@@ -616,6 +941,8 @@ export const POSTS: Array<
             'Hard sessions before 8 pm',
           ],
         },
+        { tip: 'Set an alarm for going to bed, not just for getting up.' },
+        { video: 'M7lc1UVf-VE', title: 'An evening routine for better sleep' },
         { h2: 'Planning sleep and training' },
         {
           p: 'After a short night, train lighter and focus on technique. Progress comes from what you can recover from, not from what you can endure.',

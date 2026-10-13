@@ -34,6 +34,17 @@ test.describe('Article', () => {
     await expect(page.locator('[data-section="article-related"] article')).toHaveCount(1)
   })
 
+  test('tells search engines it is an article with questions', async ({ page }) => {
+    await page.goto('/en/magazine/protein-without-powder')
+
+    await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'article')
+    const graph = await page.locator('script[type="application/ld+json"]').allTextContents()
+    const types = graph.join(' ')
+    expect(types).toContain('"Article"')
+    expect(types).toContain('"Question"')
+    expect(types).toContain('Is powder bad?')
+  })
+
   test('hides the takeaways and the questions on an article without them', async ({ page }) => {
     await page.goto('/magazin/artikel-1')
 
@@ -105,7 +116,7 @@ test.describe('Article', () => {
 
     await page.getByRole('button', { name: 'Copy link' }).click()
 
-    await expect(page.getByRole('status')).toContainText('Link copied')
+    await expect(page.getByText('Link copied')).toBeVisible()
   })
 
   test('switches language to the translated article', async ({ page }) => {

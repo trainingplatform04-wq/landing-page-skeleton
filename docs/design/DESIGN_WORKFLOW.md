@@ -392,7 +392,7 @@ answers with `respond_to_approval`. It never decides for you.
 4. Client approves (email) → **Approve** → **D2**:
    - approved commit recorded, tag `design/home-v1`;
    - `docs/design/changes/0001-home/` with every section (first version: the whole section files
-     as "diff"), specs, content per locale, `verify.json` (baselines come after implementation);
+     as "diff"), specs, content per locale, `verify.json` (screenshots come after implementation, locally);
    - `docs/design/pages/home.md` created;
    - task `docs/tasks/home-page.md` drafted with `Design change: docs/design/changes/0001-home/`.
 5. "Start `/feature` now?" → yes → plan → **G1** → implementation, visual loop, PR, review, merge →
@@ -434,14 +434,14 @@ updates `0002`), the feature branch picks it up. Already merged: a new changeset
 (`constants/routes.constants.ts`) or is new; the task then includes everything a page needs
 (ARCHITECTURE "Add a page"): route, schema, composable, page, i18n keys, seed documents with the
 design content, E2E fixtures, smoke route, visual test entries. Shared sections (e.g. `closing`)
-are reused, with page-specific baselines.
+are reused, captured again on the new page.
 
 ### 9.6 A design-system change
 
 `/design warmer primary colour` → a design-system brief → the project knowledge is updated (free)
 → one compiled prompt "apply the new theme everywhere" → approve → a changeset with **tokens only**
-→ a small feature changes `app.config.ts` / `assets/css/main.css`; every page's baselines are
-re-rendered from the new approved commit.
+→ a small feature changes `app.config.ts` / `assets/css/main.css`; every page's sections are
+captured again and checked by the designer reviewer.
 
 ### 9.7 The implementation reveals a design problem
 
@@ -498,7 +498,7 @@ First version of a page: every section is "new".
 ### 10.4 Writing the changeset and the task
 
 From `docs/design/changes/_template/`: `change.md` (source commits, sections, approval, acceptance,
-deviations), the section specs, `verify.json`, `baseline/` (after implementation). Anything the designer
+deviations), the section specs, `verify.json` (screenshots are captured after implementation, locally). Anything the designer
 cannot infer goes under Open questions, answered at G1. Then the task `docs/tasks/<name>.md` from
 `docs/tasks/template.md`, `Design change: docs/design/changes/<id>/`, acceptance from `change.md`,
 and: "Start `/feature` now?"
@@ -513,13 +513,13 @@ and: "Start `/feature` now?"
 | Plan              | Tech Lead                               | `change.md`, page index, specs' Components and Content tables | plan → **G1**                                                           |
 | Design map        | Designer engineer                       | section specs (facts)                                         | component map (§12), token changes                                      |
 | Data              | Backend engineer                        | Content tables, `content/*.json`                              | schema fields, `pnpm typegen`, seed = design content and pictures       |
-| UI                | Frontend engineer                       | one section spec at a time + its baselines                    | section components with `data-section`, **under our architecture only** |
+| UI                | Frontend engineer                       | one section spec at a time                                    | section components with `data-section`, **under our architecture only** |
 | **Design gate**   | QA engineer                             | `verify.json`                                                 | `pnpm design:verify <change>` green (§13), plus E2E and axe             |
 | Loop              | Frontend ↔ design gate                  | the failing section's diff image only                         | fixes; deviations recorded                                              |
 | PR, review, merge | Tech Lead, fresh reviewer, Orchestrator | diff, gate report, deviations                                 | merge → staging, seeded with the design content and pictures            |
 
 **Strict architecture.** The frontend engineer **never reads Lovable code** (`.diff` files, the
-Lovable project). It implements from the section spec and the baselines, following
+Lovable project). It implements from the section spec, following
 `docs/conventions/ARCHITECTURE.md` and `docs/conventions/CODING_STANDARDS.md` exactly: Nuxt UI
 first, composables own data, components get plain props, every text through Sanity or i18n, the
 project's file layout. The design gate proves the result is pixel-perfect; resemblance to the
@@ -592,7 +592,7 @@ custom CSS last, with a note in the spec.
 | Writes / compares | stable screenshots → `baseline/`                                                                              | `toHaveScreenshot()` against `baseline/`, tolerance from `verify.json`                                                          |
 | Output            | baselines in `baseline/`: local working files, never committed (gitignored)                                   | pass/fail per section, diff images, HTML report (`playwright-report/design/`)                                                   |
 
-No human step: after D2 the human has approved the design; the reviewer subagent checks our
+What verify proves: the build matches the screenshots checked by the reviewer, at every section, locale and width (and stays so while fixes land during the PR); fidelity to the design comes from that review against the specs. No human step: after D2 the human has approved the design; the reviewer subagent checks our
 shots against the changeset's facts (layout per width, sizes, content, states), and any
 mismatch is fixed in code before verify. The screenshots are deleted once verify passes; the PR
 description records the result (sections × locales × widths passed).

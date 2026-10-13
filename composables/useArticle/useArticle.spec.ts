@@ -59,7 +59,7 @@ const post = {
 
 const answer = {
   post,
-  others: [card('a', 'training'), card('b', 'nutrition'), card('c', 'mindset')],
+  related: [card('b', 'nutrition'), card('a', 'training'), card('c', 'mindset')],
   closing: {
     title: 'Ready?',
     text: 'Your first session is free.',
@@ -116,7 +116,7 @@ describe('useArticle', () => {
     expect(view.body[0]).not.toHaveProperty('anchor')
   })
 
-  it('suggests the same category first in "Keep reading", up to 3', async () => {
+  it('shows the 3 articles the query picked for "Keep reading" as cards', async () => {
     fetchMock.mockResolvedValue(answer)
     const view = await mountComposable(useArticle, {
       route: '/en/magazine/protein-without-powder',

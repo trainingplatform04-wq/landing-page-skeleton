@@ -36,7 +36,7 @@ export function headingIds(texts: string[]): string[] {
     const base =
       text
         .normalize('NFD')
-        .replace(/[̀-ͯ]/g, '')
+        .replace(/\p{Diacritic}/gu, '')
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-|-$/g, '') || 'section'
@@ -44,22 +44,4 @@ export function headingIds(texts: string[]): string[] {
     seen.set(base, count)
     return count === 1 ? base : `${base}-${count}`
   })
-}
-
-/**
- * "Keep reading": the other articles of the same category first, then the others, each group
- * in the order given (newest first); never the current article.
- */
-export function relatedPosts<T extends { id: string; categorySlug: string | null }>(
-  current: { id: string; categorySlug: string | null },
-  posts: T[],
-  limit: number,
-): T[] {
-  const others = posts.filter(({ id }) => id !== current.id)
-  const sameCategory = (post: T) =>
-    current.categorySlug !== null && post.categorySlug === current.categorySlug
-  return [...others.filter(sameCategory), ...others.filter((post) => !sameCategory(post))].slice(
-    0,
-    limit,
-  )
 }

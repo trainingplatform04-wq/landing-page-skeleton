@@ -11,8 +11,12 @@ const { t } = useI18n()
 
 <template>
   <section data-section="article-author" class="pb-14 md:pb-20">
-    <div
-      class="border-default mx-auto flex w-[calc(100%-2rem)] max-w-[760px] flex-col items-center gap-6 rounded-lg border p-6 text-center md:w-[calc(100%-3rem)] md:flex-row md:items-start md:p-8 md:text-left"
+    <UCard
+      variant="outline"
+      class="mx-auto w-[calc(100%-2rem)] max-w-[760px] md:w-[calc(100%-3rem)]"
+      :ui="{
+        body: 'flex flex-col items-center gap-6 p-6 text-center sm:p-6 md:flex-row md:items-start md:p-8 md:text-left',
+      }"
     >
       <NuxtImg
         v-if="author.photo"
@@ -39,6 +43,6 @@ const { t } = useI18n()
           <UIcon name="i-lucide-arrow-right" class="size-4" aria-hidden="true" />
         </ULink>
       </div>
-    </div>
+    </UCard>
   </section>
 </template>

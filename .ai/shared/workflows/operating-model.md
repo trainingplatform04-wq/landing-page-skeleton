@@ -12,15 +12,15 @@ This file is the single source of truth for **autonomy, human gates, blockers, r
 
 ## 1. Human gates: agents stop exactly twice
 
-| Gate                  | When                                        | Who stops | What the human sees                            |
-| --------------------- | ------------------------------------------- | --------- | ---------------------------------------------- |
-| **G1: Plan approval** | After the Tech Lead's plan, before any code | Tech Lead | Plan, directory tree, owner → task list, risks |
+| Gate                       | When                                        | Who stops    | What the human sees                            |
+| -------------------------- | ------------------------------------------- | ------------ | ---------------------------------------------- |
+| **G1: Plan approval**      | After the Tech Lead's plan, before any code | Tech Lead    | Plan, directory tree, owner → task list, risks |
+| **G2: Production release** | Before `develop` → `main` is merged         | Orchestrator | Release PR, changelog, staging verification    |
 
 **G1 is passed by the Tech Lead, not the human, when the task comes from an approved design**
 (a `Design change` approved at gate D2): the human already decided the scope, the look and the
 content at D1 and D2. The Tech Lead writes the plan into the task file and implementation starts
 at once. G1 stops for the human only for a feature without an approved design.
-| **G2: Production release** | Before `develop` → `main` is merged | Orchestrator | Release PR, changelog, staging verification |
 
 Everything else is **autonomous**, with no permission requests: branching, implementation, tests, PR, the review loop, fixes, merge into `develop` (method per `.ai/shared/workflows/code-review-loop.md` §5), staging deploy and its verification. Agents never add stops of their own.
 

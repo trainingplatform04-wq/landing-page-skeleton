@@ -13,15 +13,20 @@ import {
   richTextBlock,
   seoFragment,
 } from '~/utils/groqd/groqd.utils'
-import { headingIds, relatedPosts, toPostCard } from '~/utils/post/post.utils'
+import { headingIds, toPostCard } from '~/utils/post/post.utils'
 import { readingMinutes } from '~/utils/readingTime/readingTime.utils'
 
 import type { Cta, Image, PostCard, RichText, Seo } from '~/types/content.types'
 import type { InferResultType } from 'groqd'
 
-/** "Keep reading" shows up to 3 articles, picked among the newest ones. */
-const RELATED_COUNT = 3
-const RELATED_CANDIDATES = 24
+/**
+ * "Keep reading": up to 3 other articles, those of the same category first, each group newest
+ * first. Picked by the query, so only these 3 cards reach the page.
+ */
+const RELATED = `| order(
+  (category._ref == *[_type == "post" && language == $locale && slug.current == $slug][0].category._ref) desc,
+  publishedAt desc
+)[0...3]`
 
 /**
  * The article text with what the page needs added: linked offers' slug and language, and the
@@ -74,11 +79,10 @@ const articleQuery = q.parameters<{ locale: string; slug: string }>().project((r
       ),
     }))
     .nullable(true),
-  others: root.star
+  related: root.star
     .filterByType('post')
     .filterRaw('language == $locale && defined(slug.current) && slug.current != $slug')
-    .order('publishedAt desc')
-    .raw(`[0...${RELATED_CANDIDATES}]`, 'passthrough')
+    .raw(RELATED, 'passthrough')
     .project(postCardFragment),
   closing: root.star
     .filterByType('magazinePage')
@@ -145,11 +149,6 @@ function toArticleView(
   const cta = toCta(data.closing?.cta, context)
   const closingTitle = data.closing?.title ?? undefined
   const translations = post.translations ?? [{ language: context.locale, slug }]
-  const related = relatedPosts(
-    { id: post.id, categorySlug: post.category?.slug ?? null },
-    data.others,
-    RELATED_COUNT,
-  )
 
   return {
     seo: toSeo(post.seo, {
@@ -183,7 +182,7 @@ function toArticleView(
     toc: headings.map((block, index) => ({ id: ids[index]!, text: plainText(block) })),
     body,
     faq: post.faq ?? [],
-    related: related.map((card) => toPostCard(card, context, readingTime)),
+    related: data.related.map((card) => toPostCard(card, context, readingTime)),
     // Shown with a title or a button; a text alone has nothing to lead to.
     closing:
       closingTitle || cta

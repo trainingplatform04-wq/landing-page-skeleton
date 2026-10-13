@@ -32,7 +32,7 @@ defineProps<{
         :label="cta.label"
         size="xl"
         trailing-icon="i-lucide-arrow-right"
-        class="w-full justify-center md:w-auto md:shrink-0"
+        class="h-12 w-full justify-center px-7 md:w-auto md:shrink-0"
       />
     </UContainer>
   </section>

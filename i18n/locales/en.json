@@ -87,8 +87,7 @@
       "native": "Share",
       "copied": "Link copied",
       "copyFailed": "Unable to copy the link. Please try again.",
-      "failed": "Unable to share the article. Please try again.",
-      "dismiss": "Dismiss notification"
+      "failed": "Unable to share the article. Please try again."
     },
     "faq": "Frequently asked questions",
     "writtenBy": "Written by",

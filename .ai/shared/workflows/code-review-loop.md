@@ -79,7 +79,7 @@ The orchestrator spawns a **new** reviewer subagent for every round and passes i
    ```
 
 2. For each thread the Tech Lead either assigns a fix, or replies with a rationale when the comment is wrong. The reviewer must then accept it explicitly in the next round.
-3. Engineers fix. Commit messages use `fix(review): <what>`. Run the local gates again, then `git push`.
+3. Engineers fix. Commit messages use `fix(review): <what>`. Run the local gates again, then **wait for the pipeline of the previous push to finish before pushing** (`gh pr checks $PR --watch`): if a check failed, fix it in the same push (`fix(ci): <what>`, routed per §4), so every round lands one push that answers both the review and CI. A changed query is also run once against the real dataset before the push (`pnpm dev` on the page, or `pnpm design:capture`): the E2E test CMS (groq-js) accepts syntax Sanity rejects. Then `git push`.
 4. Reply on the thread and resolve it:
 
    ```bash

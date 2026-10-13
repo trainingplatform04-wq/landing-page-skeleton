@@ -2,3 +2,26 @@
 @import '@nuxt/ui';
 
 /* Theme tokens go in an `@theme {}` block: https://tailwindcss.com/docs/theme */
+
+/*
+ * Disclosures (`<details class="disclosure">`) open and close their content in 200ms, with no
+ * JavaScript, in browsers that can animate to `height: auto`; elsewhere they open at once.
+ */
+.disclosure {
+  interpolate-size: allow-keywords;
+}
+.disclosure::details-content {
+  height: 0;
+  overflow: clip;
+  transition:
+    height 200ms ease-out,
+    content-visibility 200ms allow-discrete;
+}
+.disclosure[open]::details-content {
+  height: auto;
+}
+@media (prefers-reduced-motion: reduce) {
+  .disclosure::details-content {
+    transition: none;
+  }
+}

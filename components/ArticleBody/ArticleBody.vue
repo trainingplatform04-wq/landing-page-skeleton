@@ -24,7 +24,7 @@ const { t } = useI18n()
             <ArticleToc :items="toc" />
           </div>
         </aside>
-        <details class="group border-default mb-5 border-y xl:hidden">
+        <details class="disclosure group border-default mb-5 border-y xl:hidden">
           <summary
             class="focus-visible:outline-primary flex cursor-pointer list-none items-center justify-between py-4 text-base font-bold focus-visible:outline-2 focus-visible:outline-offset-4 [&::-webkit-details-marker]:hidden"
           >
@@ -41,7 +41,7 @@ const { t } = useI18n()
         </details>
       </template>
 
-      <div class="max-w-[68ch] min-w-0">
+      <div class="min-w-0 xl:max-w-[68ch]">
         <div data-article-text class="text-[18px] leading-[1.7]">
           <ArticleText :value="body" />
         </div>
