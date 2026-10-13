@@ -99,6 +99,7 @@ const breadcrumb = computed(() =>
         height="630"
         sizes="sm:100vw xl:1120px"
         format="webp"
+        quality="70"
         fetchpriority="high"
         :preload="{ fetchPriority: 'high' }"
         class="aspect-video w-full object-cover object-[center_35%] md:rounded-lg"

@@ -115,12 +115,17 @@ function errorMessage(body: string): string {
   }
 }
 
+/** Every run gets its own URL: PageSpeed returns its cached report for a URL it measured recently. */
+let runCount = 0
+const freshUrl = (url: string) =>
+  `${url}${url.includes('?') ? '&' : '?'}wp=${Date.now()}-${++runCount}`
+
 /**
- * One PageSpeed Insights run (Google's report); retried on Google's transient errors and on
- * Lighthouse runtime errors.
+ * One PageSpeed Insights run (Google's report, measured fresh); retried on Google's transient
+ * errors and on Lighthouse runtime errors.
  */
 async function runPageSpeed(url: string, formFactor: FormFactor): Promise<Report> {
-  const query = new URLSearchParams({ url, strategy: formFactor })
+  const query = new URLSearchParams({ url: freshUrl(url), strategy: formFactor })
   for (const category of budget.categories) query.append('category', category)
   if (key) query.set('key', key)
   for (let attempt = 1; ; attempt++) {
