@@ -1,20 +1,18 @@
 import { describe, expect, it } from 'vitest'
 
-import { mountComposable } from '~~/tests/helpers/mountComposable'
-
 import { useConsent } from './useConsent'
 
 describe('useConsent', () => {
-  it('allows nothing optional until the visitor has answered', async () => {
-    const consent = await mountComposable(useConsent)
+  it('allows nothing optional until the visitor has answered', () => {
+    const consent = useConsent()
 
     expect(consent.state.value).toEqual({ decided: false, statistics: false, externalMedia: false })
     expect(consent.allows('statistics').value).toBe(false)
     expect(consent.allows('externalMedia').value).toBe(false)
   })
 
-  it("records the visitor's choice per category", async () => {
-    const consent = await mountComposable(useConsent)
+  it("records the visitor's choice per category", () => {
+    const consent = useConsent()
 
     consent.record({ statistics: false, externalMedia: true })
 

@@ -1,5 +1,5 @@
 ---
-status: 'In Progress' # To Do | In Progress | Review | Done
+status: 'Review' # To Do | In Progress | Review | Done
 assignee: 'Product Owner'
 lastUpdated: '2026-10-13'
 ---
@@ -21,20 +21,20 @@ lastUpdated: '2026-10-13'
 
 ## Decisions (owner, 2026-10-13: locked)
 
-| Topic            | Decision                                                                                                                                                            |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Consent engine   | Open-source **CookieConsent v3** (Orest Bida, MIT), themed to our design; no paid CMP (Cookiebot would cost every client €7–15 a month; one known tool to declare)  |
-| UI               | **Centred modal**, page dimmed; **Accept all** and **Reject all** equal (same component, size, row); **Settings** per category                                      |
-| Categories       | **Necessary** (consent cookie only, always on) · **Statistics** (GTM → GA4) · **External media** (YouTube)                                                          |
-| Duration         | Consent remembered **6 months**; a revision number re-asks when categories or tools change                                                                          |
-| Loading          | Google Consent Mode v2 **basic**: GTM is downloaded **only after** Statistics is accepted; `ad_storage`, `ad_user_data`, `ad_personalization` are always **denied** |
-| Module           | `@nuxt/scripts` (official), `useScriptGoogleTagManager` with a consent trigger                                                                                      |
-| Containers       | Two: **production**, and **staging/dev** (shared). `NUXT_PUBLIC_GTM_ID` per Vercel environment, set with the Vercel CLI; empty = nothing loads (local, CI, E2E)     |
-| GA4              | Configured inside GTM through a **"GA4 measurement ID" variable** in the exported container (placeholder, filled by the owner after creating GA4)                   |
-| Events           | Conversions, magazine engagement, offers (list below); never personal data                                                                                          |
-| Legal texts      | Drafted in DE + EN by the Privacy Officer from standard German practice; **each client has them checked** (lawyer or eRecht24) before production                    |
-| Production texts | Editors fill them in the Studio (ADR 0004: no sample content in production); built-in i18n fallbacks so the modal is never empty; go-live checklist blocks release  |
-| Owner input left | The two GTM container ids (`GTM-…`), for the local `.env` and Vercel. Everything else is built without them.                                                        |
+| Topic            | Decision                                                                                                                                                                                                                                                                                                                            |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Consent engine   | Open-source **CookieConsent v3** (Orest Bida, MIT), themed to our design; no paid CMP (Cookiebot would cost every client €7–15 a month; one known tool to declare)                                                                                                                                                                  |
+| UI               | **Centred modal**, page dimmed; **Accept all** and **Reject all** equal (same component, size, row); **Settings** per category                                                                                                                                                                                                      |
+| Categories       | **Necessary** (consent cookie only, always on) · **Statistics** (GTM → GA4) · **External media** (YouTube)                                                                                                                                                                                                                          |
+| Duration         | Consent remembered **6 months**; a revision number re-asks when categories or tools change                                                                                                                                                                                                                                          |
+| Loading          | Google Consent Mode v2 **basic**: GTM is downloaded **only after** Statistics is accepted; `ad_storage`, `ad_user_data`, `ad_personalization` are always **denied**                                                                                                                                                                 |
+| Module           | `@nuxt/scripts` (official), `useScriptGoogleTagManager` with a consent trigger                                                                                                                                                                                                                                                      |
+| Containers       | Two: **production**, and **staging/dev** (shared). `NUXT_PUBLIC_GTM_ID` per Vercel environment, set with the Vercel CLI; empty = nothing loads (local, CI, E2E)                                                                                                                                                                     |
+| GA4              | Configured inside GTM through a **"GA4 measurement ID" variable** in the exported container (placeholder, filled by the owner after creating GA4)                                                                                                                                                                                   |
+| Events           | Conversions, magazine engagement, offers (list below); never personal data                                                                                                                                                                                                                                                          |
+| Legal texts      | Drafted in DE + EN by the Privacy Officer from standard German practice; **each client has them checked** (lawyer or eRecht24) before production                                                                                                                                                                                    |
+| Production texts | Editors fill them in the Studio (ADR 0004: no sample content in production); built-in i18n fallbacks so the modal is never empty; go-live checklist blocks release                                                                                                                                                                  |
+| Containers set   | Staging/dev container set in the local `.env` and Vercel **Development** and **Preview** (owner, 2026-10-14). **Production: none yet**, so nothing loads there until the owner adds a production container to Vercel **Production** (no code change). GA4 measurement ID: to fill in inside GTM (variable in the container export). |
 
 ### Events (`useAnalytics().track`)
 
@@ -77,15 +77,15 @@ Page views: GA4's own page view (history changes included), sent by GTM.
 ## Steps (resume here after an interruption: tick what is done)
 
 - [x] 1. Task file and Privacy Officer persona (+ `/agents`, Antigravity pointers, drift guard, review loop, operating model)
-- [ ] 2. Legal audit of the current site (fonts self-hosted, YouTube, contact form target, Vercel and Sanity as processors) → fixes or notes
-- [ ] 3. Cookie inventory constant
-- [ ] 4. Sanity: `consentSettings`, privacy section, seed DE/EN, typegen
-- [ ] 5. `@nuxt/scripts` + consent plugin + `useConsent` + themed modal + footer link
-- [ ] 6. `useAnalytics` + the 8 events wired
-- [ ] 7. YouTube under External media
-- [ ] 8. `.env.example`, local `.env` (staging/dev id), Vercel env (CLI) once the ids are given
+- [x] 2. Legal audit of the current site (fonts self-hosted, YouTube, contact form target, Vercel and Sanity as processors) → fixes or notes
+- [x] 3. Cookie inventory constant
+- [x] 4. Sanity: `consentSettings`, privacy section, seed DE/EN, typegen
+- [x] 5. `@nuxt/scripts` + consent plugin + `useConsent` + themed modal + footer link
+- [x] 6. `useAnalytics` + the 8 events wired
+- [x] 7. YouTube under External media
+- [x] 8. `.env.example`, local `.env` (staging/dev id), Vercel env (CLI) once the ids are given
 - [x] 9. Docs: GTM.md, container export, DEPLOYMENT, README, go-live checklist
-- [ ] 10. Tests: E2E consent suite, unit tests, `pnpm verify`, E2E, Web performance
+- [x] 10. Tests: E2E consent suite, unit tests, `pnpm verify`, E2E, Web performance
 - [ ] 11. PR → review loop (Code Reviewer + Privacy Officer, fresh subagents) → merge into `develop` → staging check in GTM Preview
 
 ## 🤖 AI Execution Workflow (Claude / Antigravity)
