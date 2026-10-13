@@ -23,7 +23,8 @@ const breadcrumb = computed(() =>
       ]
     : [],
 )
-// The cover is the page's largest image: it loads first; the author photo waits.
+// The cover is the page's largest image: it loads first, at the width of the screen (a phone
+// gets a ~768px file, not the desktop one); the author photo waits.
 </script>
 
 <template>
@@ -97,7 +98,7 @@ const breadcrumb = computed(() =>
         :alt="cover.alt"
         width="1120"
         height="630"
-        sizes="sm:100vw xl:1120px"
+        sizes="100vw md:100vw lg:1120px"
         format="webp"
         quality="70"
         fetchpriority="high"

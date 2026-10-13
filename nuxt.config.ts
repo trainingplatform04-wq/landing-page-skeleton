@@ -75,6 +75,12 @@ export default defineNuxtConfig({
     },
   },
 
+  features: {
+    // The site's whole stylesheet (Tailwind + Nuxt UI) is inlined in each page's HTML instead of
+    // a separate request that blocks the first paint on phones (web performance, mobile FCP).
+    inlineStyles: true,
+  },
+
   experimental: {
     // Links prefetch the next page when hovered or touched, not as soon as they are visible: a
     // phone does not download every linked page's code while the current one is loading.
