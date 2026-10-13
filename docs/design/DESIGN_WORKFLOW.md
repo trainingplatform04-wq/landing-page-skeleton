@@ -179,8 +179,8 @@ That repository is a design artefact, never deployed by our pipeline.
 
 - The MCP connection has **the whole Lovable account**, not one project. Agents only touch the
   project recorded in `docs/design/design-system.md`.
-- Credits are real money or real daily quota: nothing that spends credits is sent without the
-  human's explicit go (`/design` Step 4).
+- Credits are real money or real daily quota: nothing that spends credits is sent for a brief
+  the human has not approved at D1; that approval is the go (`/design` Steps 3–5).
 - `deploy_project` publishes a link anyone can open on Free and Pro: asked every time.
 - `query_database` and `enable_database` are never used: the prototype has no backend; content is
   static in the prototype and real content lives in Sanity.
