@@ -84,6 +84,23 @@ created themselves are never touched. **Any schema change updates the seed file 
 - [Deployment & environments](docs/deployment/DEPLOYMENT.md): env contract, pipeline, runbooks
 - [AI agents](CLAUDE.md): orchestration setup and the autonomous delivery workflow
 
+## Analytics and consent
+
+A consent window (Accept all, Reject all, Settings) asks every visitor first. Google Tag Manager,
+and Google Analytics 4 inside it, load only after the visitor accepts **Statistics**; YouTube
+videos only after a click or **External media**. Without `NUXT_PUBLIC_GTM_ID` nothing
+analytics-related loads at all.
+
+For a fork:
+
+1. [GTM and GA4 setup](docs/analytics/GTM.md): free, no code. Import
+   [the container](docs/analytics/gtm-container.json), fill in the measurement ID, publish.
+2. `NUXT_PUBLIC_GTM_ID` per Vercel environment: [deployment guide §11.1](docs/deployment/DEPLOYMENT.md#111-environment-variable-contract).
+3. [Legal go-live checklist](docs/legal/go-live-checklist.md): imprint, privacy text checked by a
+   lawyer or eRecht24, processors, consent tests. The production release waits for it.
+
+The cookie inventory is `constants/cookies.constants.ts`; the latest privacy audit is in [docs/legal](docs/legal/).
+
 ## Environments
 
 No Vercel access needed: every link is here, on the repository's **Deployments** panel, and in

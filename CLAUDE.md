@@ -4,7 +4,7 @@ This is an **Enterprise Nuxt 4 Starter Skeleton** designed to support **Autonomo
 
 ## 1. AI Configuration & Roles
 
-- `.ai/shared/agents/*.md`: Core system prompts and agent personas (Tech Lead, Frontend Engineer, etc.). Single source of truth.
+- `.ai/shared/agents/*.md`: Core system prompts and agent personas (Tech Lead, Frontend Engineer, Code Reviewer, Privacy Officer, etc.). Single source of truth.
 - `.ai/shared/workflows/*.md`: Shared business logic for AI orchestration (e.g. feature delivery).
 - `.claude/commands/`: Claude Code slash commands pointing to the shared workflows and agents.
 - `.agents/rules/` & `skills/`: Google Antigravity rules and skills pointing to the shared workflows.

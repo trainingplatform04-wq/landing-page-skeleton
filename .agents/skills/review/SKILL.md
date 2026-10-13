@@ -7,4 +7,4 @@ description: >-
 
 # Code Review Loop Skill
 
-Read `.ai/shared/workflows/operating-model.md`, then follow `.ai/shared/workflows/code-review-loop.md` exactly. Run every review round with a separate `invoke_subagent` call using the `code-reviewer` agent.
+Read `.ai/shared/workflows/operating-model.md`, then follow `.ai/shared/workflows/code-review-loop.md` exactly. Run every review round with a separate `invoke_subagent` call using the `code-reviewer` agent, plus one using the `privacy-officer` agent when the PR touches scripts, cookies, embeds, fonts, form targets or tracking.

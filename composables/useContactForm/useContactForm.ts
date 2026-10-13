@@ -1,3 +1,5 @@
+import { useAnalytics } from '~/composables/useAnalytics/useAnalytics'
+
 /** What the visitor writes in the contact form. */
 export interface ContactMessage {
   name: string
@@ -17,6 +19,7 @@ export function useContactForm(successText: string) {
   const { public: config } = useRuntimeConfig()
   const { t } = useI18n()
   const toast = useToast()
+  const { track } = useAnalytics()
   const action = config.contactFormAction
 
   /** `true` when the message was sent. */
@@ -31,6 +34,7 @@ export function useContactForm(successText: string) {
       // eslint-disable-next-line no-restricted-globals
       await $fetch(action, { method: 'POST', body, headers: { Accept: 'application/json' } })
       toast.add({ title: successText, color: 'success', icon: 'i-lucide-circle-check' })
+      track('contact_submit')
       return true
     } catch {
       toast.add({ title: t('contact.form.error'), color: 'error', icon: 'i-lucide-circle-alert' })

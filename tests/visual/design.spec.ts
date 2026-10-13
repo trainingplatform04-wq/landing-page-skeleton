@@ -36,6 +36,16 @@ const baselineName = (section: string, locale: string, width: number) =>
   // Dashes only: Playwright turns other separators of snapshot names into dashes.
   `${section}-${locale}-${width}.png`
 
+/** The consent window covers the page on a first visit: answer it ("Reject all") first. */
+async function answerConsent(page: Page) {
+  const reject = page.getByRole('button', { name: /^(Alle ablehnen|Reject all)$/ })
+  const shown = await reject
+    .waitFor({ state: 'visible', timeout: 5000 })
+    .then(() => true)
+    .catch(() => false)
+  if (shown) await reject.click()
+}
+
 /**
  * Same rendering every time: fonts loaded, no motion, no caret, lazy images loaded, the sticky
  * header and every sticky element kept in place, and fixed overlays hidden, so nothing covers
@@ -96,6 +106,7 @@ for (const locale of Object.keys(spec.app.paths)) {
             expect(existsSync(join(CHANGE_DIR, 'baseline', name)), `baseline ${name}`).toBe(true)
           }
           await page.goto(spec.app.paths[locale]!, { waitUntil: 'networkidle' })
+          await answerConsent(page)
           await settle(page)
           const target = page.locator(selectorOf(section)).first()
           await expect(target, `section "${section.name}" (${MODE})`).toBeVisible()

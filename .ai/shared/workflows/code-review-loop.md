@@ -11,12 +11,13 @@ Every PR goes through this loop. No step may be skipped, and nothing is merged w
 
 ## Roles
 
-| Role            | Agent file                              | Responsibility                                                                                                               |
-| --------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Code Reviewer   | `.ai/shared/agents/code-reviewer.md`    | Runs as a **fresh subagent** every round. Reviews the diff, posts **one signed GitHub review** per round, gives the verdict. |
-| Tech Lead       | `.ai/shared/agents/tech-lead.md`        | Triages every comment, assigns it to an engineer, or answers with a rationale the reviewer must accept.                      |
-| Engineers       | `backend-engineer`, `frontend-engineer` | Fix, push, reply on each thread with the commit SHA.                                                                         |
-| DevOps Engineer | `.ai/shared/agents/devops-engineer.md`  | Keeps CI green: fixes platform failures (install, lockfile, env, deploy), routes code failures to the Tech Lead.             |
+| Role            | Agent file                              | Responsibility                                                                                                                                      |
+| --------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Code Reviewer   | `.ai/shared/agents/code-reviewer.md`    | Runs as a **fresh subagent** every round. Reviews the diff, posts **one signed GitHub review** per round, gives the verdict.                        |
+| Tech Lead       | `.ai/shared/agents/tech-lead.md`        | Triages every comment, assigns it to an engineer, or answers with a rationale the reviewer must accept.                                             |
+| Engineers       | `backend-engineer`, `frontend-engineer` | Fix, push, reply on each thread with the commit SHA.                                                                                                |
+| DevOps Engineer | `.ai/shared/agents/devops-engineer.md`  | Keeps CI green: fixes platform failures (install, lockfile, env, deploy), routes code failures to the Tech Lead.                                    |
+| Privacy Officer | `.ai/shared/agents/privacy-officer.md`  | For a **privacy-relevant PR** (below): runs as a **fresh subagent** every round, next to the Code Reviewer, with its own signed review and verdict. |
 
 ## Policy
 
@@ -30,6 +31,7 @@ Every PR goes through this loop. No step may be skipped, and nothing is merged w
   - `**🔍 Code Reviewer** · Review R<n> · ❌ CHANGES REQUESTED`
   - `**🔍 Code Reviewer** · Review R<n> · ✅ APPROVED`
 - Every inline comment, reply, triage and blocker is signed the same way, for example `**🖥️ Frontend Engineer** · Fix R1 · <sha>: …`.
+- **Privacy-relevant PRs** add or change a third-party script, a cookie or browser storage, an embed, a font source, a form target or a tracking event (for example `constants/cookies.constants.ts`, `constants/consent.constants.ts`, `constants/analytics.constants.ts`, `plugins/`, modules in `nuxt.config.ts`, iframes, the privacy texts). Each round then also spawns a **fresh Privacy Officer subagent**, with the same input as the Code Reviewer. It posts its own review, signed `**⚖️ Privacy Officer** · Review R<n> · ✅ APPROVED` or `… · ❌ CHANGES REQUESTED`, under the same labels, signing and resolution rules. The PR is approved only when **both** verdicts are `APPROVED`; in round 5 the Tech Lead settles both reviewers' findings (§2b).
 
 ## Protocol
 
@@ -42,6 +44,8 @@ The local gates (`docs/conventions/CODING_STANDARDS.md` §7) are green. The PR i
 ### 1. Review round N (Code Reviewer, fresh subagent)
 
 The orchestrator spawns a **new** reviewer subagent for every round and passes it only the PR number, the round number and links to previous rounds. It never passes its own reasoning about the change.
+
+For a privacy-relevant PR it spawns a second one the same way, briefed with `.ai/shared/agents/privacy-officer.md`. Both follow the steps below and submit separate reviews.
 
 1. Read `docs/conventions/ARCHITECTURE.md`, `docs/conventions/CODING_STANDARDS.md` and the reviewer checklist.
 2. Read the diff: `gh pr diff $PR` (round ≥ 2: also the commits pushed since the last round and every thread reply).
@@ -112,7 +116,7 @@ After the reviewer's round 5, the Tech Lead decides alone, in one signed comment
 
 CI runs on every push. If a check fails, the **DevOps Engineer** reads `gh run view <id> --log-failed`. Platform failures (install, lockfile, env vars, runners) are fixed by DevOps. Code failures (lint, types, tests) go to the Tech Lead with the failing step and log excerpt. Fixes follow the same commit, push and reply flow. Never re-run a job hoping for green.
 
-### 5. Merge (after `APPROVED`, or the Tech Lead's `✅ MERGE` in round 5, and green CI)
+### 5. Merge (after `APPROVED` from every reviewer of the PR, or the Tech Lead's `✅ MERGE` in round 5, and green CI)
 
 ```bash
 gh pr checks $PR --watch --fail-fast          # CI must be fully green

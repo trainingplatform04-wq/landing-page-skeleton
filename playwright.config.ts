@@ -1,5 +1,6 @@
 import { defineConfig, devices } from '@playwright/test'
 
+import { REJECTED_STATE } from './tests/e2e/consent.state.ts'
 import { FIXTURE_CMS_ENV, SANITY_MOCK_URL } from './tests/e2e/sanity/fixtureCms.ts'
 
 // Set PLAYWRIGHT_BASE_URL to test a deployed environment (post-deploy smoke)
@@ -28,9 +29,12 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   projects: [
+    // Answers the consent window once; the other tests reuse that state (tests/e2e/consent.setup.ts).
+    { name: 'consent', testMatch: '**/consent.setup.ts' },
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      dependencies: ['consent'],
+      use: { ...devices['Desktop Chrome'], storageState: REJECTED_STATE },
     },
   ],
   webServer: remoteBaseUrl

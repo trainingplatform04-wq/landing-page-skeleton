@@ -33,6 +33,8 @@ defineProps<{
         size="xl"
         trailing-icon="i-lucide-arrow-right"
         class="h-12 w-full justify-center px-7 md:w-auto md:shrink-0"
+        data-track="cta_click"
+        :data-track-label="cta.label"
       />
     </UContainer>
   </section>

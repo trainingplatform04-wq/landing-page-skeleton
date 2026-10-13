@@ -36,12 +36,13 @@ The design tool is **Lovable**, through the `lovable` MCP server. Lovable builds
 
 **Step 1: Intake.** Ask the human to describe the idea in their own words, if `/design` came without one. Classify it (DESIGN_WORKFLOW §9.1): content change (→ Sanity, stop here and say so), bug (→ fix PR, stop), design change or new design (→ continue), design-system change (→ continue, Step 2 focuses on tokens).
 
-**Step 2: Discovery.** Play the four roles in your own context (no subagents), reading each persona's "Discovery questions" block in `.ai/shared/agents/`:
+**Step 2: Discovery.** Play the four roles in your own context (no subagents), and the fifth when it applies, reading each persona's "Discovery questions" block in `.ai/shared/agents/`:
 
 1. `product-owner`: goal, audience, message, call to action, the content (English for the prototype; every locale for our code).
 2. `designer-engineer`: layout, style, references, sections, states, breakpoints, motion.
 3. `tech-lead`: scope against ADR 0004 (pages are code), CMS fields versus code text, routes, risks.
 4. `frontend-engineer`: Nuxt UI equivalents, existing tokens, pixel-perfect risks.
+5. `privacy-officer`, only when the design adds tracking, embeds (video, map, social), a form or another third party: what is measured, which consent category each tool falls under, which service receives form data, new processors.
 
 Rules:
 

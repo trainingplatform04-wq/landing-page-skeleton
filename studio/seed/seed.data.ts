@@ -372,10 +372,81 @@ const COPY = {
     },
     privacy: {
       title: 'Datenschutzerklärung',
-      heading: 'Verantwortliche Stelle',
-      body: 'Beispieltext: vor dem Livegang durch die echte Datenschutzerklärung ersetzen. Sie muss jeden Dienst nennen, den die Website nutzt, auch den Formulardienst.',
-      list: ['Hosting der Website', 'Kontaktformular', 'Content-Management (Sanity)'],
-      linkText: 'Fragen? Nutzen Sie das Kontaktformular.',
+      description:
+        'Welche Daten diese Website verarbeitet, wozu, auf welcher Rechtsgrundlage und welche Rechte Sie haben.',
+      intro:
+        'Beispieltext nach üblicher deutscher Praxis: vor dem Livegang an die echten Dienste anpassen und rechtlich prüfen lassen (Anwalt oder eRecht24).',
+      sections: [
+        {
+          heading: 'Verantwortliche Stelle',
+          text: [
+            'Demo Studio Berlin, Musterstraße 1, 10115 Berlin, Deutschland. E-Mail: demo@example.com, Telefon: +49 30 0000000.',
+          ],
+        },
+        {
+          heading: 'Hosting',
+          text: [
+            'Diese Website und ihre Bilder werden von Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA, ausgeliefert. Bei jedem Aufruf verarbeitet Vercel technisch notwendige Daten: IP-Adresse, Datum und Uhrzeit, aufgerufene Adresse, Referrer und Browser. Vercel speichert diese Protokolle nur kurz, um die Website sicher auszuliefern und Fehler zu finden.',
+            'Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (unser Interesse an einer sicheren, schnellen Website). Mit Vercel besteht ein Vertrag zur Auftragsverarbeitung. Vercel ist unter dem EU-US Data Privacy Framework zertifiziert; die Übermittlung in die USA stützt sich auf den Angemessenheitsbeschluss der EU-Kommission (Art. 45 DSGVO).',
+          ],
+        },
+        {
+          heading: 'Content-Management (Sanity)',
+          text: [
+            'Die Inhalte dieser Website pflegen wir mit Sanity (Sanity AS, Norwegen, mit Sanity Inc., USA). Wenn Sie innerhalb der Website eine weitere Seite öffnen, lädt Ihr Browser deren Inhalte von den Servern von Sanity; dabei werden Ihre IP-Adresse und Browserdaten übertragen. Bilder liefert unser Hosting aus.',
+            'Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (unser Interesse an einer schnellen, pflegbaren Website). Mit Sanity besteht ein Vertrag zur Auftragsverarbeitung; eine Übermittlung in die USA erfolgt auf Grundlage des EU-US Data Privacy Framework oder von Standardvertragsklauseln.',
+          ],
+        },
+        {
+          heading: 'Kontaktformular',
+          text: [
+            'Wenn Sie das Kontaktformular senden, übermittelt Ihr Browser Name, E-Mail-Adresse und Nachricht sowie technisch bedingt Ihre IP-Adresse und den Zeitpunkt an unseren Formulardienst mit Sitz in der EU, der uns die Nachricht per E-Mail zustellt. Vor dem Livegang hier den Dienst mit Namen und Anschrift nennen.',
+            'Wir nutzen die Angaben nur, um Ihre Anfrage zu beantworten. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, wenn Ihre Anfrage einen Vertrag betrifft, sonst Art. 6 Abs. 1 lit. f DSGVO (unser Interesse, Anfragen zu beantworten). Mit dem Formulardienst besteht ein Vertrag zur Auftragsverarbeitung. Wir löschen die Daten, wenn Ihre Anfrage erledigt ist, außer gesetzliche Aufbewahrungspflichten stehen dem entgegen. Sie können uns auch direkt per E-Mail schreiben.',
+          ],
+        },
+        {
+          heading: 'Einwilligung und Cookies',
+          text: [
+            'Beim ersten Besuch fragt ein Fenster, was Sie erlauben: „Alle akzeptieren“, „Alle ablehnen“ oder eine Auswahl unter „Einstellungen“. Bis Sie entscheiden, lädt die Website nur, was für ihren Betrieb nötig ist: keine Statistik, keine externen Medien.',
+            'Ihre Wahl speichern wir 6 Monate im Cookie cc_cookie, damit wir Sie nicht bei jedem Besuch erneut fragen; danach, oder wenn sich die eingesetzten Dienste ändern, fragen wir erneut. Rechtsgrundlage dafür sind § 25 Abs. 2 Nr. 2 TDDDG und Art. 6 Abs. 1 lit. c DSGVO (Nachweis der Einwilligung).',
+            'Sie können Ihre Einwilligung jederzeit mit Wirkung für die Zukunft ändern oder widerrufen: über „Cookie-Einstellungen“ unten auf jeder Seite. Beim Widerruf der Statistik löschen wir deren Cookies. Die Tabelle unter diesem Text nennt jedes Cookie mit Anbieter, Zweck und Dauer.',
+          ],
+        },
+        {
+          heading: 'Statistik (Google Tag Manager und Google Analytics 4)',
+          text: [
+            'Nur wenn Sie der Kategorie „Statistik“ zustimmen, laden wir Google Tag Manager und darüber Google Analytics 4. Anbieter ist Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland. So sehen wir, wie die Website genutzt wird, und können sie verbessern: aufgerufene Seiten, Klicks auf Schaltflächen, gesendete Formulare (ohne deren Inhalt), gelesene Artikel und geladene Videos.',
+            'Google Analytics setzt die Cookies _ga und _ga_<Kennung> mit einer zufälligen Kennung und verarbeitet Angaben zu Gerät, Browser, ungefährem Standort und Herkunft des Besuchs. Google Analytics 4 speichert keine IP-Adressen; sie dienen nur kurz der groben Standortbestimmung. Google Signals, Werbefunktionen und die Datenfreigabe an Google sind ausgeschaltet. Die Daten werden nach 14 Monaten gelöscht, die Cookies laufen nach 2 Jahren ab.',
+            'Rechtsgrundlage ist Ihre Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG. Google kann Daten an Google LLC in den USA übermitteln; Google ist unter dem EU-US Data Privacy Framework zertifiziert (Art. 45 DSGVO). Mit Google besteht ein Vertrag zur Auftragsverarbeitung.',
+          ],
+        },
+        {
+          heading: 'Externe Medien (YouTube)',
+          text: [
+            'Videos in Artikeln binden wir über youtube-nocookie.com ein, einen Dienst von Google Ireland Limited. Vor Ihrem Klick auf „Video laden“ oder Ihrer Zustimmung zur Kategorie „Externe Medien“ wird nichts von YouTube geladen. Danach erhält YouTube Ihre IP-Adresse, Browserdaten und die aufgerufene Seite und kann Cookies und Einträge im Speicher Ihres Browsers setzen, zum Beispiel VISITOR_INFO1_LIVE (6 Monate) und YSC (Sitzung).',
+            'Rechtsgrundlage ist Ihre Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG. Google kann Daten an Google LLC in den USA übermitteln, auf Grundlage des EU-US Data Privacy Framework. Links zu unseren Profilen in sozialen Netzwerken sind einfache Links: Erst Ihr Klick öffnet die jeweilige Seite.',
+          ],
+        },
+        {
+          heading: 'Ihre Rechte',
+          text: ['Sie haben uns gegenüber das Recht auf:'],
+          list: [
+            'Auskunft über Ihre Daten (Art. 15 DSGVO)',
+            'Berichtigung (Art. 16 DSGVO) und Löschung (Art. 17 DSGVO)',
+            'Einschränkung der Verarbeitung (Art. 18 DSGVO)',
+            'Datenübertragbarkeit (Art. 20 DSGVO)',
+            'Widerspruch gegen Verarbeitungen nach Art. 6 Abs. 1 lit. f DSGVO (Art. 21 DSGVO)',
+            'Widerruf einer Einwilligung mit Wirkung für die Zukunft (Art. 7 Abs. 3 DSGVO)',
+          ],
+        },
+        {
+          heading: 'Beschwerde bei der Aufsichtsbehörde',
+          text: [
+            'Sie können sich bei einer Datenschutz-Aufsichtsbehörde beschweren (Art. 77 DSGVO). Für uns zuständig ist die Berliner Beauftragte für Datenschutz und Informationsfreiheit, Alt-Moabit 59–61, 10555 Berlin.',
+          ],
+        },
+      ],
+      linkText: 'Fragen zum Datenschutz? Schreiben Sie uns.',
       link: 'Zum Kontakt',
     },
     testimonialAlt: 'Foto der Kundin oder des Kunden',
@@ -429,10 +500,81 @@ const COPY = {
     },
     privacy: {
       title: 'Privacy policy',
-      heading: 'Controller',
-      body: 'Sample text: replace it with the real privacy policy before going live. It must name every service the site uses, the form service included.',
-      list: ['Website hosting', 'Contact form', 'Content management (Sanity)'],
-      linkText: 'Questions? Use the contact form.',
+      description:
+        'Which data this website processes, why, on which legal basis, and which rights you have.',
+      intro:
+        'Sample text following common German practice: adapt it to the real services and have it checked (lawyer or eRecht24) before going live.',
+      sections: [
+        {
+          heading: 'Controller',
+          text: [
+            'Demo Studio Berlin, Musterstraße 1, 10115 Berlin, Germany. Email: demo@example.com, phone: +49 30 0000000.',
+          ],
+        },
+        {
+          heading: 'Hosting',
+          text: [
+            'This website and its images are delivered by Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA. On every request Vercel processes technically necessary data: IP address, date and time, the requested address, referrer and browser. Vercel keeps these logs only briefly, to deliver the website securely and to find errors.',
+            'The legal basis is Art. 6(1)(f) GDPR (our interest in a secure, fast website). We have a data processing agreement with Vercel. Vercel is certified under the EU–US Data Privacy Framework; the transfer to the USA relies on the European Commission’s adequacy decision (Art. 45 GDPR).',
+          ],
+        },
+        {
+          heading: 'Content management (Sanity)',
+          text: [
+            'We manage this website’s content with Sanity (Sanity AS, Norway, with Sanity Inc., USA). When you open another page within the website, your browser loads its content from Sanity’s servers, which transmits your IP address and browser data. Images are delivered by our hosting.',
+            'The legal basis is Art. 6(1)(f) GDPR (our interest in a fast, maintainable website). We have a data processing agreement with Sanity; any transfer to the USA relies on the EU–US Data Privacy Framework or standard contractual clauses.',
+          ],
+        },
+        {
+          heading: 'Contact form',
+          text: [
+            'When you send the contact form, your browser transmits your name, email address and message, and for technical reasons your IP address and the time, to our form service based in the EU, which emails the message to us. Before going live, name the service here with its address.',
+            'We use the data only to answer your request. The legal basis is Art. 6(1)(b) GDPR when your request concerns a contract, otherwise Art. 6(1)(f) GDPR (our interest in answering requests). We have a data processing agreement with the form service. We delete the data once your request is settled, unless statutory retention periods apply. You can also write to us directly by email.',
+          ],
+        },
+        {
+          heading: 'Consent and cookies',
+          text: [
+            'On your first visit a window asks what you allow: “Accept all”, “Reject all” or a choice under “Settings”. Until you decide, the website loads only what it needs to work: no statistics, no external media.',
+            'We store your choice for 6 months in the cookie cc_cookie, so we do not ask on every visit; after that, or when the services we use change, we ask again. The legal basis is § 25(2) no. 2 TDDDG and Art. 6(1)(c) GDPR (proof of consent).',
+            'You can change or withdraw your consent at any time, with effect for the future: through “Cookie settings” at the bottom of every page. When you withdraw statistics, we delete their cookies. The table below this text lists every cookie with its provider, purpose and duration.',
+          ],
+        },
+        {
+          heading: 'Statistics (Google Tag Manager and Google Analytics 4)',
+          text: [
+            'Only if you allow the “Statistics” category do we load Google Tag Manager and, through it, Google Analytics 4. The provider is Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Ireland. This shows us how the website is used so we can improve it: pages viewed, clicks on buttons, forms sent (without their content), articles read and videos loaded.',
+            'Google Analytics sets the cookies _ga and _ga_<id> with a random identifier and processes information about your device, browser, approximate location and where the visit came from. Google Analytics 4 does not store IP addresses; they are used only briefly to derive an approximate location. Google Signals, advertising features and data sharing with Google are switched off. The data is deleted after 14 months; the cookies expire after 2 years.',
+            'The legal basis is your consent under Art. 6(1)(a) GDPR and § 25(1) TDDDG. Google may transfer data to Google LLC in the USA; Google is certified under the EU–US Data Privacy Framework (Art. 45 GDPR). We have a data processing agreement with Google.',
+          ],
+        },
+        {
+          heading: 'External media (YouTube)',
+          text: [
+            'Videos in articles are embedded through youtube-nocookie.com, a service of Google Ireland Limited. Nothing is loaded from YouTube before you click “Load video” or allow the “External media” category. After that, YouTube receives your IP address, browser data and the page you are on, and may set cookies and entries in your browser’s storage, for example VISITOR_INFO1_LIVE (6 months) and YSC (session).',
+            'The legal basis is your consent under Art. 6(1)(a) GDPR and § 25(1) TDDDG. Google may transfer data to Google LLC in the USA, relying on the EU–US Data Privacy Framework. Links to our social media profiles are plain links: only your click opens the page.',
+          ],
+        },
+        {
+          heading: 'Your rights',
+          text: ['You have the right to:'],
+          list: [
+            'access your data (Art. 15 GDPR)',
+            'rectification (Art. 16 GDPR) and erasure (Art. 17 GDPR)',
+            'restriction of processing (Art. 18 GDPR)',
+            'data portability (Art. 20 GDPR)',
+            'object to processing based on Art. 6(1)(f) GDPR (Art. 21 GDPR)',
+            'withdraw a consent with effect for the future (Art. 7(3) GDPR)',
+          ],
+        },
+        {
+          heading: 'Complaints to a supervisory authority',
+          text: [
+            'You can lodge a complaint with a data protection supervisory authority (Art. 77 GDPR). Ours is the Berlin Commissioner for Data Protection and Freedom of Information, Alt-Moabit 59–61, 10555 Berlin, Germany.',
+          ],
+        },
+      ],
+      linkText: 'Questions about privacy? Write to us.',
       link: 'Go to contact',
     },
     testimonialAlt: 'Photo of the client',
@@ -605,9 +747,15 @@ export function seedDocuments(imageAssetId: ImageAssetId): SeedDocument[] {
       ...page(PAGE_TYPES.privacy, locale),
       title: copy.privacy.title,
       body: richText([
-        { text: copy.privacy.heading, style: 'h2' },
-        { text: copy.privacy.body },
-        ...copy.privacy.list.map((item) => ({ text: item, listItem: 'bullet' as const })),
+        { text: copy.privacy.intro },
+        ...copy.privacy.sections.flatMap((section): Part[] => [
+          { text: section.heading, style: 'h2' },
+          ...section.text.map((text) => ({ text })),
+          ...('list' in section ? section.list : []).map((item) => ({
+            text: item,
+            listItem: 'bullet' as const,
+          })),
+        ]),
         {
           text: `${copy.privacy.linkText} `,
           linkText: copy.privacy.link,
@@ -615,7 +763,7 @@ export function seedDocuments(imageAssetId: ImageAssetId): SeedDocument[] {
         },
       ]),
       updatedAt: UPDATED_AT,
-      seo: pageSeo(locale, copy.privacy.title, copy.privacy.heading),
+      seo: pageSeo(locale, copy.privacy.title, copy.privacy.description),
     }
 
     const categories = CATEGORIES.map(({ key, order, [locale]: category }) => ({

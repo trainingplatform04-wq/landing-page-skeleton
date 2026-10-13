@@ -12,6 +12,7 @@ Obey `.ai/shared/workflows/operating-model.md`. A production release is **Gate G
 ## Release (`develop` → `main`)
 
 1. **Pre-flight (devops-engineer).** The latest `Deploy` run on `develop` is green (CI → both apps → smoke), and there are no open blockers.
+   **Legal (privacy-officer).** For the client's first production release, and for any release that changes tools, cookies, embeds, forms or tracking, `docs/legal/go-live-checklist.md` is complete for this client. An incomplete checklist is a blocker (operating-model §2): the release PR is not opened until it is complete.
 2. **Release PR (orchestrator).**
 
    The body is what the human reads at Gate G2: the changes since the last release, the staging URLs, and every env-var or dashboard change production needs **before** the deploy.
@@ -23,15 +24,16 @@ Obey `.ai/shared/workflows/operating-model.md`. A production release is **Gate G
      echo; echo "## Changes"; git log origin/main..origin/develop --first-parent --format='- %s'
      echo; echo "## Staging (verified)"; echo "- Web: \$STAGING_WEBAPP_URL"; echo "- Studio: \$STAGING_STUDIO_URL"
      echo; echo "## Production prerequisites"; echo "- <env vars / dashboard changes, or 'none'>"
+     echo; echo "## Legal"; echo "- docs/legal/go-live-checklist.md: <complete on yyyy-mm-dd, or 'no privacy-relevant change'>"
      echo; echo "<!-- agent=orchestrator; kind=release; round=0 -->"
    } > "$notes"
    gh pr create --base main --head develop --title "release: <yyyy-mm-dd>" --body-file "$notes"
    ```
 
-   Replace the two placeholders before creating the PR. The PR must never open with an empty body.
+   Replace the placeholders before creating the PR. The PR must never open with an empty body.
 
 3. **Review loop.** Run `.ai/shared/workflows/code-review-loop.md` on the release PR. The review focuses on release risk: env contract, migrations, config drift between staging and production.
-4. **🚦 Gate G2.** After `APPROVED` and green CI, post the signed comment below and **stop**. Continue only when the human says go.
+4. **🚦 Gate G2.** After `APPROVED`, green CI and a complete legal go-live checklist, post the signed comment below and **stop**. Continue only when the human says go.
 
    ```text
    **🤖 Orchestrator** · Release · 🚦 awaiting human go
