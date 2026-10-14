@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAnalytics } from '~/composables/useAnalytics/useAnalytics'
 import { useOffer } from '~/composables/useOffer/useOffer'
 import { usePageMeta } from '~/composables/usePageMeta/usePageMeta'
 
@@ -9,6 +10,10 @@ const setI18nParams = useSetI18nParams()
 usePageMeta(offer.seo)
 // The language switcher and hreflang link this offer's own slug in each language.
 setI18nParams(offer.slugs)
+
+const slug = String(useRoute().params.slug ?? '')
+const { track } = useAnalytics()
+onMounted(() => track('offer_view', { offer: slug }))
 </script>
 
 <template>
@@ -19,7 +24,7 @@ setI18nParams(offer.slugs)
       :orientation="offer.image ? 'horizontal' : 'vertical'"
     >
       <template v-if="offer.cta" #links>
-        <CtaLink :cta="offer.cta" size="xl" />
+        <CtaLink :cta="offer.cta" size="xl" track="offer_cta" :data-track-offer="slug" />
       </template>
 
       <NuxtImg

@@ -43,7 +43,8 @@ A **blocker** is anything only a human can do: dashboard settings, secrets, paid
 ## 3. Independent review
 
 - Every code-review round runs in a **separate subagent with fresh context**. The reviewer must never share the implementer's context, because it has to judge the diff, not the intent.
-- Implementer personas (PO, Tech Lead, engineers, QA, DevOps) may be played in the orchestrator's own context when the platform has no subagents. **The Code Reviewer may not**: on such platforms, apply exception E1 (§1).
+- A PR that adds or changes a third-party script, cookie, embed, font source, form target or tracking event also gets a **Privacy Officer** review each round, in its own fresh subagent, next to the Code Reviewer (`.ai/shared/workflows/code-review-loop.md`). It merges only when both approve.
+- Implementer personas (PO, Tech Lead, engineers, QA, DevOps) may be played in the orchestrator's own context when the platform has no subagents. **The Code Reviewer and the Privacy Officer may not**: on such platforms, apply exception E1 (§1).
 - The reviewer verifies fixes **in code**, not from replies, and may reopen threads.
 
 ## 4. Signed GitHub comments
@@ -66,6 +67,7 @@ Every comment, review and reply an agent posts on GitHub starts with a signature
 | QA Engineer       | 🧪   | Tests, Fix R<n>               |
 | DevOps Engineer   | ⚙️   | CI, Deploy, Blocker, Fix R<n> |
 | Code Reviewer     | 🔍   | Review R<n>                   |
+| Privacy Officer   | ⚖️   | Review R<n>, Design           |
 | Orchestrator      | 🤖   | Merge, Release, Summary       |
 
 Examples:
@@ -103,6 +105,12 @@ a persona, a workflow or `CLAUDE.md`, in a PR.
 - **No HTML comments** in templates or Markdown; explain in the script block or in prose.
 - **Reference implementation** for design → code: the magazine (brief `0001`, changeset
   `docs/design/changes/0001-magazine/`) and the article page (`0002`). Every page follows them.
+- **Environment values stay in the environment.** The values of environment variables
+  (container ids, keys, tokens) live only in `.env` (gitignored), Vercel and GitHub secrets.
+  Repository files, commit messages, PR descriptions and comments name the variable
+  (`NUXT_PUBLIC_GTM_ID`), never its value. Public site addresses the team documents (README
+  environments, the pipeline's PR report) are not environment values. A value that slipped into a pushed branch is removed from its history (owner,
+  2026-10-14).
 - **Shared data is not ours to break.** `pnpm studio:seed --reset` (discards Studio edits on
   staging) and other destructive actions on shared environments need the owner's go; everything
   else runs without asking.

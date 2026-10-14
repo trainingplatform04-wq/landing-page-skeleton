@@ -11,9 +11,11 @@
  * A score of 90 is Google's "good" point: mobile FCP 1.8 s, LCP 2.5 s, TBT 200 ms, Speed Index
  * 3.4 s; desktop FCP 0.9 s, LCP 1.2 s, TBT 150 ms, Speed Index 1.3 s; CLS 0.1 on both.
  *
- * A single PageSpeed run moves 10–25 points on an unchanged page (measured on this site): every
- * page is measured once, and a page below the minimum gets `confirmationRuns` more runs; the
- * median decides, so a one-off sample cannot block a PR and a real regression still does.
+ * A single PageSpeed run moves 10–25 points on an unchanged page (measured on this site, Speed
+ * Index most): every page is first visited twice to warm the fresh deployment (a cold first
+ * request is not what visitors get), then measured `runs` times; a page below the minimum gets
+ * `confirmationRuns` more runs, and the median of each score decides. Noise cannot block a PR; a
+ * real regression (the same low score run after run) still does.
  *
  * Raise the numbers freely; lowering one is a decision for the Tech Lead, recorded in the PR.
  */
@@ -34,7 +36,9 @@ export interface WebPerformanceBudget {
   target: number
   /** Score below which the PR is blocked (0–100), for every category and metric. */
   minimum: number
-  /** Extra runs for a page below the minimum; the median of all its runs decides. */
+  /** Runs of every page; the median of each score is judged. */
+  runs: number
+  /** Extra runs for a page whose median is below the minimum; the median of all its runs decides. */
   confirmationRuns: number
   /** PageSpeed strategies: `mobile` (throttled phone) and `desktop`. */
   formFactors: Array<'mobile' | 'desktop'>
@@ -51,6 +55,7 @@ export default {
   target: 90,
   // Decided by the owner (2026-10-10): 90+ is the aim, 80 blocks.
   minimum: 80,
+  runs: 3,
   confirmationRuns: 2,
   formFactors: ['mobile', 'desktop'],
   slugPages: ['/magazin/protein-ohne-pulver', '/en/magazine/protein-without-powder'],

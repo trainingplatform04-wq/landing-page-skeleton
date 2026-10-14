@@ -16,5 +16,6 @@ const layout = useLayout()
       <slot />
     </UMain>
     <LazySiteFooter hydrate-never />
+    <LazyConsentBanner hydrate-never />
   </div>
 </template>

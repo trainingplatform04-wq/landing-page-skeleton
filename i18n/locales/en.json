@@ -14,7 +14,8 @@
     "copyright": "© {year} {name}. All rights reserved.",
     "legal": "Legal",
     "imprint": "Imprint",
-    "privacy": "Privacy"
+    "privacy": "Privacy",
+    "cookieSettings": "Cookie settings"
   },
   "home": {
     "featuredOffers": "Featured offers",
@@ -93,5 +94,68 @@
     "writtenBy": "Written by",
     "moreFrom": "More from {name}",
     "related": "Keep reading"
+  },
+  "consent": {
+    "title": "Your privacy",
+    "description": "We use cookies and similar technologies that the website needs to work (they store your choice and the colour scheme). Only with your consent do we also use Google Tag Manager and Google Analytics (statistics) and show YouTube videos (external media); data may then be transferred to Google in the USA. You can change your choice at any time under \"Cookie settings\" at the bottom of every page.",
+    "acceptAll": "Accept all",
+    "rejectAll": "Reject all",
+    "settings": "Settings",
+    "settingsTitle": "Cookie settings",
+    "settingsIntro": "Choose what you allow. Necessary storage only keeps your choice and the colour scheme. Details are on the privacy page.",
+    "save": "Save my choice",
+    "close": "Close",
+    "categories": {
+      "necessary": {
+        "title": "Necessary",
+        "description": "Stores your consent choice. Always active, since without it we could not remember a \"no\"."
+      },
+      "statistics": {
+        "title": "Statistics",
+        "description": "Google Tag Manager and Google Analytics measure how the site is used (pages, clicks), pseudonymously and without advertising."
+      },
+      "externalMedia": {
+        "title": "External media",
+        "description": "Loads YouTube videos directly. As soon as a video loads, data is sent to YouTube (Google), possibly to the USA."
+      }
+    },
+    "descriptionNoStatistics": "We use cookies and similar technologies that the website needs to work (they store your choice and the colour scheme). Only with your consent do we show YouTube videos (external media); data may then be transferred to Google in the USA. You can change your choice at any time under \"Cookie settings\" at the bottom of every page."
+  },
+  "cookies": {
+    "title": "Cookies on this site",
+    "name": "Name",
+    "provider": "Provider",
+    "purpose": "Purpose",
+    "duration": "Duration",
+    "category": "Category",
+    "providers": {
+      "site": "This website",
+      "google": "Google",
+      "youtube": "YouTube (Google)"
+    },
+    "consent": {
+      "purpose": "Stores your consent choice",
+      "duration": "6 months"
+    },
+    "ga": {
+      "purpose": "Distinguishes visitors for statistics",
+      "duration": "2 years"
+    },
+    "gaSession": {
+      "purpose": "Keeps the session for statistics",
+      "duration": "2 years"
+    },
+    "youtubeVisitor": {
+      "purpose": "Set by YouTube when a video loads; the player also stores data in the browser (yt-remote-*, ytidb::*)",
+      "duration": "6 months"
+    },
+    "youtubeSession": {
+      "purpose": "Set by YouTube when a video plays",
+      "duration": "Session"
+    },
+    "colorMode": {
+      "purpose": "Remembers the colour scheme (light or dark, following your device); stored in the browser, not sent anywhere",
+      "duration": "Until deleted"
+    }
   }
 }

@@ -28,5 +28,10 @@ useSeoMeta({ title: () => translatedError.value.statusText })
       :clear="{ label: t('errors.backHome') }"
       :redirect="localePath('index')"
     />
+    <p class="pb-8 text-center text-sm">
+      <button type="button" data-consent="settings" class="text-muted hover:text-highlighted">
+        {{ t('footer.cookieSettings') }}
+      </button>
+    </p>
   </UApp>
 </template>

@@ -10,4 +10,4 @@ description: >-
 To execute this skill, you MUST read the shared orchestration workflow located at:
 `.ai/shared/workflows/feature-orchestration.md`
 
-Read `.ai/shared/workflows/operating-model.md` first. Follow the shared file exactly, using your native `invoke_subagent` tool. Code-review rounds always run in a separate subagent (`code-reviewer`).
+Read `.ai/shared/workflows/operating-model.md` first. Follow the shared file exactly, using your native `invoke_subagent` tool. Code-review rounds always run in a separate subagent (`code-reviewer`, and `privacy-officer` for a PR that touches scripts, cookies, embeds, fonts, form targets or tracking).

@@ -12,5 +12,10 @@ usePageMeta(legal.seo)
 </script>
 
 <template>
-  <LegalContent :title="legal.title" :body="legal.body" :updated-at="legal.updatedAt" />
+  <div>
+    <LegalContent :title="legal.title" :body="legal.body" :updated-at="legal.updatedAt" />
+    <UContainer v-if="type === 'privacyPage'" class="pb-16">
+      <CookieTable />
+    </UContainer>
+  </div>
 </template>

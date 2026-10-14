@@ -28,6 +28,14 @@ describe('AppFooter', () => {
     ])
   })
 
+  it('reopens the consent window from every page ("Cookie settings")', async () => {
+    const wrapper = await mountSuspended(AppFooter, { route: '/en', props })
+
+    const settings = wrapper.find('nav[aria-label="Legal"] button')
+    expect(settings.text()).toBe('Cookie settings')
+    expect(settings.attributes('data-consent')).toBe('settings')
+  })
+
   it('shows the copyright with the site name and the note', async () => {
     const wrapper = await mountSuspended(AppFooter, {
       route: '/en',

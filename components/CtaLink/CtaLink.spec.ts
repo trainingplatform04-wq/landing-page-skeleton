@@ -15,6 +15,16 @@ describe('CtaLink', () => {
     expect(link.attributes('target')).toBeUndefined()
   })
 
+  it('is measured as a CTA click, or as the event its page names', async () => {
+    const cta = { label: 'Book now', to: '/kontakt', external: false }
+    const plain = await mountSuspended(CtaLink, { props: { cta } })
+    const offer = await mountSuspended(CtaLink, { props: { cta, track: 'offer_cta' as const } })
+
+    expect(plain.find('a').attributes('data-track')).toBe('cta_click')
+    expect(plain.find('a').attributes('data-track-label')).toBe('Book now')
+    expect(offer.find('a').attributes('data-track')).toBe('offer_cta')
+  })
+
   it('opens an external website in a new tab, but not an email address', async () => {
     const website = await mountSuspended(CtaLink, {
       props: { cta: { label: 'Book', to: 'https://booking.example.com', external: true } },

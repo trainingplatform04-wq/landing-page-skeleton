@@ -1,0 +1,50 @@
+/*
+ * The consent window (CookieConsent v3) in the site's theme: its variables point to the
+ * Nuxt UI tokens, so it follows the colours, radii and dark mode of the rest of the site.
+ * Loaded with the window itself (plugins/consent.client.ts), never on the first paint.
+ */
+@import 'vanilla-cookieconsent/dist/cookieconsent.css';
+
+#cc-main {
+  --cc-font-family: inherit;
+  --cc-modal-border-radius: var(--ui-radius);
+  --cc-btn-border-radius: calc(var(--ui-radius) * 1.5);
+  --cc-bg: var(--ui-bg);
+  --cc-primary-color: var(--ui-text-highlighted);
+  --cc-secondary-color: var(--ui-text-muted);
+  --cc-link-color: var(--ui-primary);
+  --cc-overlay-bg: rgb(0 0 0 / 0.55);
+  --cc-separator-border-color: var(--ui-border);
+
+  --cc-btn-primary-bg: var(--ui-primary);
+  --cc-btn-primary-color: var(--ui-bg);
+  --cc-btn-primary-border-color: var(--ui-primary);
+  --cc-btn-primary-hover-bg: var(--ui-primary);
+  --cc-btn-primary-hover-color: var(--ui-bg);
+  --cc-btn-primary-hover-border-color: var(--ui-primary);
+
+  --cc-btn-secondary-bg: var(--ui-bg-elevated);
+  --cc-btn-secondary-color: var(--ui-text-highlighted);
+  --cc-btn-secondary-border-color: var(--ui-border);
+  --cc-btn-secondary-hover-bg: var(--ui-bg-accented);
+  --cc-btn-secondary-hover-color: var(--ui-text-highlighted);
+  --cc-btn-secondary-hover-border-color: var(--ui-border-accented);
+
+  --cc-toggle-on-bg: var(--ui-primary);
+  --cc-toggle-off-bg: var(--ui-bg-inverted);
+  --cc-toggle-readonly-bg: var(--ui-border-accented);
+  --cc-cookie-category-block-bg: var(--ui-bg-elevated);
+  --cc-cookie-category-block-border: var(--ui-border);
+  --cc-cookie-category-block-hover-bg: var(--ui-bg-accented);
+  --cc-cookie-category-block-hover-border: var(--ui-border-accented);
+  --cc-footer-bg: var(--ui-bg-muted);
+  --cc-footer-color: var(--ui-text-muted);
+  --cc-footer-border-color: var(--ui-border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #cc-main * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

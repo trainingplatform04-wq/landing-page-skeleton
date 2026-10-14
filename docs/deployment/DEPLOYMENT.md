@@ -268,6 +268,8 @@ When the same key has different values per environment, add it once per value.
 | `NUXT_SITE_ENV`                                | `development`      | Development                      |
 | `NUXT_PUBLIC_SITE_NAME` _(optional)_           | your site name     | Production, Preview, Development |
 | `NUXT_PUBLIC_CONTACT_FORM_ACTION` _(optional)_ | your form endpoint | Production, Preview              |
+| `NUXT_PUBLIC_GTM_ID` _(optional)_              | production `GTM-…` | Production                       |
+| `NUXT_PUBLIC_GTM_ID` _(optional)_              | staging `GTM-…`    | Preview, Development             |
 
 Rules:
 
@@ -284,6 +286,17 @@ Rules:
   the service emails you. Pick a service that accepts such posts from your domain (CORS), answers
   JSON when asked (`Accept: application/json`). Sign a
   data processing agreement with it. Without it, the contact page shows an email link.
+- `NUXT_PUBLIC_GTM_ID` is the Google Tag Manager container of the environment: the production
+  container for **Production**, the shared staging/dev container for **Preview** and
+  **Development**. GTM loads only after a visitor accepts statistics; empty, nothing
+  analytics-related loads and the consent window does not offer statistics. Creating the
+  containers: [docs/analytics/GTM.md](../analytics/GTM.md). With the CLI (it asks for the value):
+
+  ```bash
+  pnpm dlx vercel@61.0.0 env add NUXT_PUBLIC_GTM_ID production    # GTM-… of the production container
+  pnpm dlx vercel@61.0.0 env add NUXT_PUBLIC_GTM_ID preview       # GTM-… of the staging/dev container
+  pnpm dlx vercel@61.0.0 env add NUXT_PUBLIC_GTM_ID development   # same staging/dev container
+  ```
 
 ### 3.3 Build settings
 
@@ -604,6 +617,8 @@ anything to compare"_). Land **one change on `develop` first**, through the norm
      ```
 
    - [ ] `N5/robots.txt` allows indexing and points to `N5/sitemap.xml`.
+   - [ ] [docs/legal/go-live-checklist.md](../legal/go-live-checklist.md) was completed for the client
+         before step 1 (imprint, checked privacy text, GTM containers, consent tests).
 
 🎉 Setup done. From now on, everything below is routine.
 
@@ -634,14 +649,20 @@ pnpm build:e2e && CI=1 pnpm test:e2e  # E2E against a production build (fixture 
 
 **Vercel project `webapp`** (Settings → Environment Variables, Sensitive OFF)
 
-| Name                              | Production    | Preview (= staging)   | Development    | Required |
-| --------------------------------- | ------------- | --------------------- | -------------- | -------- |
-| `NUXT_PUBLIC_SANITY_PROJECT_ID`   | N1            | N1                    | N1             | ✅       |
-| `NUXT_PUBLIC_SANITY_DATASET`      | `production`  | `staging`             | `staging`      | ✅       |
-| `NUXT_PUBLIC_SITE_URL`            | N5            | N7                    | the `-dev` URL | ✅       |
-| `NUXT_SITE_ENV`                   | `production`  | `staging`             | `development`  | ✅       |
-| `NUXT_PUBLIC_SITE_NAME`           | site name     | same                  | same           | optional |
-| `NUXT_PUBLIC_CONTACT_FORM_ACTION` | form endpoint | same (or a test form) | empty          | optional |
+| Name                              | Production         | Preview (= staging)   | Development     | Required |
+| --------------------------------- | ------------------ | --------------------- | --------------- | -------- |
+| `NUXT_PUBLIC_SANITY_PROJECT_ID`   | N1                 | N1                    | N1              | ✅       |
+| `NUXT_PUBLIC_SANITY_DATASET`      | `production`       | `staging`             | `staging`       | ✅       |
+| `NUXT_PUBLIC_SITE_URL`            | N5                 | N7                    | the `-dev` URL  | ✅       |
+| `NUXT_SITE_ENV`                   | `production`       | `staging`             | `development`   | ✅       |
+| `NUXT_PUBLIC_SITE_NAME`           | site name          | same                  | same            | optional |
+| `NUXT_PUBLIC_CONTACT_FORM_ACTION` | form endpoint      | same (or a test form) | empty           | optional |
+| `NUXT_PUBLIC_GTM_ID`              | production `GTM-…` | staging `GTM-…`       | staging `GTM-…` | optional |
+
+`NUXT_PUBLIC_GTM_ID` stays **empty** locally (unless you test GTM against the staging container)
+and in CI builds. The E2E suite sets a fake container (`GTM-E2ETEST`, `tests/e2e/sanity/fixtureCms.ts`)
+and stubs its script: the test runs never reach Google. Setup and verification: [docs/analytics/GTM.md](../analytics/GTM.md);
+legal steps before production: [docs/legal/go-live-checklist.md](../legal/go-live-checklist.md).
 
 **Vercel project `studio`**
 

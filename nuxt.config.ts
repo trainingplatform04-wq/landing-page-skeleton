@@ -22,6 +22,7 @@ export default defineNuxtConfig({
     '~/modules/sitemap',
     '@nuxtjs/sitemap',
     'nuxt-schema-org',
+    '@nuxt/scripts',
   ],
 
   // Flat project layout (components/, pages/, … at the root) instead of Nuxt 4's app/ directory.
@@ -38,11 +39,20 @@ export default defineNuxtConfig({
     name: 'Landing Page',
   },
 
+  icon: {
+    // Icons come only from the bundle: a missing one is never fetched from api.iconify.design
+    // (no third-party request, docs/legal/audit-2026-10.md).
+    fallbackToApi: false,
+  },
+
   runtimeConfig: {
     public: {
       // URL of the EU form service the contact form posts to (NUXT_PUBLIC_CONTACT_FORM_ACTION).
       // Empty: the contact page offers an email link instead of the form.
       contactFormAction: '',
+      // Google Tag Manager container of this environment (NUXT_PUBLIC_GTM_ID). Empty: no
+      // statistics at all, and the consent window does not offer them (docs/analytics/GTM.md).
+      gtmId: '',
       // Defaults only, overridden by NUXT_PUBLIC_SANITY_PROJECT_ID / _DATASET.
       sanity: {
         projectId: '',
