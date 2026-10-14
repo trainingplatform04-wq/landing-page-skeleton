@@ -48,30 +48,30 @@
     "@portabletext/vue": "^1.0.14",
     "@sanity/client": "^7.27.0",
     "groqd": "^1.7.1",
-    "nuxt": "^4.5.2",
+    "nuxt": "^4.6.1",
     "nuxt-schema-org": "^6.4.3",
     "tailwindcss": "^4.3.3",
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@iconify-json/lucide": "^1.2.139",
+    "@iconify-json/lucide": "^1.2.142",
     "@nuxt/eslint": "^1.17.0",
     "@nuxt/test-utils": "^4.3.3",
-    "@playwright/test": "^1.63.0",
+    "@playwright/test": "^1.64.0",
     "@vitest/coverage-v8": "^5.0.3",
     "@vue/test-utils": "^2.4.6",
-    "concurrently": "^10.0.5",
+    "concurrently": "^10.0.6",
     "eslint": "^10.12.0",
     "eslint-plugin-simple-import-sort": "^14.0.0",
     "groq-js": "^2.0.0",
     "h3-next": "npm:h3@^2.0.1-rc.32",
-    "happy-dom": "^20.14.5",
+    "happy-dom": "^20.14.6",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
-    "prettier": "^3.5.3",
+    "prettier": "^3.9.10",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "typescript": "~6.0.3",
     "vitest": "^5.0.3",
-    "vue-tsc": "^3.3.12"
+    "vue-tsc": "^3.3.13"
   }
 }
