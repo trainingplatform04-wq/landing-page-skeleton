@@ -19,6 +19,6 @@ describe('CookieTable', () => {
   it('reopens the consent window', async () => {
     const wrapper = await mountSuspended(CookieTable)
 
-    expect(wrapper.find('[data-consent="settings"]').exists()).toBe(true)
+    expect(wrapper.find('[data-consent="settings"]').text()).toBe('Cookie-Einstellungen')
   })
 })

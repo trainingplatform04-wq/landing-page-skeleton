@@ -4,6 +4,7 @@ import type { PostCard } from '~/types/content.types'
 defineProps<{ posts: PostCard[] }>()
 
 const { t } = useI18n()
+const article = useRoute().path
 </script>
 
 <template>
@@ -26,6 +27,7 @@ const { t } = useI18n()
           :class="{ 'md:hidden xl:block': index === 2 }"
           data-track="related_click"
           :data-track-target="post.to"
+          :data-track-article="article"
         >
           <PostCard :post="post" />
         </div>

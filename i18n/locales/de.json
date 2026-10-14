@@ -102,7 +102,7 @@
     "rejectAll": "Alle ablehnen",
     "settings": "Einstellungen",
     "settingsTitle": "Cookie-Einstellungen",
-    "settingsIntro": "Wählen Sie, was Sie erlauben. Notwendige Cookies speichern nur diese Wahl. Details finden Sie in der Datenschutzerklärung.",
+    "settingsIntro": "Wählen Sie, was Sie erlauben. Notwendige Speicherungen halten nur Ihre Wahl und das Farbschema fest. Details finden Sie in der Datenschutzerklärung.",
     "save": "Auswahl speichern",
     "close": "Schließen",
     "categories": {
@@ -118,7 +118,8 @@
         "title": "Externe Medien",
         "description": "Lädt YouTube-Videos direkt. Sobald ein Video geladen wird, werden Daten an YouTube (Google) gesendet, gegebenenfalls in die USA."
       }
-    }
+    },
+    "descriptionNoStatistics": "Wir nutzen Cookies und ähnliche Technologien, die die Website zum Funktionieren braucht (sie speichern Ihre Wahl und das Farbschema). Nur mit Ihrer Einwilligung zeigen wir YouTube-Videos (externe Medien); dabei können Daten an Google in den USA übermittelt werden. Sie können Ihre Wahl jederzeit unter „Cookie-Einstellungen“ unten auf jeder Seite ändern."
   },
   "cookies": {
     "title": "Cookies auf dieser Seite",

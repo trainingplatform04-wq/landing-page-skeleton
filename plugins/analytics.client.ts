@@ -17,35 +17,56 @@ const isEvent = (name: string): name is AnalyticsEvent =>
  * `data-track` attributes (`data-track="cta_click" data-track-label="…"`): one click listener
  * here, so links in components that never hydrate are measured too. Never personal data.
  */
-export default defineNuxtPlugin(() => {
+export default defineNuxtPlugin((nuxtApp) => {
   const { public: config } = useRuntimeConfig()
-  const statistics = useConsent().allows('statistics')
+  const consent = useConsent()
+  const statistics = consent.allows('statistics')
 
   if (!config.gtmId) return { provide: { analytics: { track: () => {} } } }
 
-  const trigger = useScriptTriggerConsent({ consent: statistics })
-  const { proxy, consent } = useScriptGoogleTagManager({
-    id: config.gtmId,
-    defaultConsent: {
-      analytics_storage: 'denied',
-      ad_storage: 'denied',
-      ad_user_data: 'denied',
-      ad_personalization: 'denied',
-    },
-    scriptOptions: { trigger },
-  })
+  type Push = (entry: Record<string, unknown>) => void
+  let push: Push | undefined
+  /** Events sent before the visitor answered: sent once Statistics is granted, else dropped. */
+  let waiting: Array<Record<string, unknown>> = []
 
-  // GTM loads only after consent; the update follows the visitor's choice (a withdrawal also
-  // reloads the page, plugins/consent.client.ts).
+  // GTM is created only once the visitor allows statistics, with that consent already in its
+  // defaults: GTM's first event never sees "denied" (Consent Mode v2, "basic"). Advertising is
+  // always denied. Withdrawing reloads the page (plugins/consent.client.ts), so GTM never runs
+  // on without consent.
+  const start = () => {
+    if (push) return
+    nuxtApp.runWithContext(() => {
+      const { proxy } = useScriptGoogleTagManager({
+        id: config.gtmId,
+        defaultConsent: {
+          analytics_storage: 'granted',
+          ad_storage: 'denied',
+          ad_user_data: 'denied',
+          ad_personalization: 'denied',
+        },
+      })
+      const send: Push = (entry) => proxy.dataLayer.push(entry)
+      push = send
+      for (const entry of waiting) send(entry)
+      waiting = []
+    })
+  }
+
   watch(
-    statistics,
-    (allowed) => consent?.update({ analytics_storage: allowed ? 'granted' : 'denied' }),
+    () => consent.state.value.decided,
+    (decided) => {
+      if (!decided) return
+      if (statistics.value) start()
+      else waiting = []
+    },
     { immediate: true },
   )
+  watch(statistics, (allowed) => allowed && start())
 
   const track = (event: AnalyticsEvent, params: AnalyticsParams = {}) => {
-    if (!statistics.value) return
-    proxy.dataLayer.push({ event, page: window.location.pathname, ...params })
+    const entry = { event, page: window.location.pathname, ...params }
+    if (push) return push(entry)
+    if (!consent.state.value.decided) waiting.push(entry)
   }
 
   document.addEventListener('click', (click) => {

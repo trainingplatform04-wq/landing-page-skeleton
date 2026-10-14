@@ -52,7 +52,9 @@ Each with a signed data processing agreement (Art. 28 GDPR) and a named transfer
 | Vercel Inc. (USA)          | Hosting, images, request logs | [ ] | EU–US Data Privacy Framework, SCCs        |
 | Sanity (Norway, USA)       | Content management            | [ ] | EU–US Data Privacy Framework or SCCs      |
 | Form service `<name>` (EU) | Contact form                  | [ ] | none expected (EU)                        |
-| Google Ireland Limited     | GTM, GA4, YouTube             | [ ] | EU–US Data Privacy Framework (Google LLC) |
+| Google Ireland Limited     | GTM, GA4                      | [ ] | EU–US Data Privacy Framework (Google LLC) |
+
+YouTube is not a processor: Google Ireland Limited is responsible for it in its own right (independent or joint controller, no data processing agreement; transfer under the EU–US Data Privacy Framework). Its role is a lawyer item (§ "Additional checks").
 
 - [ ] Each US company's certification checked at <https://www.dataprivacyframework.gov/list>.
 - [ ] Any other service added since the audit (`docs/legal/`) is in this table and in the privacy text.

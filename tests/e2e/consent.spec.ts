@@ -49,6 +49,24 @@ test.describe('Consent', () => {
     expect(await analyticsCookies(page)).toEqual([])
   })
 
+  test('an answer given before the JavaScript has loaded is kept and applied', async ({ page }) => {
+    await watchThirdParties(page)
+    let release: () => void = () => {}
+    const loaded = new Promise<void>((resolve) => (release = resolve))
+    await page.route('**/_nuxt/**/*.js', async (route) => {
+      await loaded
+      await route.continue()
+    })
+    await page.goto('/', { waitUntil: 'commit' })
+
+    await page.getByRole('button', { name: 'Alle ablehnen' }).click()
+    release()
+
+    await expect(consentWindow(page)).toBeHidden()
+    const stored = (await page.context().cookies()).find(({ name }) => name === 'cc_cookie')
+    expect(decodeURIComponent(stored?.value ?? '')).toContain('"categories":["necessary"]')
+  })
+
   test('"Reject all" is as easy as "Accept all": same size, side by side', async ({ page }) => {
     await page.goto('/')
     const accept = page.getByRole('button', { name: 'Alle akzeptieren' })
@@ -82,10 +100,18 @@ test.describe('Consent', () => {
     await page.getByRole('button', { name: 'Alle akzeptieren' }).click()
 
     await expect.poll(() => requests.some((url) => url.includes('GTM-E2ETEST'))).toBe(true)
-    const layer = JSON.stringify(await dataLayer(page))
-    expect(layer).toContain('"ad_storage":"denied"')
-    expect(layer).toContain('"ad_user_data":"denied"')
-    expect(layer).toContain('"analytics_storage":"granted"')
+    const entries: Array<Record<string, unknown>> = await dataLayer(page)
+    const consentAt = entries.findIndex((entry) => entry[0] === 'consent' && entry[1] === 'default')
+    const gtmAt = entries.findIndex((entry) => entry.event === 'gtm.js')
+    // GTM's first event already sees the visitor's consent: its Google tag is never blocked.
+    expect(consentAt).toBeGreaterThanOrEqual(0)
+    expect(consentAt).toBeLessThan(gtmAt)
+    expect(entries[consentAt]![2]).toMatchObject({
+      analytics_storage: 'granted',
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+    })
 
     await clickWithoutLeaving(page, '[data-track="cta_click"]')
     await expect

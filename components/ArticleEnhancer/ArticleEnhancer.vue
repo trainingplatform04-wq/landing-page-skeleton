@@ -78,7 +78,9 @@ function loadVideo(box: HTMLElement, play: boolean) {
 }
 
 const loadAllVideos = () => {
-  for (const box of document.querySelectorAll<HTMLElement>('[data-video]')) loadVideo(box, false)
+  for (const box of document.querySelectorAll<HTMLElement>('[data-video]')) {
+    if (!box.querySelector('iframe')) loadVideo(box, false)
+  }
 }
 
 async function copyLink() {

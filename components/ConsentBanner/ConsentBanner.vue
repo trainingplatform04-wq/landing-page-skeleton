@@ -2,6 +2,11 @@
 import { CONSENT_COOKIE, CONSENT_QUEUE, CONSENT_REVISION } from '~/constants/consent.constants'
 
 const { t } = useI18n()
+const { public: config } = useRuntimeConfig()
+// Without a GTM container there are no statistics to ask for: the text does not name them.
+const description = computed(() =>
+  t(config.gtmId ? 'consent.description' : 'consent.descriptionNoStatistics'),
+)
 const localePath = useLocalePath()
 
 // The consent window, in the server HTML: it paints with the page, so it never becomes a late
@@ -46,7 +51,7 @@ useHead(() =>
         {{ t('consent.title') }}
       </h2>
       <p id="consent-description" class="text-muted mt-3 text-sm leading-6">
-        {{ t('consent.description') }}
+        {{ description }}
       </p>
       <div class="mt-5 grid grid-cols-2 gap-3">
         <UButton

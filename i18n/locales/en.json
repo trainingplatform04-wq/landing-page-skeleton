@@ -102,7 +102,7 @@
     "rejectAll": "Reject all",
     "settings": "Settings",
     "settingsTitle": "Cookie settings",
-    "settingsIntro": "Choose what you allow. Necessary cookies only store this choice. Details are on the privacy page.",
+    "settingsIntro": "Choose what you allow. Necessary storage only keeps your choice and the colour scheme. Details are on the privacy page.",
     "save": "Save my choice",
     "close": "Close",
     "categories": {
@@ -118,7 +118,8 @@
         "title": "External media",
         "description": "Loads YouTube videos directly. As soon as a video loads, data is sent to YouTube (Google), possibly to the USA."
       }
-    }
+    },
+    "descriptionNoStatistics": "We use cookies and similar technologies that the website needs to work (they store your choice and the colour scheme). Only with your consent do we show YouTube videos (external media); data may then be transferred to Google in the USA. You can change your choice at any time under \"Cookie settings\" at the bottom of every page."
   },
   "cookies": {
     "title": "Cookies on this site",

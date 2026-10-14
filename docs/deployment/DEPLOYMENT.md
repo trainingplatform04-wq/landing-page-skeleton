@@ -659,8 +659,9 @@ pnpm build:e2e && CI=1 pnpm test:e2e  # E2E against a production build (fixture 
 | `NUXT_PUBLIC_CONTACT_FORM_ACTION` | form endpoint      | same (or a test form) | empty           | optional |
 | `NUXT_PUBLIC_GTM_ID`              | production `GTM-…` | staging `GTM-…`       | staging `GTM-…` | optional |
 
-`NUXT_PUBLIC_GTM_ID` stays **empty** locally (unless you test GTM against the staging container),
-in CI and in E2E: the test runs never load Google. Setup and verification: [docs/analytics/GTM.md](../analytics/GTM.md);
+`NUXT_PUBLIC_GTM_ID` stays **empty** locally (unless you test GTM against the staging container)
+and in CI builds. The E2E suite sets a fake container (`GTM-E2ETEST`, `tests/e2e/sanity/fixtureCms.ts`)
+and stubs its script: the test runs never reach Google. Setup and verification: [docs/analytics/GTM.md](../analytics/GTM.md);
 legal steps before production: [docs/legal/go-live-checklist.md](../legal/go-live-checklist.md).
 
 **Vercel project `studio`**

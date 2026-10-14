@@ -47,7 +47,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     return {
       consentModal: {
         title: t('consent.title'),
-        description: t('consent.description'),
+        description: t(config.gtmId ? 'consent.description' : 'consent.descriptionNoStatistics'),
         acceptAllBtn: t('consent.acceptAll'),
         acceptNecessaryBtn: t('consent.rejectAll'),
         showPreferencesBtn: t('consent.settings'),
