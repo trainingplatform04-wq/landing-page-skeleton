@@ -33,7 +33,7 @@ describe('AppFooter', () => {
 
     const settings = wrapper.find('nav[aria-label="Legal"] button')
     expect(settings.text()).toBe('Cookie settings')
-    expect(settings.attributes('data-cc')).toBe('show-preferencesModal')
+    expect(settings.attributes('data-consent')).toBe('settings')
   })
 
   it('shows the copyright with the site name and the note', async () => {

@@ -7,6 +7,6 @@ import { REJECTED_STATE } from './consent.state.ts'
 setup('answer the consent window', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'Alle ablehnen' }).click()
-  await expect(page.locator('#cc-main .cm')).toBeHidden()
+  await expect(page.locator('#consent-banner')).toBeHidden()
   await page.context().storageState({ path: REJECTED_STATE })
 })

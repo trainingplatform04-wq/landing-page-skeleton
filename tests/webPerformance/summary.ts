@@ -77,5 +77,5 @@ const verdict = count.failing
 process.stdout.write(
   `${verdict}\n\n${lines.join('\n')}\n\n` +
     (unmeasured ? `${unmeasured}\n\n` : '') +
-    `Target ${budget.target}, minimum ${budget.minimum} (\`webPerformance.config.ts\`), for every category and performance metric · **bold**: under the minimum · _italic_: under the target · median of 1 + ${budget.confirmationRuns} runs for pages under the minimum.\n`,
+    `Target ${budget.target}, minimum ${budget.minimum} (\`webPerformance.config.ts\`), for every category and performance metric · **bold**: under the minimum · _italic_: under the target · median of ${budget.runs} runs per page (after a warm-up), ${budget.runs + budget.confirmationRuns} for pages under the minimum.\n`,
 )

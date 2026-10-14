@@ -45,7 +45,7 @@ const rows = computed(() =>
       </table>
     </div>
     <UButton
-      data-cc="show-preferencesModal"
+      data-consent="settings"
       type="button"
       color="neutral"
       variant="outline"

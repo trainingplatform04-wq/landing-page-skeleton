@@ -105,6 +105,11 @@ a persona, a workflow or `CLAUDE.md`, in a PR.
 - **No HTML comments** in templates or Markdown; explain in the script block or in prose.
 - **Reference implementation** for design → code: the magazine (brief `0001`, changeset
   `docs/design/changes/0001-magazine/`) and the article page (`0002`). Every page follows them.
+- **Environment values stay in the environment.** Container ids, keys, tokens, dataset names
+  of a client and deployment URLs live only in `.env` (gitignored) and Vercel. Repository files,
+  commit messages, PR descriptions and comments name the variable (`NUXT_PUBLIC_GTM_ID`), never
+  its value. A value that slipped into a pushed branch is removed from its history (owner,
+  2026-10-14).
 - **Shared data is not ours to break.** `pnpm studio:seed --reset` (discards Studio edits on
   staging) and other destructive actions on shared environments need the owner's go; everything
   else runs without asking.

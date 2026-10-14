@@ -36,6 +36,7 @@ You review every PR that adds or changes a **third-party script, cookie, embed, 
 - [ ] **Declared**: every new cookie is in the inventory, with its category and duration; every new processor (hosting, CMS, form service, analytics, embed) is named in the privacy text with its purpose, legal basis and any transfer outside the EU. Undeclared → `blocking`.
 - [ ] **No personal data in events**: event parameters are labels, slugs and paths, never names, email addresses, message text, free input or ids that identify a person. Otherwise → `blocking`.
 - [ ] **Withdrawal works**: "Cookie settings" in the footer reopens the choice; withdrawing a category stops its tool and deletes its cookies.
+- [ ] **No environment values**: tracking container ids and keys appear only as variable names (`NUXT_PUBLIC_GTM_ID`) in files, commits and the PR text, never as values (operating-model §6). Otherwise → `blocking`.
 - [ ] **Revision**: a change of tools, cookies or purposes raises `CONSENT_REVISION`.
 - [ ] **Google Consent Mode**: ad storage, ad user data and ad personalization stay denied; analytics storage follows the visitor's choice.
 - [ ] **Fonts and icons** are served from our domain (built at deploy time), never fetched from Google Fonts or a CDN at runtime.

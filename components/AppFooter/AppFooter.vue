@@ -25,7 +25,7 @@ const { t } = useI18n()
     <nav :aria-label="t('footer.legal')" class="flex gap-4 text-sm">
       <ULink :to="legalLinks.imprint">{{ t('footer.imprint') }}</ULink>
       <ULink :to="legalLinks.privacy">{{ t('footer.privacy') }}</ULink>
-      <button type="button" data-cc="show-preferencesModal" class="hover:text-highlighted">
+      <button type="button" data-consent="settings" class="hover:text-highlighted">
         {{ t('footer.cookieSettings') }}
       </button>
     </nav>

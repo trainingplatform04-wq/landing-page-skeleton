@@ -3,9 +3,10 @@
  * (https://pagespeed.web.dev, its API v5): Google's servers audit every page of the site in every
  * language on a deployed URL, mobile and desktop, against `webPerformance.config.ts`.
  *
- * - Every page is measured once, all in parallel. A page with a score under `minimum` gets
- *   `confirmationRuns` more runs, and the median of each score decides: a one-off sample cannot
- *   block a PR, a real regression still does. Scores under `target` pass but are reported.
+ * - Every page is visited twice first (warm-up), then measured `runs` times, all in parallel
+ *   within Google's quota. A page whose median is under `minimum` gets `confirmationRuns` more
+ *   runs, and the median of each score decides: noise cannot block a PR, a real regression still
+ *   does. Scores under `target` pass but are reported.
  * - A run Google cannot complete (quota, a server error, a Lighthouse runtime error such as
  *   `NO_FCP`) is retried; a page with no completed run is reported as not measured and fails the
  *   gate at the end, after every other page has been measured.
@@ -225,13 +226,28 @@ const pages: Page[] = budget.formFactors.flatMap((formFactor) =>
   urls.map((url) => ({ formFactor, url, reports: [] })),
 )
 
+/**
+ * Two plain visits per page before measuring: a fresh deployment answers its very first
+ * requests slowly (cold function, cold image cache), which no visitor of a live site sees.
+ */
+async function warmUp(targets: string[]): Promise<void> {
+  await Promise.all(
+    targets.map(async (url) => {
+      for (let visit = 0; visit < 2; visit++) await fetch(url).catch(() => undefined)
+    }),
+  )
+}
+
 process.stdout.write(
-  `PageSpeed Insights · ${urls.length} pages · ${budget.formFactors.join(' + ')} · ${pages.length} runs
+  `PageSpeed Insights · ${urls.length} pages · ${budget.formFactors.join(' + ')} · ${budget.runs} runs each
 `,
 )
-await measure(pages)
+await warmUp(urls)
+for (let run = 0; run < budget.runs; run++) await measure(pages)
 
-const suspects = pages.filter((page) => page.reports[0] && belowMinimum(scoresOf(page.reports[0])))
+const suspects = pages.filter(
+  (page) => page.reports.length && belowMinimum(medianScores(page.reports.map(scoresOf))),
+)
 if (suspects.length) {
   process.stdout.write(
     `${suspects.length} page(s) under ${budget.minimum}: ${budget.confirmationRuns} confirmation run(s) each

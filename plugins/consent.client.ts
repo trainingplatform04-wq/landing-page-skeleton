@@ -11,12 +11,18 @@ import { type LocaleCode, LOCALES } from '~/constants/i18n.constants'
 import type { CookieConsentConfig, Translation } from 'vanilla-cookieconsent'
 
 /**
- * The consent window (CookieConsent v3, MIT): a centred modal, "Accept all" and "Reject all"
- * equal, "Settings" per category, the choice kept 6 months. It runs once the page is
- * interactive, so it never delays the first paint; nothing optional loads before a choice.
- * The footer's "Cookie settings" (`data-cc="show-preferencesModal"`) reopens it, even in
- * server-only HTML. Statistics is offered only when a GTM container is configured.
+ * Consent (CookieConsent v3, MIT, as the engine): the first window is our server-rendered
+ * `ConsentBanner` (it paints with the page); the library stores the choice (6 months, revision),
+ * runs the "Settings" window per category and clears cookies on withdrawal. Our buttons carry
+ * `data-consent="accept-all | reject-all | settings"` (banner, footer, privacy page), handled
+ * here even in server-only HTML; a click before the library has loaded is kept and applied.
+ * Nothing optional loads before a choice. Statistics is offered only with a GTM container.
  */
+type ConsentAction = 'accept-all' | 'reject-all' | 'settings'
+
+const isAction = (value: string | undefined): value is ConsentAction =>
+  value === 'accept-all' || value === 'reject-all' || value === 'settings'
+
 export default defineNuxtPlugin((nuxtApp) => {
   const { public: config } = useRuntimeConfig()
   const consent = useConsent()
@@ -61,6 +67,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     const accepted = (category: ConsentCategory) =>
       categories.includes(category) && api?.acceptedCategory(category) === true
     consent.record({ statistics: accepted('statistics'), externalMedia: accepted('externalMedia') })
+    document.getElementById('consent-banner')?.remove()
   }
 
   const options: CookieConsentConfig = {
@@ -69,7 +76,8 @@ export default defineNuxtPlugin((nuxtApp) => {
     // Shown to every visitor, browsers driven by tools included: the consent tests and the
     // web performance audit see what a visitor sees.
     hideFromBots: false,
-    disablePageInteraction: true,
+    // The first window is ConsentBanner (server HTML); the library shows only "Settings".
+    autoShow: false,
     guiOptions: {
       consentModal: { layout: 'box', position: 'middle center', equalWeightButtons: true },
       preferencesModal: { layout: 'box', equalWeightButtons: true },
@@ -93,6 +101,24 @@ export default defineNuxtPlugin((nuxtApp) => {
     },
   }
 
+  let resolveReady: () => void = () => {}
+  const ready = new Promise<void>((resolve) => (resolveReady = resolve))
+
+  const apply = async (action: ConsentAction) => {
+    await ready
+    if (action === 'accept-all') api?.acceptCategory('all')
+    else if (action === 'reject-all') api?.acceptCategory([])
+    else api?.showPreferences()
+  }
+
+  document.addEventListener('click', (click) => {
+    if (!(click.target instanceof Element)) return
+    const action = click.target.closest<HTMLElement>('[data-consent]')?.dataset.consent
+    if (!isAction(action)) return
+    click.preventDefault()
+    void apply(action)
+  })
+
   nuxtApp.hook('app:mounted', async () => {
     const [library] = await Promise.all([
       import('vanilla-cookieconsent'),
@@ -100,6 +126,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     ])
     api = library
     await api.run(options)
+    resolveReady()
     // A visitor who already chose: their consent applies at once, without the window.
     if (api.validConsent()) record()
   })

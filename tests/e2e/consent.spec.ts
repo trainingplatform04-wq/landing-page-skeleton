@@ -29,7 +29,7 @@ async function clickWithoutLeaving(page: Page, selector: string) {
   await page.locator(selector).first().click()
 }
 
-const consentWindow = (page: Page) => page.locator('#cc-main .cm')
+const consentWindow = (page: Page) => page.locator('#consent-banner')
 const analyticsCookies = async (page: Page) =>
   (await page.context().cookies()).filter(({ name }) => name.startsWith('_ga'))
 const dataLayer = (page: Page) =>
