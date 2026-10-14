@@ -33,6 +33,8 @@ Client: `<name>` · Production URL: `<url>` · Completed by: `<name>` on `<date>
 
 Without statistics: leave `NUXT_PUBLIC_GTM_ID` empty, remove the statistics section from the privacy text, and tick this block as not applicable.
 
+Turning statistics on later (setting `NUXT_PUBLIC_GTM_ID` in an environment where it was empty) is a new tool, even without a code change: in the same release, complete this block, add the statistics section to the privacy text and raise `CONSENT_REVISION`, so visitors who already answered are asked again. Only then set the variable in Production.
+
 ## 4. Consent
 
 - [ ] `CONSENT_REVISION` in `constants/consent.constants.ts` raised for every change of tools, cookies or purposes since the last release.

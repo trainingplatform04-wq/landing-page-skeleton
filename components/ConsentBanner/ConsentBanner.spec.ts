@@ -40,6 +40,15 @@ describe('ConsentBanner', () => {
     expect(wrapper.find('[data-consent="settings"]').text()).toBe('Einstellungen')
   })
 
+  it('does not mention statistics without a GTM container, but names YouTube', async () => {
+    const wrapper = await mountSuspended(ConsentBanner)
+
+    const description = wrapper.find('#consent-description').text()
+    expect(description).not.toContain('Google Analytics')
+    expect(description).not.toContain('Tag Manager')
+    expect(description).toContain('YouTube')
+  })
+
   it('is not shown once the visitor has chosen for the current revision', async () => {
     storeChoice(CONSENT_REVISION)
     const wrapper = await mountSuspended(ConsentBanner)

@@ -67,6 +67,33 @@ test.describe('Consent', () => {
     expect(decodeURIComponent(stored?.value ?? '')).toContain('"categories":["necessary"]')
   })
 
+  test('an event made before the answer is sent after "Accept all", never after "Reject all"', async ({
+    browser,
+  }) => {
+    const answer = async (button: 'Alle akzeptieren' | 'Alle ablehnen') => {
+      const context = await browser.newContext({ locale: 'de-DE' })
+      const page = await context.newPage()
+      await watchThirdParties(page)
+      // A direct visit: the offer page sends offer_view before the visitor has answered.
+      await page.goto('/angebote/personal-training')
+      await page.waitForLoadState('networkidle')
+      await page.getByRole('button', { name: button }).click()
+      await page.waitForTimeout(1000)
+      const layer: Array<Record<string, unknown>> = await dataLayer(page)
+      await context.close()
+      return layer
+    }
+
+    const accepted = await answer('Alle akzeptieren')
+    const gtmAt = accepted.findIndex((entry) => entry.event === 'gtm.js')
+    const offerAt = accepted.findIndex((entry) => entry.event === 'offer_view')
+    expect(gtmAt).toBeGreaterThanOrEqual(0)
+    expect(offerAt).toBeGreaterThan(gtmAt)
+    expect(accepted[offerAt]).toMatchObject({ offer: 'personal-training' })
+
+    expect(await answer('Alle ablehnen')).toEqual([])
+  })
+
   test('"Reject all" is as easy as "Accept all": same size, side by side', async ({ page }) => {
     await page.goto('/')
     const accept = page.getByRole('button', { name: 'Alle akzeptieren' })
