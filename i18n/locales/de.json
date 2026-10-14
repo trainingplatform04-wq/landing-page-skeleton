@@ -97,7 +97,7 @@
   },
   "consent": {
     "title": "Ihre Privatsphäre",
-    "description": "Wir nutzen Cookies und ähnliche Technologien nur mit Ihrer Einwilligung: Statistiken helfen uns, die Seite zu verbessern, externe Medien zeigen Videos. Sie können Ihre Wahl jederzeit unter „Cookie-Einstellungen“ unten auf jeder Seite ändern.",
+    "description": "Wir nutzen Cookies und ähnliche Technologien, die die Website zum Funktionieren braucht (sie speichern Ihre Wahl und das Farbschema). Nur mit Ihrer Einwilligung nutzen wir außerdem Google Tag Manager und Google Analytics (Statistik) und zeigen YouTube-Videos (externe Medien); dabei können Daten an Google in den USA übermittelt werden. Sie können Ihre Wahl jederzeit unter „Cookie-Einstellungen“ unten auf jeder Seite ändern.",
     "acceptAll": "Alle akzeptieren",
     "rejectAll": "Alle ablehnen",
     "settings": "Einstellungen",
@@ -116,7 +116,7 @@
       },
       "externalMedia": {
         "title": "Externe Medien",
-        "description": "Zeigt YouTube-Videos direkt an. Beim Abspielen werden Daten an YouTube (Google) gesendet."
+        "description": "Lädt YouTube-Videos direkt. Sobald ein Video geladen wird, werden Daten an YouTube (Google) gesendet, gegebenenfalls in die USA."
       }
     }
   },

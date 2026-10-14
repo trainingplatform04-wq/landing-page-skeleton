@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CONSENT_COOKIE, CONSENT_REVISION } from '~/constants/consent.constants'
+import { CONSENT_COOKIE, CONSENT_QUEUE, CONSENT_REVISION } from '~/constants/consent.constants'
 
 const { t } = useI18n()
 const localePath = useLocalePath()
@@ -10,6 +10,22 @@ const localePath = useLocalePath()
 // through plugins/consent.client.ts (`data-consent`), which also removes it once answered.
 const stored = useCookie<{ revision?: number } | null>(CONSENT_COOKIE, { readonly: true })
 const answered = computed(() => stored.value?.revision === CONSENT_REVISION)
+
+// A visitor may answer before the app's JavaScript has run: this tiny script (in the head, before
+// the window can be clicked) keeps the answer, and plugins/consent.client.ts applies it. Without
+// it the click would be lost (never taken as consent, but the visitor would have to click again).
+useHead(() =>
+  answered.value
+    ? {}
+    : {
+        script: [
+          {
+            key: 'consent-queue',
+            innerHTML: `window.${CONSENT_QUEUE}=[];document.addEventListener('click',function(e){var t=e.target,b=t&&t.closest&&t.closest('[data-consent]');if(b&&window.${CONSENT_QUEUE}){e.preventDefault();window.${CONSENT_QUEUE}.push(b.getAttribute('data-consent'))}},true)`,
+          },
+        ],
+      },
+)
 </script>
 
 <template>

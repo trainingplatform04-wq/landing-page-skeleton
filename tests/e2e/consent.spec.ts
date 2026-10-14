@@ -93,11 +93,19 @@ test.describe('Consent', () => {
       .toContain('"event":"cta_click"')
   })
 
-  test('"Cookie settings" in the footer lets the visitor withdraw', async ({ page }) => {
-    await watchThirdParties(page)
+  test('"Cookie settings" in the footer withdraws: cookies deleted, nothing from Google afterwards', async ({
+    page,
+  }) => {
+    const requests = await watchThirdParties(page)
     await page.goto('/')
     await page.getByRole('button', { name: 'Alle akzeptieren' }).click()
     await expect(consentWindow(page)).toBeHidden()
+    // What GA4 would have set after consent (the stub sets nothing): withdrawal must delete it.
+    const { hostname } = new URL(page.url())
+    await page.context().addCookies([
+      { name: '_ga', value: 'GA1.1.1', domain: hostname, path: '/' },
+      { name: '_ga_TEST', value: 'GS1.1.1', domain: hostname, path: '/' },
+    ])
 
     await page
       .getByRole('contentinfo')
@@ -105,13 +113,17 @@ test.describe('Consent', () => {
       .click()
     const settings = page.locator('#cc-main .pm')
     await expect(settings).toBeVisible()
-    await settings.getByRole('button', { name: 'Alle ablehnen' }).click()
-    await expect(settings).toBeHidden()
+    await Promise.all([
+      page.waitForEvent('load'),
+      settings.getByRole('button', { name: 'Alle ablehnen' }).click(),
+    ])
 
-    await clickWithoutLeaving(page, '[data-track="cta_click"]')
-    await page.waitForTimeout(500)
-    expect(JSON.stringify(await dataLayer(page))).not.toContain('"event":"cta_click"')
     expect(await analyticsCookies(page)).toEqual([])
+    requests.length = 0
+    await page.goto('/angebote')
+    await page.goto('/faq')
+    await page.waitForTimeout(500)
+    expect(requests).toEqual([])
   })
 
   test('external media: videos load directly once allowed, never before', async ({ page }) => {

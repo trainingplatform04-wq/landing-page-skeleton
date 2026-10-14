@@ -386,7 +386,7 @@ const COPY = {
         {
           heading: 'Hosting',
           text: [
-            'Diese Website und ihre Bilder werden von Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA, ausgeliefert. Bei jedem Aufruf verarbeitet Vercel technisch notwendige Daten: IP-Adresse, Datum und Uhrzeit, aufgerufene Adresse, Referrer und Browser. Vercel speichert diese Protokolle nur kurz, um die Website sicher auszuliefern und Fehler zu finden.',
+            'Diese Website und ihre Bilder werden von Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA, ausgeliefert. Bei jedem Aufruf verarbeitet Vercel technisch notwendige Daten: IP-Adresse, Datum und Uhrzeit, aufgerufene Adresse, Referrer und Browser. Vercel speichert diese Protokolle, um die Website sicher auszuliefern und Fehler zu finden, und löscht sie nach der Frist seines Tarifs (höchstens 30 Tage; je Kunde zu bestätigen). Ein Datenschutzbeauftragter ist nicht benannt (je Kunde zu prüfen).',
             'Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (unser Interesse an einer sicheren, schnellen Website). Mit Vercel besteht ein Vertrag zur Auftragsverarbeitung. Vercel ist unter dem EU-US Data Privacy Framework zertifiziert; die Übermittlung in die USA stützt sich auf den Angemessenheitsbeschluss der EU-Kommission (Art. 45 DSGVO).',
           ],
         },
@@ -409,7 +409,7 @@ const COPY = {
           text: [
             'Beim ersten Besuch fragt ein Fenster, was Sie erlauben: „Alle akzeptieren“, „Alle ablehnen“ oder eine Auswahl unter „Einstellungen“. Bis Sie entscheiden, lädt die Website nur, was für ihren Betrieb nötig ist: keine Statistik, keine externen Medien.',
             'Ihre Wahl speichern wir 6 Monate im Cookie cc_cookie, damit wir Sie nicht bei jedem Besuch erneut fragen; danach, oder wenn sich die eingesetzten Dienste ändern, fragen wir erneut. Rechtsgrundlage dafür sind § 25 Abs. 2 Nr. 2 TDDDG und Art. 6 Abs. 1 lit. c DSGVO (Nachweis der Einwilligung).',
-            'Sie können Ihre Einwilligung jederzeit mit Wirkung für die Zukunft ändern oder widerrufen: über „Cookie-Einstellungen“ unten auf jeder Seite. Beim Widerruf der Statistik löschen wir deren Cookies. Die Tabelle unter diesem Text nennt jedes Cookie mit Anbieter, Zweck und Dauer.',
+            'Sie können Ihre Einwilligung jederzeit mit Wirkung für die Zukunft ändern oder widerrufen: über „Cookie-Einstellungen“ unten auf jeder Seite. Beim Widerruf werden Statistik und Videos sofort beendet (die Seite lädt neu) und die Statistik-Cookies gelöscht. Cookies, die YouTube auf youtube.com setzt, können wir nicht löschen: Sie entfernen sie in Ihrem Browser. Die Tabelle unter diesem Text nennt jedes Cookie mit Anbieter, Zweck und Dauer.',
           ],
         },
         {
@@ -423,7 +423,7 @@ const COPY = {
         {
           heading: 'Externe Medien (YouTube)',
           text: [
-            'Videos in Artikeln binden wir über youtube-nocookie.com ein, einen Dienst von Google Ireland Limited. Vor Ihrem Klick auf „Video laden“ oder Ihrer Zustimmung zur Kategorie „Externe Medien“ wird nichts von YouTube geladen. Danach erhält YouTube Ihre IP-Adresse, Browserdaten und die aufgerufene Seite und kann Cookies und Einträge im Speicher Ihres Browsers setzen, zum Beispiel VISITOR_INFO1_LIVE (6 Monate) und YSC (Sitzung).',
+            'Videos in Artikeln binden wir über youtube-nocookie.com ein, einen Dienst von Google Ireland Limited, die dafür eigenständig verantwortlich ist (Rolle je Kunde rechtlich zu prüfen). Vor Ihrem Klick auf „Video laden“ oder Ihrer Zustimmung zur Kategorie „Externe Medien“ wird nichts von YouTube geladen. Danach erhält YouTube Ihre IP-Adresse, Browserdaten und die aufgerufene Seite und kann Cookies und Einträge im Speicher Ihres Browsers setzen, zum Beispiel VISITOR_INFO1_LIVE (6 Monate) und YSC (Sitzung).',
             'Rechtsgrundlage ist Ihre Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG. Google kann Daten an Google LLC in den USA übermitteln, auf Grundlage des EU-US Data Privacy Framework. Links zu unseren Profilen in sozialen Netzwerken sind einfache Links: Erst Ihr Klick öffnet die jeweilige Seite.',
           ],
         },
@@ -514,7 +514,7 @@ const COPY = {
         {
           heading: 'Hosting',
           text: [
-            'This website and its images are delivered by Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA. On every request Vercel processes technically necessary data: IP address, date and time, the requested address, referrer and browser. Vercel keeps these logs only briefly, to deliver the website securely and to find errors.',
+            'This website and its images are delivered by Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA. On every request Vercel processes technically necessary data: IP address, date and time, the requested address, referrer and browser. Vercel keeps these logs to deliver the website securely and to find errors, and deletes them after its plan’s retention period (at most 30 days; to be confirmed per client). No data protection officer is appointed (to be checked per client).',
             'The legal basis is Art. 6(1)(f) GDPR (our interest in a secure, fast website). We have a data processing agreement with Vercel. Vercel is certified under the EU–US Data Privacy Framework; the transfer to the USA relies on the European Commission’s adequacy decision (Art. 45 GDPR).',
           ],
         },
@@ -537,7 +537,7 @@ const COPY = {
           text: [
             'On your first visit a window asks what you allow: “Accept all”, “Reject all” or a choice under “Settings”. Until you decide, the website loads only what it needs to work: no statistics, no external media.',
             'We store your choice for 6 months in the cookie cc_cookie, so we do not ask on every visit; after that, or when the services we use change, we ask again. The legal basis is § 25(2) no. 2 TDDDG and Art. 6(1)(c) GDPR (proof of consent).',
-            'You can change or withdraw your consent at any time, with effect for the future: through “Cookie settings” at the bottom of every page. When you withdraw statistics, we delete their cookies. The table below this text lists every cookie with its provider, purpose and duration.',
+            'You can change or withdraw your consent at any time, with effect for the future: through “Cookie settings” at the bottom of every page. When you withdraw, statistics and videos stop at once (the page reloads) and the statistics cookies are deleted. Cookies that YouTube sets on youtube.com cannot be deleted by us: you remove them in your browser. The table below this text lists every cookie with its provider, purpose and duration.',
           ],
         },
         {
@@ -551,7 +551,7 @@ const COPY = {
         {
           heading: 'External media (YouTube)',
           text: [
-            'Videos in articles are embedded through youtube-nocookie.com, a service of Google Ireland Limited. Nothing is loaded from YouTube before you click “Load video” or allow the “External media” category. After that, YouTube receives your IP address, browser data and the page you are on, and may set cookies and entries in your browser’s storage, for example VISITOR_INFO1_LIVE (6 months) and YSC (session).',
+            'Videos in articles are embedded through youtube-nocookie.com, a service of Google Ireland Limited, which is responsible for it in its own right (its role to be checked legally per client). Nothing is loaded from YouTube before you click “Load video” or allow the “External media” category. After that, YouTube receives your IP address, browser data and the page you are on, and may set cookies and entries in your browser’s storage, for example VISITOR_INFO1_LIVE (6 months) and YSC (session).',
             'The legal basis is your consent under Art. 6(1)(a) GDPR and § 25(1) TDDDG. Google may transfer data to Google LLC in the USA, relying on the EU–US Data Privacy Framework. Links to our social media profiles are plain links: only your click opens the page.',
           ],
         },

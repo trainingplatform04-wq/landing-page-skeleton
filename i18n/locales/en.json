@@ -97,7 +97,7 @@
   },
   "consent": {
     "title": "Your privacy",
-    "description": "We use cookies and similar technologies only with your consent: statistics help us improve the site, external media show videos. You can change your choice at any time under \"Cookie settings\" at the bottom of every page.",
+    "description": "We use cookies and similar technologies that the website needs to work (they store your choice and the colour scheme). Only with your consent do we also use Google Tag Manager and Google Analytics (statistics) and show YouTube videos (external media); data may then be transferred to Google in the USA. You can change your choice at any time under \"Cookie settings\" at the bottom of every page.",
     "acceptAll": "Accept all",
     "rejectAll": "Reject all",
     "settings": "Settings",
@@ -116,7 +116,7 @@
       },
       "externalMedia": {
         "title": "External media",
-        "description": "Shows YouTube videos directly. Playing them sends data to YouTube (Google)."
+        "description": "Loads YouTube videos directly. As soon as a video loads, data is sent to YouTube (Google), possibly to the USA."
       }
     }
   },

@@ -2,6 +2,7 @@ import { useConsent } from '~/composables/useConsent/useConsent'
 import {
   CONSENT_COOKIE,
   CONSENT_DAYS,
+  CONSENT_QUEUE,
   CONSENT_REVISION,
   type ConsentCategory,
 } from '~/constants/consent.constants'
@@ -19,6 +20,13 @@ import type { CookieConsentConfig, Translation } from 'vanilla-cookieconsent'
  * Nothing optional loads before a choice. Statistics is offered only with a GTM container.
  */
 type ConsentAction = 'accept-all' | 'reject-all' | 'settings'
+
+declare global {
+  interface Window {
+    /** Answers given before this plugin ran (ConsentBanner's inline script); `undefined` after. */
+    [CONSENT_QUEUE]?: string[]
+  }
+}
 
 const isAction = (value: string | undefined): value is ConsentAction =>
   value === 'accept-all' || value === 'reject-all' || value === 'settings'
@@ -89,7 +97,9 @@ export default defineNuxtPlugin((nuxtApp) => {
           category,
           category === 'necessary'
             ? { enabled: true, readOnly: true }
-            : { autoClear: clear.length ? { cookies: clear } : undefined },
+            : // Withdrawing a granted category reloads the page: its scripts and players
+              // (GTM, YouTube) stop at once, nothing keeps running without consent.
+              { autoClear: { cookies: clear, reloadPage: true } },
         ]
       }),
     ),
@@ -111,6 +121,11 @@ export default defineNuxtPlugin((nuxtApp) => {
     else api?.showPreferences()
   }
 
+  // Answers given before this plugin ran: apply the last one, then stop queueing.
+  const early = window[CONSENT_QUEUE]?.filter(isAction).at(-1)
+  window[CONSENT_QUEUE] = undefined
+  if (early) void apply(early)
+
   document.addEventListener('click', (click) => {
     if (!(click.target instanceof Element)) return
     const action = click.target.closest<HTMLElement>('[data-consent]')?.dataset.consent
@@ -127,8 +142,10 @@ export default defineNuxtPlugin((nuxtApp) => {
     api = library
     await api.run(options)
     resolveReady()
-    // A visitor who already chose: their consent applies at once, without the window.
+    // A visitor who already chose: their consent applies at once, without the window. Without
+    // a choice and without the server window (a cached page), the library shows its own.
     if (api.validConsent()) record()
+    else if (!document.getElementById('consent-banner')) api.show()
   })
 
   // The window follows the site's language.

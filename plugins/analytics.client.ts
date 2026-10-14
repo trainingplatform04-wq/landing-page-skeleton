@@ -27,7 +27,7 @@ export default defineNuxtPlugin(() => {
   const { proxy, consent } = useScriptGoogleTagManager({
     id: config.gtmId,
     defaultConsent: {
-      analytics_storage: 'granted',
+      analytics_storage: 'denied',
       ad_storage: 'denied',
       ad_user_data: 'denied',
       ad_personalization: 'denied',
@@ -35,9 +35,13 @@ export default defineNuxtPlugin(() => {
     scriptOptions: { trigger },
   })
 
-  watch(statistics, (allowed) => {
-    if (!allowed) consent?.update({ analytics_storage: 'denied' })
-  })
+  // GTM loads only after consent; the update follows the visitor's choice (a withdrawal also
+  // reloads the page, plugins/consent.client.ts).
+  watch(
+    statistics,
+    (allowed) => consent?.update({ analytics_storage: allowed ? 'granted' : 'denied' }),
+    { immediate: true },
+  )
 
   const track = (event: AnalyticsEvent, params: AnalyticsParams = {}) => {
     if (!statistics.value) return

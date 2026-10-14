@@ -61,3 +61,9 @@ Each with a signed data processing agreement (Art. 28 GDPR) and a named transfer
 
 - [ ] The client confirms in writing (email or ticket) that the imprint and privacy text are theirs and were checked; link: `<link>`.
 - [ ] The release PR lists this checklist as complete.
+
+## Additional checks (Privacy Officer, PR #17)
+
+- [ ] Withdrawal: after "Cookie settings" → "Reject all", the page reloads, then navigate to at least three more pages: no request to googletagmanager.com, google-analytics.com or youtube(-nocookie).com, and no `_ga` / `_ga_*` cookie on the registrable domain (check the parent domain too).
+- [ ] Lawyer: the first-layer wording of the consent window, the "necessary" classification of the colour-scheme storage (`nuxt-color-mode`, kept by the owner's decision to offer dark mode), YouTube (Google) as independent or joint controller, the legal basis for keeping the consent cookie, and the wording on GA4 and IP addresses.
+- [ ] Vercel: the log retention of the client's plan and whether a data protection officer is required.
