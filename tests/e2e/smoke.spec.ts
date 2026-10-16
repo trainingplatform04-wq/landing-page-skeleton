@@ -12,6 +12,8 @@ const ROUTES = [
   '/magazin',
   '/en/offers',
   '/en/magazine',
+  '/ueber-uns',
+  '/en/about',
   '/faq',
   '/en/faq',
   '/kontakt',

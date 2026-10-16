@@ -4,6 +4,7 @@ import type { RouteName } from '~/constants/routes.constants'
 export const NAVIGATION: ReadonlyArray<{ route: RouteName; label: string }> = [
   { route: 'offers', label: 'nav.offers' },
   { route: 'magazine', label: 'nav.magazine' },
+  { route: 'about', label: 'nav.about' },
   { route: 'faq', label: 'nav.faq' },
   { route: 'contact', label: 'nav.contact' },
 ]

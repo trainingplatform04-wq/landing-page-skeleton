@@ -27,13 +27,13 @@ Enforced by ESLint (`eslint.config.mjs`): no data fetching in views, no CMS type
 
 **Code owns the pages, Sanity owns their content.** An editor fills in fields; they never assemble a page.
 
-| Kind        | Documents                                                                                        | Language                                  |
-| ----------- | ------------------------------------------------------------------------------------------------ | ----------------------------------------- |
-| Pages       | `homePage`, `offersPage`, `magazinePage`, `faqPage`, `contactPage`, `imprintPage`, `privacyPage` | One per language, id `<type>-<language>`  |
-| Collections | `offer` and `post` (have a slug), `category`, `author`, `testimonial`, `faqItem`                 | One language each, linked as translations |
-| Settings    | `businessProfile` (no text to translate), `siteSettings` (footer note)                           | One in total / one per language           |
+| Kind        | Documents                                                                                                     | Language                                  |
+| ----------- | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| Pages       | `homePage`, `offersPage`, `magazinePage`, `aboutPage`, `faqPage`, `contactPage`, `imprintPage`, `privacyPage` | One per language, id `<type>-<language>`  |
+| Collections | `offer` and `post` (have a slug), `category`, `author`, `testimonial`, `faqItem`                              | One language each, linked as translations |
+| Settings    | `businessProfile` (no text to translate), `siteSettings` (footer note)                                        | One in total / one per language           |
 
-- The home page holds the about section (portrait, text, highlights) and the testimonials. Every button is optional: the site shows it only when it has a label and a link.
+- The home page holds the about section (portrait, text, highlights, a link to the About page) and the testimonials. Every button is optional: the site shows it only when it has a label and a link.
 - The datasets start **empty**. In the Studio, **Pages → Home page → Deutsch** opens `homePage-de`; the first edit creates it with its language set. Pages can't be created from the menu, duplicated or deleted.
 - A page that isn't published in a language **renders empty** there: its title from the UI texts, `noindex`, not in the sitemap. Its hreflang links stay: @nuxtjs/i18n leaves a language out only together with disabling the switcher, which is kept for offers without a translation (every page exists in every language). The footer links the legal pages in the language of the page.
 - A testimonial is shown only with the client's recorded consent.

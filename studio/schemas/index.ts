@@ -10,6 +10,7 @@ import { ctaSchema } from './objects/cta.schema'
 import { linkSchema } from './objects/link.schema'
 import { richTextSchema } from './objects/richText.schema'
 import { seoSchema } from './objects/seo.schema'
+import { aboutPageSchema } from './pages/aboutPage.schema'
 import { contactPageSchema } from './pages/contactPage.schema'
 import { faqPageSchema } from './pages/faqPage.schema'
 import { homePageSchema } from './pages/homePage.schema'
@@ -25,6 +26,7 @@ export const PAGE_SCHEMAS = [
   homePageSchema,
   offersPageSchema,
   magazinePageSchema,
+  aboutPageSchema,
   faqPageSchema,
   contactPageSchema,
   imprintPageSchema,

@@ -4,6 +4,7 @@
     "home": "Startseite",
     "offers": "Angebote",
     "magazine": "Magazin",
+    "about": "Über mich",
     "contact": "Kontakt",
     "faq": "FAQ"
   },
@@ -19,7 +20,8 @@
   },
   "home": {
     "featuredOffers": "Ausgewählte Angebote",
-    "allOffers": "Alle Angebote"
+    "allOffers": "Alle Angebote",
+    "aboutMore": "Mehr über mich"
   },
   "testimonials": {
     "title": "Das sagen meine Kunden"

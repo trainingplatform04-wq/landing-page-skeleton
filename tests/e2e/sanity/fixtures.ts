@@ -7,6 +7,8 @@
  *   only): in English they render empty (the FAQ page still lists the English questions).
  * - "Personal training" and "Strength group" are translated with different slugs;
  *   "Online coaching" is German only (no English link, no hreflang).
+ * - The About page has a title, a description and a closing band in both languages, and no
+ *   picture (the test CMS holds no images).
  * - On the home page, one testimonial has the client's consent, one has not (never shown).
  * - An offer slug that makes the CMS fail, for the 503 page.
  * - The German magazine has 14 articles (Training and Ernährung): page 1 shows the 3 newest
@@ -201,6 +203,17 @@ const fullArticle = (language: 'de' | 'en') => {
   }
 }
 
+const aboutIn = (language: 'de' | 'en') => [
+  page('aboutPage', language, {
+    label: language === 'de' ? 'Über mich' : 'About me',
+    title: language === 'de' ? 'Hallo, ich bin Ihre Trainerin' : "Hi, I'm your coach",
+    description: language === 'de' ? 'Seit 2010 an Ihrer Seite.' : 'By your side since 2010.',
+    closingTitle:
+      language === 'de' ? 'Bereit für die erste Einheit?' : 'Ready for your first session?',
+    cta: routeCta(language === 'de' ? 'Probetraining anfragen' : 'Request a free trial', 'contact'),
+  }),
+]
+
 const magazineIn = (language: 'de' | 'en') => [
   page('magazinePage', language, {
     kicker: language === 'de' ? 'Magazin' : 'Magazine',
@@ -227,6 +240,8 @@ export const documents = () => [
   },
   ...pagesIn('de'),
   ...pagesIn('en'),
+  ...aboutIn('de'),
+  ...aboutIn('en'),
   ...magazineIn('de'),
   ...magazineIn('en'),
   ...Array.from({ length: 14 }, (_, index) =>

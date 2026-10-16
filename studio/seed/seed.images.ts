@@ -16,6 +16,8 @@ const IMAGES = {
   hero: unsplash('photo-1534258936925-c58bed479fcb', 1600, 900),
   // unsplash.com/photos/smiling-woman-in-front-of-window-YMYFCxWgHMw
   portrait: unsplash('photo-1536914356815-690cf1fa40e2', 800, 1000),
+  // About page (docs/design/changes/0003-about): a coach with a client, wide crop (21:9).
+  about: unsplash('photo-1571019614242-c5c5dee9f50b', 1680, 720),
   // unsplash.com/photos/woman-kneeling-beside-man-R0y_bEUjiOM
   offerPersonal: unsplash('photo-1571019614242-c5c5dee9f50b', 1200, 800),
   // unsplash.com/photos/three-person-lifting-barbels-Lx_GDv7VA9M

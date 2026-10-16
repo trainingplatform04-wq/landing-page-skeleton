@@ -35,6 +35,7 @@ const highlights = home.about?.highlights.map((title) => ({ title, icon: 'i-luci
       v-if="home.about"
       :title="home.about.title"
       :features="highlights"
+      :links="[moreLink(t('home.aboutMore'), localePath('about'))]"
       orientation="horizontal"
       class="bg-elevated/50"
     >
