@@ -16,11 +16,11 @@ Local runs, CI and E2E use no container, so tests never send data to Google.
 
 Anything that talks to a third party only after the visitor agrees. Change these together, in one PR:
 
-| You add…                          | Change                                                                                                                          |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| A cookie or browser storage entry | An entry in `constants/cookies.constants.ts`, its `cookies.<id>.*` texts in every locale, `CONSENT_REVISION` raised             |
-| A tool, embed or tracker          | The category it belongs to (or a new one in `constants/consent.constants.ts`), loaded only through `useConsent`, plus the above |
-| An analytics event                | Its name in `constants/analytics.constants.ts`, a trigger and GA4 tag in `gtm-container.json`, a row in the table in `GTM.md`   |
+| You add…                          | Change                                                                                                                                       |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| A cookie or browser storage entry | An entry in `constants/cookies.constants.ts`, its `cookies.<id>.*` texts in every locale, `CONSENT_REVISION` raised                          |
+| A tool, embed or tracker          | The category it belongs to (or a new one in `constants/consent.constants.ts`), loaded only through `useConsent`, plus the above              |
+| An analytics event                | Its name in `constants/analytics.constants.ts`, a trigger and GA4 tag in `docs/analytics/gtm-container.json`, a row in the table in `GTM.md` |
 
 Then:
 
