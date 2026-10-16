@@ -25,8 +25,13 @@ describe('MagazineClosing', () => {
       props: { ...props, section: 'article-closing' as const },
     })
 
+    const about = await mountSuspended(MagazineClosing, {
+      props: { ...props, section: 'about-closing' as const },
+    })
+
     expect(magazine.find('[data-section="magazine-closing"]').exists()).toBe(true)
     expect(article.find('[data-section="article-closing"]').exists()).toBe(true)
+    expect(about.find('[data-section="about-closing"]').exists()).toBe(true)
   })
 
   it('renders nothing without a title and a button', async () => {

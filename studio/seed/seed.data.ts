@@ -10,6 +10,7 @@
  * duplicating them.
  */
 import type {
+  AboutPage,
   AccessibleImage,
   ArticleBody,
   Author,
@@ -53,6 +54,7 @@ export type SeedDocument =
   | Stored<ImprintPage>
   | Stored<PrivacyPage>
   | Stored<MagazinePage>
+  | Stored<AboutPage>
   | Stored<Offer>
   | Stored<Testimonial>
   | Stored<FaqItem>
@@ -346,6 +348,19 @@ const COPY = {
       closingCta: 'Kontakt aufnehmen',
       seoDescription: 'Demo: Personal Training, Kraftgruppe und Online-Coaching in Berlin-Mitte.',
     },
+    about: {
+      label: 'Über mich',
+      title: 'Hallo, ich bin Ihre Trainerin',
+      description:
+        'Seit 2010 helfe ich Menschen, stärker zu werden und sich schmerzfrei zu bewegen. In meinem Studio in Berlin-Mitte dreht sich jede Einheit um Sie: Ihr Ziel, Ihr Tempo, Ihr Rücken. Keine großen Geräte, kein Druck, sondern Training, das zu Ihrem Alltag passt.',
+      imageAlt: 'Trainerin im Gespräch mit einer Kundin nach dem Training',
+      closingTitle: 'Bereit für die erste Einheit?',
+      closingText:
+        'Schreiben Sie mir, und wir finden einen Termin für Ihr kostenloses Probetraining.',
+      cta: 'Probetraining anfragen',
+      seoDescription:
+        'Lernen Sie Ihre Trainerin kennen: Seit 2010 hilft sie Menschen in Berlin-Mitte, stärker zu werden und sich schmerzfrei zu bewegen.',
+    },
     offers: {
       title: 'Angebote',
       intro: 'Drei Wege zu Ihrem Ziel. Alle beginnen mit einem kostenlosen Probetraining.',
@@ -476,6 +491,18 @@ const COPY = {
       closingCta: 'Get in touch',
       seoDescription:
         'Demo: personal coaching, strength group and online coaching in Berlin-Mitte.',
+    },
+    about: {
+      label: 'About me',
+      title: "Hi, I'm your coach",
+      description:
+        'Since 2010 I have helped people get stronger and move without pain. In my studio in Berlin-Mitte every session is built around you: your goal, your pace, your back. No big machines, no pressure, just training that fits your life.',
+      imageAlt: 'Coach talking to a client after a training session',
+      closingTitle: 'Ready for your first session?',
+      closingText: 'Write to me and we will find a date for your free trial session.',
+      cta: 'Request a free trial',
+      seoDescription:
+        'Meet your coach: since 2010 helping people get stronger and move without pain, from a studio in Berlin-Mitte.',
     },
     offers: {
       title: 'Offers',
@@ -820,6 +847,19 @@ export function seedDocuments(imageAssetId: ImageAssetId): SeedDocument[] {
       seo: pageSeo(locale, magazine.kicker, magazine.seoDescription),
     }
 
+    const about = copy.about
+    const aboutPage: Stored<AboutPage> = {
+      ...page(PAGE_TYPES.about, locale),
+      label: about.label,
+      title: about.title,
+      description: about.description,
+      image: image('about', about.imageAlt),
+      closingTitle: about.closingTitle,
+      closingText: about.closingText,
+      cta: cta(about.cta, routeLink('contact')),
+      seo: pageSeo(locale, about.label, about.seoDescription),
+    }
+
     const siteSettings: Stored<SiteSettings> = {
       ...page('siteSettings', locale),
       footerNote: copy.footerNote,
@@ -830,6 +870,7 @@ export function seedDocuments(imageAssetId: ImageAssetId): SeedDocument[] {
       home,
       offersPage,
       magazinePage,
+      aboutPage,
       faqPage,
       contactPage,
       imprintPage,

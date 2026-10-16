@@ -1,0 +1,40 @@
+{
+  "hero": {
+    "en": {
+      "label": "About me",
+      "title": "Hi, I'm your coach",
+      "description": "Since 2010 I have helped people get stronger and move without pain. In my studio in Berlin-Mitte every session is built around you: your goal, your pace, your back. No big machines, no pressure, just training that fits your life.",
+      "imageAlt": "Coach talking to a client after a training session"
+    },
+    "de": {
+      "label": "Über mich",
+      "title": "Hallo, ich bin Ihre Trainerin",
+      "description": "Seit 2010 helfe ich Menschen, stärker zu werden und sich schmerzfrei zu bewegen. In meinem Studio in Berlin-Mitte dreht sich jede Einheit um Sie: Ihr Ziel, Ihr Tempo, Ihr Rücken. Keine großen Geräte, kein Druck, sondern Training, das zu Ihrem Alltag passt.",
+      "imageAlt": "Trainerin im Gespräch mit einer Kundin nach dem Training"
+    },
+    "image": "generated demo picture of a coach talking to a client after a session (labelled DEMO)"
+  },
+  "closing": {
+    "en": {
+      "title": "Ready for your first session?",
+      "text": "Write to me and we will find a date for your free trial session.",
+      "cta": "Request a free trial"
+    },
+    "de": {
+      "title": "Bereit für die erste Einheit?",
+      "text": "Schreiben Sie mir, und wir finden einen Termin für Ihr kostenloses Probetraining.",
+      "cta": "Probetraining anfragen"
+    }
+  },
+  "navigation": { "en": "About", "de": "Über mich" },
+  "seo": {
+    "en": {
+      "title": "About",
+      "description": "Meet your coach: since 2010 helping people get stronger and move without pain, from a studio in Berlin-Mitte."
+    },
+    "de": {
+      "title": "Über mich",
+      "description": "Lernen Sie Ihre Trainerin kennen: Seit 2010 hilft sie Menschen in Berlin-Mitte, stärker zu werden und sich schmerzfrei zu bewegen."
+    }
+  }
+}

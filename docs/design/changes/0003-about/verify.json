@@ -1,0 +1,8 @@
+{
+  "app": {
+    "paths": { "de": "/ueber-uns", "en": "/en/about" }
+  },
+  "sections": [{ "name": "about-hero" }, { "name": "about-closing" }],
+  "widths": [375, 768, 1440],
+  "tolerance": { "maxDiffPixelRatio": 0.002, "threshold": 0.1 }
+}

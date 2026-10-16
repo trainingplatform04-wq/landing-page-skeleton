@@ -5,8 +5,8 @@ defineProps<{
   title?: string
   text?: string
   cta?: Cta
-  /** The band closes the magazine and every article: the design gate compares both. */
-  section?: 'magazine-closing' | 'article-closing'
+  /** The band closes the magazine, every article and the About page: the design gate compares each. */
+  section?: 'magazine-closing' | 'article-closing' | 'about-closing'
 }>()
 </script>
 

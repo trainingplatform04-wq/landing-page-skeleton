@@ -1,0 +1,16 @@
+--- /dev/null
++++ src/components/sections/AboutHero.tsx
+@@ -0,0 +1,13 @@
++import aboutPhoto from "@/assets/about-coach-client.jpg";
++import { aboutContent } from "@/content/about";
++
++export function AboutHero() {
++  return <section data-section="about-hero" className="bg-background pb-14 pt-8 md:pb-20 md:pt-12">
++    <img src={aboutPhoto} alt={aboutContent.hero.imageAlt} width={1680} height={720} fetchPriority="high" className="aspect-[4/3] w-full object-cover md:mx-auto md:aspect-video md:w-[calc(100%-3rem)] md:max-w-[1120px] md:rounded-lg xl:aspect-[21/9]" />
++    <div className="section-shell mt-8 text-center md:mt-12">
++      <p className="text-xs font-bold uppercase text-primary">{aboutContent.hero.kicker}</p>
++      <h1 className="mt-4 break-words font-display text-[32px] font-black uppercase leading-[1.05] md:text-[40px] xl:text-[56px]">{aboutContent.hero.title}</h1>
++      <p className="mx-auto mt-5 max-w-[640px] text-xl leading-8 text-muted-foreground">{aboutContent.hero.paragraph}</p>
++    </div>
++  </section>;
++}

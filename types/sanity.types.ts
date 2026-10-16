@@ -122,6 +122,45 @@ export type FaqPage = {
   seo?: Seo
 }
 
+export type AboutPage = {
+  _id: string
+  _type: 'aboutPage'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  language?: string
+  label?: string
+  title: string
+  description?: string
+  image?: AccessibleImage
+  closingTitle?: string
+  closingText?: string
+  cta?: Cta
+  seo?: Seo
+}
+
+export type Cta = {
+  _type: 'cta'
+  label?: string
+  link?: Link
+}
+
+export type SanityImageAssetReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+  [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+}
+
+export type AccessibleImage = {
+  _type: 'accessibleImage'
+  asset?: SanityImageAssetReference
+  media?: unknown
+  hotspot?: SanityImageHotspot
+  crop?: SanityImageCrop
+  alt: string
+}
+
 export type MagazinePage = {
   _id: string
   _type: 'magazinePage'
@@ -136,12 +175,6 @@ export type MagazinePage = {
   closingText?: string
   cta?: Cta
   seo?: Seo
-}
-
-export type Cta = {
-  _type: 'cta'
-  label?: string
-  link?: Link
 }
 
 export type OfferReference = {
@@ -229,13 +262,6 @@ export type HomePage = {
   seo?: Seo
 }
 
-export type SanityImageAssetReference = {
-  _ref: string
-  _type: 'reference'
-  _weak?: boolean
-  [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-}
-
 export type Seo = {
   _type: 'seo'
   title?: string
@@ -248,15 +274,6 @@ export type Seo = {
     _type: 'image'
   }
   noIndex?: boolean
-}
-
-export type AccessibleImage = {
-  _type: 'accessibleImage'
-  asset?: SanityImageAssetReference
-  media?: unknown
-  hotspot?: SanityImageHotspot
-  crop?: SanityImageCrop
-  alt: string
 }
 
 export type ArticleBody = Array<
@@ -306,7 +323,7 @@ export type ArticleBody = Array<
 export type Link = {
   _type: 'link'
   kind?: 'route' | 'reference' | 'external'
-  route?: 'index' | 'offers' | 'magazine' | 'faq' | 'contact' | 'imprint' | 'privacy'
+  route?: 'index' | 'offers' | 'magazine' | 'about' | 'faq' | 'contact' | 'imprint' | 'privacy'
   reference?: OfferReference
   href?: string
 }
@@ -578,16 +595,17 @@ export type AllSanitySchemaTypes =
   | ImprintPage
   | ContactPage
   | FaqPage
-  | MagazinePage
+  | AboutPage
   | Cta
+  | SanityImageAssetReference
+  | AccessibleImage
+  | MagazinePage
   | OfferReference
   | OffersPage
   | TestimonialReference
   | FaqItemReference
   | HomePage
-  | SanityImageAssetReference
   | Seo
-  | AccessibleImage
   | ArticleBody
   | Link
   | TranslationMetadata

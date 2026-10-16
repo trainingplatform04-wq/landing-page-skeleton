@@ -12,6 +12,7 @@ describe('useLayout', () => {
     expect(view.value.navigation).toEqual([
       { label: 'Offers', to: '/en/offers' },
       { label: 'Magazine', to: '/en/magazine' },
+      { label: 'About', to: '/en/about' },
       { label: 'FAQ', to: '/en/faq' },
       { label: 'Contact', to: '/en/contact' },
     ])
