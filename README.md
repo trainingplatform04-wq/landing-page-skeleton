@@ -82,6 +82,8 @@ created themselves are never touched. **Any schema change updates the seed file 
 - [Architecture](docs/conventions/ARCHITECTURE.md): directories, data flow, i18n, SEO
 - [Coding standards](docs/conventions/CODING_STANDARDS.md): rules and what enforces them
 - [Deployment & environments](docs/deployment/DEPLOYMENT.md): env contract, pipeline, runbooks
+- [Consent & analytics, developer guide](docs/analytics/DEVELOPER_GUIDE.md): try the consent window locally, add a tool, cookie or event
+- [GTM and GA4 setup](docs/analytics/GTM.md) and [legal go-live checklist](docs/legal/go-live-checklist.md)
 - [AI agents](CLAUDE.md): orchestration setup and the autonomous delivery workflow
 
 ## Analytics and consent
