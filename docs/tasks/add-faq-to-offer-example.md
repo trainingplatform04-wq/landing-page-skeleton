@@ -1,5 +1,5 @@
 ---
-status: 'To Do' # To Do | In Progress | Review | Done
+status: 'To Do' # An example of a task file, not planned work. To Do | In Progress | Review | Done
 assignee: 'Product Owner'
 lastUpdated: '2026-10-06'
 ---
@@ -32,7 +32,7 @@ _AI agents run `.ai/shared/workflows/feature-orchestration.md` from Step 2, unde
 
 1. **Plan → 🚦 Gate G1**: the Tech Lead plan, approved by a human before any code.
 2. **Branch**: `feat/[feature-name]` from `develop`.
-3. **Implement**: follow `docs/conventions/ARCHITECTURE.md` and `CODING_STANDARDS.md`. After schema/query changes run `pnpm typegen` and update the demo content (`studio/seed/seed.data.ts`).
+3. **Implement**: follow `docs/conventions/ARCHITECTURE.md` and `CODING_STANDARDS.md`. After schema/query changes run `pnpm typegen` and update the demo content (`studio/seed/`).
 4. **Local gates**: `docs/conventions/CODING_STANDARDS.md` §7 (`pnpm verify` + E2E). Fix everything.
 5. **Commit & PR**: Conventional Commits, push, `gh pr create --base develop`, set `status: 'Review'` above.
 6. **Code Review Loop**: `.ai/shared/workflows/code-review-loop.md`. Fresh reviewer subagent, signed inline GitHub review → Tech Lead triage → fixes → re-review until `APPROVED` (all comments resolved, max 5 rounds; in round 5 the Tech Lead decides and plans the fixes).

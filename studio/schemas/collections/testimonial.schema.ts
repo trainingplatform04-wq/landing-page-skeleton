@@ -3,6 +3,7 @@ import { defineField, defineType } from 'sanity'
 
 import { languageField } from '../fields'
 
+/** A client's quote, shown on the home page only with the client's consent. */
 export const testimonialSchema = defineType({
   name: 'testimonial',
   title: 'Testimonial',

@@ -3,8 +3,10 @@ import { defineField, defineType } from 'sanity'
 import { ROUTE_PATHS } from '../../../constants/routes.constants'
 import { sameLanguageFilter } from '../fields'
 
-/** Pages a link may target: every route without a slug (offers are references). */
-const ROUTE_OPTIONS = Object.keys(ROUTE_PATHS).filter((route) => !route.endsWith('-slug'))
+/** Pages a link may target (every route without a slug), shown by their German address. */
+const ROUTE_OPTIONS = Object.entries(ROUTE_PATHS)
+  .filter(([route]) => !route.endsWith('-slug'))
+  .map(([route, paths]) => ({ value: route, title: route === 'index' ? 'Home (/)' : paths.de }))
 
 const EXTERNAL_HREF = /^(https:\/\/|mailto:|tel:)/
 
@@ -57,9 +59,9 @@ export const linkSchema = defineType({
     }),
     defineField({
       name: 'href',
-      title: 'Address',
+      title: 'Web, email or phone link',
       type: 'string',
-      description: 'https://…, mailto:… or tel:…',
+      description: 'Starts with https://, mailto: or tel:',
       hidden: ({ parent }) => parent?.kind !== 'external',
       validation: (rule) =>
         rule.custom((href, { parent }) => {

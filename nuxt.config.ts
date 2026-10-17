@@ -1,6 +1,10 @@
 import { DEFAULT_LOCALE, LOCALES } from './constants/i18n.constants'
 import { ROUTE_PATHS } from './constants/routes.constants'
-import { SANITY_API_VERSION } from './constants/sanity.constants'
+import {
+  SANITY_API_HOST,
+  SANITY_API_VERSION,
+  SANITY_PERSPECTIVE,
+} from './constants/sanity.constants'
 
 /** A deployable build is impossible without these. Contract: docs/deployment/DEPLOYMENT.md */
 const REQUIRED_BUILD_ENV = [
@@ -18,7 +22,7 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     '@nuxtjs/robots',
     '@nuxtjs/sanity',
-    // Before @nuxtjs/sitemap: it gives the sitemap the published pages and offers.
+    // Before @nuxtjs/sitemap: it fills the sitemap from Sanity when building.
     '~/modules/sitemap',
     '@nuxtjs/sitemap',
     'nuxt-schema-org',
@@ -39,9 +43,15 @@ export default defineNuxtConfig({
     name: 'Landing Page',
   },
 
+  colorMode: {
+    // A cookie, like the consent: the server renders the visitor's scheme (no flash of the other
+    // one). It holds `system` (follow the device) until the visitor uses the header switch.
+    storage: 'cookie',
+    storageKey: 'color-mode',
+  },
+
   icon: {
-    // Icons come only from the bundle: a missing one is never fetched from api.iconify.design
-    // (no third-party request, docs/legal/audit-2026-10.md).
+    // Icons come only from the bundle: never a runtime request to api.iconify.design (privacy).
     fallbackToApi: false,
   },
 
@@ -57,9 +67,8 @@ export default defineNuxtConfig({
       sanity: {
         projectId: '',
         dataset: '',
-        // The real Sanity API. Only the E2E suite overrides these, to read fixture
-        // content from a local GROQ server (playwright.config.ts). Never set them in deployments.
-        apiHost: 'https://api.sanity.io',
+        // Only the E2E suite overrides these (its fixture CMS). Never set them in deployments.
+        apiHost: SANITY_API_HOST,
         useProjectHostname: true,
       },
     },
@@ -86,14 +95,13 @@ export default defineNuxtConfig({
   },
 
   features: {
-    // The site's whole stylesheet (Tailwind + Nuxt UI) is inlined in each page's HTML instead of
-    // a separate request that blocks the first paint on phones (web performance, mobile FCP).
+    // The stylesheet is inlined in each page's HTML: no separate request blocks the first paint.
     inlineStyles: true,
   },
 
   experimental: {
-    // Links prefetch the next page when hovered or touched, not as soon as they are visible: a
-    // phone does not download every linked page's code while the current one is loading.
+    // Links prefetch the next page when hovered or touched, not when visible: a phone doesn't
+    // download every linked page's code while the current one loads.
     defaults: { nuxtLink: { prefetchOn: { interaction: true, visibility: false } } },
   },
 
@@ -111,8 +119,8 @@ export default defineNuxtConfig({
   },
 
   hooks: {
-    // Only the entry chunk is preloaded; it imports the rest itself. Preloading every chunk put
-    // ~30 requests ahead of the first paint (mobile FCP 3 s in PageSpeed scoring instead of 1.5-2 s).
+    // Preload only the entry chunk (it imports the rest): preloading every chunk puts dozens of
+    // requests ahead of the first paint on phones.
     'build:manifest'(manifest) {
       for (const chunk of Object.values(manifest)) {
         if (!chunk.isEntry) chunk.preload = false
@@ -137,8 +145,7 @@ export default defineNuxtConfig({
       file: `${code}.json`,
     })),
     defaultLocale: DEFAULT_LOCALE,
-    // German at `/…`, English at `/en/…`, every URL translated: page paths are declared
-    // once in constants/routes.constants.ts; offers own their last segment.
+    // German at `/…`, English at `/en/…`, every path translated (constants/routes.constants.ts).
     strategy: 'prefix_except_default',
     customRoutes: 'config',
     pages: ROUTE_PATHS,
@@ -147,14 +154,14 @@ export default defineNuxtConfig({
     detectBrowserLanguage: false,
     // Absolute URLs for canonical and hreflang links.
     baseUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
-    // @nuxtjs/i18n writes `lang`, canonical, hreflang and og:locale itself, and leaves out
-    // a language an offer has no translation in (set by `useSetI18nParams`).
+    // @nuxtjs/i18n writes `lang`, canonical, hreflang and og:locale, and leaves out a language
+    // an offer or article isn't translated into (`useSetI18nParams`).
     // The magazine's filter and page are part of its canonical URL: each view is its own page.
     experimental: { strictSeo: { canonicalQueries: ['page', 'category'] } },
   },
 
   sitemap: {
-    // Only published pages and offers (modules/sitemap.ts), with their language versions.
+    // Only published pages, offers and articles (modules/sitemap.ts), with their translations.
     excludeAppSources: true,
   },
 
@@ -164,14 +171,12 @@ export default defineNuxtConfig({
     // which breaks remote URLs on Vercel). IPX locally and in E2E (node-server).
     provider: process.env.NITRO_PRESET === 'vercel' ? 'vercel' : 'ipx',
     domains: ['cdn.sanity.io'],
-    format: ['avif', 'webp'],
     quality: 80,
   },
 
   sanity: {
     apiVersion: SANITY_API_VERSION,
-    // Public site, no token: read published content only ('raw' includes drafts → 403).
-    perspective: 'published',
+    perspective: SANITY_PERSPECTIVE,
     useCdn: true,
   },
 })

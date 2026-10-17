@@ -1,9 +1,8 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { thrownBy } from '~~/tests/helpers/cmsComposable'
-import { cta, noSeo, offerCard, text } from '~~/tests/helpers/cmsData'
-import { mountComposable } from '~~/tests/helpers/mountComposable'
+import { closing, cta, image, noSeo, offerCard, text } from '~~/tests/helpers/cmsData'
+import { mountComposable, thrownBy } from '~~/tests/helpers/mountComposable'
 
 import { useHome } from './useHome'
 
@@ -22,7 +21,7 @@ const home = {
   featuredOffers: [offerCard('o1', 'Yoga', 'yoga')],
   about: {
     title: 'About me',
-    portrait: { alt: 'Portrait', url: 'https://cdn/me.jpg' },
+    portrait: image('https://cdn/me.jpg', 'Portrait'),
     body: text('Coach since 2010.'),
     highlights: ['Certified trainer'],
   },
@@ -30,7 +29,7 @@ const home = {
   testimonials: [{ id: 't1', quote: 'Great.', author: 'Anna', photo: null }],
   showFaq: true,
   faq: [{ id: 'f1', question: 'Trial session?', answer: text('Yes.') }],
-  closing: { title: 'Ready?', text: null, cta: cta('Write to us', 'contact') },
+  closing: closing('Ready?', null, cta('Write to us', 'contact')),
   seo: noSeo,
 }
 
@@ -78,7 +77,7 @@ describe('useHome', () => {
       showTestimonials: false,
       showFaq: false,
       about: empty,
-      closing: { title: null, text: null, cta: null },
+      closing: closing(null, null, null),
     })
     const view = await mountComposable(useHome)
 
@@ -105,7 +104,7 @@ describe('useHome', () => {
 
     expect(view).toEqual({
       seo: { title: 'Home', noIndex: true },
-      hero: { title: useSiteConfig().name },
+      hero: { title: 'Home' },
       offers: [],
       testimonials: [],
       faq: [],

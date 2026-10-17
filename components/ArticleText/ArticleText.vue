@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { PortableText, type PortableTextComponents } from '@portabletext/vue'
 
+import { linkTarget } from '~/utils/link/link.utils'
+
 import type { RichText } from '~/types/content.types'
 
 defineProps<{ value: RichText }>()
@@ -97,7 +99,7 @@ const components: PortableTextComponents = {
             ULink,
             {
               to: value.href,
-              target: value.external && value.href.startsWith('https://') ? '_blank' : undefined,
+              target: linkTarget({ to: value.href, external: value.external }),
               class: 'text-primary underline underline-offset-4',
             },
             slots.default,

@@ -1,9 +1,9 @@
 import { UserIcon } from '@sanity/icons/User'
 import { defineField, defineType } from 'sanity'
 
-import { languageField, seoField, titleField } from '../fields'
+import { labelField, languageField, seoField, titleField } from '../fields'
 
-/** The About page: one picture and a short description, then the closing call to action. */
+/** The About page: one picture and a short description, then the closing band. */
 export const aboutPageSchema = defineType({
   name: 'aboutPage',
   title: 'About',
@@ -11,13 +11,7 @@ export const aboutPageSchema = defineType({
   icon: UserIcon,
   fields: [
     languageField,
-    defineField({
-      name: 'label',
-      title: 'Label',
-      description: 'The small line above the title.',
-      type: 'string',
-      validation: (rule) => rule.max(30),
-    }),
+    labelField,
     titleField,
     defineField({
       name: 'description',
@@ -27,20 +21,7 @@ export const aboutPageSchema = defineType({
       validation: (rule) => rule.max(300),
     }),
     defineField({ name: 'image', title: 'Image', type: 'accessibleImage' }),
-    defineField({
-      name: 'closingTitle',
-      title: 'Closing title',
-      type: 'string',
-      validation: (rule) => rule.max(50),
-    }),
-    defineField({
-      name: 'closingText',
-      title: 'Closing text',
-      type: 'text',
-      rows: 2,
-      validation: (rule) => rule.max(140),
-    }),
-    defineField({ name: 'cta', title: 'Closing button', type: 'cta' }),
+    defineField({ name: 'closing', title: 'Closing', type: 'closing' }),
     seoField,
   ],
 })

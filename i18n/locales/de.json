@@ -156,8 +156,8 @@
       "duration": "Sitzung"
     },
     "colorMode": {
-      "purpose": "Merkt sich das Farbschema (hell oder dunkel, wie Ihr Gerät); nur im Browser gespeichert, nicht übertragen",
-      "duration": "Bis zur Löschung"
+      "purpose": "Merkt sich das Farbschema: wie Ihr Gerät, bis Sie mit dem Schalter oben hell oder dunkel wählen. Verhindert, dass die Seite kurz im falschen Schema erscheint",
+      "duration": "1 Jahr"
     }
   }
 }

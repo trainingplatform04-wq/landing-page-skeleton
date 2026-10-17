@@ -1,9 +1,8 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { thrownBy } from '~~/tests/helpers/cmsComposable'
-import { cta, noSeo } from '~~/tests/helpers/cmsData'
-import { mountComposable } from '~~/tests/helpers/mountComposable'
+import { closing, cta, image, noSeo } from '~~/tests/helpers/cmsData'
+import { mountComposable, thrownBy } from '~~/tests/helpers/mountComposable'
 
 import { useAbout } from './useAbout'
 
@@ -14,10 +13,12 @@ const page = {
   label: 'About me',
   title: "Hi, I'm your coach",
   description: 'Since 2010 I have helped people get stronger.',
-  image: { alt: 'Coach with a client', url: 'https://cdn.example/about.jpg' },
-  closingTitle: 'Ready for your first session?',
-  closingText: 'Write to me.',
-  cta: cta('Request a free trial', 'contact'),
+  image: image('https://cdn.example/about.jpg', 'Coach with a client'),
+  closing: closing(
+    'Ready for your first session?',
+    'Write to me.',
+    cta('Request a free trial', 'contact'),
+  ),
   seo: noSeo,
 }
 
@@ -46,9 +47,7 @@ describe('useAbout', () => {
     fetchMock.mockResolvedValue({
       ...page,
       image: null,
-      closingTitle: null,
-      closingText: 'Alone',
-      cta: null,
+      closing: closing(null, 'Alone', null),
     })
     const view = await mountComposable(useAbout, { route: '/about' })
 

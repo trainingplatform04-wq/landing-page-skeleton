@@ -6,6 +6,7 @@ import { postSchema } from './collections/post.schema'
 import { testimonialSchema } from './collections/testimonial.schema'
 import { accessibleImageSchema } from './objects/accessibleImage.schema'
 import { articleBodySchema } from './objects/articleBody.schema'
+import { closingSchema } from './objects/closing.schema'
 import { ctaSchema } from './objects/cta.schema'
 import { linkSchema } from './objects/link.schema'
 import { richTextSchema } from './objects/richText.schema'
@@ -33,23 +34,29 @@ export const PAGE_SCHEMAS = [
   privacyPageSchema,
 ]
 
-export const schemaTypes = [
-  // Objects
-  accessibleImageSchema,
-  seoSchema,
-  linkSchema,
-  ctaSchema,
-  richTextSchema,
-  articleBodySchema,
-  // Pages
-  ...PAGE_SCHEMAS,
-  // Collections
+/** Collections editors create per language, linked by the translation plugin. */
+export const COLLECTION_SCHEMAS = [
   offerSchema,
   testimonialSchema,
   faqItemSchema,
   postSchema,
   categorySchema,
   authorSchema,
+]
+
+export const schemaTypes = [
+  // Objects
+  accessibleImageSchema,
+  seoSchema,
+  linkSchema,
+  ctaSchema,
+  closingSchema,
+  richTextSchema,
+  articleBodySchema,
+  // Pages
+  ...PAGE_SCHEMAS,
+  // Collections
+  ...COLLECTION_SCHEMAS,
   // Settings
   businessProfileSchema,
   siteSettingsSchema,

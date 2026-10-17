@@ -15,7 +15,7 @@ const post = {
   to: '/en/magazine/morning-mobility',
   date: '7 Sep 2026',
   dateTime: '2026-09-07',
-  readingTime: '1 min read',
+  readingMinutes: 1,
 }
 
 const props = {

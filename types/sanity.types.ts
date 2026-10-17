@@ -110,6 +110,13 @@ export type ContactPage = {
   seo?: Seo
 }
 
+export type FaqItemReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+  [internalGroqTypeReferenceTo]?: 'faqItem'
+}
+
 export type FaqPage = {
   _id: string
   _type: 'faqPage'
@@ -119,6 +126,11 @@ export type FaqPage = {
   language?: string
   title: string
   intro?: string
+  order?: Array<
+    {
+      _key: string
+    } & FaqItemReference
+  >
   seo?: Seo
 }
 
@@ -133,16 +145,15 @@ export type AboutPage = {
   title: string
   description?: string
   image?: AccessibleImage
-  closingTitle?: string
-  closingText?: string
-  cta?: Cta
+  closing?: Closing
   seo?: Seo
 }
 
-export type Cta = {
-  _type: 'cta'
-  label?: string
-  link?: Link
+export type Closing = {
+  _type: 'closing'
+  title?: string
+  text?: string
+  cta?: Cta
 }
 
 export type SanityImageAssetReference = {
@@ -168,12 +179,10 @@ export type MagazinePage = {
   _updatedAt: string
   _rev: string
   language?: string
-  kicker?: string
+  label?: string
   title: string
   intro?: string
-  closingTitle?: string
-  closingText?: string
-  cta?: Cta
+  closing?: Closing
   seo?: Seo
 }
 
@@ -202,18 +211,17 @@ export type OffersPage = {
   seo?: Seo
 }
 
+export type Cta = {
+  _type: 'cta'
+  label?: string
+  link?: Link
+}
+
 export type TestimonialReference = {
   _ref: string
   _type: 'reference'
   _weak?: boolean
   [internalGroqTypeReferenceTo]?: 'testimonial'
-}
-
-export type FaqItemReference = {
-  _ref: string
-  _type: 'reference'
-  _weak?: boolean
-  [internalGroqTypeReferenceTo]?: 'faqItem'
 }
 
 export type HomePage = {
@@ -254,11 +262,7 @@ export type HomePage = {
       _key: string
     } & FaqItemReference
   >
-  closing?: {
-    title?: string
-    text?: string
-    cta?: Cta
-  }
+  closing?: Closing
   seo?: Seo
 }
 
@@ -594,16 +598,17 @@ export type AllSanitySchemaTypes =
   | RichText
   | ImprintPage
   | ContactPage
+  | FaqItemReference
   | FaqPage
   | AboutPage
-  | Cta
+  | Closing
   | SanityImageAssetReference
   | AccessibleImage
   | MagazinePage
   | OfferReference
   | OffersPage
+  | Cta
   | TestimonialReference
-  | FaqItemReference
   | HomePage
   | Seo
   | ArticleBody

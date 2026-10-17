@@ -58,7 +58,7 @@ const page = (type: string, language: string, fields: object) => ({
 
 /** Links language versions, as the Studio's translation plugin does. */
 const translations = (id: string, versions: Record<string, string>, type = 'offer') => ({
-  _id: `translation.metadata.${id}`,
+  _id: `translation-${id}`,
   _type: 'translation.metadata',
   schemaTypes: [type],
   translations: Object.entries(versions).map(([language, ref]) => ({
@@ -208,19 +208,25 @@ const aboutIn = (language: 'de' | 'en') => [
     label: language === 'de' ? 'Über mich' : 'About me',
     title: language === 'de' ? 'Hallo, ich bin Ihre Trainerin' : "Hi, I'm your coach",
     description: language === 'de' ? 'Seit 2010 an Ihrer Seite.' : 'By your side since 2010.',
-    closingTitle:
-      language === 'de' ? 'Bereit für die erste Einheit?' : 'Ready for your first session?',
-    cta: routeCta(language === 'de' ? 'Probetraining anfragen' : 'Request a free trial', 'contact'),
+    closing: {
+      title: language === 'de' ? 'Bereit für die erste Einheit?' : 'Ready for your first session?',
+      cta: routeCta(
+        language === 'de' ? 'Probetraining anfragen' : 'Request a free trial',
+        'contact',
+      ),
+    },
   }),
 ]
 
 const magazineIn = (language: 'de' | 'en') => [
   page('magazinePage', language, {
-    kicker: language === 'de' ? 'Magazin' : 'Magazine',
+    label: language === 'de' ? 'Magazin' : 'Magazine',
     title:
       language === 'de' ? 'Wissen, das dich weiterbringt.' : 'Know-how that moves you forward.',
-    closingTitle: language === 'de' ? 'Bereit?' : 'Ready?',
-    cta: routeCta(language === 'de' ? 'Probetraining' : 'Free trial', 'contact'),
+    closing: {
+      title: language === 'de' ? 'Bereit?' : 'Ready?',
+      cta: routeCta(language === 'de' ? 'Probetraining' : 'Free trial', 'contact'),
+    },
   }),
   category('training', language, 'Training', 'training', 1),
   category('nutrition', language, language === 'de' ? 'Ernährung' : 'Nutrition', 'nutrition', 2),

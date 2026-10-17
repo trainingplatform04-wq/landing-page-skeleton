@@ -4,69 +4,77 @@
 
 ## 1. TypeScript & Vue
 
-- ✅ TypeScript `strict`, **no `any`** (`@typescript-eslint/no-explicit-any`).
-- ✅ SFC block order: `<script setup lang="ts">` → `<template>` → `<style>` (`vue/block-order`).
-- ✅ Imports in four groups, sorted (`simple-import-sort`): ① Vue, Nuxt and libraries ② project files (`~/…`) ③ type-only imports (`import type`) ④ sibling files (`./…`). Use the `~/` alias, never `../` (`no-restricted-imports`).
+- ✅ TypeScript `strict`, **no `any`**, **no non-null `!`** (handle the empty case instead).
+- ✅ SFC block order: `<script setup lang="ts">` → `<template>` → `<style>`.
+- ✅ Imports in four groups, sorted: ① Vue, Nuxt and libraries ② project files (`~/…`) ③ type-only imports ④ siblings (`./…`). Use the `~/` alias, never `../` (except where the alias doesn't exist: `modules/`, `studio/`, `tests/e2e/`, `tests/webPerformance/`).
 - ✅ No server code: `server/` and `api/` folders fail lint and the drift guard.
-- ✅ Vue, Nuxt and module APIs are auto-imported (never import from `#imports`). **Project code is imported explicitly** from its file (`import { useHome } from '~/composables/useHome/useHome'`): composables and utils are not auto-imported, so an unknown name fails `typecheck`.
-- ✅ No `console.*` (`no-console`).
+- ✅ Vue, Nuxt and module APIs are auto-imported (never from `#imports`). **Project code is imported explicitly** from its file, so an unknown name fails `typecheck`.
+- ✅ No `console.*`.
 - Early returns (Bouncer Pattern) over nested `if/else`.
-- Names: `PascalCase` components, `camelCase` everything else; files carry their role (`x.utils.ts`, `x.types.ts`, `x.constants.ts`, `x.schema.ts`).
-- **Comments explain why, never what.** No banners, no commented-out code, no instructions to agents. One place explains a rule; others link to it.
+- Names: `PascalCase` components, `camelCase` everything else; files carry their role (`x.utils.ts`, `x.constants.ts`, `x.query.ts`, `x.schema.ts`, `x.client.ts` for a browser-only plugin).
 
 ## 2. Data
 
-- ✅ `useSanity`, `useAsyncData`, `useFetch` only in `composables/` (`no-restricted-syntax` on views); no `fetch`/`$fetch`, with one documented exception: `useContactForm` sends the contact form to the form service (it has no SDK).
-- Queries are written with **groqd** (`q` from `utils/groqd/groqd.utils.ts`) at the top of the composable that runs them. Reused pieces are groqd fragments in that file. CI checks the generated schema types are current.
+- ✅ `useAsyncData`, `useFetch` and `useSanity` never in views (`components/`, `pages/`, `layouts/`). ✅ `useSanity` only in `composables/useCmsQuery`. No `fetch`/`$fetch`, with one documented exception: `useContactForm` posts to the form service.
+- **Queries** are groqd (`q` from `utils/groqd/groqd.utils.ts`), one per page in `composables/<useName>/<name>.query.ts`. Reused pieces are fragments in `groqd.utils.ts`. Find a page document with `filterRaw('language == $locale')`, never by its id.
 - **Optional fields**: an object or list that may be missing ends with `.nullable(true)`; otherwise groqd rejects the answer (a 503).
 - **Filter a list of references before following it**: `.field('faq[]').filterRaw('@->language == $locale').deref()`.
-- A page composable has four parts, in this order: query, view type, mapper, composable ([ARCHITECTURE](ARCHITECTURE.md#data-flow)). It returns the view: plain values only (`types/content.types.ts`), no `null`, no CMS field names.
-- `useAsyncData` is called during `setup` and awaited (in the composable and in `<script setup>`), so the server answers with complete HTML and the right status: 503 on a CMS error, 404 for an unknown offer slug; a page renders empty while unpublished. Keys are explicit and unique (`` `offer:${locale}:${slug}` ``).
-- After an `await`, call Nuxt composables only in `<script setup>` (it restores the Nuxt context); in a composable, call them before the `await`.
+- **A page composable**: `useMapContext()`, then `await useCmsQuery(name, query, params)`, then a pure mapper to the view. The view holds plain values (`types/content.types.ts`): no `null`, no CMS field names. `null` from the query = unpublished (empty `noindex` view) or unknown slug (404); a CMS error is already a 503.
+- Nuxt composables are called **before** the first `await` in a composable (`<script setup>` restores the context, composables don't).
+- After a schema change: `pnpm typegen`, commit `types/sanity.types.ts`, update the seed (`studio/seed/`) and the E2E fixtures in the same PR. ✅ CI checks the types are current.
 
 ## 3. i18n & text
 
 - No hardcoded UI text: `t('key')`; every key exists in every locale file.
-- CMS content is fetched in the active language only: every query filters `language == $locale` ([ADR 0001](../adr/0001-i18n-translated-urls.md)). No field-level `{ de, en }` objects.
+- CMS content is one document per language: every query filters `language == $locale` ([ADR 0001](../adr/0001-i18n-translated-urls.md)).
 
 ## 4. Dates & hydration
 
-- Never render `new Date()` directly. Format dates in the mapper with `utils/date/date.utils.ts` and an explicit time zone (`BUSINESS_TIME_ZONE`).
+- Never render `new Date()` directly. Format dates in the mapper with `utils/date/date.utils.ts` and `BUSINESS_TIME_ZONE`.
 
 ## 5. Styling
 
-- Nuxt UI components everywhere (`UPageHero`, `UPageSection`, `UEmpty`, `UAlert`, …). Anything else only where Nuxt UI can't do the job, with a comment saying why (today: the language switcher, which uses `<SwitchLocalePathLink>` from @nuxtjs/i18n).
-- Use Nuxt UI semantic colors (`text-muted`, `text-highlighted`, `bg-elevated`) so dark mode works without `dark:` variants.
+- Nuxt UI components everywhere (`UPageHero`, `UPageSection`, `UEmpty`, …). Anything else only where Nuxt UI can't do the job, with a comment saying why (the language switcher, native `<details>` disclosures on never-hydrated pages).
+- Nuxt UI semantic colors only (`text-muted`, `bg-elevated`, `bg-inverted`, `text-dimmed`), never a fixed palette color: dark mode works without `dark:` variants.
 
 ## 6. Tests
 
 - ✅ Co-located `*.spec.ts`; coverage ≥ 80 % (`pnpm test:coverage`).
-- Pure functions → `unit` project (plain Node). Components/composables → `nuxt` project with `mountSuspended` (real i18n, real Nuxt UI). Mock only external boundaries: the CMS (`useSanity`; answers shaped like `tests/helpers/cmsData.ts`). Never mock Nuxt runtime APIs (`useHead`, `useSeoMeta`, …); assert their real output (`tests/helpers/renderedHead.ts`).
-- Assert rendered text and attributes, not `wrapper.exists()`.
-- Test behaviour, not constants: a list or a config value is covered by the tests of the code that uses it.
-- E2E (`tests/e2e/`): CI (and `CI=1 pnpm test:e2e` after `pnpm build:e2e`) runs against a production build; plain `pnpm test:e2e` uses the dev server for speed.
-- **E2E is hermetic.** The app reads its CMS content from `tests/e2e/sanity/server.ts`: the real queries run through groq-js (Sanity's GROQ engine) against the documents of `tests/e2e/sanity/fixtures.ts`, which also stands in for the contact form service. Tests never depend on what editors published. A new page or query gets its test documents there.
-- **Live Sanity** is covered by `smoke.spec.ts`, which runs against every deployment on every page and only checks things that don't depend on content (our app answered, no errors).
+- Pure functions → `unit` project (plain Node). Components and composables → `nuxt` project with `mountSuspended`. Mock only the CMS (`useSanity`, answers built with `tests/helpers/cmsData.ts`). Never mock Nuxt runtime APIs; assert their real output (`tests/helpers/renderedHead.ts`).
+- Assert rendered text, attributes and returned values. Test behaviour, not constants.
+- Content components that only call a composable and compose components (`*Content`, `LegalDocument`) are covered by the composable's spec and E2E.
+- **E2E is hermetic**: the app reads `tests/e2e/sanity/fixtures.ts` through a local GROQ server (`server.ts`, groq-js), which also stands in for the form service. A new page or query gets its test documents there. CI runs E2E on a production build (`pnpm build:e2e`, then `CI=1 pnpm test:e2e`).
+- **Live Sanity** is covered by `smoke.spec.ts` on every deployment (every page answers, no console error).
 
 ## 7. Local gates (single definition)
 
 Every agent and human runs exactly these before opening or updating a PR. CI runs the same checks.
 
 ```bash
-pnpm verify                         # lint · format:check · typecheck · unit/component tests + coverage
-pnpm build:e2e && CI=1 pnpm test:e2e # E2E on a production build built against the fixture CMS
-pnpm web-performance --url=<dev URL> # web performance (PageSpeed Insights): aim 90+, blocks under 80
+pnpm verify                          # lint · format:check · typecheck · unit/component tests + coverage
+pnpm build:e2e && CI=1 pnpm test:e2e # E2E on a production build against the fixture CMS
 ```
 
-After a schema change, run `pnpm typegen` first and commit `types/sanity.types.ts`.
+PageSpeed runs in CI on the PR's deployment (§7.1).
 
 ### 7.1 Web performance budget
 
-- **Aim 90+, block under 80** (owner, 2026-10-10). Every page, mobile and desktop, aims for **90 or more** on the four categories (Performance, Accessibility, Best Practices, SEO) and the five performance metrics (FCP, LCP, TBT, CLS, Speed Index): Google's "good" line. A score under **80** blocks the PR. A score from 80 to 89 passes and never blocks a merge, by a check or by a reviewer: it is flagged "below target" in the PR report, and improving it is welcome in the same PR or a follow-up task.
-- `webPerformance.config.ts` is the **only** place these numbers live: `target` (90), `minimum` (80), `runs`, `confirmationRuns`.
-- Measured by **Google PageSpeed Insights** (its API, Google's servers): never on localhost or a laptop's connection. `pnpm web-performance --url=<deployed URL>` audits every page of `ROUTE_PATHS` without a slug, in every language, plus one example per template with a slug (`slugPages`: the seeded protein article); it needs `PAGESPEED_API_KEY`. Reports: `.web-performance/<form factor>/`.
-- In CI, once **Lint · Format · Types · Unit** and **Build · E2E** pass, **Deploy dev** deploys the PR to Vercel (alias `-dev`) and **Web performance** audits that deployment; after a merge, **Web performance staging** audits `-staging`. Previews are noindex on purpose: their SEO score is computed without "page is crawlable".
-- Every page is visited twice first (a fresh deployment's first requests are cold), then measured `runs` (3) times per form factor, all in parallel within Google's quota. A single PageSpeed run moves 10–25 points on an unchanged page (Speed Index most), so the **median of each score** decides, and a page whose median is under the minimum gets `confirmationRuns` (2) more runs: noise cannot block a PR, a real regression (the same low score run after run) still does.
-- Anything painted late by JavaScript can become the page's Largest Contentful Paint or move its Speed Index (the consent window did, PR #17): a large element on the first screen is server-rendered, so it paints with the page.
-- Code that affects the first screen (a page, the layout, an image, a dependency, hydration) is written for the 90 target, not the 80 gate: `docs/conventions/ARCHITECTURE.md` "JavaScript on the first screen".
-- Raising a number is free; lowering one is a Tech Lead decision recorded in the PR.
+- **Aim 90+, block under 80**: every page, mobile and desktop, every category (Performance, Accessibility, Best Practices, SEO) and performance metric. 80–89 passes and is flagged "below target" in the PR report.
+- `webPerformance.config.ts` is the only place these numbers live. Raising one is free; lowering one is a Tech Lead decision recorded in the PR.
+- Measured by Google PageSpeed Insights on the deployed PR (never a laptop): `pnpm web-performance --url=<deployed URL>` (needs `PAGESPEED_API_KEY`). The median of 3 runs decides; a page under 80 gets 2 confirmation runs, so noise never blocks a PR.
+- Anything large painted late by JavaScript can become the page's Largest Contentful Paint: large elements on the first screen are server-rendered.
+
+## 8. Comments
+
+- **JSDoc** (`/** … */`, one line, three at most) on every export: what it returns and the non-obvious edge (`undefined when…`, `404 if…`). Never restate the name.
+- **`//` inside a body only for a why**: a constraint (privacy, SEO, hydration, performance), a workaround, a non-obvious order. Two lines at most.
+- **Templates**: no HTML comments; explain a template choice in the `<script>` block.
+- **Never**: history ("was", "PR #", dates, "decided by"), measurements, notes to agents or reviewers, links to dated documents, a copy of a doc (link its section instead).
+
+## 9. Documentation
+
+- **One home per fact.** Code rules here; directories and data flow in ARCHITECTURE; agent process in `.ai/shared/workflows/operating-model.md`; environments in `docs/deployment/DEPLOYMENT.md`. Everything else links.
+- **The code is the truth.** A doc names the file, never copies its content. A change to code that a doc describes updates the doc in the same PR.
+- **Short and factual**: tables and bullets, present tense, no paragraph over three lines, no "why we chose" essays (one line of rationale in an ADR).
+- **No feature docs**: features are documented by their code. Task files are working files; ADRs hold only active decisions. Design briefs and changesets are kept as the record of the design track.
+- ✅ The drift guard (`tests/orchestration/orchestration.spec.ts`) fails when a doc points at a path that doesn't exist.

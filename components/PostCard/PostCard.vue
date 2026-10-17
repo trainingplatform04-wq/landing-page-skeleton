@@ -10,11 +10,11 @@ const props = withDefaults(
   { variant: 'grid' },
 )
 
+const { t } = useI18n()
 const large = computed(() => props.variant === 'large')
 const compact = computed(() => props.variant === 'compact')
 
-// The large card opens the magazine (the page's largest image: loaded first); the others wait
-// until they are near the screen.
+// The large card's picture is the magazine's largest: it loads first, the others when near.
 const imageSizes = computed(() => (large.value ? 'sm:100vw xl:900px' : 'sm:100vw md:50vw xl:440px'))
 </script>
 
@@ -35,6 +35,7 @@ const imageSizes = computed(() => (large.value ? 'sm:100vw xl:900px' : 'sm:100vw
         <NuxtImg
           v-if="post.image"
           :src="post.image.url"
+          :style="{ objectPosition: post.image.position }"
           :alt="post.image.alt"
           width="640"
           height="400"
@@ -79,6 +80,7 @@ const imageSizes = computed(() => (large.value ? 'sm:100vw xl:900px' : 'sm:100vw
           <NuxtImg
             v-if="post.author?.photo"
             :src="post.author.photo.url"
+            :style="{ objectPosition: post.author.photo.position }"
             :alt="post.author.photo.alt"
             :width="large ? 32 : 24"
             :height="large ? 32 : 24"
@@ -94,7 +96,9 @@ const imageSizes = computed(() => (large.value ? 'sm:100vw xl:900px' : 'sm:100vw
             <span v-if="post.author" aria-hidden="true"> · </span>
             <time :datetime="post.dateTime">{{ post.date }}</time>
             <span aria-hidden="true"> · </span>
-            <span class="whitespace-nowrap">{{ post.readingTime }}</span>
+            <span class="whitespace-nowrap">{{
+              t('magazine.readingTime', { n: post.readingMinutes })
+            }}</span>
           </p>
         </div>
       </div>

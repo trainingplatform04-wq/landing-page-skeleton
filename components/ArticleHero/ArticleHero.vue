@@ -9,7 +9,7 @@ const props = defineProps<{
   author?: { name: string; role?: string; photo?: Image }
   date: string
   dateTime: string
-  readingTime: string
+  readingMinutes: number
   cover?: Image
 }>()
 
@@ -23,8 +23,6 @@ const breadcrumb = computed(() =>
       ]
     : [],
 )
-// The cover is the page's largest image: it loads first, at the width of the screen (a phone
-// gets a ~768px file, not the desktop one); the author photo waits.
 </script>
 
 <template>
@@ -84,7 +82,9 @@ const breadcrumb = computed(() =>
           <span v-if="author.role">{{ author.role }}<span aria-hidden="true"> · </span></span>
           <time :datetime="dateTime">{{ date }}</time>
           <span aria-hidden="true"> · </span>
-          <span class="whitespace-nowrap">{{ readingTime }}</span>
+          <span class="whitespace-nowrap">{{
+            t('magazine.readingTime', { n: readingMinutes })
+          }}</span>
         </template>
       </UUser>
     </div>
@@ -95,6 +95,7 @@ const breadcrumb = computed(() =>
     >
       <NuxtImg
         :src="cover.url"
+        :style="{ objectPosition: cover.position }"
         :alt="cover.alt"
         width="1120"
         height="630"

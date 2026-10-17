@@ -4,9 +4,9 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 /**
- * Guards the AI orchestration (.ai/, .agents/, .claude/, docs) against drift:
- * personas and their Antigravity pointers stay in sync, every path the docs tell
- * agents to use exists, and every persona/workflow obeys the operating model.
+ * Guards the AI orchestration and the docs against drift: personas and their Antigravity
+ * pointers stay in sync, every path a doc names exists, and every persona and workflow obeys the
+ * operating model. Design briefs and changesets are records of the past: not checked.
  */
 const ROOT = fileURLToPath(new URL('../..', import.meta.url))
 const read = (path: string) => readFileSync(join(ROOT, path), 'utf8')
@@ -26,18 +26,21 @@ function frontmatter(path: string): string {
 
 const PERSONAS = list('.ai/shared/agents')
 const WORKFLOWS = list('.ai/shared/workflows')
+const HISTORY = /^docs\/design\/(briefs|changes)\//
 const ORCHESTRATION_DOCS = [
   'CLAUDE.md',
+  'README.md',
   ...markdownFiles('.ai'),
   ...markdownFiles('.agents'),
   ...markdownFiles('.claude'),
-  ...markdownFiles('docs/conventions'),
-  ...markdownFiles('docs/tasks'),
-].map((path) => path.replaceAll('\\', '/'))
+  ...markdownFiles('docs'),
+]
+  .map((path) => path.replaceAll('\\', '/'))
+  .filter((path) => !HISTORY.test(path))
 
 /** Backticked repo paths (no placeholders like `<name>`, `[feature]`, globs or variables). */
 const PATH_ROOTS =
-  /^(\.ai|\.agents|\.claude|\.github|docs|constants|composables|components|queries|utils|types|tests|studio|pages|layouts|i18n)\//
+  /^(\.ai|\.agents|\.claude|\.github|docs|constants|composables|components|utils|types|tests|studio|pages|layouts|plugins|modules|assets|i18n)\//
 function referencedPaths(markdown: string): string[] {
   return [...markdown.matchAll(/`([^`\s]+)`/g)]
     .map(([, token]) => token!.replace(/[#:].*$/, ''))

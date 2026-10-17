@@ -1,7 +1,12 @@
-import { ROUTE_PATHS } from '~/constants/routes.constants'
+import { ROUTE_PATHS, type RouteName } from '~/constants/routes.constants'
 
 /** `localePath` from @nuxtjs/i18n, passed in so these stay plain functions. */
-export type LocalePath = (route: string | { name: string; params: { slug: string } }) => string
+export type LocalePath = (
+  route: RouteName | { name: RouteName; params: { slug: string } },
+) => string
+
+const isPageRoute = (route: string): route is RouteName =>
+  route in ROUTE_PATHS && !route.endsWith('-slug')
 
 /** A link as the editor picked it in the Studio. */
 interface LinkInput {
@@ -24,7 +29,7 @@ export function resolveLink(
   { localePath, locale }: { localePath: LocalePath; locale: string },
 ): { to: string; external: boolean } | null {
   if (link?.kind === 'route') {
-    if (!link.route || !(link.route in ROUTE_PATHS) || link.route.endsWith('-slug')) return null
+    if (!link.route || !isPageRoute(link.route)) return null
     return { to: localePath(link.route), external: false }
   }
 
@@ -41,6 +46,11 @@ export function resolveLink(
   }
 
   return null
+}
+
+/** Web addresses of other sites open in a new tab; email and phone links don't. */
+export function linkTarget(link: { to: string; external: boolean }): '_blank' | undefined {
+  return link.external && link.to.startsWith('https://') ? '_blank' : undefined
 }
 
 /** A dialable `tel:` link: `+49 (0)30 123-45` → `tel:+493012345`. */

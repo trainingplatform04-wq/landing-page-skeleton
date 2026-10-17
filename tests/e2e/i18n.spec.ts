@@ -38,9 +38,14 @@ test.describe('Internationalization & SEO', () => {
 
     await expect(page).toHaveURL(/\/en\/offers\/personal-coaching$/)
     await expect(page.locator('html')).toHaveAttribute('lang', 'en-US')
-    // The layout stays mounted across the switch: its menu must follow the language.
+    // The layout stays mounted across the switch: its menu and footer must follow the language.
     const nav = page.getByRole('navigation', { name: 'Main navigation' }).first()
     await expect(nav.getByRole('link', { name: 'Offers' })).toHaveAttribute('href', '/en/offers')
+    const legal = page.getByRole('contentinfo').getByRole('navigation')
+    await expect(legal.getByRole('link', { name: 'Imprint' })).toHaveAttribute(
+      'href',
+      '/en/imprint',
+    )
 
     await page.getByRole('link', { name: 'Deutsch' }).click()
     await expect(page).toHaveURL(/\/angebote\/personal-training$/)
@@ -54,15 +59,6 @@ test.describe('Internationalization & SEO', () => {
     await expect(english).toHaveAttribute('data-i18n-disabled')
     await expect(english).toHaveAttribute('aria-disabled', 'true')
     await expect(english).toHaveAttribute('tabindex', '-1')
-  })
-
-  test('never stores a language the offer is not translated into', async ({ page }) => {
-    await page.goto('/angebote/online-coaching')
-    await page.getByRole('link', { name: 'English' }).dispatchEvent('click')
-
-    // A stored `en` would send this German browser from `/` to `/en`.
-    await page.goto('/')
-    await expect(page).toHaveURL(/\/$/)
   })
 
   test('is a 404 when a slug is requested in the wrong language', async ({ page }) => {

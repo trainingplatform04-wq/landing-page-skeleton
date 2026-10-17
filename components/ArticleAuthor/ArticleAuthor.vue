@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { Image } from '~/types/content.types'
+import type { Author } from '~/types/content.types'
 
 defineProps<{
-  author: { name: string; firstName: string; role?: string; bio?: string; photo?: Image }
+  author: Author
   magazineTo: string
 }>()
 
@@ -21,6 +21,7 @@ const { t } = useI18n()
       <NuxtImg
         v-if="author.photo"
         :src="author.photo.url"
+        :style="{ objectPosition: author.photo.position }"
         :alt="author.name"
         width="96"
         height="96"

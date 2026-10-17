@@ -19,23 +19,23 @@ describe('useFooter', () => {
     fetchMock.mockResolvedValue({ footerNote: 'Made in Berlin.', business })
     const view = await mountComposable(useFooter, { route: '/en' })
 
-    expect(view.value.footer).toMatchObject({
+    expect(view).toMatchObject({
       note: 'Made in Berlin.',
       business: { name: 'Landing Page' },
       legalLinks: { imprint: '/en/imprint', privacy: '/en/privacy' },
     })
-    expect(view.value.localBusiness).toMatchObject({ name: 'Landing Page' })
+    expect(view.localBusiness).toMatchObject({ name: 'Landing Page' })
   })
 
   it('never throws: on a CMS error the footer shows what the code knows', async () => {
     fetchMock.mockRejectedValue(new Error('Network failure'))
     const view = await mountComposable(useFooter, { route: '/en' })
 
-    expect(view.value.footer).toMatchObject({
+    expect(view).toMatchObject({
       note: undefined,
       business: undefined,
       legalLinks: { imprint: '/en/imprint', privacy: '/en/privacy' },
     })
-    expect(view.value.localBusiness).toBeUndefined()
+    expect(view.localBusiness).toBeUndefined()
   })
 })

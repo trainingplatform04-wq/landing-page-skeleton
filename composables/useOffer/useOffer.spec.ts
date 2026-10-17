@@ -1,9 +1,8 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { thrownBy } from '~~/tests/helpers/cmsComposable'
 import { noSeo, text } from '~~/tests/helpers/cmsData'
-import { mountComposable } from '~~/tests/helpers/mountComposable'
+import { mountComposable, thrownBy } from '~~/tests/helpers/mountComposable'
 
 import { useOffer } from './useOffer'
 

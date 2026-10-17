@@ -15,6 +15,7 @@ const { t } = useI18n()
     <UNavigationMenu :items="navigation" :aria-label="t('nav.label')" />
 
     <template #right>
+      <UColorModeButton />
       <LocaleSwitcher />
     </template>
 

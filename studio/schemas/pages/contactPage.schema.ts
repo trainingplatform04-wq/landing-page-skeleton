@@ -1,7 +1,7 @@
 import { EnvelopeIcon } from '@sanity/icons/Envelope'
 import { defineField, defineType } from 'sanity'
 
-import { languageField, seoField, titleField } from '../fields'
+import { introField, languageField, seoField, titleField } from '../fields'
 
 /** The form's fields live in code; address, email and phone come from the business profile. */
 export const contactPageSchema = defineType({
@@ -12,7 +12,7 @@ export const contactPageSchema = defineType({
   fields: [
     languageField,
     titleField,
-    defineField({ name: 'intro', title: 'Intro', type: 'text', rows: 3 }),
+    introField,
     defineField({
       name: 'successText',
       title: 'Message after sending the form',

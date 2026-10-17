@@ -1,8 +1,9 @@
 import { PackageIcon } from '@sanity/icons/Package'
 import { defineField, defineType } from 'sanity'
 
-import { languageField, referenceListField, seoField, titleField } from '../fields'
+import { introField, languageField, referenceListField, seoField, titleField } from '../fields'
 
+/** The list of every offer of its language; the offers are edited under "Offers". */
 export const offersPageSchema = defineType({
   name: 'offersPage',
   title: 'Offers',
@@ -11,11 +12,13 @@ export const offersPageSchema = defineType({
   fields: [
     languageField,
     titleField,
-    defineField({ name: 'intro', title: 'Intro', type: 'text', rows: 3 }),
-    {
-      ...referenceListField('order', 'Order', 'offer'),
+    introField,
+    referenceListField({
+      name: 'order',
+      title: 'Order',
+      to: 'offer',
       description: 'Offers listed here come first, in this order. The others follow by title.',
-    },
+    }),
     defineField({ name: 'cta', title: 'Button', type: 'cta' }),
     seoField,
   ],

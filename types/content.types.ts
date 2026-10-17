@@ -6,6 +6,8 @@
 export interface Image {
   url: string
   alt: string
+  /** The editor's focal point as CSS `object-position` ("50% 30%"); centred when absent. */
+  position?: string
 }
 
 /** A button or link: a localized path of this site or an external address. */
@@ -13,6 +15,13 @@ export interface Cta {
   label: string
   to: string
   external: boolean
+}
+
+/** The band that ends a page: a title or a button, and an optional text. */
+export interface Closing {
+  title?: string
+  text?: string
+  cta?: Cta
 }
 
 /** What a page puts in the `<head>` (see `usePageMeta`). */
@@ -59,7 +68,17 @@ export interface Business {
   socials: Array<{ platform: string; url: string }>
 }
 
-/** A magazine article on a card: date already formatted, reading time already worded. */
+/** Who signs an article. */
+export interface Author {
+  name: string
+  /** "More from Lena": the first word of the name. */
+  firstName: string
+  role?: string
+  bio?: string
+  photo?: Image
+}
+
+/** A magazine article on a card, its date already formatted. */
 export interface PostCard {
   id: string
   title: string
@@ -72,7 +91,7 @@ export interface PostCard {
   date: string
   /** Machine-readable, for `<time datetime>`. */
   dateTime: string
-  readingTime: string
+  readingMinutes: number
 }
 
 /** A filter tab of the magazine: "All" or one category. */

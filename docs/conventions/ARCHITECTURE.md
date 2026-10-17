@@ -1,73 +1,54 @@
 # Architecture
 
-Nuxt 4 with the **flat layout** (`srcDir: '.'`): Nuxt directories live at the repository root. This is a **skeleton** ([ADR 0004](../adr/0004-skeleton-scope-and-data-flow.md)): every pattern exists once, so a fork can copy it.
+Nuxt 4 with the **flat layout** (`srcDir: '.'`): Nuxt directories live at the repository root. Code owns the pages, Sanity owns their content ([ADR 0004](../adr/0004-skeleton-scope-and-data-flow.md)). What is core and what is an example: [`docs/SKELETON.md`](../SKELETON.md).
 
-## Directory responsibilities
+## Directories
 
-| Directory                | Contains                                                                                                                                                                                                                            | Rule                                                                     |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `pages/`                 | One file per route (`faq.vue`, `offers/[slug].vue`, …)                                                                                                                                                                              | Call one composable, set the head, compose components. No data access.   |
-| `layouts/`               | The page frame (header, main, footer)                                                                                                                                                                                               | Single root element.                                                     |
-| `components/<Name>/`     | `Name.vue` + `Name.spec.ts`, named after their content (`OfferCard`, `FaqList`)                                                                                                                                                     | Props in, markup out. Props are plain values (`types/content.types.ts`). |
-| `composables/<useName>/` | `useName.ts` (query, view type, mapper, composable) + `useName.spec.ts`                                                                                                                                                             | The **only** place that fetches data (`useCms` + `useAsyncData`).        |
-| `utils/<topic>/`         | `topic.utils.ts` + `topic.utils.spec.ts`                                                                                                                                                                                            | Pure functions: no network, no Nuxt runtime.                             |
-| `constants/`             | `routes.constants.ts`, `i18n.constants.ts`, `navigation.constants.ts`, `date.constants.ts`, `sanity.constants.ts`                                                                                                                   | Shared values (routes and locales also by the Studio).                   |
-| `types/`                 | `content.types.ts` (what components receive), `sanity.types.ts` (**generated**)                                                                                                                                                     | Never edit the generated file.                                           |
-| `modules/`               | `sitemap.ts`: reads published pages and offers when building                                                                                                                                                                        | Loaded before the `~/` alias exists: relative imports only.              |
-| `i18n/locales/`          | `en.json`, `de.json`                                                                                                                                                                                                                | The same keys in every language.                                         |
-| `studio/`                | Sanity Studio: `schemas/{pages,collections,objects,settings}`, `sanity.structure.ts`, `utils/`, `seed/` (staging demo content)                                                                                                      | Deployed as its own Vercel project.                                      |
-| `tests/e2e/`             | Playwright specs against a test CMS (`sanity/fixtures.ts`); `smoke.spec.ts` also runs after deploys                                                                                                                                 |                                                                          |
-| `tests/visual/`          | The design gate: `pnpm design:capture` / `pnpm design:verify` screenshot our sections (checked against the section specs by an independent designer reviewer) and catch later visual changes (`docs/design/DESIGN_WORKFLOW.md` §13) |                                                                          |
+| Directory                | Contains                                                                                         | Rule                                                                                |
+| ------------------------ | ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| `pages/`                 | One file per route                                                                               | Call one composable (or render one content component), set the head.                |
+| `layouts/`               | The frame: header, main, footer, consent window                                                  | Single root element.                                                                |
+| `components/<Name>/`     | `Name.vue` + `Name.spec.ts`                                                                      | Plain props in (`types/content.types.ts`), markup out. Never fetch.                 |
+| `composables/<useName>/` | `useName.ts` (view type, mapper, composable), `name.query.ts` (its query), `useName.spec.ts`     | The **only** place that reads the CMS, through `useCmsQuery`.                       |
+| `utils/<topic>/`         | `topic.utils.ts` + `topic.utils.spec.ts`                                                         | Pure functions (no network, no Nuxt runtime). `groqd/` holds the fragments.         |
+| `constants/`             | Routes, locales, menu, consent, cookies, analytics events, time zone, Sanity settings            | Shared values; routes, locales and Sanity settings also by the Studio.              |
+| `types/`                 | `content.types.ts` (what components receive), `sanity.types.ts` (**generated**)                  | Never edit the generated file.                                                      |
+| `plugins/`               | `consent.client.ts`, `analytics.client.ts` (browser only, `.client` suffix)                      | One document-wide click listener each; logic in `utils/consent`, `utils/analytics`. |
+| `modules/`               | `sitemap.ts`: reads published pages, offers and articles when building                           | Loaded before the `~/` alias exists: relative imports.                              |
+| `i18n/locales/`          | `de.json`, `en.json`                                                                             | The same keys in every language.                                                    |
+| `studio/`                | Sanity Studio, its schemas and the staging seed ([`docs/sanity/SANITY.md`](../sanity/SANITY.md)) | Its own workspace and Vercel project.                                               |
+| `tests/`                 | `e2e/` (Playwright, fixture CMS), `visual/` (design gate), `webPerformance/`, `orchestration/`   | See CODING_STANDARDS §6.                                                            |
 
-Enforced by ESLint (`eslint.config.mjs`): no data fetching in views, no CMS types in views, no server code, no `#imports`, no parent-relative imports, import groups, `<script>` → `<template>` → `<style>` block order.
-
-**Imports**: Vue, Nuxt and module functions (`computed`, `useRoute`, `useI18n`, `useSeoMeta`, …) are auto-imported. Project code is imported explicitly from its `~/` file, so every name says where it comes from.
-
-## Content model
-
-**Code owns the pages, Sanity owns their content.** An editor fills in fields; they never assemble a page.
-
-| Kind        | Documents                                                                                                     | Language                                  |
-| ----------- | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
-| Pages       | `homePage`, `offersPage`, `magazinePage`, `aboutPage`, `faqPage`, `contactPage`, `imprintPage`, `privacyPage` | One per language, id `<type>-<language>`  |
-| Collections | `offer` and `post` (have a slug), `category`, `author`, `testimonial`, `faqItem`                              | One language each, linked as translations |
-| Settings    | `businessProfile` (no text to translate), `siteSettings` (footer note)                                        | One in total / one per language           |
-
-- The home page holds the about section (portrait, text, highlights, a link to the About page) and the testimonials. Every button is optional: the site shows it only when it has a label and a link.
-- The datasets start **empty**. In the Studio, **Pages → Home page → Deutsch** opens `homePage-de`; the first edit creates it with its language set. Pages can't be created from the menu, duplicated or deleted.
-- A page that isn't published in a language **renders empty** there: its title from the UI texts, `noindex`, not in the sitemap. Its hreflang links stay: @nuxtjs/i18n leaves a language out only together with disabling the switcher, which is kept for offers without a translation (every page exists in every language). The footer links the legal pages in the language of the page.
-- A testimonial is shown only with the client's recorded consent.
+Vue, Nuxt and module functions are auto-imported. Project code is imported explicitly from its `~/` file. ESLint enforces the rules it can (`eslint.config.mjs`, CODING_STANDARDS §1–2).
 
 ## Data flow
 
 ```
-Sanity ──groqd query──▶ composable (useAsyncData) ──mapper──▶ view (plain values) ──▶ page ──props──▶ components
+Sanity ─▶ useCmsQuery(name, query, params) ─▶ mapper ─▶ view (plain values) ─▶ page ─▶ components
 ```
 
-Every page composable has the same four parts, top to bottom (see `composables/useHome/useHome.ts`):
+A page composable reads top to bottom (`composables/useArticle/` is the full example):
 
-1. **The query**, written with groqd (`q` from `utils/groqd/groqd.utils.ts`). It is checked against the Sanity schema while typing, and the answer is validated when it arrives.
-2. **The view type**: everything the page shows, in plain values (`HomeView`).
-3. **The mapper**: a pure function from the CMS data to the view (links resolved, prices and dates formatted in the business time zone, images flattened). Tested through the composable's spec.
-4. **The composable**: `await useAsyncData(key, fetch)`, then 503 on a CMS error (404 for an unknown offer slug), then the mapper.
+1. **The query**, in `<name>.query.ts`: groqd (`q` from `utils/groqd/groqd.utils.ts`), checked against the schema types, its answer validated when it arrives. Shared pieces are fragments in `groqd.utils.ts` (`imageFragment`, `ctaFragment`, `closingFragment`, `seoFragment`, `richTextField`, `translationsField`, …).
+2. **The view type**: everything the page shows, in plain values (`ArticleView`).
+3. **The mapper**: a pure function from the answer to the view. Shared mappers are in `utils/content` (`toImage`, `toCta`, `toClosing`, `toSeo`, `toSlugs`, `toRichText`, `editorOrder`) and `utils/post`.
+4. **The composable**: `useMapContext()` (the visitor's language), `await useCmsQuery(...)`, then the mapper. `null` from the query means unpublished (an empty `noindex` view) or an unknown slug (404).
 
-- **Types**: `pnpm typegen` generates the Sanity schema types (`types/sanity.types.ts`) that groqd uses; query results are typed by groqd itself.
-- **One language per request** ([ADR 0001](../adr/0001-i18n-translated-urls.md)): every query filters `language == $locale`.
-- **`await` in `<script setup>`**: the server sends complete HTML with the right status code, which search engines need.
-- **The layout** loads no CMS data: `useLayout` builds the header (site name, menu) from code. The footer is `SiteFooter`, which runs `useFooter` (footer note, business profile, which legal pages exist) on the server only. It never throws: on a CMS error the footer shows what the code knows.
-- **Pages without interaction are thin** (magazine, offers, imprint, privacy): the page renders one content component (`MagazineContent`, `OffersContent`, `LegalDocument`) with `hydrate-never`. That component calls the page composable, so the HTML is complete and the status code right, but its data, query code and sections never reach the browser's first JavaScript. Pages that need JavaScript (home and FAQ accordions, contact form, an offer's translated slug for the language switcher) stay hydrated, with their interactive parts lazily hydrated. A new page starts thin and hydrates only what needs it.
-- **A thin page with a few interactions** (the article): the content component (`ArticleContent`) never hydrates; one small component without CMS data (`ArticleEnhancer`, `hydrate-on-idle`) adds the interactions to its HTML through `data-` attributes (progress bar, current heading, video after the click or at once with consent to external media, share buttons, the article's analytics events). Disclosures (FAQ, mobile table of contents) are native `<details>`: no JavaScript. Without JavaScript the page still reads in full.
-- **Consent and analytics** (GDPR, TDDDG §25; `docs/tasks/gtm-consent.md`). Every optional third-party request (Google Tag Manager/GA4, YouTube, any future embed or tracker) goes through the visitor's consent (`useConsent`), never around it.
-  - `ConsentBanner` (never hydrated, in the layout) is the first consent window, in the server HTML, so it paints with the page; it is rendered only without a valid choice for `CONSENT_REVISION`. A tiny inline script keeps a click made before the app's JavaScript runs.
-  - `plugins/consent.client.ts` runs CookieConsent (MIT) as the engine (stored choice, revision, the Settings window, cookie clearing, a page reload when a granted category is withdrawn) and records the choice in `useConsent`. Buttons anywhere use `data-consent="accept-all | reject-all | settings"` (banner, footer, privacy page, error page) and work in server-only HTML.
-  - `plugins/analytics.client.ts` creates GTM only once Statistics is granted (`NUXT_PUBLIC_GTM_ID`; empty = nothing), ads always denied. Events: `useAnalytics().track()` in hydrated code, or `data-track="<event>"` with `data-track-<param>` attributes in server-only HTML (one delegated listener). Events made before the visitor answers wait, then are sent or dropped. Never personal data.
-  - One cookie inventory (`constants/cookies.constants.ts`) feeds the window, the privacy page's `CookieTable` and the tests. A new tool or cookie goes there first, with `CONSENT_REVISION` raised, and gets a Privacy Officer review.
-- **Links** chosen by editors (a page, an offer, or an `https:`/`mailto:`/`tel:` address) are resolved in the mappers (`utils/link/link.utils.ts`); editors never type internal URLs.
+`useCmsQuery` sends `$locale` with every query, caches the answer per query and parameters (`useAsyncData`), and answers **503** on a CMS error (`{ optional: true }` returns `null` instead: the footer). It is the only caller of the Sanity client (ESLint).
 
-## Routing & languages
+## Rendering
 
-- **URLs**: German at `/…`, English at `/en/…`, every URL translated. There is no redirect by browser language: `/` is German, `/en` English, and the language switcher is in the header.
-- **Routes** are declared once in `constants/routes.constants.ts` (`ROUTE_PATHS`), read by `nuxt.config.ts` (`i18n.pages`), the Studio's link picker and the sitemap.
+- **Server first**: `await` in `<script setup>` sends complete HTML with the right status (SEO).
+- **Thin pages**: a page without interaction renders one content component with `hydrate-never` (`OffersContent`, `MagazineContent`, `AboutContent`, `LegalDocument`, `ArticleContent`). It calls the composable on the server; its data and code never reach the browser's first JavaScript.
+- **Interactions on thin pages**: one small component without CMS data adds them through `data-` attributes (`ArticleEnhancer`, `hydrate-on-idle`: progress bar, current heading, video, share). Disclosures are native `<details>`.
+- **Hydration modes**: header `hydrate-on-idle`, accordions `hydrate-on-visible`, cards and heroes `hydrate-never`. A new component takes the lightest mode that works.
+- **Footer**: `SiteFooter` runs `useFooter` on the server, never hydrated; it is keyed by the locale, so a language switch renders a new one.
+- **Images**: the largest one loads first (`fetchpriority="high"` + preload), the others lazily. The editor's crop is cut by Sanity's CDN and the focal point becomes `object-position` (`toImage`). Vercel Image Optimization in deployments, IPX locally and in E2E.
+- **Web performance: aim 90+, never under 80** on PageSpeed Insights (CODING_STANDARDS §7.1). Only the entry chunk is preloaded and links prefetch on interaction (`nuxt.config.ts`).
+
+## Routing and languages
+
+German at `/…`, English at `/en/…`, every path translated ([ADR 0001](../adr/0001-i18n-translated-urls.md)). Paths are declared once in `constants/routes.constants.ts`.
 
 | Page     | File                        | German             | English               |
 | -------- | --------------------------- | ------------------ | --------------------- |
@@ -76,50 +57,43 @@ Every page composable has the same four parts, top to bottom (see `composables/u
 | Offer    | `pages/offers/[slug].vue`   | `/angebote/<slug>` | `/en/offers/<slug>`   |
 | Magazine | `pages/magazine/index.vue`  | `/magazin`         | `/en/magazine`        |
 | Article  | `pages/magazine/[slug].vue` | `/magazin/<slug>`  | `/en/magazine/<slug>` |
+| About    | `pages/about.vue`           | `/ueber-uns`       | `/en/about`           |
 | FAQ      | `pages/faq.vue`             | `/faq`             | `/en/faq`             |
 | Contact  | `pages/contact.vue`         | `/kontakt`         | `/en/contact`         |
 | Imprint  | `pages/imprint.vue`         | `/impressum`       | `/en/imprint`         |
 | Privacy  | `pages/privacy.vue`         | `/datenschutz`     | `/en/privacy`         |
 
-- **The magazine** filters by category and pages in the URL (`?category=`, `?page=`, the same in every language), [ADR 0005](../adr/0005-magazine.md).
-- **The menu** is a constant (`constants/navigation.constants.ts`): offers, magazine, FAQ, contact. The site name links home; the legal pages are in the footer.
-- **An offer's or an article's slug** is set by the editor, unique per language. Changing it later makes the old URL answer 404 (no redirects).
-- **hreflang, canonical and the language switcher** come from `@nuxtjs/i18n` (`experimental.strictSeo`). The offer and article pages pass their translated slugs with `useSetI18nParams`; the switcher uses `<SwitchLocalePathLink>`, which is right from the first server render. An offer without a translation shows the other language disabled.
+- **Menu**: `constants/navigation.constants.ts`. The legal pages are in the footer.
+- **Language switcher**: `<SwitchLocalePathLink>` (right from the server render). Offer and article pages pass their translated slugs with `useSetI18nParams`.
+- **Lists with pages** (the magazine): the filter and the page are in the URL; the CMS sends only the current page (`utils/pagination`).
+- **Editor links** (a page, an offer or an `https:`/`mailto:`/`tel:` address) are resolved by the mappers (`utils/link`); editors never type internal URLs.
+
+## Consent and analytics
+
+Nothing optional loads before the visitor agrees (GDPR, TDDDG §25). Developer guide: [`docs/analytics/DEVELOPER_GUIDE.md`](../analytics/DEVELOPER_GUIDE.md).
+
+- `ConsentBanner` (server HTML, never hydrated) is the first window; a head script keeps a click made before the app runs.
+- `plugins/consent.client.ts` runs CookieConsent as the engine (stored choice, Settings window, cookie clearing) and records the choice in `useConsent`. Buttons anywhere use `data-consent="accept-all | reject-all | settings"`.
+- `plugins/analytics.client.ts` loads Google Tag Manager only once Statistics is granted (`NUXT_PUBLIC_GTM_ID`; empty = no statistics offered). Events: `useAnalytics().track()` or `data-track="<event>"` + `data-track-<param>` attributes. Never personal data.
+- `constants/cookies.constants.ts` is the one cookie inventory (window, privacy page table, tests). A new cookie raises `CONSENT_REVISION`.
+- **Color mode**: the `color-mode` cookie (necessary) holds `system` until the visitor uses the header switch, so the server renders the right scheme.
 
 ## Forms
 
-The contact form (`UForm`, validated with zod) sends the message in the background to an EU form service (`NUXT_PUBLIC_CONTACT_FORM_ACTION`), which emails the site owner. A toast thanks the visitor or reports an error; the page never reloads. No server code and no secret key: this one call (`useContactForm`) is the only exception to the "no `fetch`" rule. The form renders in the browser only, since it needs JavaScript to send. Without a configured service the page shows an email link.
+The contact form (`UForm` + zod) sends in the background to an EU form service (`NUXT_PUBLIC_CONTACT_FORM_ACTION`), the one documented exception to "no `$fetch`" (`useContactForm`). It renders in the browser only; without a configured service the page shows an email link.
 
 ## SEO
 
-- `useSiteHead()` (in `app.vue`/`error.vue`): the title template and Open Graph defaults. `@nuxtjs/i18n` adds `lang`, canonical, hreflang and og:locale.
+- `useSiteHead()` (app and error page): title template, Open Graph defaults. `@nuxtjs/i18n` adds `lang`, canonical, hreflang, og:locale.
 - `usePageMeta(view.seo)` on every page: title, description, share image, `noindex` when asked or unpublished.
-- **Structured data** (nuxt-schema-org): the module's `WebSite`/`WebPage` defaults plus one `LocalBusiness` from the business profile (registered by `SiteFooter`).
-- `/robots.txt` and `/sitemap.xml`: the sitemap lists the published pages and offers with their language versions, read from Sanity **when building** (`modules/sitemap.ts`). A CMS error fails the build instead of shipping an empty sitemap. Only `NUXT_SITE_ENV=production` is indexable.
-
-## Rendering & platform
-
-- SSR on Vercel (Node 24). Images through Vercel Image Optimization in deployments, IPX locally and in E2E. `sizes` use a breakpoint on every entry (`sm:100vw lg:50vw`).
-- Security headers are declared in `nuxt.config.ts` (`routeRules`).
-- **Web performance: aim 90+, never under 80** (Google PageSpeed Insights, every page, mobile and desktop, every category and performance metric; `webPerformance.config.ts`, `docs/conventions/CODING_STANDARDS.md` §7.1). Every change to a page, the layout, an image, a dependency or hydration is written for 90+.
-- **JavaScript on the first screen**: only the entry chunk is preloaded (`build:manifest` hook in `nuxt.config.ts`). Components hydrate as little as possible, the server HTML being the same: thin pages' content and the footer `hydrate-never` (see Data flow), links-only sections `hydrate-never` (cards, heroes), interactive ones below the fold `hydrate-on-visible` (accordions), the header `hydrate-on-idle`. A new component picks the lightest mode that keeps it working.
-- **Prefetch on interaction only** (`experimental.defaults.nuxtLink.prefetchOn` in `nuxt.config.ts`): a link loads the next page's code when hovered or focused, never because it is visible, so the first screen downloads only what it shows.
-- The largest image of a page loads first (`fetchpriority="high"` + preload); other images are `loading="lazy"`; images request WebP from the local image server (Vercel negotiates WebP/AVIF itself).
-- Dates are formatted in the business time zone (`BUSINESS_TIME_ZONE`), so server and browser render the same text.
-- `app.config.ts` holds only the Nuxt UI theme; environment values go in `runtimeConfig` (`NUXT_*`).
+- Structured data: the module's defaults, `LocalBusiness` (footer), `Article` and `Question` (article page).
+- `/sitemap.xml` lists the published pages, offers and articles with their language versions, read from Sanity when building (`modules/sitemap.ts`). Only `NUXT_SITE_ENV=production` is indexable.
 
 ## Recipes
 
-Each recipe is a short checklist. A complete earlier implementation of the removed features is in the git tag `reference-full-2026-10`.
-
-- **Add a page**: a route in `ROUTE_PATHS` (+ `PAGE_TYPES` if the CMS fills it), a schema in `studio/schemas/pages/` (registered in `studio/schemas/index.ts`), a composable with its four parts, the page file, its UI texts, its test content in `tests/e2e/sanity/fixtures.ts`, its demo content in `studio/seed/seed.data.ts`, and the route in `tests/e2e/smoke.spec.ts`.
-- **Add a collection with its own URL** (like offers): a schema with `languageField`, `titleField`, `slugField`; add it to `TRANSLATED_TYPES` (`studio/utils/singleton/singleton.utils.ts`) and to the desk; a list composable and a detail composable (404 for an unknown slug, `useSetI18nParams` for the switcher); add it to `modules/sitemap.ts`.
-- **Add a list of references on a page** (like testimonials): `referenceListField` in the page schema, filter the references by language before `deref()` in the query, map them to a plain type in `types/content.types.ts`.
-- **Add a dated, filterable collection**: see the magazine (`post`, `category`, `author`, `useMagazine`, [ADR 0005](../adr/0005-magazine.md)): ordered by date, filter and page in the URL.
-- **Add redirects for changed slugs**: record the old URL when a slug changes (Studio publish action) and turn the records into 301 route rules when building (see the git tag).
-- **Add a locale**: `LOCALES`, a file in `i18n/locales/`, its path in every entry of `ROUTE_PATHS` (TypeScript flags the missing ones).
-
-## When to add…
-
-- **Global client state** (cart, login shared across pages): add `@pinia/nuxt` with a `stores/` directory then.
-- **Server routes**: not in this project. See CLAUDE.md.
+- **Add a page**: a route in `ROUTE_PATHS` (+ `PAGE_TYPES`), a schema in `studio/schemas/pages/` (registered in `studio/schemas/index.ts`), a composable with its query file, the page file, its i18n keys, its demo content in `studio/seed/`, its test content in `tests/e2e/sanity/fixtures.ts`, an E2E spec.
+- **Add a collection with its own URL** (like offers): a schema with `languageField`, `titleField`, `slugField`, added to `COLLECTION_SCHEMAS` and `TRANSLATED_TYPES`; a list and a detail composable (404 for an unknown slug, `toSlugs` for the switcher); add it to `modules/sitemap.ts`.
+- **Add a list of references on a page** (like testimonials): `referenceListField` in the schema; in the query filter by language before `deref()`.
+- **Add a paginated list**: see `useMagazine` with `utils/pagination`.
+- **Add a locale**: [ADR 0001](../adr/0001-i18n-translated-urls.md).
+- **Global client state** (cart, login): add `@pinia/nuxt` then. **Server routes**: never in this project.

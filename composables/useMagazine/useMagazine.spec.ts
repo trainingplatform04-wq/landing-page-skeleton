@@ -1,22 +1,19 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { thrownBy } from '~~/tests/helpers/cmsComposable'
-import { cta, noSeo } from '~~/tests/helpers/cmsData'
-import { mountComposable } from '~~/tests/helpers/mountComposable'
+import { closing, cta, noSeo } from '~~/tests/helpers/cmsData'
+import { mountComposable, thrownBy } from '~~/tests/helpers/mountComposable'
 
-import { magazineRange, useMagazine } from './useMagazine'
+import { useMagazine } from './useMagazine'
 
 const { fetchMock } = vi.hoisted(() => ({ fetchMock: vi.fn() }))
 mockNuxtImport('useSanity', () => () => ({ fetch: fetchMock }))
 
 const page = {
-  kicker: 'Magazine',
+  label: 'Magazine',
   title: 'Know-how that moves you forward.',
   intro: 'Articles from our coaches.',
-  closingTitle: 'Ready?',
-  closingText: 'Your first session is free.',
-  cta: cta('Request a free trial', 'contact'),
+  closing: closing('Ready?', 'Your first session is free.', cta('Request a free trial', 'contact')),
   seo: noSeo,
 }
 
@@ -24,8 +21,6 @@ const categories = [
   { title: 'Training', slug: 'training' },
   { title: 'Nutrition', slug: 'nutrition' },
 ]
-
-const words = (count: number) => Array.from({ length: count }, () => 'word').join(' ')
 
 const post = (index: number) => ({
   id: `p${index}`,
@@ -36,7 +31,7 @@ const post = (index: number) => ({
   cover: null,
   category: 'Training',
   author: { name: 'Lena Hoffmann', photo: null },
-  words: [{ text: null, children: [{ text: words(250) }] }],
+  words: 250,
 })
 
 const posts = (count: number) => Array.from({ length: count }, (_, index) => post(index + 1))
@@ -81,7 +76,7 @@ describe('useMagazine', () => {
       author: { name: 'Lena Hoffmann', photo: undefined },
       date: '28 Sep 2026',
       dateTime: '2026-09-27T23:30:00Z',
-      readingTime: '2 min read',
+      readingMinutes: 2,
     })
   })
 
@@ -169,7 +164,7 @@ describe('useMagazine', () => {
 
   it('leaves out a closing that has only a text', async () => {
     fetchMock.mockResolvedValue({
-      page: { ...page, closingTitle: null, cta: null },
+      page: { ...page, closing: closing(null, 'Alone', null) },
       categories,
       total: 0,
       posts: [],
@@ -183,13 +178,5 @@ describe('useMagazine', () => {
     fetchMock.mockRejectedValue(new Error('Network failure'))
 
     expect(await thrownBy(useMagazine)).toMatchObject({ status: 503 })
-  })
-})
-
-describe('magazineRange', () => {
-  it('fetches the featured articles with the first page of "All" only', () => {
-    expect(magazineRange(1, '')).toEqual({ start: 0, end: 12 })
-    expect(magazineRange(3, '')).toEqual({ start: 21, end: 30 })
-    expect(magazineRange(2, 'training')).toEqual({ start: 9, end: 18 })
   })
 })

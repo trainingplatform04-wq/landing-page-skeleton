@@ -1,16 +1,15 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { thrownBy } from '~~/tests/helpers/cmsComposable'
 import { noSeo, offerCard } from '~~/tests/helpers/cmsData'
-import { mountComposable } from '~~/tests/helpers/mountComposable'
+import { mountComposable, thrownBy } from '~~/tests/helpers/mountComposable'
 
 import { useOffers } from './useOffers'
 
 const { fetchMock } = vi.hoisted(() => ({ fetchMock: vi.fn() }))
 mockNuxtImport('useSanity', () => () => ({ fetch: fetchMock }))
 
-const page = { title: 'Offers', intro: 'All we do.', cta: null, seo: noSeo }
+const page = { title: 'Offers', intro: 'All we do.', order: ['o2'], cta: null, seo: noSeo }
 
 describe('useOffers', () => {
   beforeEach(() => {
@@ -18,11 +17,10 @@ describe('useOffers', () => {
     fetchMock.mockReset()
   })
 
-  it('lists the ordered offers first, then the others', async () => {
+  it("lists the offers in the editor's order first, then the others by title", async () => {
     fetchMock.mockResolvedValue({
       page,
-      ordered: [offerCard('o2', 'Strength', 'strength')],
-      others: [offerCard('o1', 'Yoga', 'yoga')],
+      offers: [offerCard('o1', 'Yoga', 'yoga'), offerCard('o2', 'Strength', 'strength')],
     })
     const view = await mountComposable(useOffers, { route: '/en/offers' })
 
@@ -35,8 +33,7 @@ describe('useOffers', () => {
   it('lists the offers on an empty page while the page is unpublished', async () => {
     fetchMock.mockResolvedValue({
       page: null,
-      ordered: null,
-      others: [offerCard('o1', 'Yoga', 'yoga')],
+      offers: [offerCard('o1', 'Yoga', 'yoga')],
     })
     const view = await mountComposable(useOffers, { route: '/angebote' })
 

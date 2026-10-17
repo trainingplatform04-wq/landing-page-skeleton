@@ -2,8 +2,6 @@
 import { useOffers } from '~/composables/useOffers/useOffers'
 import { usePageMeta } from '~/composables/usePageMeta/usePageMeta'
 
-// The offers page's content: rendered on the server only (its page never hydrates it), so its
-// data and code stay out of the page's first JavaScript.
 const offersPage = await useOffers()
 const { t } = useI18n()
 

@@ -26,6 +26,7 @@ const schema = computed(() =>
       .min(1, t('contact.form.required'))
       .max(2000, t('contact.form.tooLong', { max: 2000 })),
     consent: z.boolean().refine(Boolean, t('contact.form.consentRequired')),
+    // Honeypot: a hidden field people never see; bots fill it in.
     website: z.string(),
   }),
 )
@@ -54,7 +55,6 @@ async function onSubmit(event: FormSubmitEvent<z.output<typeof schema.value>>) {
       <UTextarea v-model="state.message" :rows="5" class="w-full" />
     </UFormField>
 
-    <!-- Honeypot: invisible to people, filled in by bots. -->
     <UInput
       v-model="state.website"
       class="hidden"

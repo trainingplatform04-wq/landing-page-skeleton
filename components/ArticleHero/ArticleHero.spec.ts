@@ -11,7 +11,7 @@ const props = {
   author: { name: 'Jonas Weber', role: 'Nutrition coach' },
   date: '21 Sep 2026',
   dateTime: '2026-09-21T06:00:00Z',
-  readingTime: '2 min read',
+  readingMinutes: 2,
   cover: { url: '/cover.jpg', alt: 'A bowl' },
 }
 

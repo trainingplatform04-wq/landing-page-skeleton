@@ -8,10 +8,10 @@ import { expect, type Page, test } from '@playwright/test'
  * the Lovable prototype is read through the Lovable MCP server, never opened in a browser.
  *
  * - capture (`pnpm design:capture <change>`): screenshots every listed section of our app into
- *   the changeset's `baseline/`. The human compares them with the Lovable preview; once they
- *   approve, the baselines are committed.
+ *   the changeset's `baseline/`; an independent designer reviewer checks them against the
+ *   section specs. Baselines are never committed.
  * - verify (`pnpm design:verify <change>`, before every PR): renders the same sections and
- *   compares them with the approved baselines, pixel by pixel, within the changeset's tolerance.
+ *   compares them with the baselines, pixel by pixel, within the changeset's tolerance.
  */
 interface SectionSpec {
   name: string
