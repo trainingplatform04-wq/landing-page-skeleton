@@ -1,13 +1,14 @@
 <script setup lang="ts">
+import { offeredCategories } from '~/constants/consent.constants'
 import { COOKIES } from '~/constants/cookies.constants'
 
 const { t } = useI18n()
 const { public: config } = useRuntimeConfig()
 
-// The privacy page's cookie table, generated from the same inventory as the consent window:
-// it lists exactly what the site can set. Statistics cookies only when GTM is configured.
+// The same inventory as the consent window: exactly what this site can set.
+const categories = offeredCategories(config.gtmId)
 const rows = computed(() =>
-  COOKIES.filter(({ category }) => category !== 'statistics' || config.gtmId).map((cookie) => ({
+  COOKIES.filter(({ category }) => categories.includes(category)).map((cookie) => ({
     name: cookie.name,
     provider: t(`cookies.providers.${cookie.provider}`),
     purpose: t(`cookies.${cookie.id}.purpose`),

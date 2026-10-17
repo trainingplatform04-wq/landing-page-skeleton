@@ -1,7 +1,9 @@
+import { DocumentsIcon } from '@sanity/icons/Documents'
+
 import type { ComponentType, ReactNode } from 'react'
 import type { StructureBuilder, StructureResolver } from 'sanity/structure'
 
-import { LOCALES } from '../constants/i18n.constants'
+import { type LocaleCode, LOCALES } from '../constants/i18n.constants'
 import { SANITY_API_VERSION } from '../constants/sanity.constants'
 import { authorSchema } from './schemas/collections/author.schema'
 import { categorySchema } from './schemas/collections/category.schema'
@@ -14,88 +16,76 @@ import { businessProfileSchema } from './schemas/settings/businessProfile.schema
 import { siteSettingsSchema } from './schemas/settings/siteSettings.schema'
 import { languageTemplateId, singletonId } from './utils/singleton/singleton.utils'
 
-type Icon = ComponentType | ReactNode
-type Schema = { name: string; title?: string; icon?: Icon }
+type Schema = { name: string; title?: string; icon?: ComponentType | ReactNode }
+type Ordering = { field: string; direction: 'asc' | 'desc' }
+type Child = ReturnType<StructureBuilder['document']> | ReturnType<StructureBuilder['documentList']>
 
 /**
- * The desk. Every document with text opens as "<Type> → Deutsch / English";
- * the language-neutral business profile has one entry.
+ * The desk. Every document with text opens as "<Type> → Deutsch / English"; the
+ * language-neutral business profile has one entry.
  */
 export const structure: StructureResolver = (S) => {
-  const byLanguage = (
-    schema: Schema,
-    child: (locale: (typeof LOCALES)[number]) => ReturnType<StructureBuilder['document']>,
-  ) =>
-    S.listItem()
+  /** "<Type> → Deutsch / English", each language opening `child`. */
+  const byLanguage = (schema: Schema, child: (locale: LocaleCode, title: string) => Child) => {
+    const title = schema.title ?? schema.name
+    return S.listItem()
       .id(schema.name)
-      .title(schema.title ?? schema.name)
+      .title(title)
       .icon(schema.icon)
       .child(
         S.list()
-          .title(schema.title ?? schema.name)
+          .title(title)
           .items(
-            LOCALES.map((locale) =>
+            LOCALES.map(({ code, name }) =>
               S.listItem()
-                .id(locale.code)
-                .title(locale.name)
+                .id(code)
+                .title(name)
                 .icon(schema.icon)
-                .child(child(locale)),
+                .child(child(code, `${title} (${name})`)),
             ),
           ),
       )
+  }
 
   /** A singleton opened by its fixed id; its template sets `language`. */
-  const singleton = ({ name, title, icon }: Schema) =>
-    byLanguage({ name, title, icon }, (locale) =>
+  const singleton = (schema: Schema) =>
+    byLanguage(schema, (locale, title) =>
       S.document()
-        .schemaType(name)
-        .documentId(singletonId(name, locale.code))
-        .initialValueTemplate(languageTemplateId(name, locale.code))
-        .title(`${title} (${locale.name})`),
+        .schemaType(schema.name)
+        .documentId(singletonId(schema.name, locale))
+        .initialValueTemplate(languageTemplateId(schema.name, locale))
+        .title(title),
     )
 
   /** The documents of one type and language, created with that language's template. */
-  const listByLanguage = (
-    schema: Schema,
-    ordering: { field: string; direction: 'asc' | 'desc' } = { field: 'title', direction: 'asc' },
-  ) =>
-    S.listItem()
-      .id(schema.name)
-      .title(schema.title ?? schema.name)
-      .icon(schema.icon)
-      .child(
-        S.list()
-          .title(schema.title ?? schema.name)
-          .items(
-            LOCALES.map((locale) =>
-              S.listItem()
-                .id(locale.code)
-                .title(locale.name)
-                .icon(schema.icon)
-                .child(
-                  S.documentList()
-                    .title(`${schema.title} (${locale.name})`)
-                    .schemaType(schema.name)
-                    .apiVersion(SANITY_API_VERSION)
-                    .filter('_type == $type && language == $language')
-                    .params({ type: schema.name, language: locale.code })
-                    .defaultOrdering([ordering])
-                    .initialValueTemplates([
-                      S.initialValueTemplateItem(languageTemplateId(schema.name, locale.code)),
-                    ]),
-                ),
-            ),
-          ),
-      )
+  const collection = (schema: Schema, ordering: Ordering = { field: 'title', direction: 'asc' }) =>
+    byLanguage(schema, (locale, title) =>
+      S.documentList()
+        .title(title)
+        .schemaType(schema.name)
+        .apiVersion(SANITY_API_VERSION)
+        .filter('_type == $type && language == $language')
+        .params({ type: schema.name, language: locale })
+        .defaultOrdering([ordering])
+        .initialValueTemplates([
+          S.initialValueTemplateItem(languageTemplateId(schema.name, locale)),
+        ]),
+    )
 
   const pages = S.listItem()
     .id('pages')
     .title('Pages')
-    .icon(PAGE_SCHEMAS[0]?.icon)
+    .icon(DocumentsIcon)
+    .child(S.list().title('Pages').items(PAGE_SCHEMAS.map(singleton)))
+
+  const businessProfile = S.listItem()
+    .id(businessProfileSchema.name)
+    .title(businessProfileSchema.title)
+    .icon(businessProfileSchema.icon)
     .child(
-      S.list()
-        .title('Pages')
-        .items(PAGE_SCHEMAS.map((schema) => singleton(schema))),
+      S.document()
+        .schemaType(businessProfileSchema.name)
+        .documentId(singletonId(businessProfileSchema.name)),
     )
 
   return S.list()
@@ -103,23 +93,15 @@ export const structure: StructureResolver = (S) => {
     .items([
       pages,
       S.divider(),
-      listByLanguage(offerSchema),
-      listByLanguage(testimonialSchema, { field: 'author', direction: 'asc' }),
-      listByLanguage(faqItemSchema, { field: 'question', direction: 'asc' }),
+      collection(offerSchema),
+      collection(testimonialSchema, { field: 'author', direction: 'asc' }),
+      collection(faqItemSchema, { field: 'question', direction: 'asc' }),
       S.divider(),
-      listByLanguage(postSchema, { field: 'publishedAt', direction: 'desc' }),
-      listByLanguage(categorySchema, { field: 'order', direction: 'asc' }),
-      listByLanguage(authorSchema, { field: 'name', direction: 'asc' }),
+      collection(postSchema, { field: 'publishedAt', direction: 'desc' }),
+      collection(categorySchema, { field: 'order', direction: 'asc' }),
+      collection(authorSchema, { field: 'name', direction: 'asc' }),
       S.divider(),
-      S.listItem()
-        .id(businessProfileSchema.name)
-        .title(businessProfileSchema.title ?? 'Business profile')
-        .icon(businessProfileSchema.icon)
-        .child(
-          S.document()
-            .schemaType(businessProfileSchema.name)
-            .documentId(singletonId(businessProfileSchema.name)),
-        ),
+      businessProfile,
       singleton(siteSettingsSchema),
     ])
 }

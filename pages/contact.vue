@@ -4,6 +4,8 @@ import { useContactForm } from '~/composables/useContactForm/useContactForm'
 import { usePageMeta } from '~/composables/usePageMeta/usePageMeta'
 
 const contact = await useContact()
+// The form sends in the background, so it only works with JavaScript: rendered in the browser
+// only (`ClientOnly`), which also keeps Nuxt UI's field ids matching their labels.
 const form = useContactForm(contact.successText)
 const { t } = useI18n()
 const localePath = useLocalePath()
@@ -18,10 +20,6 @@ usePageMeta(contact.seo)
     <UPageBody>
       <div class="grid gap-12 lg:grid-cols-3">
         <UCard class="lg:col-span-2">
-          <!--
-            The form only works with JavaScript (it sends in the background), so it renders in
-            the browser only. This also keeps Nuxt UI's generated field ids the same as the labels.
-          -->
           <ClientOnly v-if="form.isEnabled">
             <ContactForm :send="form.send" :privacy-path="localePath('privacy')" />
             <template #fallback>

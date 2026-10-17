@@ -1,28 +1,21 @@
 import { expect, test } from '@playwright/test'
 
+import { DEFAULT_LOCALE, LOCALES } from '../../constants/i18n.constants'
+import { ROUTE_PATHS } from '../../constants/routes.constants'
+
 // Runs against the local production build in CI and against every deployment
 // (PLAYWRIGHT_BASE_URL). It must prove that *our app* answered: an auth wall,
 // an SSO redirect or a platform error page also returns 200 without console errors.
-// Every page of the site: it renders (empty while unpublished) whatever the CMS holds.
-// Offer URLs belong to editors, so they are not listed.
-const ROUTES = [
-  '/',
-  '/en',
-  '/angebote',
-  '/magazin',
-  '/en/offers',
-  '/en/magazine',
-  '/ueber-uns',
-  '/en/about',
-  '/faq',
-  '/en/faq',
-  '/kontakt',
-  '/en/contact',
-  '/impressum',
-  '/en/imprint',
-  '/datenschutz',
-  '/en/privacy',
-]
+// Every page without a slug, in every language: it renders (empty while unpublished) whatever
+// the CMS holds. Slugs belong to editors, so those pages are not listed.
+const ROUTES = Object.values(ROUTE_PATHS)
+  .filter((paths) => !Object.values(paths).some((path) => path.includes('[slug]')))
+  .flatMap((paths) =>
+    LOCALES.map(({ code }) => {
+      if (code === DEFAULT_LOCALE) return paths[code]
+      return paths[code] === '/' ? `/${code}` : `/${code}${paths[code]}`
+    }),
+  )
 
 test.describe('Smoke', () => {
   for (const route of ROUTES) {

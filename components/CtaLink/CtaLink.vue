@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { linkTarget } from '~/utils/link/link.utils'
+
 import type { ButtonProps } from '@nuxt/ui'
 import type { AnalyticsEvent } from '~/constants/analytics.constants'
 import type { Cta } from '~/types/content.types'
@@ -16,7 +18,7 @@ defineProps<{
   <UButton
     :label="cta.label"
     :to="cta.to"
-    :target="cta.external && cta.to.startsWith('https://') ? '_blank' : undefined"
+    :target="linkTarget(cta)"
     :size="size"
     :variant="variant"
     :data-track="track ?? 'cta_click'"

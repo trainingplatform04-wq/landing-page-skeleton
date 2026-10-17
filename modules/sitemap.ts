@@ -6,8 +6,12 @@ import { z } from 'zod'
 // Relative imports: Nuxt loads this file before the `~/` alias exists.
 import { DEFAULT_LOCALE, LOCALES } from '../constants/i18n.constants'
 import { PAGE_TYPES, ROUTE_PATHS, type RouteName } from '../constants/routes.constants'
-import { SANITY_API_VERSION } from '../constants/sanity.constants'
-import { q } from '../utils/groqd/groqd.utils'
+import {
+  SANITY_API_HOST,
+  SANITY_API_VERSION,
+  SANITY_PERSPECTIVE,
+} from '../constants/sanity.constants'
+import { q, translationsField } from '../utils/groqd/groqd.utils'
 
 interface SitemapEntry {
   loc: string
@@ -39,10 +43,7 @@ const sitemapQuery = q.project((root) => ({
       language: z.string().nullable(),
       slug: ['slug.current', z.string()],
       updatedAt: ['_updatedAt', z.string()],
-      translations: document.raw(
-        '*[_type == "translation.metadata" && references(^._id)][0].translations[].value->{ language, "slug": slug.current }',
-        z.array(z.object({ language: z.string(), slug: z.string() }).nullable()).nullable(),
-      ),
+      translations: document.raw(...translationsField),
     })),
 }))
 
@@ -72,10 +73,11 @@ async function fetchSitemapEntries(): Promise<SitemapEntry[]> {
   const client = createClient({
     projectId: process.env.NUXT_PUBLIC_SANITY_PROJECT_ID,
     dataset: process.env.NUXT_PUBLIC_SANITY_DATASET,
-    apiHost: process.env.NUXT_PUBLIC_SANITY_API_HOST || 'https://api.sanity.io',
+    apiHost: process.env.NUXT_PUBLIC_SANITY_API_HOST || SANITY_API_HOST,
     useProjectHostname: process.env.NUXT_PUBLIC_SANITY_USE_PROJECT_HOSTNAME !== 'false',
     apiVersion: SANITY_API_VERSION,
-    perspective: 'published',
+    perspective: SANITY_PERSPECTIVE,
+    // At build time: the freshest content, not the CDN's cache.
     useCdn: false,
   })
   const runQuery = makeSafeQueryRunner((query, { parameters }) => client.fetch(query, parameters))
@@ -117,10 +119,10 @@ async function fetchSitemapEntries(): Promise<SitemapEntry[]> {
 }
 
 /**
- * Reads the published pages, offers and articles from Sanity when building for production, so the
- * sitemap lists them with their language versions. A CMS error fails the build instead
- * of shipping an empty sitemap. Never runs in dev, `nuxt prepare` or tests.
- * Listed before @nuxtjs/sitemap in nuxt.config.ts, which then reads `sitemap.urls`.
+ * Reads the published pages, offers and articles from Sanity when building for production, so
+ * the sitemap lists them with their language versions. Its own client: a module runs before the
+ * app exists, so `useCmsQuery` is not available. A CMS error fails the build instead of shipping
+ * an empty sitemap. Never runs in dev, `nuxt prepare` or tests.
  */
 export default defineNuxtModule({
   meta: { name: 'cms-sitemap' },

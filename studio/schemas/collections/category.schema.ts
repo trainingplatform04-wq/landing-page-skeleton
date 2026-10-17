@@ -16,7 +16,7 @@ export const categorySchema = defineType({
     // Not generated from the title and copied to new translations: one value for every language.
     defineField({
       name: 'slug',
-      title: 'Address key',
+      title: 'Filter key',
       type: 'slug',
       description:
         'The same in every language (e.g. "nutrition"): it identifies the category in the address (?category=…), so the German and English pages link to each other. Changing it after publishing breaks existing links.',

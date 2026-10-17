@@ -11,9 +11,8 @@ usePageMeta(offer.seo)
 // The language switcher and hreflang link this offer's own slug in each language.
 setI18nParams(offer.slugs)
 
-const slug = String(useRoute().params.slug ?? '')
 const { track } = useAnalytics()
-onMounted(() => track('offer_view', { offer: slug }))
+onMounted(() => track('offer_view', { offer: offer.slug }))
 </script>
 
 <template>
@@ -24,12 +23,13 @@ onMounted(() => track('offer_view', { offer: slug }))
       :orientation="offer.image ? 'horizontal' : 'vertical'"
     >
       <template v-if="offer.cta" #links>
-        <CtaLink :cta="offer.cta" size="xl" track="offer_cta" :data-track-offer="slug" />
+        <CtaLink :cta="offer.cta" size="xl" track="offer_cta" :data-track-offer="offer.slug" />
       </template>
 
       <NuxtImg
         v-if="offer.image"
         :src="offer.image.url"
+        :style="{ objectPosition: offer.image.position }"
         :alt="offer.image.alt"
         width="800"
         height="600"

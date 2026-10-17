@@ -4,6 +4,8 @@ import { ImageIcon } from '@sanity/icons/Image'
 import { PlayIcon } from '@sanity/icons/Play'
 import { defineArrayMember, defineField, defineType } from 'sanity'
 
+import { textBlock } from './textBlock.schema'
+
 const coachTip = defineArrayMember({
   name: 'coachTip',
   title: 'Coach tip',
@@ -83,34 +85,10 @@ const youtubeVideo = defineArrayMember({
   preview: { select: { title: 'title', subtitle: 'videoId' } },
 })
 
-/** An article's text: the site's rich text plus four magazine blocks. */
+/** An article's text: paragraphs and lists like the site's rich text, plus four magazine blocks. */
 export const articleBodySchema = defineType({
   name: 'articleBody',
   title: 'Article text',
   type: 'array',
-  of: [
-    defineArrayMember({
-      type: 'block',
-      styles: [
-        { title: 'Paragraph', value: 'normal' },
-        { title: 'Heading', value: 'h2' },
-        { title: 'Subheading', value: 'h3' },
-      ],
-      lists: [
-        { title: 'Bullets', value: 'bullet' },
-        { title: 'Numbers', value: 'number' },
-      ],
-      marks: {
-        decorators: [
-          { title: 'Bold', value: 'strong' },
-          { title: 'Italic', value: 'em' },
-        ],
-        annotations: [defineArrayMember({ type: 'link' })],
-      },
-    }),
-    coachTip,
-    pullQuote,
-    figure,
-    youtubeVideo,
-  ],
+  of: [textBlock, coachTip, pullQuote, figure, youtubeVideo],
 })

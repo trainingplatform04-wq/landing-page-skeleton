@@ -1,10 +1,13 @@
-import { CONSENT_COOKIE, type ConsentCategory } from '~/constants/consent.constants'
+import {
+  COLOR_MODE_COOKIE,
+  CONSENT_COOKIE,
+  type ConsentCategory,
+} from '~/constants/consent.constants'
 
 /**
- * Every cookie the site can set or cause, the single source for the consent window, the
- * cookie table on the privacy page and the consent tests. A new tool or cookie is added here
- * first, with `CONSENT_REVISION` raised (the Privacy Officer reviews it). Purpose and duration
- * are i18n keys (`cookies.<id>.*`): facts in code, words per language.
+ * Every cookie the site can set or cause: the single source for the consent window, the cookie
+ * table on the privacy page and the consent tests. A new cookie raises `CONSENT_REVISION`.
+ * Purpose and duration are i18n keys (`cookies.<id>.*`).
  */
 export interface CookieEntry {
   /** Key of the i18n texts: `cookies.<id>.purpose`, `cookies.<id>.duration`. */
@@ -19,8 +22,7 @@ export interface CookieEntry {
 
 export const COOKIES: CookieEntry[] = [
   { id: 'consent', name: CONSENT_COOKIE, provider: 'site', category: 'necessary' },
-  // Not a cookie: the colour scheme (light/dark, following the device) in localStorage.
-  { id: 'colorMode', name: 'nuxt-color-mode', provider: 'site', category: 'necessary' },
+  { id: 'colorMode', name: COLOR_MODE_COOKIE, provider: 'site', category: 'necessary' },
   { id: 'ga', name: '_ga', provider: 'google', category: 'statistics', clear: /^_ga$/ },
   { id: 'gaSession', name: '_ga_*', provider: 'google', category: 'statistics', clear: /^_ga_/ },
   {
@@ -32,6 +34,5 @@ export const COOKIES: CookieEntry[] = [
   { id: 'youtubeSession', name: 'YSC', provider: 'youtube', category: 'externalMedia' },
 ]
 
-/** The cookies of one category. */
 export const cookiesOf = (category: ConsentCategory) =>
   COOKIES.filter((cookie) => cookie.category === category)

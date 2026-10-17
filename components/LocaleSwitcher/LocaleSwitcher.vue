@@ -4,6 +4,8 @@ const switchLocalePath = useSwitchLocalePath()
 
 const otherLocales = computed(() => locales.value.filter(({ code }) => code !== locale.value))
 
+// SwitchLocalePathLink (@nuxtjs/i18n, not Nuxt UI) links the same page in the other language,
+// right from the server render; a page without a translation gets `data-i18n-disabled`.
 // Known once the page has set its translated slugs: in the browser, after mounting. The
 // server's HTML gets the same state from SwitchLocalePathLink (`data-i18n-disabled`).
 const mounted = ref(false)
@@ -13,10 +15,6 @@ const isMissing = (code: typeof locale.value) => mounted.value && !switchLocaleP
 
 <template>
   <nav :aria-label="t('localeSwitcher.label')" class="flex items-center gap-1">
-    <!--
-      SwitchLocalePathLink (from @nuxtjs/i18n) links the same page in the other language,
-      correct from the first server render. An offer without a translation is disabled.
-    -->
     <SwitchLocalePathLink
       v-for="item in otherLocales"
       :key="item.code"

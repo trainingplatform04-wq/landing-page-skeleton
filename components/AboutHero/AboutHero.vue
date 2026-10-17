@@ -7,8 +7,6 @@ defineProps<{
   description?: string
   image?: Image
 }>()
-
-// The picture is the page's largest image: it loads first, at the width of the screen.
 </script>
 
 <template>
@@ -16,6 +14,7 @@ defineProps<{
     <NuxtImg
       v-if="image"
       :src="image.url"
+      :style="{ objectPosition: image.position }"
       :alt="image.alt"
       width="1120"
       height="480"

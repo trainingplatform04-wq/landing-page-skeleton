@@ -16,8 +16,7 @@
     "./**/*.tsx",
     "../constants/i18n.constants.ts",
     "../constants/routes.constants.ts",
-    "../constants/sanity.constants.ts",
-    "../utils/url/url.utils.ts"
+    "../constants/sanity.constants.ts"
   ],
   "exclude": ["dist", "node_modules"]
 }

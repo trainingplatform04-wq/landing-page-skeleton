@@ -1,10 +1,8 @@
 # Design ↔ Code Workflow
 
-> **Status: Accepted direction (2026-10-08), tooling in progress.** Decided with the owner:
 > **Lovable** is the design tool, `/design` runs a discovery with four roles, approval is offered
-> as buttons in the chat (and `/design approve <page>`), the workflow is optimised for the
-> **Lovable free plan**. The command, workflow, personas and templates exist; the visual tooling
-> of §15 is the next phase. ADR: `docs/adr/0005-design-track-lovable.md`.
+> as buttons in the chat (and `/design approve <page>`), the workflow fits the **Lovable free
+> plan**. Decision record: `docs/adr/0005-design-track-lovable.md`.
 
 This document defines how **design** (Lovable), **content** (Sanity), **code** (this repository)
 and **client validation** work together, from the first page to the tenth change request, with:
@@ -32,13 +30,7 @@ and **client validation** work together, from the first page to the tenth change
 11. [From changeset to feature](#11-from-changeset-to-feature)
 12. [Lovable (React, shadcn) → Nuxt UI](#12-lovable-react-shadcn--nuxt-ui)
 13. [Pixel-perfect: the design gate](#13-pixel-perfect-the-design-gate)
-14. [Token and credit economy](#14-token-and-credit-economy)
-15. [Tooling](#15-tooling)
-16. [Running on the Lovable free plan](#16-running-on-the-lovable-free-plan)
-17. [Alternatives](#17-alternatives)
-18. [Risks and mitigations](#18-risks-and-mitigations)
-19. [Decisions](#19-decisions)
-20. [Rollout](#20-rollout)
+14. [Running on the Lovable free plan](#14-running-on-the-lovable-free-plan)
 
 ---
 
@@ -63,7 +55,7 @@ and **client validation** work together, from the first page to the tenth change
    Screenshots are working files, never committed.
 7. **Design content is the staging seed.** The copy of the prototype (and stock pictures that
    match its picture descriptions) become the
-   demo content of `studio/seed/seed.data.ts`: staging looks like the design and the visual test
+   demo content of `studio/seed/`: staging looks like the design and the visual test
    runs on the same content.
 8. **Code owns tokens.** Colours, fonts, radii and spacing live in `app.config.ts` and
    `assets/css/main.css`. The Lovable project knowledge mirrors them, so prototypes use the
@@ -83,7 +75,7 @@ and **client validation** work together, from the first page to the tenth change
 | The prototype being explored       | Lovable project (one per site)                              | Lovable, from compiled prompts; precise tweaks via Git | `get_project`, `get_diff`                 |
 | The approved design (the contract) | `docs/design/changes/<id>/`                                 | `/design` at **D2**                                    | `change.md` and the touched section specs |
 | Current approved state of a page   | `docs/design/pages/<page>.md`                               | `/design` at **D2**                                    | one small index                           |
-| Demo content (staging)             | `studio/seed/seed.data.ts`                                  | Backend engineer, from the changeset's content         | the file                                  |
+| Demo content (staging)             | `studio/seed/`                                              | Backend engineer, from the changeset's content         | the file                                  |
 | Real content (production)          | Sanity `production`                                         | Editors, by hand                                       | never                                     |
 | Pages, routes, fields              | Code (`constants/routes.constants.ts`, `studio/schemas/`)   | Backend engineer                                       | the files                                 |
 | Client approval                    | Brief → Approval, changeset → Approval                      | `/design` at **D2**                                    | the block                                 |
@@ -111,8 +103,8 @@ If two places can disagree, one of them is a mirror and says so.
 ```
 
 - **D1 and D2 belong to the design track.** The operating model's feature gates stay exactly G1
-  and G2. A design approved at D2 still passes G1, where the plan shows its scope.
-- From D2 on, the only human touch points are G1, looking at staging, and G2.
+  and G2. For a design approved at D2, the Tech Lead passes G1 (operating-model §1).
+- From D2 on, the only human touch points are looking at staging and G2.
 
 ---
 
@@ -126,23 +118,22 @@ docs/design/
 ├── design-system.md            ← Lovable workspace, project, Git sync, knowledge date (the registry)
 ├── briefs/
 │   ├── _template.md            ← brief + definition of ready (gate D1)
-│   └── 0001-home.md
+│   └── 0001-magazine.md        ← one per design (the record of the design track)
 ├── pages/
 │   ├── README.md               ← format of the page index
-│   └── home.md                 ← sections, current changeset per section, approved commit
+│   └── magazine.md             ← sections, current changeset per section, approved commit
 └── changes/
     ├── _template/
     │   ├── change.md
     │   └── section.md
-    ├── 0001-home/              ← first approved version of the home page
-    │   ├── change.md           ← scope, source commits, approval, acceptance, deviations
-    │   ├── sections/
-    │   │   ├── hero.md         ← behaviour spec
-    │   │   └── hero.diff       ← Lovable diff of that section (whole file for a first version)
-    │   ├── content/hero.json   ← the section's content per locale (→ seed)
-    │   ├── verify.json         ← what the design gate renders (our app's paths, sections, widths)
-    │   └── baseline/           ← screenshots of our sections, local only (§13)
-    └── 0002-home-testimonials/ ← a later change: only the changed sections
+    └── 0001-magazine/          ← first approved version of the magazine
+        ├── change.md           ← scope, source commits, approval, acceptance, deviations
+        ├── sections/
+        │   ├── magazine-hero.md   ← behaviour spec
+        │   └── magazine-hero.diff ← Lovable diff of that section (whole file for a first version)
+        ├── content/            ← the content per locale (→ seed)
+        ├── verify.json         ← what the design gate renders (our app's paths, sections, widths)
+        └── baseline/           ← screenshots of our sections, local only (§13)
 
 tests/visual/                   ← the design gate: pnpm design:capture / design:verify (§13)
 ```
@@ -193,13 +184,13 @@ That repository is a design artefact, never deployed by our pipeline.
   all other tools are free.
 - Free plan: about 5 credits a day, not carried over, capped around 30 a month (third-party
   sources disagree; check the workspace balance with `get_workspace`). A large build can cost more
-  than one credit. §16 explains how the workflow fits in that budget.
+  than one credit. §14 explains how the workflow fits in that budget.
 
 ### 5.4 Figma (alternative, not used now)
 
 The official Figma MCP server can write to the canvas from Claude Code, but writing needs a paid
 **Full** seat, and the free Starter plan allows only about **6 MCP tool calls per month**: not
-viable for an agent workflow. Figma stays the alternative when a human designer joins (§17).
+viable for an agent workflow. Figma stays the alternative when a human designer joins.
 
 ---
 
@@ -391,10 +382,10 @@ answers with `respond_to_approval`. It never decides for you.
    structural change → updated brief, one new prompt.
 4. Client approves (email) → **Approve** → **D2**:
    - approved commit recorded, tag `design/home-v1`;
-   - `docs/design/changes/0001-home/` with every section (first version: the whole section files
+   - `docs/design/changes/<id>-home/` with every section (first version: the whole section files
      as "diff"), specs, content per locale, `verify.json` (screenshots come after implementation, locally);
-   - `docs/design/pages/home.md` created;
-   - task `docs/tasks/home-page.md` drafted with `Design change: docs/design/changes/0001-home/`.
+   - `docs/design/pages/<page>.md` created;
+   - task `docs/tasks/<page>.md` drafted with `Design change: docs/design/changes/0001-home/`.
 5. `/feature` starts at once (the Tech Lead passes G1) → plan → implementation, visual loop, PR, review, merge →
    staging, seeded with the design content.
 
@@ -628,47 +619,7 @@ The remaining differences are layout ones, visible in a diff image.
 
 ---
 
-## 14. Token and credit economy
-
-| Waste avoided                                                     | How                                                                                       |
-| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Many small Lovable prompts                                        | One compiled prompt per iteration, after the discovery                                    |
-| Repeating conventions in every prompt                             | Project knowledge (free)                                                                  |
-| Paying credits for tweaks                                         | Git commits on the synced repository (0 credits)                                          |
-| Agents reading the whole prototype (often 20–60k tokens per page) | Only the designer reads the changed sections' diff (1–4k each); everyone else reads facts |
-| Agents looking at screenshots (≈1.5k tokens per image)            | Spec tables carry the facts; images only when the gate fails                              |
-| Agents re-reading design history                                  | The page index points to the current changeset per section                                |
-| Extracting values or comparing visuals by reading                 | The designer extracts once; the gate compares (0 tokens)                                  |
-| Asking the same question twice                                    | The brief is persistent                                                                   |
-
-Order of magnitude (to be measured in the pilot):
-
-| Scenario               | Lovable credits         | Agent tokens (design reading) |
-| ---------------------- | ----------------------- | ----------------------------- |
-| First page             | 1–3 builds              | ~25–40k                       |
-| Change of 1–2 sections | 1 build (+ free tweaks) | ~5–10k                        |
-| Precise tweaks only    | 0                       | ~1–3k                         |
-| Design-system change   | 1 build                 | <2k (tokens)                  |
-
----
-
-## 15. Tooling
-
-| #   | Item                                                                             | Status                        |
-| --- | -------------------------------------------------------------------------------- | ----------------------------- |
-| T1  | `/design` command, design workflow, personas, templates, registry                | **done**                      |
-| T2  | ADR 0005                                                                         | **done**                      |
-| T3  | Design gate: `pnpm design:capture` / `pnpm design:verify` (`tests/visual/`)      | **done**                      |
-| T4  | Seed pictures by address, uploaded to Sanity (stock photos now, Lovable's later) | **done**                      |
-| T5  | `data-section` on every section component root in Nuxt                           | with the first design feature |
-| T6  | Design gate in CI (Linux baselines, report artifact)                             | later                         |
-| T7  | `@axe-core/playwright` in the gate                                               | later                         |
-| T8  | Interactive states (`?state=`) captured and compared                             | later                         |
-| T9  | Token extraction from the prototype theme → diff with the code theme             | later                         |
-
----
-
-## 16. Running on the Lovable free plan
+## 14. Running on the Lovable free plan
 
 - **About one substantial build a day.** The discovery happens in Claude (no credits) and ends in
   one compiled prompt. A day's ideas go into the next prompt, not into several.
@@ -680,60 +631,3 @@ Order of magnitude (to be measured in the pilot):
   the brief and sent the next day.
 - **When to upgrade**: when several structural iterations a day are needed (live client sessions).
   The workflow does not change, only the pace.
-
----
-
-## 17. Alternatives
-
-| Option                              | Generation                                                     | Client validation                    | Change tracking                       | Cost                     | When                                       |
-| ----------------------------------- | -------------------------------------------------------------- | ------------------------------------ | ------------------------------------- | ------------------------ | ------------------------------------------ |
-| **Lovable** (chosen)                | Best tested                                                    | Real clickable site                  | Git commits, diffs, MCP               | Free with ~5 credits/day | Now                                        |
-| Figma paid (Full seat)              | Agent writes canvas via Plugin API; strong for human designers | Prototype frames, excellent comments | Version history, frame links          | Paid seat                | A human designer joins                     |
-| Figma free                          | —                                                              | —                                    | —                                     | Free                     | Not viable for agents (≈6 MCP calls/month) |
-| Claude Design                       | Tested, results below expectations                             | Org links, PDF/HTML export           | Handoff bundles (format undocumented) | Included in Claude plans | Not now                                    |
-| Design in code (Nuxt UI + previews) | The site is the design                                         | Preview URL per change               | Git                                   | Lowest                   | Small changes once a page is live          |
-
-The changeset format is tool-independent: a Figma or code-first change produces the same
-`docs/design/changes/<id>/`, so the tool can change without changing the feature pipeline.
-
----
-
-## 18. Risks and mitigations
-
-| Risk                                                | Mitigation                                                                                                                                           |
-| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Lovable ignores a convention (§6.2)                 | The approval step checks `data-section`, sections per file and content files; it lists what is missing and proposes one fix prompt or a free Git fix |
-| React prototype patterns with no Nuxt UI equivalent | Frontend questions at discovery; mapping table (§12); flagged at G1                                                                                  |
-| The MCP has the whole account                       | Registry-only project rule; credits and publishing always asked                                                                                      |
-| Credits run out mid-iteration                       | Prompt saved in the brief; tweaks through Git; upgrade when the pace requires it                                                                     |
-| Git sync history rewritten                          | Never force-push, rebase or squash the synced branch; tags only                                                                                      |
-| Font rendering differences                          | Baselines and CI on Linux only                                                                                                                       |
-| Real content breaks layouts                         | Spec limits, overflow rules, Studio validation, E2E with long texts                                                                                  |
-| Lovable changes its MCP tools                       | The workflow names the tools in one place (this document §5.1); adapt there                                                                          |
-| Public preview links on the free plan               | Published only on request, unpublished after approval                                                                                                |
-
----
-
-## 19. Decisions
-
-| #   | Decision                                                                                  | Status                                   |
-| --- | ----------------------------------------------------------------------------------------- | ---------------------------------------- |
-| D1  | Design tool: Lovable (Figma later, if a human designer joins)                             | **decided**                              |
-| D2  | Discovery with PO, Designer, Tech Lead, Frontend, in the main context                     | **decided**                              |
-| D3  | Approval: buttons in the chat + `/design approve <page>`                                  | **decided**                              |
-| D4  | Optimised for the Lovable free plan                                                       | **decided**                              |
-| D5  | Approved designs as Git changesets in `docs/design/changes/`, committed in the feature PR | **decided** (follows from D1–D4)         |
-| D6  | Viewports 375 / 768 / 1440                                                                | proposed                                 |
-| D7  | Visual tolerance 0.2 % pixels, threshold 0.1, max 4 iterations                            | proposed                                 |
-| D8  | Git sync for the Lovable project, tags `design/<page>-v<n>`                               | proposed (recommended for the free plan) |
-
----
-
-## 20. Rollout
-
-| Phase             | Content                                       | Exit criterion                                                                                                |
-| ----------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| 1. Track and gate | T1–T4 (done)                                  | `/design` runs discovery → brief → prompt → build → D2 → changeset; the design gate proven on this repository |
-| 2. Pilot          | First brief through §9.2–§10, Git sync set up | Approved changeset and task; `pnpm design:verify` green; feature merged; staging shows the design             |
-| 3. Harden         | T5–T8                                         | Gate in CI on Linux, axe, states                                                                              |
-| 4. Generalise     | Remaining pages, T9                           | Every page has a page index and baselines                                                                     |

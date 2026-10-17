@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useAnalytics } from '~/composables/useAnalytics/useAnalytics'
+import { useArticleSlugs } from '~/composables/useArticleSlugs/useArticleSlugs'
 import { useConsent } from '~/composables/useConsent/useConsent'
-import { ARTICLE_SLUGS_STATE } from '~/constants/article.constants'
 
 /**
  * The article's interactions, added to the server-rendered article (ArticleContent never
@@ -12,14 +12,16 @@ import { ARTICLE_SLUGS_STATE } from '~/constants/article.constants'
  */
 
 const { t } = useI18n()
-const slugs = useState<Record<string, { slug: string }>>(ARTICLE_SLUGS_STATE)
+const slugs = useArticleSlugs()
 const setI18nParams = useSetI18nParams()
 // The switcher links this article's own slug in the other language (set by ArticleContent).
 if (slugs.value) setI18nParams(slugs.value)
 
 const toast = useToast()
 const progress = ref(0)
-const header = ref(65)
+/** The sticky header's height until it is measured: the progress bar sits right below it. */
+const HEADER_HEIGHT = 65
+const header = ref(HEADER_HEIGHT)
 let frame = 0
 
 /** A heading is "being read" once its top passes this line below the header. */

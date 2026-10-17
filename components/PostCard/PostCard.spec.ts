@@ -12,7 +12,7 @@ const post = {
   author: { name: 'Lena Hoffmann' },
   date: '28 Sep 2026',
   dateTime: '2026-09-28T06:00:00Z',
-  readingTime: '2 min read',
+  readingMinutes: 2,
 }
 
 describe('PostCard', () => {
@@ -24,7 +24,7 @@ describe('PostCard', () => {
     expect(wrapper.text()).toContain('Training')
     expect(wrapper.text()).toContain('Muscles respond to training at any age.')
     expect(wrapper.find('time').attributes('datetime')).toBe('2026-09-28T06:00:00Z')
-    expect(wrapper.text()).toContain('Lena Hoffmann · 28 Sep 2026 · 2 min read')
+    expect(wrapper.text()).toContain('Lena Hoffmann · 28 Sep 2026 · 2 Min. Lesezeit')
   })
 
   it('leaves the excerpt out of a compact card', async () => {

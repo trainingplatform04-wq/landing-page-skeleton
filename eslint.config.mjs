@@ -2,8 +2,17 @@ import simpleImportSort from 'eslint-plugin-simple-import-sort'
 
 import withNuxt from './.nuxt/eslint.config.mjs'
 
-// Architecture rules live here (enforced), not only in docs (hoped for).
-// See docs/conventions/ARCHITECTURE.md.
+// The architecture rules of docs/conventions/ARCHITECTURE.md that a machine can check.
+const RESTRICTED_IMPORT_PATHS = [
+  {
+    name: '#imports',
+    message: 'Vue/Nuxt APIs are auto-imported; import project code from its `~/` file.',
+  },
+]
+const RESTRICTED_IMPORT_PATTERNS = [
+  { group: ['../*'], message: 'Use the `~/` alias instead of parent-relative imports.' },
+]
+
 const DATA_FETCHING_IN_VIEW = [
   'useAsyncData',
   'useLazyAsyncData',
@@ -25,6 +34,8 @@ export default withNuxt(
     },
     rules: {
       '@typescript-eslint/no-explicit-any': 'error',
+      // An empty list or a missing value is handled, not asserted away.
+      '@typescript-eslint/no-non-null-assertion': 'error',
       'no-console': 'error',
       'no-restricted-globals': [
         'error',
@@ -33,17 +44,7 @@ export default withNuxt(
       ],
       'no-restricted-imports': [
         'error',
-        {
-          paths: [
-            {
-              name: '#imports',
-              message: 'Vue/Nuxt APIs are auto-imported; import project code from its `~/` file.',
-            },
-          ],
-          patterns: [
-            { group: ['../*'], message: 'Use the `~/` alias instead of parent-relative imports.' },
-          ],
-        },
+        { paths: RESTRICTED_IMPORT_PATHS, patterns: RESTRICTED_IMPORT_PATTERNS },
       ],
       'simple-import-sort/exports': 'error',
       // ① side effects, node:, Vue/Nuxt/libraries ② project (~/, ~~/, #app) ③ type-only
@@ -68,26 +69,37 @@ export default withNuxt(
         'error',
         {
           paths: [
-            {
-              name: '#imports',
-              message: 'Vue/Nuxt APIs are auto-imported; import project code from its `~/` file.',
-            },
+            ...RESTRICTED_IMPORT_PATHS,
             {
               name: '~/types/sanity.types',
               message: 'Views receive plain props; map the CMS data in a composable.',
             },
           ],
-          patterns: [
-            { group: ['../*'], message: 'Use the `~/` alias instead of parent-relative imports.' },
-          ],
+          patterns: RESTRICTED_IMPORT_PATTERNS,
         },
       ],
     },
   },
   {
-    // Loaded before the `~/` alias exists (modules/, with nuxt.config.ts) or run by plain Node
-    // (tests/webPerformance/): relative imports only.
-    files: ['modules/**/*.ts', 'tests/webPerformance/**/*.ts'],
+    // One door to the CMS: page composables call useCmsQuery, never the Sanity client.
+    files: ['composables/**/*.ts'],
+    ignores: ['composables/useCmsQuery/**'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        ...['useSanity', 'useSanityQuery', 'useLazySanityQuery', 'useAsyncData', 'useFetch'].map(
+          (name) => ({
+            selector: `CallExpression[callee.name='${name}']`,
+            message: 'Query the CMS with useCmsQuery (composables/useCmsQuery).',
+          }),
+        ),
+      ],
+    },
+  },
+  {
+    // Loaded before the `~/` alias exists (modules/, with nuxt.config.ts) or run outside Nuxt
+    // (Playwright, plain Node): relative imports only.
+    files: ['modules/**/*.ts', 'tests/e2e/**/*.ts', 'tests/webPerformance/**/*.ts'],
     rules: {
       'no-restricted-imports': 'off',
     },
@@ -103,10 +115,11 @@ export default withNuxt(
     },
   },
   {
-    // The Studio is a separate workspace that consumes the shared locale list.
+    // The Studio is its own workspace (Vite, `sanity exec`) without the `~/` alias: it reaches the
+    // shared constants with relative imports.
     files: ['studio/**/*.ts'],
     rules: {
-      'no-restricted-imports': 'off',
+      'no-restricted-imports': ['error', { paths: RESTRICTED_IMPORT_PATHS }],
     },
   },
   {
@@ -115,6 +128,13 @@ export default withNuxt(
     files: ['studio/seed/**/*.ts'],
     rules: {
       'no-restricted-globals': 'off',
+    },
+  },
+  {
+    // Specs build partial documents and assert values they just created.
+    files: ['**/*.spec.ts', 'tests/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-non-null-assertion': 'off',
     },
   },
   {

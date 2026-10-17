@@ -103,8 +103,9 @@ a persona, a workflow or `CLAUDE.md`, in a PR.
   web-performance reports are working files: never committed (`.gitignore`). Pictures live in
   Sanity, uploaded by the seed.
 - **No HTML comments** in templates or Markdown; explain in the script block or in prose.
-- **Reference implementation** for design → code: the magazine (brief `0001`, changeset
-  `docs/design/changes/0001-magazine/`) and the article page (`0002`). Every page follows them.
+- **Reference implementation** for design → code: the magazine and the article page (briefs
+  `0001`, `0002`, their changesets in `docs/design/changes/`, the code in
+  `components/Magazine*` and `components/Article*`). Every page follows them; the code wins.
 - **Environment values stay in the environment.** The values of environment variables
   (container ids, keys, tokens) live only in `.env` (gitignored), Vercel and GitHub secrets.
   Repository files, commit messages, PR descriptions and comments name the variable

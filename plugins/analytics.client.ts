@@ -1,21 +1,12 @@
 import { useConsent } from '~/composables/useConsent/useConsent'
-import {
-  ANALYTICS_EVENTS,
-  type AnalyticsEvent,
-  type AnalyticsParams,
-} from '~/constants/analytics.constants'
+import { isAnalyticsEvent, trackParams } from '~/utils/analytics/analytics.utils'
 
-const isEvent = (name: string): name is AnalyticsEvent =>
-  (ANALYTICS_EVENTS as readonly string[]).includes(name)
+import type { AnalyticsEvent, AnalyticsParams } from '~/constants/analytics.constants'
 
 /**
- * Google Tag Manager, only with the visitor's consent to statistics (Consent Mode v2 "basic":
- * GTM is not even downloaded before). Advertising is always denied: this site runs no ads.
- * Withdrawing consent stops measuring at once (the consent window also deletes `_ga*`).
- *
- * Events go to GTM's dataLayer through `useAnalytics().track`, or from server-only HTML through
- * `data-track` attributes (`data-track="cta_click" data-track-label="…"`): one click listener
- * here, so links in components that never hydrate are measured too. Never personal data.
+ * Google Tag Manager, loaded only once the visitor allows statistics (Consent Mode v2 "basic").
+ * Events come from `useAnalytics().track` or from `data-track` attributes: one click listener for
+ * the whole page, so links in never-hydrated HTML are measured too. Never personal data.
  */
 export default defineNuxtPlugin((nuxtApp) => {
   const { public: config } = useRuntimeConfig()
@@ -29,10 +20,8 @@ export default defineNuxtPlugin((nuxtApp) => {
   /** Events sent before the visitor answered: sent once Statistics is granted, else dropped. */
   let waiting: Array<Record<string, unknown>> = []
 
-  // GTM is created only once the visitor allows statistics, with that consent already in its
-  // defaults: GTM's first event never sees "denied" (Consent Mode v2, "basic"). Advertising is
-  // always denied. Withdrawing reloads the page (plugins/consent.client.ts), so GTM never runs
-  // on without consent.
+  // Created with statistics already granted, so GTM's first event never sees "denied". This site
+  // runs no ads. Withdrawing reloads the page (plugins/consent.client.ts): GTM stops at once.
   const start = () => {
     if (push) return
     nuxtApp.runWithContext(() => {
@@ -73,14 +62,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     if (!(click.target instanceof Element)) return
     const element = click.target.closest<HTMLElement>('[data-track]')
     const event = element?.dataset.track
-    if (!element || !event || !isEvent(event)) return
-    const { track: _event, ...data } = element.dataset
-    const params = Object.fromEntries(
-      Object.entries(data)
-        .filter(([key]) => key.startsWith('track'))
-        .map(([key, value]) => [key.charAt(5).toLowerCase() + key.slice(6), value ?? '']),
-    )
-    track(event, params)
+    if (element && isAnalyticsEvent(event)) track(event, trackParams(element.dataset))
   })
 
   return { provide: { analytics: { track } } }

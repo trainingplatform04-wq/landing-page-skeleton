@@ -46,10 +46,13 @@ const highlights = home.about?.highlights.map((title) => ({ title, icon: 'i-luci
       <NuxtImg
         v-if="home.about.portrait"
         :src="home.about.portrait.url"
+        :style="{ objectPosition: home.about.portrait.position }"
         :alt="home.about.portrait.alt"
         width="640"
         height="640"
         sizes="sm:100vw lg:50vw"
+        format="webp"
+        loading="lazy"
         class="w-full rounded-lg object-cover shadow-xl"
       />
     </UPageSection>

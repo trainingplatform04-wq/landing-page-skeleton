@@ -1,28 +1,12 @@
-import { z } from 'zod'
-
-import { useCms } from '~/composables/useCms/useCms'
+import { useCmsQuery } from '~/composables/useCmsQuery/useCmsQuery'
+import { type LegalData, legalQuery } from '~/composables/useLegal/legal.query'
+import { useMapContext } from '~/composables/useMapContext/useMapContext'
 import { BUSINESS_TIME_ZONE } from '~/constants/date.constants'
 import { type MapContext, toRichText, toSeo, unpublishedSeo } from '~/utils/content/content.utils'
 import { formatDate } from '~/utils/date/date.utils'
-import { q, richTextField, seoFragment } from '~/utils/groqd/groqd.utils'
 
 import type { RichText, Seo } from '~/types/content.types'
-import type { InferResultType } from 'groqd'
 
-const legalQuery = q
-  .parameters<{ locale: string; type: string }>()
-  .star.filterByType('imprintPage', 'privacyPage')
-  .filterRaw('_id == $type + "-" + $locale')
-  .slice(0)
-  .project((page) => ({
-    title: z.string(),
-    body: page.raw(...richTextField('body')),
-    updatedAt: z.string().nullable(),
-    seo: page.field('seo').project(seoFragment).nullable(true),
-  }))
-  .nullable(true)
-
-/** Everything a legal page shows. */
 export interface LegalView {
   seo: Seo
   title: string
@@ -31,11 +15,7 @@ export interface LegalView {
   updatedAt?: string
 }
 
-function toLegalView(
-  page: InferResultType<typeof legalQuery> | undefined,
-  context: MapContext,
-): LegalView | null {
-  if (!page) return null
+function toLegalView(page: LegalData, context: MapContext): LegalView {
   return {
     seo: toSeo(page.seo, { title: page.title }),
     title: page.title,
@@ -47,18 +27,15 @@ function toLegalView(
 }
 
 /**
- * The imprint or privacy policy in the active language: 503 on a CMS error, empty while
- * unpublished. Both are required by German law before the site goes live.
+ * The imprint or the privacy policy in the active language (both required by German law): 503
+ * on a CMS error, empty while unpublished.
  */
 export async function useLegal(type: 'imprintPage' | 'privacyPage'): Promise<LegalView> {
-  const { runQuery, context } = useCms()
+  const context = useMapContext()
   const { t } = useI18n()
 
-  const fetchLegal = () => runQuery(legalQuery, { parameters: { locale: context.locale, type } })
-  const { data, error } = await useAsyncData(`${type}:${context.locale}`, fetchLegal)
-
-  if (error.value) throw createError({ status: 503, fatal: true })
-
+  const page = await useCmsQuery(type, legalQuery, { type })
+  if (page) return toLegalView(page, context)
   const title = t(type === 'imprintPage' ? 'footer.imprint' : 'footer.privacy')
-  return toLegalView(data.value, context) ?? { seo: unpublishedSeo(title), title, body: [] }
+  return { seo: unpublishedSeo(title), title, body: [] }
 }

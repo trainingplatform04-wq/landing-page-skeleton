@@ -1,9 +1,9 @@
 import { HelpCircleIcon } from '@sanity/icons/HelpCircle'
-import { defineField, defineType } from 'sanity'
+import { defineType } from 'sanity'
 
-import { languageField, seoField, titleField } from '../fields'
+import { introField, languageField, referenceListField, seoField, titleField } from '../fields'
 
-/** The FAQ page lists every FAQ item of its language; the items are edited under "FAQ". */
+/** The FAQ page lists every question of its language; they are edited under "Questions". */
 export const faqPageSchema = defineType({
   name: 'faqPage',
   title: 'FAQ',
@@ -12,7 +12,14 @@ export const faqPageSchema = defineType({
   fields: [
     languageField,
     titleField,
-    defineField({ name: 'intro', title: 'Intro', type: 'text', rows: 3 }),
+    introField,
+    referenceListField({
+      name: 'order',
+      title: 'Order',
+      to: 'faqItem',
+      description:
+        'Questions listed here come first, in this order. The others follow, oldest first.',
+    }),
     seoField,
   ],
 })

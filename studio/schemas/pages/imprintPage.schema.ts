@@ -1,4 +1,4 @@
-import { DocumentTextIcon } from '@sanity/icons/DocumentText'
+import { DocumentIcon } from '@sanity/icons/Document'
 import { defineField, defineType } from 'sanity'
 
 import { languageField, seoField, titleField } from '../fields'
@@ -8,7 +8,7 @@ export const imprintPageSchema = defineType({
   name: 'imprintPage',
   title: 'Imprint',
   type: 'document',
-  icon: DocumentTextIcon,
+  icon: DocumentIcon,
   fields: [
     languageField,
     titleField,

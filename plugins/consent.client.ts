@@ -5,25 +5,19 @@ import {
   CONSENT_QUEUE,
   CONSENT_REVISION,
   type ConsentCategory,
+  offeredCategories,
 } from '~/constants/consent.constants'
 import { cookiesOf } from '~/constants/cookies.constants'
-import { type LocaleCode, LOCALES } from '~/constants/i18n.constants'
+import { LOCALES } from '~/constants/i18n.constants'
+import { consentTranslation } from '~/utils/consent/consent.utils'
 
-import type { CookieConsentConfig, Translation } from 'vanilla-cookieconsent'
+import type { CookieConsentConfig } from 'vanilla-cookieconsent'
 
-/**
- * Consent (CookieConsent v3, MIT, as the engine): the first window is our server-rendered
- * `ConsentBanner` (it paints with the page); the library stores the choice (6 months, revision),
- * runs the "Settings" window per category and clears cookies on withdrawal. Our buttons carry
- * `data-consent="accept-all | reject-all | settings"` (banner, footer, privacy page), handled
- * here even in server-only HTML; a click before the library has loaded is kept and applied.
- * Nothing optional loads before a choice. Statistics is offered only with a GTM container.
- */
 type ConsentAction = 'accept-all' | 'reject-all' | 'settings'
 
 declare global {
   interface Window {
-    /** Answers given before this plugin ran (ConsentBanner's inline script); `undefined` after. */
+    /** Answers given before this plugin ran (ConsentBanner's head script); `undefined` after. */
     [CONSENT_QUEUE]?: string[]
   }
 }
@@ -31,45 +25,19 @@ declare global {
 const isAction = (value: string | undefined): value is ConsentAction =>
   value === 'accept-all' || value === 'reject-all' || value === 'settings'
 
+/**
+ * Consent, with CookieConsent v3 as the engine. The first window is our server-rendered
+ * ConsentBanner; the library stores the choice, shows the "Settings" window and clears cookies on
+ * withdrawal. Buttons with `data-consent="accept-all | reject-all | settings"` work anywhere,
+ * never-hydrated HTML included; a click before the library has loaded is kept and applied.
+ */
 export default defineNuxtPlugin((nuxtApp) => {
   const { public: config } = useRuntimeConfig()
   const consent = useConsent()
   const i18n = nuxtApp.$i18n
-  const categories: ConsentCategory[] = config.gtmId
-    ? ['necessary', 'statistics', 'externalMedia']
-    : ['necessary', 'externalMedia']
+  const categories = offeredCategories(config.gtmId)
 
   let api: typeof import('vanilla-cookieconsent') | undefined
-
-  /** The window's texts in one language (i18n `consent.*`). */
-  const translation = (locale: LocaleCode): Translation => {
-    const t = (key: string) => i18n.t(key, {}, { locale })
-    return {
-      consentModal: {
-        title: t('consent.title'),
-        description: t(config.gtmId ? 'consent.description' : 'consent.descriptionNoStatistics'),
-        acceptAllBtn: t('consent.acceptAll'),
-        acceptNecessaryBtn: t('consent.rejectAll'),
-        showPreferencesBtn: t('consent.settings'),
-        footer: `<a href="${nuxtApp.$localePath('privacy', locale)}">${t('footer.privacy')}</a><a href="${nuxtApp.$localePath('imprint', locale)}">${t('footer.imprint')}</a>`,
-      },
-      preferencesModal: {
-        title: t('consent.settingsTitle'),
-        acceptAllBtn: t('consent.acceptAll'),
-        acceptNecessaryBtn: t('consent.rejectAll'),
-        savePreferencesBtn: t('consent.save'),
-        closeIconLabel: t('consent.close'),
-        sections: [
-          { description: t('consent.settingsIntro') },
-          ...categories.map((category) => ({
-            title: t(`consent.categories.${category}.title`),
-            description: t(`consent.categories.${category}.description`),
-            linkedCategory: category,
-          })),
-        ],
-      },
-    }
-  }
 
   const record = () => {
     const accepted = (category: ConsentCategory) =>
@@ -107,7 +75,15 @@ export default defineNuxtPlugin((nuxtApp) => {
     onChange: record,
     language: {
       default: i18n.locale.value,
-      translations: Object.fromEntries(LOCALES.map(({ code }) => [code, translation(code)])),
+      translations: Object.fromEntries(
+        LOCALES.map(({ code }) => [
+          code,
+          consentTranslation((key) => i18n.t(key, {}, { locale: code }), categories, {
+            privacy: nuxtApp.$localePath('privacy', code),
+            imprint: nuxtApp.$localePath('imprint', code),
+          }),
+        ]),
+      ),
     },
   }
 

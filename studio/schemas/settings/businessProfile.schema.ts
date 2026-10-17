@@ -10,7 +10,12 @@ export const businessProfileSchema = defineType({
   type: 'document',
   icon: PinIcon,
   fields: [
-    defineField({ name: 'name', title: 'Name', type: 'string', validation: (r) => r.required() }),
+    defineField({
+      name: 'name',
+      title: 'Name',
+      type: 'string',
+      validation: (rule) => rule.required(),
+    }),
     defineField({
       name: 'email',
       title: 'Email',
@@ -29,7 +34,7 @@ export const businessProfileSchema = defineType({
     }),
     defineField({
       name: 'address',
-      title: 'Address',
+      title: 'Postal address',
       type: 'object',
       fields: [
         defineField({ name: 'street', title: 'Street', type: 'string' }),
@@ -55,7 +60,7 @@ export const businessProfileSchema = defineType({
             }),
             defineField({
               name: 'url',
-              title: 'Address',
+              title: 'Profile URL',
               type: 'url',
               validation: (rule) => rule.required().uri({ scheme: ['https'] }),
             }),

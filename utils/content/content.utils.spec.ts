@@ -1,13 +1,16 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  editorOrder,
   type MapContext,
   toBusiness,
+  toClosing,
   toCta,
   toImage,
   toOfferCard,
   toRichText,
   toSeo,
+  toSlugs,
   unpublishedSeo,
 } from './content.utils'
 
@@ -26,14 +29,48 @@ const link = {
   offerLanguage: null,
 }
 
+const picture = {
+  alt: 'A coach',
+  url: 'https://cdn/x.jpg',
+  dimensions: null,
+  crop: null,
+  hotspot: null,
+}
+
 describe('toImage', () => {
   it('keeps an image only when it has a file', () => {
-    expect(toImage({ alt: 'A coach', url: 'https://cdn/x.jpg' })).toEqual({
+    expect(toImage(picture)).toEqual({
       url: 'https://cdn/x.jpg',
       alt: 'A coach',
+      position: undefined,
     })
-    expect(toImage({ alt: 'No file', url: null })).toBeUndefined()
+    expect(toImage({ ...picture, url: null })).toBeUndefined()
     expect(toImage(null)).toBeUndefined()
+  })
+
+  it('cuts the editor crop and keeps the focal point visible in it', () => {
+    const framed = toImage({
+      ...picture,
+      dimensions: { width: 1000, height: 500 },
+      crop: { top: 0, bottom: 0, left: 0.2, right: 0.3 },
+      hotspot: { x: 0.45, y: 0.3 },
+    })
+
+    expect(framed).toEqual({
+      url: 'https://cdn/x.jpg?rect=200,0,500,500',
+      alt: 'A coach',
+      position: '50% 30%',
+    })
+  })
+
+  it('keeps the focal point inside the picture and ignores a crop it cannot cut', () => {
+    const framed = toImage({
+      ...picture,
+      crop: { top: 0, bottom: 0, left: 0.5, right: 0 },
+      hotspot: { x: 1.2, y: -0.1 },
+    })
+
+    expect(framed).toEqual({ url: 'https://cdn/x.jpg', alt: 'A coach', position: '100% 0%' })
   })
 })
 
@@ -49,6 +86,47 @@ describe('toCta', () => {
   it('drops a button whose target cannot be shown', () => {
     expect(toCta({ label: 'Old', link: { ...link, route: 'nope' } }, context)).toBeUndefined()
     expect(toCta(null, context)).toBeUndefined()
+  })
+})
+
+describe('toClosing', () => {
+  it('shows a band with a title or a button, never a text alone', () => {
+    const button = { label: 'Write to us', link }
+
+    expect(toClosing({ title: null, text: 'Hi', cta: button }, context)).toEqual({
+      title: undefined,
+      text: 'Hi',
+      cta: { label: 'Write to us', to: '/en/contact', external: false },
+    })
+    expect(toClosing({ title: null, text: 'Alone', cta: null }, context)).toBeUndefined()
+    expect(toClosing(null, context)).toBeUndefined()
+  })
+})
+
+describe('toSlugs', () => {
+  it('gives the slug of every translation', () => {
+    const translations = [
+      { language: 'de', slug: 'yoga-de' },
+      null,
+      { language: 'en', slug: 'yoga' },
+    ]
+
+    expect(toSlugs(translations, { language: 'en', slug: 'yoga' })).toEqual({
+      de: { slug: 'yoga-de' },
+      en: { slug: 'yoga' },
+    })
+  })
+
+  it('has only its own slug without translations', () => {
+    expect(toSlugs(null, { language: 'de', slug: 'online' })).toEqual({ de: { slug: 'online' } })
+  })
+})
+
+describe('editorOrder', () => {
+  it('puts the documents the editor ordered first, the others after in their order', () => {
+    const items = [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }]
+
+    expect(editorOrder(items, ['c', 'a', 'gone']).map(({ id }) => id)).toEqual(['c', 'a', 'b', 'd'])
   })
 })
 
