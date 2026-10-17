@@ -156,7 +156,7 @@
       "duration": "Session"
     },
     "colorMode": {
-      "purpose": "Remembers the colour scheme: your device's until you pick light or dark with the switch at the top. Keeps the page from flashing in the wrong scheme",
+      "purpose": "Remembers the colour scheme: your device's until you pick light or dark with the switch at the top",
       "duration": "1 year"
     }
   }

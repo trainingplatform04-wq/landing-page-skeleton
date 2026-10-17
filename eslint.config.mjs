@@ -87,10 +87,12 @@ export default withNuxt(
     rules: {
       'no-restricted-syntax': [
         'error',
-        {
-          selector: "CallExpression[callee.name='useSanity']",
-          message: 'Query the CMS with useCmsQuery (composables/useCmsQuery).',
-        },
+        ...['useSanity', 'useSanityQuery', 'useLazySanityQuery', 'useAsyncData', 'useFetch'].map(
+          (name) => ({
+            selector: `CallExpression[callee.name='${name}']`,
+            message: 'Query the CMS with useCmsQuery (composables/useCmsQuery).',
+          }),
+        ),
       ],
     },
   },

@@ -46,6 +46,7 @@ const linkFragment = q.fragment<Link>().project((link) => ({
   offerLanguage: link.field('reference').deref().field('language', z.string().nullable()),
 }))
 
+/** A button as the editor filled it; the mapper (`toCta`) drops it unless label and link are set. */
 export const ctaFragment = q.fragment<Cta>().project((cta) => ({
   label: z.string().nullable(),
   link: cta.field('link').project(linkFragment).nullable(true),
@@ -66,6 +67,7 @@ export const seoFragment = q.fragment<Seo>().project((seo) => ({
   image: seo.field('image.asset').deref().field('url', z.string().nullable()),
 }))
 
+/** An offer on a card (the offers page, the home page's featured offers). */
 export const offerCardFragment = q.fragmentForType<'offer'>().project((offer) => ({
   id: ['_id', z.string()],
   title: z.string(),
@@ -75,6 +77,7 @@ export const offerCardFragment = q.fragmentForType<'offer'>().project((offer) =>
   price: z.number().nullable(),
 }))
 
+/** The author signing an article; the photo is null when none was uploaded. */
 export const authorFragment = q.fragmentForType<'author'>().project((author) => ({
   name: z.string(),
   role: z.string().nullable(),

@@ -35,6 +35,8 @@ export type SeedManifest = {
   /** Ids of every document the seed has written, so `reset` can delete the removed ones. */
   documentIds: string[]
   images: ManifestImage[]
+  /** The previous format's list of documents, read once so its knowledge isn't lost. */
+  documents?: Array<{ id: string }>
 }
 
 export type SeedMutation =
@@ -65,7 +67,7 @@ export function planSeed(
   images: ManifestImage[],
 ): SeedPlan {
   const ids = documents.map(({ _id }) => _id)
-  const known = manifest?.documentIds ?? []
+  const known = manifest?.documentIds ?? manifest?.documents?.map(({ id }) => id) ?? []
   const exists = (id: string) => existingIds.has(id) || existingIds.has(draftId(id))
   // New since the last run: neither written before nor in the dataset (an editor's deletion sticks).
   const created = ids.filter((id) => !known.includes(id) && !exists(id))

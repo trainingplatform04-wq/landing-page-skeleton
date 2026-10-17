@@ -76,7 +76,7 @@ Nothing optional loads before the visitor agrees (GDPR, TDDDG §25). Developer g
 - `plugins/consent.client.ts` runs CookieConsent as the engine (stored choice, Settings window, cookie clearing) and records the choice in `useConsent`. Buttons anywhere use `data-consent="accept-all | reject-all | settings"`.
 - `plugins/analytics.client.ts` loads Google Tag Manager only once Statistics is granted (`NUXT_PUBLIC_GTM_ID`; empty = no statistics offered). Events: `useAnalytics().track()` or `data-track="<event>"` + `data-track-<param>` attributes. Never personal data.
 - `constants/cookies.constants.ts` is the one cookie inventory (window, privacy page table, tests). A new cookie raises `CONSENT_REVISION`.
-- **Color mode**: the `color-mode` cookie (necessary) holds `system` until the visitor uses the header switch, so the server renders the right scheme.
+- **Color mode**: the `color-mode` cookie (necessary) holds `system` until the visitor uses the header switch; an inline head script applies the scheme before the first paint.
 
 ## Forms
 

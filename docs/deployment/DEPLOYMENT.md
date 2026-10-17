@@ -760,12 +760,12 @@ answered `302` to a Vercel login page for everyone. Only the smoke test caught i
 
 ### 11.4 Sanity operations
 
-| Task                            | Command (inside `studio/`, after `pnpm exec sanity login`)                                                                                                 |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Refresh staging from production | `pnpm exec sanity dataset export production prod.tar.gz --no-drafts`, then `pnpm exec sanity dataset import prod.tar.gz staging --replace`                 |
-| Fill staging with demo content  | `pnpm studio:seed` (repo root, [§8.0](#80-content-in-sanity)); after a refresh from production never use `--reset` (it would overwrite the copied content) |
-| List datasets                   | `pnpm exec sanity dataset list`                                                                                                                            |
-| Export a backup                 | `pnpm exec sanity dataset export production backup.tar.gz`                                                                                                 |
+| Task                            | Command (inside `studio/`, after `pnpm exec sanity login`)                                                                                                                                                                   |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Refresh staging from production | `pnpm exec sanity dataset export production prod.tar.gz --no-drafts`, then `pnpm exec sanity dataset import prod.tar.gz staging --replace`                                                                                   |
+| Fill staging with demo content  | `pnpm studio:seed` (repo root, [§8.0](#80-content-in-sanity)). After a refresh from production, the next seed (every staging deploy) fills the copied pages' empty fields with demo text, and `--reset` would overwrite them |
+| List datasets                   | `pnpm exec sanity dataset list`                                                                                                                                                                                              |
+| Export a backup                 | `pnpm exec sanity dataset export production backup.tar.gz`                                                                                                                                                                   |
 
 **Sitemap freshness.** Published pages, offers and articles enter `/sitemap.xml` at build time, so they are
 listed after the next deploy. If Sanity can't be reached during the build, the build **fails** rather

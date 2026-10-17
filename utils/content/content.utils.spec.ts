@@ -62,6 +62,16 @@ describe('toImage', () => {
       position: '50% 30%',
     })
   })
+
+  it('keeps the focal point inside the picture and ignores a crop it cannot cut', () => {
+    const framed = toImage({
+      ...picture,
+      crop: { top: 0, bottom: 0, left: 0.5, right: 0 },
+      hotspot: { x: 1.2, y: -0.1 },
+    })
+
+    expect(framed).toEqual({ url: 'https://cdn/x.jpg', alt: 'A coach', position: '100% 0%' })
+  })
 })
 
 describe('toCta', () => {

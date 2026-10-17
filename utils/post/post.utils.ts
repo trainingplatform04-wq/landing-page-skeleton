@@ -22,6 +22,7 @@ export function toPostCard(post: PostCardData, context: MapContext): PostCard {
   }
 }
 
+/** `undefined` without an author (a weak reference to a deleted one included). */
 export function toAuthor(author: AuthorData | null | undefined): Author | undefined {
   if (!author) return undefined
   return {

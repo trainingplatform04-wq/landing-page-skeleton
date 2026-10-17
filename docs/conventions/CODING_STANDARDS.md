@@ -66,7 +66,7 @@ PageSpeed runs in CI on the PR's deployment (§7.1).
 
 ## 8. Comments
 
-- **JSDoc** (`/** … */`, one line, three at most) on every export: what it returns and the non-obvious edge (`undefined when…`, `404 if…`). Never restate the name.
+- **JSDoc** (`/** … */`, one line, three at most) on every export whose name and type don't say it all: what it returns and the non-obvious edge (`undefined when…`, `404 if…`). Never restate the name.
 - **`//` inside a body only for a why**: a constraint (privacy, SEO, hydration, performance), a workaround, a non-obvious order. Two lines at most.
 - **Templates**: no HTML comments; explain a template choice in the `<script>` block.
 - **Never**: history ("was", "PR #", dates, "decided by"), measurements, notes to agents or reviewers, links to dated documents, a copy of a doc (link its section instead).

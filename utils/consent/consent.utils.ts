@@ -2,8 +2,8 @@ import type { ConsentCategory } from '~/constants/consent.constants'
 import type { Translation } from 'vanilla-cookieconsent'
 
 /**
- * The "Settings" window's texts in one language, from the i18n keys `consent.*`. `t` translates
- * in that language; `links` are its privacy and imprint pages.
+ * The consent library's texts in one language (its own first window and the Settings window),
+ * from the i18n keys `consent.*`. `t` translates in that language; `links` are its legal pages.
  */
 export function consentTranslation(
   t: (key: string) => string,

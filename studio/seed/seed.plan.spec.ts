@@ -59,6 +59,24 @@ describe('planSeed in add mode', () => {
     expect(plan.mutations).toEqual([{ createOrReplace: manifest(['homePage-de']) }])
   })
 
+  it('reads the previous manifest format, so deleted documents stay deleted', () => {
+    const legacy = {
+      _id: MANIFEST_ID,
+      _type: 'seed.manifest' as const,
+      documents: [{ id: 'homePage-de' }],
+    }
+    const plan = planSeed(
+      [home],
+      { ...legacy, documentIds: undefined, images: [] } as unknown as SeedManifest,
+      'add',
+      new Set(),
+      [],
+    )
+
+    expect(plan.created).toEqual([])
+    expect(plan.mutations).toEqual([{ createOrReplace: manifest(['homePage-de']) }])
+  })
+
   it('remembers every document it ever wrote', () => {
     const plan = planSeed([faq], manifest(['homePage-de']), 'add', new Set(), [])
 

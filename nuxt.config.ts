@@ -44,8 +44,9 @@ export default defineNuxtConfig({
   },
 
   colorMode: {
-    // A cookie, like the consent: the server renders the visitor's scheme (no flash of the other
-    // one). It holds `system` (follow the device) until the visitor uses the header switch.
+    // One storage for the site's preferences: a cookie, like the consent. It holds `system` (follow
+    // the device) until the visitor uses the header switch; the module's head script applies it
+    // before the first paint.
     storage: 'cookie',
     storageKey: 'color-mode',
   },

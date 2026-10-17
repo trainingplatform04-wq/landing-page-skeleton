@@ -20,7 +20,7 @@ export async function useCmsQuery<Result, Config extends QueryConfig>(
 
   // groqd types the parameters a query declares; every query here declares `locale`.
   const parameters = { locale: locale.value, ...params } as Config['parameters']
-  // One cache entry per query and parameters: `article:de:protein-ohne-pulver`.
+  // The key names the answer in the page payload: one per query and parameters.
   const key = [name, locale.value, ...Object.values(params ?? {})].join(':')
 
   const { data, error } = await useAsyncData(key, () => run(query, { parameters }))

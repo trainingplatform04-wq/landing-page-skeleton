@@ -22,7 +22,7 @@ export interface MapContext {
   localePath: LocalePath
 }
 
-const percent = (value: number) => `${Math.round(value * 100)}%`
+const percent = (value: number) => `${Math.round(Math.min(1, Math.max(0, value)) * 100)}%`
 
 /**
  * A picture as the editor framed it: the crop is cut by Sanity's image CDN (`rect`), the focal
@@ -31,14 +31,14 @@ const percent = (value: number) => `${Math.round(value * 100)}%`
  */
 export function toImage(image: ImageData | null | undefined): Image | undefined {
   if (!image?.url) return undefined
-  const crop = image.crop ?? { top: 0, bottom: 0, left: 0, right: 0 }
+  const size = image.dimensions
+  // Cut only when the picture's size is known; the focal point then moves with the cut.
+  const crop = (size && image.crop) || { top: 0, bottom: 0, left: 0, right: 0 }
   const width = 1 - crop.left - crop.right
   const height = 1 - crop.top - crop.bottom
-  const cropped = width < 1 || height < 1
-  const size = image.dimensions
 
   const url =
-    cropped && size
+    size && (width < 1 || height < 1)
       ? `${image.url}?rect=${[
           Math.round(crop.left * size.width),
           Math.round(crop.top * size.height),
@@ -46,7 +46,6 @@ export function toImage(image: ImageData | null | undefined): Image | undefined 
           Math.round(height * size.height),
         ].join(',')}`
       : image.url
-  // The focal point is placed on the whole picture: moved into the cropped part.
   const position = image.hotspot
     ? `${percent((image.hotspot.x - crop.left) / width)} ${percent((image.hotspot.y - crop.top) / height)}`
     : undefined
@@ -113,6 +112,7 @@ export function toRichText(blocks: RichTextData | null | undefined, context: Map
   })
 }
 
+/** An offer on a card: its link in this language and its price formatted for the visitor. */
 export function toOfferCard(offer: OfferCardData, context: MapContext): OfferCard {
   return {
     id: offer.id,
@@ -124,6 +124,7 @@ export function toOfferCard(offer: OfferCardData, context: MapContext): OfferCar
   }
 }
 
+/** The business facts ready to show: address lines and a dialable phone link. */
 export function toBusiness(business: BusinessData): Business {
   const { street, postalCode, city } = business.address ?? {}
   return {

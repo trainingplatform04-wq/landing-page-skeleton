@@ -21,4 +21,4 @@ Google's rules: one language per URL, bidirectional hreflang to URLs that exist,
 
 ## Adding a locale
 
-`constants/i18n.constants.ts` (`LOCALES`), a file in `i18n/locales/`, its path in every entry of `ROUTE_PATHS` (TypeScript flags the missing ones).
+`constants/i18n.constants.ts` (`LOCALES`), a file in `i18n/locales/`, its path in every entry of `ROUTE_PATHS` and its Nuxt UI labels in `app.vue` (TypeScript flags the missing ones).

@@ -3,11 +3,15 @@ import { de, en } from '@nuxt/ui/locale'
 
 import { useSiteHead } from '~/composables/useSiteHead/useSiteHead'
 
+import type { LocaleCode } from '~/constants/i18n.constants'
+
+/** Nuxt UI's own labels (color switch, pagination, …) per site language. */
+const UI_LOCALES = { de, en } satisfies Record<LocaleCode, typeof en>
+
 useSiteHead()
 
-// Nuxt UI's own labels (color switch, pagination, …) in the site's language.
 const { locale } = useI18n()
-const uiLocale = computed(() => (locale.value === 'de' ? de : en))
+const uiLocale = computed(() => UI_LOCALES[locale.value])
 </script>
 
 <template>
