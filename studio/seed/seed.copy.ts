@@ -257,7 +257,7 @@ export const COPY = {
           heading: 'Einwilligung und Cookies',
           text: [
             'Beim ersten Besuch fragt ein Fenster, was Sie erlauben: „Alle akzeptieren“, „Alle ablehnen“ oder eine Auswahl unter „Einstellungen“. Bis Sie entscheiden, lädt die Website nur, was für ihren Betrieb nötig ist: keine Statistik, keine externen Medien.',
-            'Ihre Wahl speichern wir 6 Monate im Cookie cc_cookie, damit wir Sie nicht bei jedem Besuch erneut fragen; danach, oder wenn sich die eingesetzten Dienste ändern, fragen wir erneut. Rechtsgrundlage dafür sind § 25 Abs. 2 Nr. 2 TDDDG und Art. 6 Abs. 1 lit. c DSGVO (Nachweis der Einwilligung).',
+            'Ihre Wahl speichern wir 6 Monate im Cookie cc_cookie, damit wir Sie nicht bei jedem Besuch erneut fragen; danach, oder wenn sich die eingesetzten Dienste ändern, fragen wir erneut. Rechtsgrundlage dafür sind § 25 Abs. 2 Nr. 2 TDDDG und Art. 6 Abs. 1 lit. c DSGVO (Nachweis der Einwilligung). Wählen Sie oben ein helles oder dunkles Farbschema, speichern wir diese Wahl 1 Jahr im Cookie color-mode (§ 25 Abs. 2 Nr. 2 TDDDG: von Ihnen gewünschte Funktion).',
             'Sie können Ihre Einwilligung jederzeit mit Wirkung für die Zukunft ändern oder widerrufen: über „Cookie-Einstellungen“ unten auf jeder Seite. Beim Widerruf werden Statistik und Videos sofort beendet (die Seite lädt neu) und die Statistik-Cookies gelöscht. Cookies, die YouTube auf youtube.com setzt, können wir nicht löschen: Sie entfernen sie in Ihrem Browser. Die Tabelle unter diesem Text nennt jedes Cookie mit Anbieter, Zweck und Dauer.',
           ],
         },
@@ -397,7 +397,7 @@ export const COPY = {
           heading: 'Consent and cookies',
           text: [
             'On your first visit a window asks what you allow: “Accept all”, “Reject all” or a choice under “Settings”. Until you decide, the website loads only what it needs to work: no statistics, no external media.',
-            'We store your choice for 6 months in the cookie cc_cookie, so we do not ask on every visit; after that, or when the services we use change, we ask again. The legal basis is § 25(2) no. 2 TDDDG and Art. 6(1)(c) GDPR (proof of consent).',
+            'We store your choice for 6 months in the cookie cc_cookie, so we do not ask on every visit; after that, or when the services we use change, we ask again. The legal basis is § 25(2) no. 2 TDDDG and Art. 6(1)(c) GDPR (proof of consent). When you pick a light or dark colour scheme at the top, we store that choice for 1 year in the cookie color-mode (§ 25(2) no. 2 TDDDG: a function you asked for).',
             'You can change or withdraw your consent at any time, with effect for the future: through “Cookie settings” at the bottom of every page. When you withdraw, statistics and videos stop at once (the page reloads) and the statistics cookies are deleted. Cookies that YouTube sets on youtube.com cannot be deleted by us: you remove them in your browser. The table below this text lists every cookie with its provider, purpose and duration.',
           ],
         },

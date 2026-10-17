@@ -49,6 +49,21 @@ test.describe('Consent', () => {
     expect(await analyticsCookies(page)).toEqual([])
   })
 
+  test('stores a colour scheme only once the visitor picks one, for a year', async ({ page }) => {
+    const colorCookie = async () =>
+      (await page.context().cookies()).find(({ name }) => name === 'color-mode')
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Alle ablehnen' }).click()
+    await page.waitForTimeout(500)
+    expect(await colorCookie()).toBeUndefined()
+
+    await page.getByRole('button', { name: /Zum (dunklen|hellen) Modus wechseln/ }).click()
+
+    await expect.poll(async () => (await colorCookie())?.value).toMatch(/^(dark|light)$/)
+    const yearFromNow = Date.now() / 1000 + 360 * 24 * 60 * 60
+    expect((await colorCookie())?.expires).toBeGreaterThan(yearFromNow)
+  })
+
   test('an answer given before the JavaScript has loaded is kept and applied', async ({ page }) => {
     await watchThirdParties(page)
     let release: () => void = () => {}

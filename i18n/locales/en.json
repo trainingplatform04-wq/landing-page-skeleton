@@ -110,7 +110,7 @@
     "categories": {
       "necessary": {
         "title": "Necessary",
-        "description": "Stores your consent choice. Always active, since without it we could not remember a \"no\"."
+        "description": "Stores your consent choice and, when you pick one at the top, your colour scheme. Always active, since without it we could not remember a \"no\"."
       },
       "statistics": {
         "title": "Statistics",
@@ -156,7 +156,7 @@
       "duration": "Session"
     },
     "colorMode": {
-      "purpose": "Remembers the colour scheme: your device's until you pick light or dark with the switch at the top",
+      "purpose": "Remembers the colour scheme (light or dark) you picked with the switch at the top; set only when you pick one",
       "duration": "1 year"
     }
   }

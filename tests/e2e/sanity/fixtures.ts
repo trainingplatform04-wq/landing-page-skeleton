@@ -5,6 +5,7 @@
  * What the specs rely on:
  * - Every page exists in both languages, except the FAQ page and the imprint (German
  *   only): in English they render empty (the FAQ page still lists the English questions).
+ *   The German FAQ page lists its editor-ordered question (prices) before the trial question.
  * - "Personal training" and "Strength group" are translated with different slugs;
  *   "Online coaching" is German only (no English link, no hreflang).
  * - The About page has a title, a description and a closing band in both languages, and no
@@ -262,7 +263,19 @@ export const documents = () => [
   translations('post-2', { de: 'post-2-de', en: 'post-2-en' }, 'post'),
 
   // German only.
-  page('faqPage', 'de', { title: 'Häufige Fragen', intro: 'Alles, was Sie wissen möchten.' }),
+  // The editor put "prices" first: it is listed before the older trial question.
+  page('faqPage', 'de', {
+    title: 'Häufige Fragen',
+    intro: 'Alles, was Sie wissen möchten.',
+    order: keyed([reference('faq-prices-de')]),
+  }),
+  {
+    _id: 'faq-prices-de',
+    _type: 'faqItem',
+    language: 'de',
+    question: 'Was kostet eine Einheit?',
+    answer: text('Ab 25 Euro.'),
+  },
   page('imprintPage', 'de', { title: 'Impressum', body: text('Angaben gemäß § 5 DDG') }),
   {
     _id: 'testimonial-anna',

@@ -27,6 +27,9 @@ export const CONSENT_DAYS = 182
 /** The cookie that stores the choice (necessary: it is what makes "no" stick). */
 export const CONSENT_COOKIE = 'cc_cookie'
 
+/** The light or dark scheme the visitor picked with the header switch; never a default. */
+export const COLOR_MODE_COOKIE = 'color-mode'
+
 /**
  * Where a click on the consent window waits until the site's JavaScript runs: the window is in
  * the server HTML, so a visitor can answer before the app has loaded (see ConsentBanner).

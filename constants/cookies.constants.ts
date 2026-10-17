@@ -1,4 +1,8 @@
-import { CONSENT_COOKIE, type ConsentCategory } from '~/constants/consent.constants'
+import {
+  COLOR_MODE_COOKIE,
+  CONSENT_COOKIE,
+  type ConsentCategory,
+} from '~/constants/consent.constants'
 
 /**
  * Every cookie the site can set or cause: the single source for the consent window, the cookie
@@ -18,8 +22,7 @@ export interface CookieEntry {
 
 export const COOKIES: CookieEntry[] = [
   { id: 'consent', name: CONSENT_COOKIE, provider: 'site', category: 'necessary' },
-  // `system` (follow the device) until the visitor picks light or dark with the header switch.
-  { id: 'colorMode', name: 'color-mode', provider: 'site', category: 'necessary' },
+  { id: 'colorMode', name: COLOR_MODE_COOKIE, provider: 'site', category: 'necessary' },
   { id: 'ga', name: '_ga', provider: 'google', category: 'statistics', clear: /^_ga$/ },
   { id: 'gaSession', name: '_ga_*', provider: 'google', category: 'statistics', clear: /^_ga_/ },
   {

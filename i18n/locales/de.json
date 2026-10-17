@@ -110,7 +110,7 @@
     "categories": {
       "necessary": {
         "title": "Notwendig",
-        "description": "Speichert Ihre Einwilligung. Immer aktiv, da wir uns sonst kein „Nein“ merken könnten."
+        "description": "Speichert Ihre Einwilligung und, wenn Sie es oben wählen, Ihr Farbschema. Immer aktiv, da wir uns sonst kein „Nein“ merken könnten."
       },
       "statistics": {
         "title": "Statistik",
@@ -156,7 +156,7 @@
       "duration": "Sitzung"
     },
     "colorMode": {
-      "purpose": "Merkt sich das Farbschema: wie Ihr Gerät, bis Sie mit dem Schalter oben hell oder dunkel wählen",
+      "purpose": "Merkt sich das Farbschema (hell oder dunkel), das Sie mit dem Schalter oben gewählt haben; erst bei dieser Wahl gesetzt",
       "duration": "1 Jahr"
     }
   }

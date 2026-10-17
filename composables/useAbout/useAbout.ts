@@ -25,7 +25,7 @@ function toAboutView(page: AboutData, context: MapContext): AboutView {
     seo: toSeo(page.seo, {
       title: page.title,
       description: page.description,
-      image: page.image?.url,
+      image: toImage(page.image)?.url,
     }),
     label: page.label ?? undefined,
     title: page.title,

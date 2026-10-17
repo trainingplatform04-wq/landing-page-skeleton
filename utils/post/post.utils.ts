@@ -1,6 +1,7 @@
 import { BUSINESS_TIME_ZONE } from '~/constants/date.constants'
 import { type MapContext, toImage } from '~/utils/content/content.utils'
 import { formatShortDate } from '~/utils/date/date.utils'
+import { pageHref } from '~/utils/pagination/pagination.utils'
 import { readingMinutes } from '~/utils/readingTime/readingTime.utils'
 
 import type { Author, PostCard, RichText } from '~/types/content.types'
@@ -40,8 +41,10 @@ export function toCategoryLink(
   context: MapContext,
 ): { title: string; to: string } | undefined {
   if (!category) return undefined
-  const to = `${context.localePath('magazine')}?category=${encodeURIComponent(category.slug)}`
-  return { title: category.title, to }
+  return {
+    title: category.title,
+    to: pageHref(context.localePath('magazine'), { category: category.slug }, 1),
+  }
 }
 
 /**

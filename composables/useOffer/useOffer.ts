@@ -31,7 +31,7 @@ function toOfferView(offer: OfferData, context: MapContext, slug: string): Offer
     seo: toSeo(offer.seo, {
       title: offer.title,
       description: offer.summary,
-      image: offer.image?.url,
+      image: toImage(offer.image)?.url,
     }),
     slug,
     title: offer.title,

@@ -1,3 +1,4 @@
+import { COLOR_MODE_COOKIE } from './constants/consent.constants'
 import { DEFAULT_LOCALE, LOCALES } from './constants/i18n.constants'
 import { ROUTE_PATHS } from './constants/routes.constants'
 import {
@@ -44,11 +45,12 @@ export default defineNuxtConfig({
   },
 
   colorMode: {
-    // One storage for the site's preferences: a cookie, like the consent. It holds `system` (follow
-    // the device) until the visitor uses the header switch; the module's head script applies it
-    // before the first paint.
+    // One storage for the site's preferences: a cookie, like the consent, kept a year. Written only
+    // once the visitor picks a scheme (plugins/colorMode.client.ts); the module's head script
+    // applies it before the first paint. `maxAge`: the module's own default key is ignored.
     storage: 'cookie',
-    storageKey: 'color-mode',
+    storageKey: COLOR_MODE_COOKIE,
+    cookieAttrs: { maxAge: 60 * 60 * 24 * 365, path: '/', sameSite: 'lax' },
   },
 
   icon: {

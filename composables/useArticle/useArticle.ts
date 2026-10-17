@@ -47,7 +47,11 @@ function toArticleView(data: ArticleData, context: MapContext, slug: string): Ar
 
   const { body, toc } = withHeadingAnchors(toRichText(post.body, context))
   return {
-    seo: toSeo(post.seo, { title: post.title, description: post.excerpt, image: post.cover?.url }),
+    seo: toSeo(post.seo, {
+      title: post.title,
+      description: post.excerpt,
+      image: toImage(post.cover)?.url,
+    }),
     title: post.title,
     excerpt: post.excerpt,
     magazineTo: context.localePath('magazine'),
