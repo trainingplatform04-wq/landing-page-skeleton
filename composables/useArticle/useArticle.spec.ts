@@ -1,7 +1,7 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { closing, cta, image, noSeo } from '~~/tests/helpers/cmsData'
+import { closing, croppedImage, cta, image, noSeo } from '~~/tests/helpers/cmsData'
 import { mountComposable, thrownBy } from '~~/tests/helpers/mountComposable'
 
 import { useArticle } from './useArticle'
@@ -91,6 +91,18 @@ describe('useArticle', () => {
         image: 'https://cdn.sanity.io/cover.jpg',
       },
     })
+  })
+
+  it('shares the cover as the editor cropped it', async () => {
+    fetchMock.mockResolvedValue({
+      ...answer,
+      post: { ...post, cover: croppedImage('https://cdn.sanity.io/cover.jpg', 'A bowl') },
+    })
+    const view = await mountComposable(useArticle, {
+      route: '/en/magazine/protein-without-powder',
+    })
+
+    expect(view.seo.image).toBe('https://cdn.sanity.io/cover.jpg?rect=250,0,500,500')
   })
 
   it('lists the H2s for the table of contents and puts their ids on the text', async () => {

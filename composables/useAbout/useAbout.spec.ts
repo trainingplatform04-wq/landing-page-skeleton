@@ -1,7 +1,7 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { closing, cta, image, noSeo } from '~~/tests/helpers/cmsData'
+import { closing, croppedImage, cta, image, noSeo } from '~~/tests/helpers/cmsData'
 import { mountComposable, thrownBy } from '~~/tests/helpers/mountComposable'
 
 import { useAbout } from './useAbout'
@@ -41,6 +41,16 @@ describe('useAbout', () => {
       closing: { title: 'Ready for your first session?', cta: { label: 'Request a free trial' } },
       seo: { title: "Hi, I'm your coach", image: 'https://cdn.example/about.jpg', noIndex: false },
     })
+  })
+
+  it('shares the picture as the editor cropped it', async () => {
+    fetchMock.mockResolvedValue({
+      ...page,
+      image: croppedImage('https://cdn.example/about.jpg', 'Coach with a client'),
+    })
+    const view = await mountComposable(useAbout, { route: '/en/about' })
+
+    expect(view.seo.image).toBe('https://cdn.example/about.jpg?rect=250,0,500,500')
   })
 
   it('leaves out the picture and the closing band the editor did not fill in', async () => {

@@ -4,20 +4,20 @@ Nuxt 4 with the **flat layout** (`srcDir: '.'`): Nuxt directories live at the re
 
 ## Directories
 
-| Directory                | Contains                                                                                         | Rule                                                                                |
-| ------------------------ | ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
-| `pages/`                 | One file per route                                                                               | Call one composable (or render one content component), set the head.                |
-| `layouts/`               | The frame: header, main, footer, consent window                                                  | Single root element.                                                                |
-| `components/<Name>/`     | `Name.vue` + `Name.spec.ts`                                                                      | Plain props in (`types/content.types.ts`), markup out. Never fetch.                 |
-| `composables/<useName>/` | `useName.ts` (view type, mapper, composable), `name.query.ts` (its query), `useName.spec.ts`     | The **only** place that reads the CMS, through `useCmsQuery`.                       |
-| `utils/<topic>/`         | `topic.utils.ts` + `topic.utils.spec.ts`                                                         | Pure functions (no network, no Nuxt runtime). `groqd/` holds the fragments.         |
-| `constants/`             | Routes, locales, menu, consent, cookies, analytics events, time zone, Sanity settings            | Shared values; routes, locales and Sanity settings also by the Studio.              |
-| `types/`                 | `content.types.ts` (what components receive), `sanity.types.ts` (**generated**)                  | Never edit the generated file.                                                      |
-| `plugins/`               | `consent.client.ts`, `analytics.client.ts` (browser only, `.client` suffix)                      | One document-wide click listener each; logic in `utils/consent`, `utils/analytics`. |
-| `modules/`               | `sitemap.ts`: reads published pages, offers and articles when building                           | Loaded before the `~/` alias exists: relative imports.                              |
-| `i18n/locales/`          | `de.json`, `en.json`                                                                             | The same keys in every language.                                                    |
-| `studio/`                | Sanity Studio, its schemas and the staging seed ([`docs/sanity/SANITY.md`](../sanity/SANITY.md)) | Its own workspace and Vercel project.                                               |
-| `tests/`                 | `e2e/` (Playwright, fixture CMS), `visual/` (design gate), `webPerformance/`, `orchestration/`   | See CODING_STANDARDS §6.                                                            |
+| Directory                | Contains                                                                                         | Rule                                                                               |
+| ------------------------ | ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| `pages/`                 | One file per route                                                                               | Call one composable (or render one content component), set the head.               |
+| `layouts/`               | The frame: header, main, footer, consent window                                                  | Single root element.                                                               |
+| `components/<Name>/`     | `Name.vue` + `Name.spec.ts`                                                                      | Plain props in (`types/content.types.ts`), markup out. Never fetch.                |
+| `composables/<useName>/` | `useName.ts` (view type, mapper, composable), `name.query.ts` (its query), `useName.spec.ts`     | The **only** place that reads the CMS, through `useCmsQuery`.                      |
+| `utils/<topic>/`         | `topic.utils.ts` + `topic.utils.spec.ts`                                                         | Pure functions (no network, no Nuxt runtime). `groqd/` holds the fragments.        |
+| `constants/`             | Routes, locales, menu, consent, cookies, analytics events, time zone, Sanity settings            | Shared values; routes, locales and Sanity settings also by the Studio.             |
+| `types/`                 | `content.types.ts` (what components receive), `sanity.types.ts` (**generated**)                  | Never edit the generated file.                                                     |
+| `plugins/`               | `consent.client.ts`, `analytics.client.ts`, `colorMode.client.ts` (browser only, `.client`)      | Consent, analytics: one click listener each, logic in `utils/`. Color mode: below. |
+| `modules/`               | `sitemap.ts`: reads published pages, offers and articles when building                           | Loaded before the `~/` alias exists: relative imports.                             |
+| `i18n/locales/`          | `de.json`, `en.json`                                                                             | The same keys in every language.                                                   |
+| `studio/`                | Sanity Studio, its schemas and the staging seed ([`docs/sanity/SANITY.md`](../sanity/SANITY.md)) | Its own workspace and Vercel project.                                              |
+| `tests/`                 | `e2e/` (Playwright, fixture CMS), `visual/` (design gate), `webPerformance/`, `orchestration/`   | See CODING_STANDARDS §6.                                                           |
 
 Vue, Nuxt and module functions are auto-imported. Project code is imported explicitly from its `~/` file. ESLint enforces the rules it can (`eslint.config.mjs`, CODING_STANDARDS §1–2).
 

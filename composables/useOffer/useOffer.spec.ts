@@ -1,7 +1,7 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { noSeo, text } from '~~/tests/helpers/cmsData'
+import { croppedImage, noSeo, text } from '~~/tests/helpers/cmsData'
 import { mountComposable, thrownBy } from '~~/tests/helpers/mountComposable'
 
 import { useOffer } from './useOffer'
@@ -42,6 +42,16 @@ describe('useOffer', () => {
       price: '€60.00',
       seo: { title: 'Personal coaching', description: 'One to one.', noIndex: false },
     })
+  })
+
+  it('shares the picture as the editor cropped it', async () => {
+    fetchMock.mockResolvedValue({
+      ...offer,
+      image: croppedImage('https://cdn.sanity.io/o.jpg', ''),
+    })
+    const view = await mountComposable(useOffer, { route: '/en/offers/personal-coaching' })
+
+    expect(view.seo.image).toBe('https://cdn.sanity.io/o.jpg?rect=250,0,500,500')
   })
 
   it('gives the slug of every translation to the language switcher', async () => {

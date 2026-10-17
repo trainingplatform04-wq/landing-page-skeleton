@@ -22,6 +22,13 @@ export const image = (url: string, alt: string) => ({
   hotspot: null,
 })
 
+/** A 1000×500 picture the editor cropped to its middle square: `toImage` cuts `?rect=250,0,500,500`. */
+export const croppedImage = (url: string, alt: string) => ({
+  ...image(url, alt),
+  dimensions: { width: 1000, height: 500 },
+  crop: { top: 0, bottom: 0, left: 0.25, right: 0.25 },
+})
+
 export const closing = (
   title: string | null,
   text: string | null,
