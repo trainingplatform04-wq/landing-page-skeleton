@@ -25,9 +25,9 @@ Client: `<name>` · Production URL: `<url>` · Completed by: `<name>` on `<date>
 
 ## 3. Google Tag Manager and GA4 (`docs/analytics/GTM.md`)
 
-- [ ] Two **Web** containers (production; development, shared by Development, Feature and Local), imported from `docs/analytics/gtm-container.json`, the "GA4 measurement ID" variable filled in each.
-- [ ] `NUXT_PUBLIC_GTM_ID` set in Vercel: production container for **Production**, development container for **Preview** (Development: branch `develop`; Feature: all branches) and Vercel **Development** (Local) (`docs/deployment/DEPLOYMENT.md` §11.1). Development and Feature post the contact form to a test form, never the production endpoint.
-- [ ] GA4 standard property per environment; Google signals off; ads personalisation off; account data sharing off; event data retention 14 months.
+- [ ] One **Web** container, imported from `docs/analytics/gtm-container.json`, the "GA4 measurement ID" variable filled in.
+- [ ] `NUXT_PUBLIC_GTM_ID` set in Vercel to the same container id in **Production**, **Preview** (Development: branch `develop`; Feature: all branches) and Vercel **Development** (Local) (`docs/deployment/DEPLOYMENT.md` §11.1).
+- [ ] One GA4 standard property; Google signals off; ads personalisation off; account data sharing off; event data retention 14 months.
 - [ ] Google's data processing terms accepted in GA4 and GTM.
 - [ ] Production container published and checked once with Tag Assistant Preview.
 

@@ -15,8 +15,9 @@ permissions:
   contents: read
 
 concurrency:
-  # PRs: a new push cancels the previous run. Called from deploy: never shared.
-  group: ci-${{ github.head_ref || github.run_id }}
+  # PRs: a new push cancels the previous run of the same PR (by number: two PRs from branches with
+  # the same name never cancel each other). Called from deploy: never shared.
+  group: ci-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
 
 env:

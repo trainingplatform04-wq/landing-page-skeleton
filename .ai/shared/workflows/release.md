@@ -32,7 +32,7 @@ Obey `.ai/shared/workflows/operating-model.md`. A production release is **Gate G
 
    Replace the placeholders before creating the PR. The PR must never open with an empty body.
 
-3. **Review loop.** Run `.ai/shared/workflows/code-review-loop.md` on the release PR. The review focuses on release risk: env contract, migrations, config drift between Development and Productionuction.
+3. **Review loop.** Run `.ai/shared/workflows/code-review-loop.md` on the release PR. The review focuses on release risk: env contract, migrations, config drift between Development and Production.
 4. **🚦 Gate G2.** After `APPROVED`, green CI and a complete legal go-live checklist, post the signed comment below and **stop**. Continue only when the human says go.
 
    ```text

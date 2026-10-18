@@ -18,15 +18,15 @@ Read [`SKELETON.md`](SKELETON.md). For every example the client doesn't need, fo
 
 ## 4. Brand and content
 
-| What                | Where                                                                                                    |
-| ------------------- | -------------------------------------------------------------------------------------------------------- |
-| Colors              | `app.config.ts` (`primary`, `neutral`), tokens in `assets/css/main.css`                                  |
-| Fonts               | `assets/css/main.css` (self-hosted, never a font CDN)                                                    |
-| Menu                | `constants/navigation.constants.ts`                                                                      |
-| Languages and URLs  | `constants/i18n.constants.ts`, `constants/routes.constants.ts`                                           |
-| UI texts            | `i18n/locales/`                                                                                          |
-| Demo content        | `studio/seed/seed.copy.ts` and `seed.magazine.ts` (the client's real words when known), `seed.images.ts` |
-| Custom page designs | `/design <page>` (the design track, `docs/design/DESIGN_WORKFLOW.md`)                                    |
+| What                | Where                                                                                                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Colors              | `app.config.ts` (`primary`, `neutral`), tokens in `assets/css/main.css`                                                                                                   |
+| Fonts               | `assets/css/main.css` (self-hosted, never a font CDN)                                                                                                                     |
+| Menu                | `constants/navigation.constants.ts`                                                                                                                                       |
+| Languages and URLs  | `constants/i18n.constants.ts`, `constants/routes.constants.ts`                                                                                                            |
+| UI texts            | `i18n/locales/`                                                                                                                                                           |
+| Demo content        | `studio/seed/seed.copy.ts` and `seed.magazine.ts` (the client's real words when known), `seed.images.ts`; `slugPages` in `webPerformance.config.ts` follows the new slugs |
+| Custom page designs | `/design <page>` (the design track, `docs/design/DESIGN_WORKFLOW.md`)                                                                                                     |
 
 ## 5. Before going live
 

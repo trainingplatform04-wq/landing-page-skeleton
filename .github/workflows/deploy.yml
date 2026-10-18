@@ -5,7 +5,7 @@
 #   push develop  → CI → deploy webapp + studio to Preview, develop rows → alias → smoke + seed → web performance (DEVELOPMENT)
 #   push main     → CI → deploy webapp + studio to Production                  → smoke  (PRODUCTION)
 #   pull request  → ci.yml: deploy webapp to Preview at <project>-pr-<n>             (FEATURE)
-#   workflow_dispatch on develop/main → same as a push to that branch
+#   workflow_dispatch on develop/main → same as a push to that branch (any other branch: nothing runs)
 #
 # Docs: docs/deployment/DEPLOYMENT.md
 # ─────────────────────────────────────────────────────────────────────────────
@@ -33,6 +33,9 @@ env:
 jobs:
   ci:
     name: CI
+    # Run workflow can be started on any branch: only develop and main deploy, every other job
+    # needs this one.
+    if: github.ref_name == 'develop' || github.ref_name == 'main'
     uses: ./.github/workflows/ci.yml
     secrets: inherit
     # The most any job of ci.yml asks for (Deploy feature, PR report): GitHub refuses to start the
@@ -86,6 +89,15 @@ jobs:
 
       # Project settings + env vars of the target environment (source of truth).
       - run: vercel pull --yes --environment="$TARGET" $BRANCH_FLAG --token="$VERCEL_TOKEN"
+
+      # A key missing from the `develop` rows silently takes its Feature value (Preview, all
+      # branches): stop before building if the pulled values are not this environment's.
+      - name: Check the environment values
+        env:
+          EXPECTED: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+        run: |
+          actual=$(grep -E '^NUXT_SITE_ENV=' ".vercel/.env.$TARGET.local" | cut -d= -f2- | tr -d '"' || true)
+          [ "$actual" = "$EXPECTED" ] || { echo "::error::NUXT_SITE_ENV is '$actual' in the pulled values, expected '$EXPECTED': set the $EXPECTED rows in Vercel (docs/deployment/DEPLOYMENT.md §11.1)."; exit 1; }
 
       - run: vercel build $PROD_FLAG --token="$VERCEL_TOKEN"
         env:

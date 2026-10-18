@@ -272,23 +272,22 @@ with that column's value. For each cell: **Add** → **Key** and **Value**, keep
 - **Feature** (pull requests): tick **Preview** only, branch left empty (all branches).
 - **Local**: tick **Development** only (Vercel's laptop environment, for `vercel env pull`).
 
-| Key                                 | Production         | Development (Preview · `develop`)           | Feature (Preview)                           | Local (Development)                         |
-| ----------------------------------- | ------------------ | ------------------------------------------- | ------------------------------------------- | ------------------------------------------- |
-| `NUXT_PUBLIC_SANITY_PROJECT_ID`     | N1                 | N1                                          | N1                                          | N1                                          |
-| `NUXT_PUBLIC_SANITY_DATASET`        | `production`       | `development`                               | `development`                               | `development`                               |
-| `NUXT_PUBLIC_SITE_URL`              | N5                 | N7                                          | any URL, replaced by `-pr-<number>` ¹       | `http://localhost:3000`                     |
-| `NUXT_SITE_ENV`                     | `production`       | `development`                               | `feature`                                   | `local`                                     |
-| `NUXT_PUBLIC_SITE_NAME` ²           | site name          | same                                        | same                                        | same                                        |
-| `NUXT_PUBLIC_CONTACT_FORM_ACTION` ² | form endpoint      | a test form (never the production endpoint) | a test form (never the production endpoint) | a test form (never the production endpoint) |
-| `NUXT_PUBLIC_GTM_ID` ²              | production `GTM-…` | development `GTM-…`                         | development `GTM-…`                         | development `GTM-…`                         |
+| Key                                 | Production    | Development (Preview · `develop`) | Feature (Preview)                     | Local (Development)     |
+| ----------------------------------- | ------------- | --------------------------------- | ------------------------------------- | ----------------------- |
+| `NUXT_PUBLIC_SANITY_PROJECT_ID`     | N1            | N1                                | N1                                    | N1                      |
+| `NUXT_PUBLIC_SANITY_DATASET`        | `production`  | `development`                     | `development`                         | `development`           |
+| `NUXT_PUBLIC_SITE_URL`              | N5            | N7                                | any URL, replaced by `-pr-<number>` ¹ | `http://localhost:3000` |
+| `NUXT_SITE_ENV`                     | `production`  | `development`                     | `feature`                             | `local`                 |
+| `NUXT_PUBLIC_SITE_NAME` ²           | site name     | same                              | same                                  | same                    |
+| `NUXT_PUBLIC_CONTACT_FORM_ACTION` ² | form endpoint | same                              | same                                  | same                    |
+| `NUXT_PUBLIC_GTM_ID` ²              | `GTM-…`       | same                              | same                                  | same                    |
 
 ¹ The **Deploy feature** job writes `https://<project-name>-pr-<number>.vercel.app` for each pull
 request, so canonical links, hreflang and the sitemap of a PR deployment use its own address.
 
 ² The **key** is required in every environment like the others; its **value** may be empty where
-the feature is off (no GTM container yet: no statistics; no form endpoint: an email link). Development
-and Feature are public and show only the demo privacy text, so their contact form posts to a test
-form, never to the client's real one.
+the feature is off (no GTM container yet: no statistics; no form endpoint: an email link). The GTM
+container and the form endpoint have the same value in every environment.
 
 Rules:
 
@@ -305,17 +304,16 @@ Rules:
   the service emails you. Pick a service that accepts such posts from your domain (CORS), answers
   JSON when asked (`Accept: application/json`). Sign a
   data processing agreement with it. Without it, the contact page shows an email link.
-- `NUXT_PUBLIC_GTM_ID` is the Google Tag Manager container of the environment: the production
-  container for **Production**, the shared development container for **Development**, **Feature**
-  and **Local**. GTM loads only after a visitor accepts statistics; empty, nothing
+- `NUXT_PUBLIC_GTM_ID` is the site's Google Tag Manager container, the same in **Production**,
+  **Development**, **Feature** and **Local**. GTM loads only after a visitor accepts statistics; empty, nothing
   analytics-related loads and the consent window does not offer statistics. Creating the
-  containers: [docs/analytics/GTM.md](../analytics/GTM.md). With the CLI (it asks for the value):
+  container: [docs/analytics/GTM.md](../analytics/GTM.md). With the CLI (it asks for the value):
 
   ```bash
-  pnpm dlx vercel@61.0.0 env add NUXT_PUBLIC_GTM_ID production    # GTM-… of the production container
-  pnpm dlx vercel@61.0.0 env add NUXT_PUBLIC_GTM_ID preview develop   # development container (Development)
-  pnpm dlx vercel@61.0.0 env add NUXT_PUBLIC_GTM_ID preview           # same container, all branches (Feature)
-  pnpm dlx vercel@61.0.0 env add NUXT_PUBLIC_GTM_ID development       # same container (Local)
+  pnpm dlx vercel@61.0.0 env add NUXT_PUBLIC_GTM_ID production        # GTM-… (Production)
+  pnpm dlx vercel@61.0.0 env add NUXT_PUBLIC_GTM_ID preview develop   # same value (Development)
+  pnpm dlx vercel@61.0.0 env add NUXT_PUBLIC_GTM_ID preview           # same value, all branches (Feature)
+  pnpm dlx vercel@61.0.0 env add NUXT_PUBLIC_GTM_ID development       # same value (Local)
   ```
 
 ### 3.3 Build settings
@@ -676,17 +674,17 @@ pnpm build:e2e && CI=1 pnpm test:e2e  # E2E against a production build (fixture 
 
 **Vercel project `webapp`** (Settings → Environment Variables, Sensitive OFF; targets in [§3.2](#32-environment-variables))
 
-| Name                              | Production         | Development (Preview · `develop`)           | Feature (Preview)                           | Local (Development)                         | Value        |
-| --------------------------------- | ------------------ | ------------------------------------------- | ------------------------------------------- | ------------------------------------------- | ------------ |
-| `NUXT_PUBLIC_SANITY_PROJECT_ID`   | N1                 | N1                                          | N1                                          | N1                                          | ✅           |
-| `NUXT_PUBLIC_SANITY_DATASET`      | `production`       | `development`                               | `development`                               | `development`                               | ✅           |
-| `NUXT_PUBLIC_SITE_URL`            | N5                 | N7                                          | replaced by `-pr-<number>`                  | `http://localhost:3000`                     | ✅           |
-| `NUXT_SITE_ENV`                   | `production`       | `development`                               | `feature`                                   | `local`                                     | ✅           |
-| `NUXT_PUBLIC_SITE_NAME`           | site name          | same                                        | same                                        | same                                        | may be empty |
-| `NUXT_PUBLIC_CONTACT_FORM_ACTION` | form endpoint      | a test form (never the production endpoint) | a test form (never the production endpoint) | a test form (never the production endpoint) | may be empty |
-| `NUXT_PUBLIC_GTM_ID`              | production `GTM-…` | development `GTM-…`                         | development `GTM-…`                         | development `GTM-…`                         | may be empty |
+| Name                              | Production    | Development (Preview · `develop`) | Feature (Preview)          | Local (Development)     | Value        |
+| --------------------------------- | ------------- | --------------------------------- | -------------------------- | ----------------------- | ------------ |
+| `NUXT_PUBLIC_SANITY_PROJECT_ID`   | N1            | N1                                | N1                         | N1                      | ✅           |
+| `NUXT_PUBLIC_SANITY_DATASET`      | `production`  | `development`                     | `development`              | `development`           | ✅           |
+| `NUXT_PUBLIC_SITE_URL`            | N5            | N7                                | replaced by `-pr-<number>` | `http://localhost:3000` | ✅           |
+| `NUXT_SITE_ENV`                   | `production`  | `development`                     | `feature`                  | `local`                 | ✅           |
+| `NUXT_PUBLIC_SITE_NAME`           | site name     | same                              | same                       | same                    | may be empty |
+| `NUXT_PUBLIC_CONTACT_FORM_ACTION` | form endpoint | same                              | same                       | same                    | may be empty |
+| `NUXT_PUBLIC_GTM_ID`              | `GTM-…`       | same                              | same                       | same                    | may be empty |
 
-Every key is present everywhere; "may be empty" is about the value only. `NUXT_PUBLIC_GTM_ID` stays **empty** in the `.env` you copy from `.env.example` (a `vercel env pull` brings the development container of Local)
+Every key is present everywhere; "may be empty" is about the value only. `NUXT_PUBLIC_GTM_ID` stays **empty** in the `.env` you copy from `.env.example` (a `vercel env pull` brings the container)
 and in CI builds. The E2E suite sets a fake container (`GTM-E2ETEST`, `tests/e2e/sanity/fixtureCms.ts`)
 and stubs its script: the test runs never reach Google. Setup and verification: [docs/analytics/GTM.md](../analytics/GTM.md);
 legal steps before production: [docs/legal/go-live-checklist.md](../legal/go-live-checklist.md).
@@ -718,14 +716,14 @@ legal steps before production: [docs/legal/go-live-checklist.md](../legal/go-liv
 
 ### 11.2 Pipeline files
 
-| File                                    | Trigger                          | What it does                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| --------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `.github/actions/setup/action.yml`      | used by every job                | pnpm pinned in `package.json`, Node from `.nvmrc`, cached `pnpm install --frozen-lockfile`, optionally the **pinned** Vercel CLI                                                                                                                                                                                                                                                                                               |
-| `.github/workflows/ci.yml`              | every PR; called by `deploy.yml` | **Branch policy** (PRs to `main` only from `develop`/`hotfix/*`) · lint · format · Sanity type drift · types · unit tests (coverage ≥ 80 %) · build both apps · E2E · then (pull requests), only if all of these pass, **Deploy feature** (the branch to Vercel Preview, alias `-pr-<number>`) → **Web performance** (Google PageSpeed Insights) on that deployment against `webPerformance.config.ts` → **PR report** comment |
-| `.github/workflows/deploy.yml`          | push to `develop` / `main`       | Full `ci.yml` again, then for **webapp + studio**, one at a time: `vercel pull` → `vercel build` → `vercel deploy --prebuilt` → `vercel inspect --wait` → (development) `vercel alias set` → **smoke test**; (development) **seed**: `pnpm studio:seed` (add only)                                                                                                                                                             |
-| `.github/workflows/feature-cleanup.yml` | PR merged or closed              | Removes the PR's address `-pr-<number>` and its deployments (Vercel meta `pr=<number>`), marks its GitHub deployments inactive                                                                                                                                                                                                                                                                                                 |
-| `.github/dependabot.yml`                | weekly                           | pnpm and GitHub Actions updates, PRs into `develop`                                                                                                                                                                                                                                                                                                                                                                            |
-| `vercel.json`, `studio/vercel.json`     | read by Vercel                   | Build commands, Git auto-deploy **off**, Studio SPA rewrite                                                                                                                                                                                                                                                                                                                                                                    |
+| File                                    | Trigger                                                                 | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| --------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `.github/actions/setup/action.yml`      | used by every job                                                       | pnpm pinned in `package.json`, Node from `.nvmrc`, cached `pnpm install --frozen-lockfile`, optionally the **pinned** Vercel CLI                                                                                                                                                                                                                                                                                                                 |
+| `.github/workflows/ci.yml`              | every PR; called by `deploy.yml`                                        | **Branch policy** (PRs to `main` only from `develop`/`hotfix/*`) · lint · format · Sanity type drift · types · unit tests (coverage ≥ 80 %) · build both apps · E2E · then (pull requests), only if all of these pass, **Deploy feature** (the branch to Vercel Preview, alias `-pr-<number>`) → **Web performance** (Google PageSpeed Insights) on that deployment against `webPerformance.config.ts` → **PR report** comment                   |
+| `.github/workflows/deploy.yml`          | push to `develop` / `main`; **Run workflow** on those two branches only | Full `ci.yml` again, then for **webapp + studio**, one at a time: `vercel pull` → check that the pulled `NUXT_SITE_ENV` is `development` (develop) or `production` (main), else stop (a key missing from the `develop` rows silently takes its Feature value) → `vercel build` → `vercel deploy --prebuilt` → `vercel inspect --wait` → (development) `vercel alias set` → **smoke test**; (development) **seed**: `pnpm studio:seed` (add only) |
+| `.github/workflows/feature-cleanup.yml` | PR merged or closed                                                     | Removes the PR's address `-pr-<number>` and its deployments (Vercel meta `pr=<number>`), marks its GitHub deployments inactive                                                                                                                                                                                                                                                                                                                   |
+| `.github/dependabot.yml`                | weekly                                                                  | pnpm and GitHub Actions updates, PRs into `develop`                                                                                                                                                                                                                                                                                                                                                                                              |
+| `vercel.json`, `studio/vercel.json`     | read by Vercel                                                          | Build commands, Git auto-deploy **off**, Studio SPA rewrite                                                                                                                                                                                                                                                                                                                                                                                      |
 
 The **Deploy feature** job (pull requests only, after the tests) pulls the **Feature** variables
 with the Vercel CLI (Preview rows for all branches: development dataset, `NUXT_SITE_ENV=feature`),
@@ -815,7 +813,8 @@ than ship a sitemap without the CMS pages: re-run it. To redeploy on every publi
    - Dataset: `development` (or `production`) · Trigger on: **Create, Update, Delete**
    - Filter: `_type in ["offer", "post"] || _id in path("*Page-*")` · Projection: `{"ref": "develop"}` (`"main"` for production)
    - HTTP method: **POST** · HTTP headers: `Authorization: Bearer <token>`, `Accept: application/vnd.github+json`
-3. Publish a page: **Actions → Deploy** starts for that branch (the same pipeline as a push).
+3. Publish a page: **Actions → Deploy** starts for that branch (the same pipeline as a push). On any
+   other branch than `develop` or `main`, it does nothing.
 
 The Studio is hosted on **Vercel only**. Never run `sanity deploy` (it would publish a second,
 unmanaged Studio on `*.sanity.studio`).

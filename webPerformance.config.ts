@@ -34,7 +34,8 @@ export interface WebPerformanceBudget {
   /**
    * Pages with a slug belong to editors and share one template, so the audit takes one published
    * example of each such template, in the default language (from the development seed, which the
-   * Feature deployment reads).
+   * Feature deployment reads). Both documents stay published on Development, or every pull
+   * request's Web performance fails.
    */
   slugPages: string[]
   categories: Category[]

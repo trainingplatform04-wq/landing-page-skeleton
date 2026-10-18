@@ -17,6 +17,7 @@ const DATA_FETCHING_IN_VIEW = [
   'useAsyncData',
   'useLazyAsyncData',
   'useFetch',
+  'useLazyFetch',
   'useSanity',
   'useSanityQuery',
 ].map((name) => ({
@@ -87,12 +88,18 @@ export default withNuxt(
     rules: {
       'no-restricted-syntax': [
         'error',
-        ...['useSanity', 'useSanityQuery', 'useLazySanityQuery', 'useAsyncData', 'useFetch'].map(
-          (name) => ({
-            selector: `CallExpression[callee.name='${name}']`,
-            message: 'Query the CMS with useCmsQuery (composables/useCmsQuery).',
-          }),
-        ),
+        ...[
+          'useSanity',
+          'useSanityQuery',
+          'useLazySanityQuery',
+          'useAsyncData',
+          'useLazyAsyncData',
+          'useFetch',
+          'useLazyFetch',
+        ].map((name) => ({
+          selector: `CallExpression[callee.name='${name}']`,
+          message: 'Query the CMS with useCmsQuery (composables/useCmsQuery).',
+        })),
       ],
     },
   },

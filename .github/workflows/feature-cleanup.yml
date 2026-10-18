@@ -13,7 +13,7 @@ on:
 # Same group as this PR's CI run (ci.yml): closing the PR cancels a running Deploy feature, which
 # discards its deployment, so no address is set after the cleanup.
 concurrency:
-  group: ci-${{ github.head_ref }}
+  group: ci-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 permissions:
