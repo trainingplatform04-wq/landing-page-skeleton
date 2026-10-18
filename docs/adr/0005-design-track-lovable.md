@@ -6,7 +6,7 @@
 
 ## 1. Context
 
-The feature pipeline (`/feature`) is autonomous from a task to staging. Design was a Figma-only optional step inside it (Step 3), and no design existed yet. Designing needs many human iterations (ideas, client comments, changes of mind), which an autonomous pipeline cannot absorb. The owner tested Claude Design (results below expectations) and Lovable (best results), and wants to talk only to Claude, with only the validated changes reaching the code agents.
+The feature pipeline (`/feature`) is autonomous from a task to Development. Design was a Figma-only optional step inside it (Step 3), and no design existed yet. Designing needs many human iterations (ideas, client comments, changes of mind), which an autonomous pipeline cannot absorb. The owner tested Claude Design (results below expectations) and Lovable (best results), and wants to talk only to Claude, with only the validated changes reaching the code agents.
 
 ## 2. Decisions
 
@@ -16,7 +16,7 @@ The feature pipeline (`/feature`) is autonomous from a task to staging. Design w
 - **One compiled prompt per iteration**, sent only after the human's explicit go (credits). Conventions live in the Lovable project knowledge, generated from our tokens. Precise tweaks are Git commits on the synced Lovable repository (no credits).
 - **Approval as buttons in the chat** (Approve, Request changes, Discard), and `/design approve <page>` for later sessions.
 - **A validated design is a commit**: D2 records the approved Lovable commit of the page and produces a changeset in `docs/design/changes/` with only the sections changed since the previous approved commit. Tasks point to a changeset (`Design change` field). The changeset format is tool-independent.
-- **Design content becomes the staging seed** (`studio/seed/`).
+- **Design content becomes the development seed** (`studio/seed/`).
 - **Strict architecture** (amended 2026-10-09): only the designer engineer reads Lovable code and turns it into facts (measurements, typography, tokens, states, content); the frontend implements from those facts and the baselines under ARCHITECTURE and CODING_STANDARDS only, never from the React code; the reviewer blocks prototype-shaped code.
 - **Design gate before the PR**: `pnpm design:capture` screenshots our own build's sections; an independent designer reviewer checks them against the changeset's section specs; `pnpm design:verify` then compares every section, locale and width (375 / 768 / 1440) with those screenshots. The screenshots are never committed. A design task is not done, and no PR is opened, until it passes.
 - **Pictures live in Sanity only** (amended 2026-10-09): the seed downloads pictures from their addresses (stock photos now, the prototype's at D2) and uploads them to the dataset; no picture file is committed.

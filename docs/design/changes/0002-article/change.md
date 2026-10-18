@@ -60,7 +60,7 @@ badge) → `bg-elevated` with `text-highlighted`, `surface-strong` (video poster
   FAQ open, video loaded only after the click, link copied toast, sections hidden on an article
   without takeaways or questions, unknown slug answers 404).
 - axe: no serious or critical issue.
-- The demo content on staging equals the design content (seed: `content/article.json`; one new
+- The demo content on Development equals the design content (seed: `content/article.json`; one new
   stock photo matching the figure's description).
 - Web performance: the page meets 90+ (aim) and never under 80 on PageSpeed Insights, mobile and
   desktop (`webPerformance.config.ts`).

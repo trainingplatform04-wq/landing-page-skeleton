@@ -47,7 +47,7 @@ tokens; the frontend maps each to our closest Nuxt UI semantic token (`primary`,
   `pnpm design:verify 0001-magazine` passes (DESIGN_WORKFLOW §13).
 - Every state in the section specs is covered (E2E: category filter, empty state, pagination).
 - axe: no serious or critical issue.
-- The demo content on staging equals the design content (seed: `content/magazine.json`; stock
+- The demo content on Development equals the design content (seed: `content/magazine.json`; stock
   photos matching the prototype's picture descriptions).
 - German page `/magazin` renders every section; long words wrap at 375.
 

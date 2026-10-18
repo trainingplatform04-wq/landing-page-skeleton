@@ -128,10 +128,12 @@ jobs:
       WEBAPP_PROJECT_ID: ${{ vars.VERCEL_WEBAPP_PROJECT_ID }}
       STUDIO_PROJECT_ID: ${{ vars.VERCEL_STUDIO_PROJECT_ID }}
     steps:
+      # The log names the project ("Web App", "Studio") and the keys, never an ID or a value.
       - name: Same variables in every environment
         run: |
           status=0
-          for project in "$WEBAPP_PROJECT_ID" "$STUDIO_PROJECT_ID"; do
+          for app in "Web App:$WEBAPP_PROJECT_ID" "Studio:$STUDIO_PROJECT_ID"; do
+            IFS=: read -r label project <<< "$app"
             envs=$(curl --fail --silent --show-error -H "Authorization: Bearer $VERCEL_TOKEN" \
               "https://api.vercel.com/v10/projects/$project/env?teamId=$VERCEL_ORG_ID")
             # keys <Vercel target> <Git branch, empty for every branch>
@@ -142,7 +144,7 @@ jobs:
               IFS=: read -r name target branch <<< "$scope"
               missing=$(comm -23 <(echo "$all") <(keys "$target" "$branch"))
               if [ -n "$missing" ]; then
-                echo "::error::Vercel project $project, $name environment is missing: $(echo $missing)"
+                echo "::error::Vercel $label, $name environment is missing: $(echo $missing)"
                 status=1
               fi
             done
@@ -165,7 +167,8 @@ jobs:
     permissions:
       contents: read
       deployments: write
-    # GitHub shows "View deployment" on the PR and each PR's address in the Deployments panel.
+    # GitHub shows "View deployment" on the PR. One environment for every PR: a newer deployment of
+    # another PR marks this one inactive there, so the PR report and the run summary carry the address.
     environment:
       name: feature
       url: ${{ steps.alias.outputs.url }}

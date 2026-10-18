@@ -10,6 +10,12 @@ on:
   pull_request:
     types: [closed]
 
+# Same group as this PR's CI run (ci.yml): closing the PR cancels a running Deploy feature, which
+# discards its deployment, so no address is set after the cleanup.
+concurrency:
+  group: ci-${{ github.head_ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 

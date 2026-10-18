@@ -273,18 +273,23 @@ one is missing). For each cell: **Add** → **Key** and **Value**, keep **Sensit
 - **Feature** (pull requests): tick **Preview** only, branch left empty (all branches).
 - **Local**: tick **Development** only (Vercel's laptop environment, for `vercel env pull`).
 
-| Key                                            | Production         | Development (Preview · `develop`) | Feature (Preview)                     | Local (Development)     |
-| ---------------------------------------------- | ------------------ | --------------------------------- | ------------------------------------- | ----------------------- |
-| `NUXT_PUBLIC_SANITY_PROJECT_ID`                | N1                 | N1                                | N1                                    | N1                      |
-| `NUXT_PUBLIC_SANITY_DATASET`                   | `production`       | `development`                     | `development`                         | `development`           |
-| `NUXT_PUBLIC_SITE_URL`                         | N5                 | N7                                | any URL, replaced by `-pr-<number>` ¹ | `http://localhost:3000` |
-| `NUXT_SITE_ENV`                                | `production`       | `development`                     | `feature`                             | `local`                 |
-| `NUXT_PUBLIC_SITE_NAME` _(optional)_           | site name          | same                              | same                                  | same                    |
-| `NUXT_PUBLIC_CONTACT_FORM_ACTION` _(optional)_ | form endpoint      | same (or a test form)             | same (or a test form)                 | a test form             |
-| `NUXT_PUBLIC_GTM_ID` _(optional)_              | production `GTM-…` | staging `GTM-…`                   | staging `GTM-…`                       | staging `GTM-…`         |
+| Key                                 | Production         | Development (Preview · `develop`)           | Feature (Preview)                           | Local (Development)                         |
+| ----------------------------------- | ------------------ | ------------------------------------------- | ------------------------------------------- | ------------------------------------------- |
+| `NUXT_PUBLIC_SANITY_PROJECT_ID`     | N1                 | N1                                          | N1                                          | N1                                          |
+| `NUXT_PUBLIC_SANITY_DATASET`        | `production`       | `development`                               | `development`                               | `development`                               |
+| `NUXT_PUBLIC_SITE_URL`              | N5                 | N7                                          | any URL, replaced by `-pr-<number>` ¹       | `http://localhost:3000`                     |
+| `NUXT_SITE_ENV`                     | `production`       | `development`                               | `feature`                                   | `local`                                     |
+| `NUXT_PUBLIC_SITE_NAME` ²           | site name          | same                                        | same                                        | same                                        |
+| `NUXT_PUBLIC_CONTACT_FORM_ACTION` ² | form endpoint      | a test form (never the production endpoint) | a test form (never the production endpoint) | a test form (never the production endpoint) |
+| `NUXT_PUBLIC_GTM_ID` ²              | production `GTM-…` | development `GTM-…`                         | development `GTM-…`                         | development `GTM-…`                         |
 
 ¹ The **Deploy feature** job writes `https://<project-name>-pr-<number>.vercel.app` for each pull
 request, so canonical links, hreflang and the sitemap of a PR deployment use its own address.
+
+² The **key** is required in every environment like the others; its **value** may be empty where
+the feature is off (no GTM container yet: no statistics; no form endpoint: an email link). Development
+and Feature are public and show only the demo privacy text, so their contact form posts to a test
+form, never to the client's real one.
 
 Rules:
 
@@ -302,14 +307,14 @@ Rules:
   JSON when asked (`Accept: application/json`). Sign a
   data processing agreement with it. Without it, the contact page shows an email link.
 - `NUXT_PUBLIC_GTM_ID` is the Google Tag Manager container of the environment: the production
-  container for **Production**, the shared staging container (its name in GTM) for **Development**, **Feature**
+  container for **Production**, the shared development container for **Development**, **Feature**
   and **Local**. GTM loads only after a visitor accepts statistics; empty, nothing
   analytics-related loads and the consent window does not offer statistics. Creating the
   containers: [docs/analytics/GTM.md](../analytics/GTM.md). With the CLI (it asks for the value):
 
   ```bash
   pnpm dlx vercel@61.0.0 env add NUXT_PUBLIC_GTM_ID production    # GTM-… of the production container
-  pnpm dlx vercel@61.0.0 env add NUXT_PUBLIC_GTM_ID preview develop   # staging container (Development)
+  pnpm dlx vercel@61.0.0 env add NUXT_PUBLIC_GTM_ID preview develop   # development container (Development)
   pnpm dlx vercel@61.0.0 env add NUXT_PUBLIC_GTM_ID preview           # same container, all branches (Feature)
   pnpm dlx vercel@61.0.0 env add NUXT_PUBLIC_GTM_ID development       # same container (Local)
   ```
@@ -670,27 +675,27 @@ Local (Vercel Development) on both projects, and fails before any deploy when on
 
 **Vercel project `webapp`** (Settings → Environment Variables, Sensitive OFF; targets in [§3.2](#32-environment-variables))
 
-| Name                              | Production         | Development (Preview · `develop`) | Feature (Preview)          | Local (Development)     | Required |
-| --------------------------------- | ------------------ | --------------------------------- | -------------------------- | ----------------------- | -------- |
-| `NUXT_PUBLIC_SANITY_PROJECT_ID`   | N1                 | N1                                | N1                         | N1                      | ✅       |
-| `NUXT_PUBLIC_SANITY_DATASET`      | `production`       | `development`                     | `development`              | `development`           | ✅       |
-| `NUXT_PUBLIC_SITE_URL`            | N5                 | N7                                | replaced by `-pr-<number>` | `http://localhost:3000` | ✅       |
-| `NUXT_SITE_ENV`                   | `production`       | `development`                     | `feature`                  | `local`                 | ✅       |
-| `NUXT_PUBLIC_SITE_NAME`           | site name          | same                              | same                       | same                    | optional |
-| `NUXT_PUBLIC_CONTACT_FORM_ACTION` | form endpoint      | same (or a test form)             | same (or a test form)      | a test form             | optional |
-| `NUXT_PUBLIC_GTM_ID`              | production `GTM-…` | staging `GTM-…`                   | staging `GTM-…`            | staging `GTM-…`         | optional |
+| Name                              | Production         | Development (Preview · `develop`)           | Feature (Preview)                           | Local (Development)                         | Value        |
+| --------------------------------- | ------------------ | ------------------------------------------- | ------------------------------------------- | ------------------------------------------- | ------------ |
+| `NUXT_PUBLIC_SANITY_PROJECT_ID`   | N1                 | N1                                          | N1                                          | N1                                          | ✅           |
+| `NUXT_PUBLIC_SANITY_DATASET`      | `production`       | `development`                               | `development`                               | `development`                               | ✅           |
+| `NUXT_PUBLIC_SITE_URL`            | N5                 | N7                                          | replaced by `-pr-<number>`                  | `http://localhost:3000`                     | ✅           |
+| `NUXT_SITE_ENV`                   | `production`       | `development`                               | `feature`                                   | `local`                                     | ✅           |
+| `NUXT_PUBLIC_SITE_NAME`           | site name          | same                                        | same                                        | same                                        | may be empty |
+| `NUXT_PUBLIC_CONTACT_FORM_ACTION` | form endpoint      | a test form (never the production endpoint) | a test form (never the production endpoint) | a test form (never the production endpoint) | may be empty |
+| `NUXT_PUBLIC_GTM_ID`              | production `GTM-…` | development `GTM-…`                         | development `GTM-…`                         | development `GTM-…`                         | may be empty |
 
-`NUXT_PUBLIC_GTM_ID` stays **empty** in your local `.env` (unless you test GTM against the staging container)
+Every key is present everywhere (the **Vercel environments** check); "may be empty" is about the value only. `NUXT_PUBLIC_GTM_ID` stays **empty** in the `.env` you copy from `.env.example` (a `vercel env pull` brings the development container of Local)
 and in CI builds. The E2E suite sets a fake container (`GTM-E2ETEST`, `tests/e2e/sanity/fixtureCms.ts`)
 and stubs its script: the test runs never reach Google. Setup and verification: [docs/analytics/GTM.md](../analytics/GTM.md);
 legal steps before production: [docs/legal/go-live-checklist.md](../legal/go-live-checklist.md).
 
 **Vercel project `studio`**
 
-| Name                       | Production   | Development (Preview · `develop`) | Feature (Preview) | Local (Development) | Required |
-| -------------------------- | ------------ | --------------------------------- | ----------------- | ------------------- | -------- |
-| `SANITY_STUDIO_PROJECT_ID` | N1           | N1                                | N1                | N1                  | ✅       |
-| `SANITY_STUDIO_DATASET`    | `production` | `development`                     | `development`     | `development`       | ✅       |
+| Name                       | Production   | Development (Preview · `develop`) | Feature (Preview) | Local (Development) | Value |
+| -------------------------- | ------------ | --------------------------------- | ----------------- | ------------------- | ----- |
+| `SANITY_STUDIO_PROJECT_ID` | N1           | N1                                | N1                | N1                  | ✅    |
+| `SANITY_STUDIO_DATASET`    | `production` | `development`                     | `development`     | `development`       | ✅    |
 
 **GitHub** (repo → Settings → Secrets and variables → Actions)
 

@@ -432,7 +432,7 @@ at gate D2, into the changeset's `content/` (seed), before the task starts.
 
 ## Open questions
 
-- Real articles, authors, photos and video: placeholders for staging; the client writes the real
+- Real articles, authors, photos and video: placeholders for Development; the client writes the real
   ones in the Studio (production starts empty).
 
 ## Definition of ready (gate D1)
