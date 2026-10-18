@@ -29,7 +29,7 @@ Client: `<name>` · Production URL: `<url>` · Completed by: `<name>` on `<date>
 - [ ] `NUXT_PUBLIC_GTM_ID` set in Vercel to the same container id in **Production**, **Preview** (Development: branch `develop`; Feature: all branches) and Vercel **Development** (Local) (`docs/deployment/DEPLOYMENT.md` §11.1).
 - [ ] One GA4 standard property; Google signals off; ads personalisation off; account data sharing off; event data retention 14 months.
 - [ ] Google's data processing terms accepted in GA4 and GTM.
-- [ ] Production container published and checked once with Tag Assistant Preview.
+- [ ] The container published (`docs/analytics/GTM.md` §7) and checked once with Tag Assistant Preview on the production URL.
 
 Without statistics: leave `NUXT_PUBLIC_GTM_ID` empty, remove the statistics section from the privacy text, and tick this block as not applicable.
 
