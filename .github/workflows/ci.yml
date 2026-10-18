@@ -1,14 +1,14 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # CI — the single quality gate.
-# Runs on every PR to develop/main, and is called by deploy.yml before any
-# deployment (nothing reaches an environment without passing this file).
+# Runs on every PR (into develop, main, or a branch a PR is stacked on), and is
+# called by deploy.yml before any deployment (nothing reaches an environment
+# without passing this file).
 # Docs: docs/deployment/DEPLOYMENT.md
 # ─────────────────────────────────────────────────────────────────────────────
 name: CI
 
 on:
   pull_request:
-    branches: [develop, main]
   workflow_call:
 
 permissions:
@@ -69,8 +69,8 @@ jobs:
           vercel-cli: 'true'
 
       # Vercel is the single source of truth for app env vars.
-      # CI always tests against the Preview (= staging) values.
-      - name: Pull staging env from Vercel
+      # CI always tests against the Feature values (Vercel Preview, all branches).
+      - name: Pull Feature env from Vercel
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           WEBAPP_PROJECT_ID: ${{ vars.VERCEL_WEBAPP_PROJECT_ID }}
@@ -84,7 +84,7 @@ jobs:
           set -a; source studio/.env; set +a
           pnpm studio:build
 
-      # Against the fixture CMS (build-time sitemap included): E2E never depends on staging.
+      # Against the fixture CMS (build-time sitemap included): E2E never depends on a live dataset.
       - name: Build Web App
         run: pnpm build:e2e
         env:
@@ -116,61 +116,69 @@ jobs:
           path: playwright-report
           retention-days: 7
 
-  # Pull requests only, once the code is proven (lint, types, unit, E2E): the branch is deployed
-  # to Vercel with the Development environment's variables and the alias `-dev` points to it, so the
-  # PR can be seen live and audited on the real platform (CDN, compression, image optimisation).
-  deploy-dev:
-    name: Deploy dev
+  # Pull requests only, once the code is proven (lint, types, unit, E2E): the branch is deployed to
+  # Vercel with the Feature environment's variables (Vercel Preview, all branches) on its own address,
+  # `<project>-pr-<number>.vercel.app`, so every PR can be seen live and audited on the real platform
+  # (CDN, compression, image optimisation) without another PR replacing it. Closing the PR removes it
+  # (feature-cleanup.yml).
+  deploy-feature:
+    name: Deploy feature
     needs: [verify, build-e2e]
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    # One PR deployment at a time: Vercel Hobby builds one at a time and `-dev` is one alias.
-    concurrency:
-      group: deploy-dev
-      cancel-in-progress: false
+    # No shared queue: a new push to the same PR cancels this run (workflow concurrency above), and
+    # another PR's deployment waits in Vercel's own build queue (the wait below allows for it).
     permissions:
       contents: read
       deployments: write
-    # GitHub shows "View deployment" on the PR and the latest dev URL in the Deployments panel.
+    # GitHub shows "View deployment" on the PR. One environment for every PR: a newer deployment of
+    # another PR marks this one inactive there, so the PR report and the run summary carry the address.
     environment:
-      name: dev
+      name: feature
       url: ${{ steps.alias.outputs.url }}
     outputs:
       url: ${{ steps.deploy.outputs.url }}
-      dev-url: ${{ steps.alias.outputs.url }}
+      feature-url: ${{ steps.alias.outputs.url }}
     env:
       VERCEL_PROJECT_ID: ${{ vars.VERCEL_WEBAPP_PROJECT_ID }}
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      PR: ${{ github.event.pull_request.number }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup
         with:
           vercel-cli: 'true'
 
-      # The Development environment's variables, the source of truth in Vercel (staging dataset,
-      # NUXT_SITE_ENV=development, NUXT_PUBLIC_SITE_URL = the `-dev` address). Vercel deploys only
-      # to Preview or Production, so the deployment is a Preview that carries the Development
-      # variables, at build time and at run time.
-      - run: vercel pull --yes --environment=development --token="$VERCEL_TOKEN"
-      - name: Use the Development variables for this deployment
+      # The Feature environment's variables, the source of truth in Vercel: Preview rows that apply
+      # to every branch (development dataset, NUXT_SITE_ENV=feature). The rows scoped to `develop`
+      # belong to the Development environment and are not pulled here.
+      - run: vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
+      - name: Give this pull request its own address
         run: |
-          cp .vercel/.env.development.local .vercel/.env.preview.local
-          site=$(grep -E '^NUXT_PUBLIC_SITE_URL=' .vercel/.env.preview.local | cut -d= -f2- | tr -d '"')
-          [ -n "$site" ] || { echo "::error::NUXT_PUBLIC_SITE_URL is not set in the Vercel Development environment."; exit 1; }
-          echo "DEV_HOST=${site#https://}" >> "$GITHUB_ENV"
+          project=$(curl --fail --silent --show-error -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID?teamId=$VERCEL_ORG_ID" | jq -r .name)
+          host="$project-pr-$PR.vercel.app"
+          label="${host%.vercel.app}"
+          [ ${#label} -le 63 ] || { echo "::error::$label is longer than 63 characters, the limit of a host name. Shorten the Vercel project name."; exit 1; }
+          # The Feature value of NUXT_PUBLIC_SITE_URL is a default: canonical links, hreflang and
+          # the sitemap of this deployment use the PR's own address.
+          sed -i '/^NUXT_PUBLIC_SITE_URL=/d' .vercel/.env.preview.local
+          echo "NUXT_PUBLIC_SITE_URL=\"https://$host\"" >> .vercel/.env.preview.local
+          echo "FEATURE_HOST=$host" >> "$GITHUB_ENV"
 
       - run: vercel build --token="$VERCEL_TOKEN"
         env:
           NITRO_PRESET: vercel
 
+      # `pr=<number>` lets feature-cleanup.yml find every deployment of this PR.
       - name: Deploy the branch
         id: deploy
         timeout-minutes: 5
         run: |
           runtime=()
           while IFS= read -r line; do runtime+=(-e "${line//\"/}"); done < <(grep -E '^NUXT_' .vercel/.env.preview.local)
-          url=$(vercel deploy --prebuilt --no-wait "${runtime[@]}" --token="$VERCEL_TOKEN")
+          url=$(vercel deploy --prebuilt --no-wait --meta pr="$PR" "${runtime[@]}" --token="$VERCEL_TOKEN")
           echo "url=$url" >> "$GITHUB_OUTPUT"
 
       - name: Wait for the deployment
@@ -179,44 +187,43 @@ jobs:
           DEPLOY_URL: ${{ steps.deploy.outputs.url }}
         run: vercel inspect "$DEPLOY_URL" --wait --timeout 10m --token="$VERCEL_TOKEN"
 
-      # A failed wait leaves the deployment building on Vercel: never leave one behind.
+      # A failed or cancelled wait leaves the deployment building on Vercel: never leave one behind.
       - name: Discard an unfinished deployment
-        if: failure() && steps.deploy.outputs.url != ''
+        if: (failure() || cancelled()) && steps.deploy.outputs.url != ''
         env:
           DEPLOY_URL: ${{ steps.deploy.outputs.url }}
         run: vercel remove "$DEPLOY_URL" --yes --token="$VERCEL_TOKEN" || true
 
-      # `-dev` always shows the latest PR deployment (the staging alias with `-dev`).
-      - name: Point the dev alias
+      - name: Point the PR's address
         id: alias
         env:
           DEPLOY_URL: ${{ steps.deploy.outputs.url }}
         run: |
-          vercel alias set "$DEPLOY_URL" "$DEV_HOST" --token="$VERCEL_TOKEN"
-          echo "url=https://$DEV_HOST" >> "$GITHUB_OUTPUT"
+          vercel alias set "$DEPLOY_URL" "$FEATURE_HOST" --token="$VERCEL_TOKEN"
+          echo "url=https://$FEATURE_HOST" >> "$GITHUB_OUTPUT"
           echo "### This PR is live" >> "$GITHUB_STEP_SUMMARY"
-          echo "- https://$DEV_HOST" >> "$GITHUB_STEP_SUMMARY"
+          echo "- https://$FEATURE_HOST" >> "$GITHUB_STEP_SUMMARY"
           echo "- Deployment: $DEPLOY_URL" >> "$GITHUB_STEP_SUMMARY"
 
-  # Web performance gate on the dev deployment, measured by Google PageSpeed Insights (Google's
+  # Web performance gate on the feature deployment, measured by Google PageSpeed Insights (Google's
   # servers, as pagespeed.web.dev): every page in every language, mobile and desktop, against
-  # webPerformance.config.ts (aim 90+, fails under 80). It audits the deployment's own URL, not the shared
-  # alias, so another PR moving `-dev` cannot change the result.
+  # webPerformance.config.ts (aim 90+, fails under 80). It audits this commit's deployment URL, so a
+  # later push to the PR cannot change the result.
   web-performance:
     name: Web performance
-    needs: deploy-dev
+    needs: deploy-feature
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup
 
-      - name: PageSpeed Insights on the dev deployment
+      - name: PageSpeed Insights on the feature deployment
         env:
           PAGESPEED_API_KEY: ${{ secrets.PAGESPEED_API_KEY }}
         run: |
           [ -n "$PAGESPEED_API_KEY" ] || { echo "::error::Secret PAGESPEED_API_KEY is missing (docs/deployment/DEPLOYMENT.md, Web performance)."; exit 1; }
-          pnpm web-performance --url="${{ needs.deploy-dev.outputs.url }}"
+          pnpm web-performance --url="${{ needs.deploy-feature.outputs.url }}"
 
       - name: Web performance summary
         if: always()
@@ -236,10 +243,10 @@ jobs:
           retention-days: 14
 
   # One comment per pull request, rewritten on every push (never a new one): branch, commit, the
-  # dev link, every step's result and the web performance table. Nobody needs Vercel access.
+  # PR's feature address, every step's result and the web performance table. Nobody needs Vercel access.
   report:
     name: PR report
-    needs: [verify, build-e2e, deploy-dev, web-performance]
+    needs: [verify, build-e2e, deploy-feature, web-performance]
     if: always() && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 3
@@ -261,11 +268,11 @@ jobs:
           BRANCH: ${{ github.head_ref }}
           SHA: ${{ github.event.pull_request.head.sha }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          DEV_URL: ${{ needs.deploy-dev.outputs.dev-url }}
-          DEPLOYMENT_URL: ${{ needs.deploy-dev.outputs.url }}
+          FEATURE_URL: ${{ needs.deploy-feature.outputs.feature-url }}
+          DEPLOYMENT_URL: ${{ needs.deploy-feature.outputs.url }}
           VERIFY: ${{ needs.verify.result }}
           E2E: ${{ needs.build-e2e.result }}
-          DEPLOY: ${{ needs.deploy-dev.result }}
+          DEPLOY: ${{ needs.deploy-feature.result }}
           WEB_PERFORMANCE: ${{ needs.web-performance.result }}
         run: |
           icon() { case "$1" in success) echo "✅";; failure) echo "❌";; cancelled) echo "⏹️";; skipped) echo "⏭️";; *) echo "⏳";; esac; }
@@ -277,21 +284,21 @@ jobs:
             echo "**Branch** \`$BRANCH\` · **Commit** \`${SHA:0:7}\` · [Run details]($RUN_URL)"
             echo
             if [ "$DEPLOY" = success ]; then
-              echo "### 🔗 Live on dev: **$DEV_URL**"
+              echo "### 🔗 Live on feature: **$FEATURE_URL**"
               echo
-              echo "Deployment of this commit: $DEPLOYMENT_URL (stays valid when \`-dev\` moves to another PR)."
+              echo "Deployment of this commit: $DEPLOYMENT_URL (the address above always shows this PR's latest push)."
             else
-              echo "### 🔗 Not deployed to dev (the checks before it did not pass)"
+              echo "### 🔗 Not deployed to feature (the checks before it did not pass)"
             fi
             echo
             echo "| Step | Result |"
             echo "| --- | :---: |"
             echo "| Lint · Format · Types · Unit | $(icon "$VERIFY") |"
             echo "| Build · E2E | $(icon "$E2E") |"
-            echo "| Deploy dev | $(icon "$DEPLOY") |"
+            echo "| Deploy feature | $(icon "$DEPLOY") |"
             echo "| Web performance (PageSpeed Insights) | $(icon "$WEB_PERFORMANCE") |"
             echo
-            echo "### 📊 Web performance on dev (Google PageSpeed Insights)"
+            echo "### 📊 Web performance on feature (Google PageSpeed Insights)"
             echo
             if [ -f web-performance-summary.md ]; then cat web-performance-summary.md; else echo "_Not run._"; fi
             echo

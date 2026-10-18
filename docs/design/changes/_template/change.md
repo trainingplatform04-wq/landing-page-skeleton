@@ -33,7 +33,7 @@ None, or the list of changes for `app.config.ts` / `assets/css/main.css`.
 - `pnpm design:verify <change>` passes for every listed section and width (DESIGN_WORKFLOW §13).
 - Every state in the section specs is covered.
 - axe: no serious or critical issue.
-- The demo content on staging equals the design content (seed).
+- The demo content on Development equals the design content (seed).
 
 ## Deviations
 

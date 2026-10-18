@@ -10,7 +10,7 @@ The skeleton is a GitHub **template repository**: each client project starts fro
 
 ## 2. Accounts and environments
 
-Follow `docs/deployment/DEPLOYMENT.md` from the top: a Sanity project with the `staging` and `production` datasets, the Vercel projects (web app and Studio), the GitHub secrets and variables, the `.env` files from `.env.example` and `studio/.env.example`.
+Follow `docs/deployment/DEPLOYMENT.md` from the top: a Sanity project with the `development` and `production` datasets, the Vercel projects (web app and Studio), the GitHub secrets and variables, the `.env` files from `.env.example` and `studio/.env.example`.
 
 ## 3. Choose the examples
 

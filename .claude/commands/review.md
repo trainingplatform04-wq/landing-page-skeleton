@@ -9,4 +9,4 @@ description: Runs the code review loop on a Pull Request (independent reviewer â
 1. Read `.ai/shared/workflows/operating-model.md` and `.ai/shared/workflows/code-review-loop.md`.
 2. Run the loop on that PR, starting from its current state: if there are open threads, triage them; otherwise start the next review round.
 3. Every review round runs in a **fresh subagent** briefed with `.ai/shared/agents/code-reviewer.md`, the PR number, the round number and links to previous rounds, and nothing else. A PR that touches scripts, cookies, embeds, fonts, form targets or tracking also gets a second fresh subagent each round, briefed the same way with `.ai/shared/agents/privacy-officer.md`.
-4. After `APPROVED` and green CI: squash-merge (feature PRs) and verify the staging deploy. Release PRs stop at Gate G2 (`.ai/shared/workflows/release.md`).
+4. After `APPROVED` and green CI: squash-merge (feature PRs) and verify the Development deploy. Release PRs stop at Gate G2 (`.ai/shared/workflows/release.md`).

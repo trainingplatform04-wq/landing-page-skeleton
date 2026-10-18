@@ -21,7 +21,7 @@ runs:
       shell: bash
       run: pnpm install --frozen-lockfile
       env:
-        # Git hooks are a local-dev concern (https://typicode.github.io/husky/how-to.html#ci-server-and-docker).
+        # Git hooks are a local-development concern (https://typicode.github.io/husky/how-to.html#ci-server-and-docker).
         HUSKY: '0'
 
     # Pinned on purpose: `vercel@latest` makes deploys non-reproducible.

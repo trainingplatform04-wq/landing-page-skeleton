@@ -7,7 +7,7 @@
 - **Code owns the pages, Sanity owns their content.** A page exists because the code defines it (a route, a schema, a composable); editors fill in fields and never assemble a page. No page builder.
 - **Core pages** every project keeps: home, contact (with the form), imprint and privacy (required by German law).
 - **Example pages** that show one pattern each: offers and offer (a collection with a slug), magazine and article (a dated, filterable collection, [ADR 0006](0006-magazine.md)), About, FAQ. `docs/SKELETON.md` says what each one teaches and how to remove it.
-- **Demo content on staging only**: `pnpm studio:seed` fills `staging` with every page in every language; `production` starts empty and editors write it. Every schema change updates the seed in the same PR.
+- **Demo content on development only**: `pnpm studio:seed` fills `development` with every page in every language; `production` starts empty and editors write it. Every schema change updates the seed in the same PR.
 
 ## Data flow
 

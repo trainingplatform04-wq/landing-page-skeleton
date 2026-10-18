@@ -1,0 +1,63 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Feature cleanup — when a PR is merged or closed, its Feature environment goes:
+# the address `<project>-pr-<number>.vercel.app`, every deployment ci.yml made
+# for it (Vercel meta `pr=<number>`), and its "View deployment" on GitHub.
+# Docs: docs/deployment/DEPLOYMENT.md
+# ─────────────────────────────────────────────────────────────────────────────
+name: Feature cleanup
+
+on:
+  pull_request:
+    types: [closed]
+
+# Same group as this PR's CI run (ci.yml): closing the PR cancels a running Deploy feature, which
+# discards its deployment, so no address is set after the cleanup.
+concurrency:
+  group: ci-${{ github.head_ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+
+jobs:
+  cleanup:
+    name: Remove the feature deployment
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      deployments: write
+    env:
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_WEBAPP_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      PR: ${{ github.event.pull_request.number }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup
+        with:
+          vercel-cli: 'true'
+
+      - name: Remove the PR's address and deployments
+        run: |
+          project=$(curl --fail --silent --show-error -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID?teamId=$VERCEL_ORG_ID" | jq -r .name)
+          vercel alias rm "$project-pr-$PR.vercel.app" --yes --token="$VERCEL_TOKEN" || echo "No address to remove."
+          urls=$(vercel list "$project" --meta pr="$PR" --limit 100 --format json --token="$VERCEL_TOKEN" | jq -r '.deployments[]?.url')
+          for url in $urls; do vercel remove "$url" --yes --token="$VERCEL_TOKEN"; done
+          echo "### Feature environment of PR #$PR removed ($(echo "$urls" | grep -c . || true) deployments)" >> "$GITHUB_STEP_SUMMARY"
+
+      # The PR page stops showing a "View deployment" link to an address that no longer exists.
+      - name: Mark the GitHub deployments inactive
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          ids=$(gh api "repos/$REPO/deployments?environment=feature" --paginate \
+            --jq ".[] | select(.ref == \"$BRANCH\" or .ref == \"refs/pull/$PR/merge\") | .id")
+          for id in $ids; do
+            gh api "repos/$REPO/deployments/$id/statuses" --method POST -f state=inactive > /dev/null
+          done

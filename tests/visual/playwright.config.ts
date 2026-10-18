@@ -4,7 +4,7 @@ import { defineConfig, devices } from '@playwright/test'
 /**
  * Design gate (tests/visual/design.spec.ts), run through tests/visual/design.ts. Both modes
  * build and serve our app (production build, as the client sees it: no dev-server compilation
- * or reloads) on its own port, on the developer's `.env` (the staging dataset, seeded with the
+ * or reloads) on its own port, on the developer's `.env` (the development dataset, seeded with the
  * design content). The Lovable prototype is never opened here.
  */
 const APP_PORT = 3200

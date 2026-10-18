@@ -2,7 +2,7 @@
 name: feature
 description: >-
   The single end-to-end delivery pipeline for a feature: scope → plan (human gate) →
-  design → implement → PR → independent review loop → merge → staging deploy.
+  design → implement → PR → independent review loop → merge → Development deploy.
   Entry points: /feature, a task file in docs/tasks/, or a user request.
 ---
 
@@ -29,14 +29,14 @@ For each step, declare the delegation (`→ tech-lead: …`) and print `--- Step
 
 **Step 4: Implement (backend → frontend → qa)**
 
-1. `backend-engineer`: Studio schemas (`studio/schemas/`), groqd queries (`<name>.query.ts`), `pnpm typegen`, the staging demo content (`studio/seed/`) and E2E fixtures updated to match the schema, composables returning plain views.
+1. `backend-engineer`: Studio schemas (`studio/schemas/`), groqd queries (`<name>.query.ts`), `pnpm typegen`, the development demo content (`studio/seed/`) and E2E fixtures updated to match the schema, composables returning plain views.
 2. `frontend-engineer`: pages and components consuming those composables, with i18n keys in **every** locale. With a design change: from the section specs only, never Lovable's code, under `docs/conventions/ARCHITECTURE.md` and `docs/conventions/CODING_STANDARDS.md` exactly.
-3. `qa-engineer`: co-located specs plus E2E for every new page, then the local gates (`docs/conventions/CODING_STANDARDS.md` §7). With a design change, the **design gate** too: seed staging (`pnpm studio:seed`), then `pnpm design:capture <change>` (our app only) for new or changed sections, an independent designer reviewer (a fresh `designer-engineer` subagent, never the Lovable preview) checks those shots against the changeset's section specs, then `pnpm design:verify <change>` must pass for every section, locale and width (`docs/design/DESIGN_WORKFLOW.md` §13). The task is not done, and no PR is opened, before it passes.
+3. `qa-engineer`: co-located specs plus E2E for every new page, then the local gates (`docs/conventions/CODING_STANDARDS.md` §7). With a design change, the **design gate** too: seed development (`pnpm studio:seed`), then `pnpm design:capture <change>` (our app only) for new or changed sections, an independent designer reviewer (a fresh `designer-engineer` subagent, never the Lovable preview) checks those shots against the changeset's section specs, then `pnpm design:verify <change>` must pass for every section, locale and width (`docs/design/DESIGN_WORKFLOW.md` §13). The task is not done, and no PR is opened, before it passes.
 
 **Step 5: Pull Request.** Conventional Commits, `git push -u origin HEAD`, `gh pr create --base develop` with a description (what, why, verification). Set the task `status: Review`.
 
 **Step 6: Review loop.** Run `.ai/shared/workflows/code-review-loop.md`: independent reviewer subagent → Tech Lead triage → fixes → replies and resolved threads → re-review, until `APPROVED` (max 5 rounds; round 5 is settled by the Tech Lead's verdict and fix plan).
 
-**Step 7: Merge & staging (devops-engineer).** After `APPROVED` and green CI: squash-merge, watch the `Deploy` run and verify staging. Blockers follow operating-model §2 (never hold, report).
+**Step 7: Merge & Development (devops-engineer).** After `APPROVED` and green CI: squash-merge, watch the `Deploy` run and verify Development. Blockers follow operating-model §2 (never hold, report).
 
-**Step 8: Report (orchestrator).** PR link, review rounds, staging URLs, open blockers. Set the task `status: Done`. Production follows `.ai/shared/workflows/release.md` (Gate G2).
+**Step 8: Report (orchestrator).** PR link, review rounds, Development URLs, open blockers. Set the task `status: Done`. Production follows `.ai/shared/workflows/release.md` (Gate G2).

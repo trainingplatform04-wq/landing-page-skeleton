@@ -14,17 +14,17 @@ Reusable objects: `accessibleImage` (picture + required alt text, crop and focal
 
 ## Where things are
 
-| Path                                                   | What                                                                                                                                  |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `studio/schemas/{pages,collections,objects,settings}/` | One schema per file; registered in `studio/schemas/index.ts`                                                                          |
-| `studio/schemas/fields.ts`                             | Shared fields: `languageField`, `titleField`, `slugField`, `referenceListField`, …                                                    |
-| `studio/sanity.structure.ts`                           | The desk (left-hand menu)                                                                                                             |
-| `studio/utils/singleton/`                              | Language templates, singleton ids and actions                                                                                         |
-| `studio/seed/`                                         | Staging demo content: `seed.data.ts` (documents), `seed.copy.ts` and `seed.magazine.ts` (words), `seed.builders.ts`, `seed.images.ts` |
-| `utils/groqd/groqd.utils.ts`                           | The query builder `q` and the shared fragments                                                                                        |
-| `composables/<useName>/<name>.query.ts`                | One page's query                                                                                                                      |
-| `composables/useCmsQuery/`                             | The only door to the CMS from the website                                                                                             |
-| `types/sanity.types.ts`                                | Generated schema types (`pnpm typegen`), never edited                                                                                 |
+| Path                                                   | What                                                                                                                                      |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `studio/schemas/{pages,collections,objects,settings}/` | One schema per file; registered in `studio/schemas/index.ts`                                                                              |
+| `studio/schemas/fields.ts`                             | Shared fields: `languageField`, `titleField`, `slugField`, `referenceListField`, …                                                        |
+| `studio/sanity.structure.ts`                           | The desk (left-hand menu)                                                                                                                 |
+| `studio/utils/singleton/`                              | Language templates, singleton ids and actions                                                                                             |
+| `studio/seed/`                                         | Development demo content: `seed.data.ts` (documents), `seed.copy.ts` and `seed.magazine.ts` (words), `seed.builders.ts`, `seed.images.ts` |
+| `utils/groqd/groqd.utils.ts`                           | The query builder `q` and the shared fragments                                                                                            |
+| `composables/<useName>/<name>.query.ts`                | One page's query                                                                                                                          |
+| `composables/useCmsQuery/`                             | The only door to the CMS from the website                                                                                                 |
+| `types/sanity.types.ts`                                | Generated schema types (`pnpm typegen`), never edited                                                                                     |
 
 ## Add or change a field (checklist, one PR)
 
@@ -44,24 +44,24 @@ Reusable objects: `accessibleImage` (picture + required alt text, crop and focal
 
 ## Environments and tokens
 
-- Two datasets, both public (read without a token): `staging` (local, CI, PR previews, staging) and `production` (editors only).
-- The website never uses a token. The only token is the staging seed's (`SANITY_TOKEN`, GitHub secret, dataset pinned to `staging`).
+- Two datasets, both public (read without a token): `development` (local, CI, Feature and Development) and `production` (editors only).
+- The website never uses a token. The only token is the development seed's (`SANITY_TOKEN`, GitHub secret, dataset pinned to `development`).
 - Studio deployments go through the pipeline only (never `sanity deploy`).
 
-## The seed (staging only)
+## The seed (development only)
 
-| Command                      | Effect                                                                                                                                              |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm studio:seed`           | Creates missing documents and fills empty top-level fields. Changed values stay; an emptied field is filled again. Also run on every staging deploy |
-| `pnpm studio:seed --reset`   | Staging matches the seed: editors' changes on demo documents discarded, removed ones deleted (owner's go)                                           |
-| `pnpm studio:seed --dry-run` | Prints the plan, writes nothing                                                                                                                     |
+| Command                      | Effect                                                                                                                                                  |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm studio:seed`           | Creates missing documents and fills empty top-level fields. Changed values stay; an emptied field is filled again. Also run on every Development deploy |
+| `pnpm studio:seed --reset`   | Development matches the seed: editors' changes on demo documents discarded, removed ones deleted (owner's go)                                           |
+| `pnpm studio:seed --dry-run` | Prints the plan, writes nothing                                                                                                                         |
 
-The seed refuses every dataset but `staging`. Pictures are downloaded from their URLs and uploaded to the dataset; none are committed.
+The seed refuses every dataset but `development`. Pictures are downloaded from their URLs and uploaded to the dataset; none are committed.
 
 ## Good to know
 
 - A changed slug makes the old URL answer 404 (no redirects).
 - A category's slug is the same in every language (the magazine filter `?category=`).
 - A testimonial shows only with the client's recorded consent.
-- There is no draft preview: staging is the preview.
+- There is no draft preview: Development is the preview.
 - The sitemap is built from published content at deploy time.

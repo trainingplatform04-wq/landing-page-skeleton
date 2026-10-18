@@ -29,7 +29,7 @@ export interface WebPerformanceBudget {
   formFactors: Array<'mobile' | 'desktop'>
   /**
    * Pages with a slug belong to editors, so the audit takes one published example of each
-   * such template (from the staging seed, which the dev deployment reads).
+   * such template (from the development seed, which the Feature deployment reads).
    */
   slugPages: string[]
   categories: Category[]

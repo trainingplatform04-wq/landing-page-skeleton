@@ -44,7 +44,7 @@ background, `surface-strong` (closing band) → `bg-inverted` with `text-inverte
   passes (DESIGN_WORKFLOW §13). The screenshots are not committed.
 - Every state in the section specs is covered (button hover and focus-visible).
 - axe: no serious or critical issue.
-- The demo content on staging equals the design content (seed: `content/about.json`; one stock
+- The demo content on Development equals the design content (seed: `content/about.json`; one stock
   photo matching the picture's description).
 - Web performance: the page meets 90+ (aim) and never under 80 on PageSpeed Insights, mobile and
   desktop (`webPerformance.config.ts`).

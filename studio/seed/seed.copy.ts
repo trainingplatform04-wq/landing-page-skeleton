@@ -157,7 +157,7 @@ export const FAQ = [
 
 export const COPY = {
   de: {
-    footerNote: 'Demo-Inhalte für Staging. Personal Training in Berlin-Mitte.',
+    footerNote: 'Demo-Inhalte für die Entwicklungsumgebung. Personal Training in Berlin-Mitte.',
     seoSuffix: 'Demo Studio Berlin',
     home: {
       title: 'Startseite',
@@ -301,7 +301,7 @@ export const COPY = {
     testimonialAlt: 'Foto der Kundin oder des Kunden',
   },
   en: {
-    footerNote: 'Demo content for staging. Personal training in Berlin-Mitte.',
+    footerNote: 'Demo content for the development environment. Personal training in Berlin-Mitte.',
     seoSuffix: 'Demo Studio Berlin',
     home: {
       title: 'Home',

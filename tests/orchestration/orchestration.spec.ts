@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -85,6 +86,25 @@ describe('orchestration docs', () => {
 
   it.each(ORCHESTRATION_DOCS)('%s never points agents at the old tasks/ directory', (path) => {
     expect(read(path)).not.toMatch(/`tasks\//)
+  })
+})
+
+/**
+ * The environments are Production, Development and Feature (docs/deployment/DEPLOYMENT.md § 0.1).
+ * Their old names (the pre-production name, the shared `-dev` alias) come back in no tracked text file.
+ */
+const LEGACY_ENVIRONMENT_NAMES = /staging|`-dev`|-dev\.vercel\.app|deploy[ -]dev\b/i
+const TEXT_FILES = execFileSync('git', ['ls-files'], { cwd: ROOT, encoding: 'utf8' })
+  .split('\n')
+  .filter((path) => /\.(md|ts|vue|ya?ml|json|mjs|example)$|^\.env/.test(path))
+  // The lockfile is generated; this file holds the pattern itself.
+  .filter((path) => !['pnpm-lock.yaml', 'tests/orchestration/orchestration.spec.ts'].includes(path))
+  .filter((path) => existsSync(join(ROOT, path)))
+
+describe('environment names', () => {
+  it('uses no legacy environment name in any tracked file', () => {
+    const legacy = TEXT_FILES.filter((path) => LEGACY_ENVIRONMENT_NAMES.test(read(path)))
+    expect(legacy).toEqual([])
   })
 })
 
