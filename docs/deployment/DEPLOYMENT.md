@@ -383,8 +383,11 @@ Same procedure and targets as [§3.2](#32-environment-variables) (Sensitive **OF
 | -------------------------- | ------------ | --------------------------------- | ----------------- | ------------------- |
 | `SANITY_STUDIO_PROJECT_ID` | N1           | N1                                | N1                | N1                  |
 | `SANITY_STUDIO_DATASET`    | `production` | `development`                     | `development`     | `development`       |
+| `NUXT_SITE_ENV` ³          | `production` | `development`                     | `feature`         | `local`             |
 
 The Studio isn't deployed for pull requests; CI builds it with the Feature values.
+
+³ Not read by the Studio (it reads only the `SANITY_STUDIO_*` keys). The project already had it, so it stays, with the same value as the web app, in every environment.
 
 ### 4.3 Build settings
 
@@ -692,10 +695,11 @@ legal steps before production: [docs/legal/go-live-checklist.md](../legal/go-liv
 
 **Vercel project `studio`**
 
-| Name                       | Production   | Development (Preview · `develop`) | Feature (Preview) | Local (Development) | Value |
-| -------------------------- | ------------ | --------------------------------- | ----------------- | ------------------- | ----- |
-| `SANITY_STUDIO_PROJECT_ID` | N1           | N1                                | N1                | N1                  | ✅    |
-| `SANITY_STUDIO_DATASET`    | `production` | `development`                     | `development`     | `development`       | ✅    |
+| Name                       | Production   | Development (Preview · `develop`) | Feature (Preview) | Local (Development) | Value    |
+| -------------------------- | ------------ | --------------------------------- | ----------------- | ------------------- | -------- |
+| `SANITY_STUDIO_PROJECT_ID` | N1           | N1                                | N1                | N1                  | ✅       |
+| `SANITY_STUDIO_DATASET`    | `production` | `development`                     | `development`     | `development`       | ✅       |
+| `NUXT_SITE_ENV` ³          | `production` | `development`                     | `feature`         | `local`             | not read |
 
 **GitHub** (repo → Settings → Secrets and variables → Actions)
 
