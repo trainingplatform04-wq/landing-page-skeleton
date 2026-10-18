@@ -72,7 +72,7 @@ Every link is on the repository's **Deployments** panel and in the report commen
 | **Development** | every merge into `develop`, at `…-webapp-develop`               | `development` dataset (demo content) |
 | **Production**  | every merge into `main` (Gate G2)                               | `production` dataset                 |
 
-Every environment has the same variables in Vercel; only the values differ. A pull request runs CI (lint, types, tests, both builds, E2E), deploys the web app to its own **Feature** address (removed when the PR closes) and audits every page with PageSpeed Insights: 90+ is the aim, under 80 blocks. Details: [`docs/deployment/DEPLOYMENT.md`](docs/deployment/DEPLOYMENT.md).
+Every environment has the same variables in Vercel; only the values differ. A pull request runs CI (lint, types, tests, both builds, E2E), deploys the web app to its own **Feature** address (removed when the PR closes) and audits each page template once with PageSpeed Insights: 90+ is the aim, under 80 blocks. Details: [`docs/deployment/DEPLOYMENT.md`](docs/deployment/DEPLOYMENT.md).
 
 ## License
 

@@ -61,7 +61,7 @@ PageSpeed runs in CI on the PR's deployment (§7.1).
 
 - **Aim 90+, block under 80**: every page, mobile and desktop, every category (Performance, Accessibility, Best Practices, SEO) and performance metric. 80–89 passes and is flagged "below target" in the PR report.
 - `webPerformance.config.ts` is the only place these numbers live. Raising one is free; lowering one is a Tech Lead decision recorded in the PR.
-- Measured by Google PageSpeed Insights on the deployed PR (never a laptop): `pnpm web-performance --url=<deployed URL>` (needs `PAGESPEED_API_KEY`). Each page template once: every page in the default language (the other languages render the same templates) and one example per slug template (`slugPages`). The median of 3 runs decides; a page under 80 gets 2 confirmation runs, so noise never blocks a PR.
+- Measured by Google PageSpeed Insights on the deployed PR (never a laptop): `pnpm web-performance --url=<deployed URL>` (needs `PAGESPEED_API_KEY`). Each page template once: every page in the default language (the other languages render the same templates) and one example per slug template (`slugPages`). One run per page on mobile and one on desktop decides; a run on a slow PageSpeed machine (`minimumBenchmarkIndex`) is made again.
 - Anything large painted late by JavaScript can become the page's Largest Contentful Paint: large elements on the first screen are server-rendered.
 
 ## 8. Comments

@@ -1,8 +1,8 @@
 /**
  * The PageSpeed Insights budget of every page, mobile and desktop (rules: CODING_STANDARDS §7.1).
  * Each page template is measured once, in the default language: the budget holds for every page.
- * `target`: what every page aims for; `minimum`: below it, a score blocks the PR. The median of
- * `runs` decides; a page under the minimum gets `confirmationRuns` more, so noise never blocks.
+ * `target`: what every page aims for; `minimum`: below it, a score blocks the PR. One run per
+ * page on mobile and one on desktop decides.
  * Raising a number is free; lowering one is a Tech Lead decision recorded in the PR.
  */
 
@@ -22,10 +22,13 @@ export interface WebPerformanceBudget {
   target: number
   /** Score below which the PR is blocked (0–100), for every category and metric. */
   minimum: number
-  /** Runs of every page; the median of each score is judged. */
-  runs: number
-  /** Extra runs for a page whose median is below the minimum; the median of all its runs decides. */
-  confirmationRuns: number
+  /**
+   * Google runs PageSpeed on machines of different speeds (Lighthouse's benchmark index): the same
+   * page scores 98 on a fast one and under 80 on a slow one. A run on a machine under this index is
+   * made again, up to `slowMachineReruns` times; the run from the fastest machine counts.
+   */
+  minimumBenchmarkIndex: number
+  slowMachineReruns: number
   /** PageSpeed strategies: `mobile` (throttled phone) and `desktop`. */
   formFactors: Array<'mobile' | 'desktop'>
   /**
@@ -41,8 +44,8 @@ export interface WebPerformanceBudget {
 export default {
   target: 90,
   minimum: 80,
-  runs: 3,
-  confirmationRuns: 2,
+  minimumBenchmarkIndex: 600,
+  slowMachineReruns: 3,
   formFactors: ['mobile', 'desktop'],
   slugPages: ['/angebote/personal-training', '/magazin/protein-ohne-pulver'],
   categories: ['performance', 'accessibility', 'best-practices', 'seo'],

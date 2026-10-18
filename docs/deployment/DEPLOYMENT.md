@@ -737,8 +737,8 @@ to a PR cancels its older run. Then the **Web performance** job asks
 pagespeed.web.dev) to audit **that real deployment**, each page template once, mobile and desktop:
 every page in German (the default language; English renders the same templates) and one example
 per slug template (one offer, one article). Vercel's CDN, compression and image optimisation are
-included, nothing is measured from a laptop or localhost. It audits this commit's deployment URL, so a later push cannot change the
-result. Feature sites are noindex (`NUXT_SITE_ENV=feature`, and Vercel marks previews), so their
+included, nothing is measured from a laptop or localhost. It audits this commit's deployment URL,
+so a later push cannot change the result. Feature sites are noindex (`NUXT_SITE_ENV=feature`, and Vercel marks previews), so their
 SEO score is computed without "page is crawlable"; every other audit counts. After a merge,
 `deploy.yml` runs the same budget on Development (`-develop`). Reports are artifacts
 (`web-performance`), and the **PR report** comment shows the table with the PR's address.
@@ -749,9 +749,11 @@ API key** (restrict it to the PageSpeed Insights API) → GitHub → repo → Se
 variables → Actions → secret **`PAGESPEED_API_KEY`**. Without it Google answers 429.
 
 **Budget**: every page aims for 90+ in every category and performance metric; a score under 80
-fails the job (a page under 80 is measured twice more and the median decides). Scores from 80 to
-89 pass and show as 🟡 "below target" in the PR report. Numbers: `webPerformance.config.ts`;
-rules: `docs/conventions/CODING_STANDARDS.md` §7.1.
+fails the job. Each page is measured once on mobile and once on desktop. Google measures on
+machines of different speeds (the same home page: 98 on a fast one, 84 on a slow one): a run on a
+machine under benchmark index 600 is made again, up to 3 times, and the summary says how many
+were. Scores from 80 to 89 pass and show as 🟡 "below target" in the PR report. Numbers:
+`webPerformance.config.ts`; rules: `docs/conventions/CODING_STANDARDS.md` §7.1.
 
 Public repository: GitHub Actions minutes on standard runners are free.
 
