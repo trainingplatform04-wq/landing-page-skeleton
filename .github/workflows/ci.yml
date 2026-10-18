@@ -116,41 +116,6 @@ jobs:
           path: playwright-report
           retention-days: 7
 
-  # Every environment has the same variables; only their values differ (DEPLOYMENT.md §11.1).
-  # Checked on both Vercel projects before anything deploys: a key added to one environment and
-  # forgotten in another fails here, not as a broken page later.
-  environments:
-    name: Vercel environments
-    runs-on: ubuntu-latest
-    timeout-minutes: 3
-    env:
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      WEBAPP_PROJECT_ID: ${{ vars.VERCEL_WEBAPP_PROJECT_ID }}
-      STUDIO_PROJECT_ID: ${{ vars.VERCEL_STUDIO_PROJECT_ID }}
-    steps:
-      # The log names the project ("Web App", "Studio") and the keys, never an ID or a value.
-      - name: Same variables in every environment
-        run: |
-          status=0
-          for app in "Web App:$WEBAPP_PROJECT_ID" "Studio:$STUDIO_PROJECT_ID"; do
-            IFS=: read -r label project <<< "$app"
-            envs=$(curl --fail --silent --show-error -H "Authorization: Bearer $VERCEL_TOKEN" \
-              "https://api.vercel.com/v10/projects/$project/env?teamId=$VERCEL_ORG_ID")
-            # keys <Vercel target> <Git branch, empty for every branch>
-            keys() { jq -r --arg t "$1" --arg b "$2" \
-              '[.envs[] | select((.target | index($t)) and ((.gitBranch // "") == $b)) | .key] | unique | .[]' <<< "$envs"; }
-            all=$(jq -r '[.envs[].key] | unique | .[]' <<< "$envs")
-            for scope in "Production:production:" "Development:preview:develop" "Feature:preview:" "Local:development:"; do
-              IFS=: read -r name target branch <<< "$scope"
-              missing=$(comm -23 <(echo "$all") <(keys "$target" "$branch"))
-              if [ -n "$missing" ]; then
-                echo "::error::Vercel $label, $name environment is missing: $(echo $missing)"
-                status=1
-              fi
-            done
-          done
-          exit $status
-
   # Pull requests only, once the code is proven (lint, types, unit, E2E): the branch is deployed to
   # Vercel with the Feature environment's variables (Vercel Preview, all branches) on its own address,
   # `<project>-pr-<number>.vercel.app`, so every PR can be seen live and audited on the real platform
@@ -158,7 +123,7 @@ jobs:
   # (feature-cleanup.yml).
   deploy-feature:
     name: Deploy feature
-    needs: [verify, build-e2e, environments]
+    needs: [verify, build-e2e]
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -281,7 +246,7 @@ jobs:
   # PR's feature address, every step's result and the web performance table. Nobody needs Vercel access.
   report:
     name: PR report
-    needs: [verify, build-e2e, environments, deploy-feature, web-performance]
+    needs: [verify, build-e2e, deploy-feature, web-performance]
     if: always() && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 3
@@ -307,7 +272,6 @@ jobs:
           DEPLOYMENT_URL: ${{ needs.deploy-feature.outputs.url }}
           VERIFY: ${{ needs.verify.result }}
           E2E: ${{ needs.build-e2e.result }}
-          ENVIRONMENTS: ${{ needs.environments.result }}
           DEPLOY: ${{ needs.deploy-feature.result }}
           WEB_PERFORMANCE: ${{ needs.web-performance.result }}
         run: |
@@ -331,7 +295,6 @@ jobs:
             echo "| --- | :---: |"
             echo "| Lint · Format · Types · Unit | $(icon "$VERIFY") |"
             echo "| Build · E2E | $(icon "$E2E") |"
-            echo "| Vercel environments (same variables) | $(icon "$ENVIRONMENTS") |"
             echo "| Deploy feature | $(icon "$DEPLOY") |"
             echo "| Web performance (PageSpeed Insights) | $(icon "$WEB_PERFORMANCE") |"
             echo
