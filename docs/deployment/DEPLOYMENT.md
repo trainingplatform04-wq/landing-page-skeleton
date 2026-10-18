@@ -1,7 +1,7 @@
 # Deployment Guide: From Zero to Production
 
 > **The only deployment document of this repository.** It takes you from "I have nothing" to
-> "staging and production are live and deploy themselves", step by step, then serves as the
+> "development and production are live and deploy themselves", step by step, then serves as the
 > reference for day-to-day operations.
 >
 > If the code and this document disagree, one of them is a bug: fix it in the same PR.
@@ -23,7 +23,7 @@ Sanity or GitHub Actions experience. Every click is written down. Follow the par
 - [Part 5: Vercel token and IDs for GitHub](#part-5-vercel-token-and-ids-for-github)
 - [Part 6: GitHub (the deployer)](#part-6-github-the-deployer)
 - [Part 7: Your laptop (local development)](#part-7-your-laptop-local-development)
-- [Part 8: First staging deployment](#part-8-first-staging-deployment)
+- [Part 8: First development deployment](#part-8-first-development-deployment)
 - [Part 9: First production release](#part-9-first-production-release)
 - [Part 10: Daily workflow](#part-10-daily-workflow)
 - [Part 11: Reference](#part-11-reference)
@@ -35,7 +35,7 @@ Sanity or GitHub Actions experience. Every click is written down. Follow the par
 
 ## Part 0: Understand what you are building
 
-### 0.1 One repository, two apps, two environments
+### 0.1 One repository, two apps, three environments
 
 | App         | What it is                                            | Code in         | Who uses it                    |
 | ----------- | ----------------------------------------------------- | --------------- | ------------------------------ |
@@ -43,16 +43,18 @@ Sanity or GitHub Actions experience. Every click is written down. Follow the par
 | **Studio**  | The content editor (Sanity Studio, a single-page app) | `studio/`       | Content editors (login needed) |
 
 Both apps talk to **one Sanity project** that holds the content in two **datasets**
-(think "two separate databases"): `staging` and `production`.
+(think "two separate databases"): `development` and `production`.
 
-|                  | Git branch | Web App URL (example)                                     | Studio URL (example)                                      | Dataset               |
-| ---------------- | ---------- | --------------------------------------------------------- | --------------------------------------------------------- | --------------------- |
-| **Production**   | `main`     | `https://landing-page-skeleton-webapp.vercel.app`         | `https://landing-page-skeleton-studio.vercel.app`         | `production`          |
-| **Staging**      | `develop`  | `https://landing-page-skeleton-webapp-staging.vercel.app` | `https://landing-page-skeleton-studio-staging.vercel.app` | `staging`             |
-| **Local**        | any        | `http://localhost:3000`                                   | `http://localhost:3333`                                   | `staging`             |
-| **Pull Request** | `feat/*`   | the dev alias `-dev`, after the checks pass               | not deployed (uses the staging Studio)                    | `staging` (read only) |
+|                 | Git branch | Web App URL (example)                                         | Studio URL (example)                                      | Dataset                   | Vercel environment        |
+| --------------- | ---------- | ------------------------------------------------------------- | --------------------------------------------------------- | ------------------------- | ------------------------- |
+| **Production**  | `main`     | `https://landing-page-skeleton-webapp.vercel.app`             | `https://landing-page-skeleton-studio.vercel.app`         | `production`              | Production                |
+| **Development** | `develop`  | `https://landing-page-skeleton-webapp-develop.vercel.app`     | `https://landing-page-skeleton-studio-develop.vercel.app` | `development`             | Preview, branch `develop` |
+| **Feature**     | each PR    | `https://landing-page-skeleton-webapp-pr-<number>.vercel.app` | not deployed (uses the Development Studio)                | `development` (read only) | Preview, all branches     |
+| **Local**       | any        | `http://localhost:3000`                                       | `http://localhost:3333`                                   | `development`             | none (`.env` files)       |
 
-Every environment always gets **both** apps, deployed together from the same commit.
+Production and Development always get **both** apps, deployed together from the same commit. A
+Feature environment is one pull request: its own address, created once its checks pass and removed
+when the PR is merged or closed. Every environment has **the same variables**; only their values differ.
 
 ### 0.2 Who does what
 
@@ -69,7 +71,7 @@ Every environment always gets **both** apps, deployed together from the same com
                        │ reads content    │ reads + writes content
                        ▼                  ▼
             ┌──────────────── Sanity ────────────────┐
-            │ dataset "staging"   dataset "production"│   (content)
+            │ dataset "development"  "production"     │   (content)
             └─────────────────────────────────────────┘
 ```
 
@@ -82,17 +84,18 @@ Every environment always gets **both** apps, deployed together from the same com
 
 ### 0.3 Vocabulary (read once, refer back)
 
-| Word                    | Meaning                                                                                                                                                                                                      |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Deployment**          | One immutable copy of an app built from one commit. Each one gets its own random URL like `landing-page-skeleton-webapp-8f3k2la1x-myteam.vercel.app`. Old deployments stay online.                           |
-| **Vercel "Production"** | Vercel's environment for deployments made with `--prod`. They automatically receive the project's production domain. **= our Production.**                                                                   |
-| **Vercel "Preview"**    | Vercel's environment for every other deployment: our Staging (`develop`) and the pull-request deployments (`-dev`).                                                                                          |
-| **Alias**               | A fixed, human-friendly hostname that _points_ to one deployment. Our staging URLs are aliases that the pipeline moves to the newest deployment after each deploy. [Docs](https://vercel.com/docs/cli/alias) |
-| **Env var**             | A setting injected at build/run time (`NUXT_PUBLIC_SANITY_DATASET=staging`). Same code, different values per environment.                                                                                    |
-| **Dataset**             | A separate content database inside one Sanity project. [Docs](https://www.sanity.io/docs/datasets)                                                                                                           |
-| **CORS origin**         | A website address Sanity allows to call its API from a browser. Anything not listed is blocked. [Docs](https://www.sanity.io/docs/cors)                                                                      |
-| **Smoke test**          | A quick automated check, run right after deploying, that proves the live site really answers with our app (not an error page or a login wall).                                                               |
-| **Secret / Variable**   | GitHub Actions settings. A _secret_ is hidden in logs (`VERCEL_TOKEN`, `SANITY_TOKEN`); a _variable_ is plain text (IDs, URLs).                                                                              |
+| Word                     | Meaning                                                                                                                                                                                                                                               |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Deployment**           | One immutable copy of an app built from one commit. Each one gets its own random URL like `landing-page-skeleton-webapp-8f3k2la1x-myteam.vercel.app`. Old deployments stay online.                                                                    |
+| **Vercel "Production"**  | Vercel's environment for deployments made with `--prod`. They automatically receive the project's production domain. **= our Production.**                                                                                                            |
+| **Vercel "Preview"**     | Vercel's environment for every other deployment. Its rows for **all branches** are our **Feature** (pull requests); its rows for the branch `develop` are our **Development**. Vercel Hobby has no custom environments, and Preview can't be renamed. |
+| **Vercel "Development"** | Vercel's environment for a laptop (`vercel env pull`): our **Local**. Not used by the pipeline; it keeps the same keys as the others.                                                                                                                 |
+| **Alias**                | A fixed, human-friendly hostname that _points_ to one deployment. Our Development and Feature URLs are aliases that the pipeline moves to the newest deployment after each deploy. [Docs](https://vercel.com/docs/cli/alias)                          |
+| **Env var**              | A setting injected at build/run time (`NUXT_PUBLIC_SANITY_DATASET=development`). Same code, different values per environment.                                                                                                                         |
+| **Dataset**              | A separate content database inside one Sanity project. [Docs](https://www.sanity.io/docs/datasets)                                                                                                                                                    |
+| **CORS origin**          | A website address Sanity allows to call its API from a browser. Anything not listed is blocked. [Docs](https://www.sanity.io/docs/cors)                                                                                                               |
+| **Smoke test**           | A quick automated check, run right after deploying, that proves the live site really answers with our app (not an error page or a login wall).                                                                                                        |
+| **Secret / Variable**    | GitHub Actions settings. A _secret_ is hidden in logs (`VERCEL_TOKEN`, `SANITY_TOKEN`); a _variable_ is plain text (IDs, URLs).                                                                                                                       |
 
 ### 0.4 How the pipeline flows
 
@@ -102,11 +105,13 @@ Every environment always gets **both** apps, deployed together from the same com
     ▼              ▼              ▼
   ci.yml         deploy.yml      deploy.yml
  checks         CI → deploy     CI → deploy
- → deploy dev   both apps       both apps (--prod)
- → web perf.    → alias         → smoke test
- → PR report    → smoke test
+ → deploy       both apps       both apps (--prod)
+   -pr-<n>      → alias         → smoke test
+ → web perf.    → smoke test
+ → PR report    → seed
                 → web perf.
-   DEV            STAGING        PRODUCTION
+   FEATURE        DEVELOPMENT    PRODUCTION
+ (removed when the PR closes: feature-cleanup.yml)
 ```
 
 ---
@@ -156,8 +161,8 @@ example. Each row says exactly where to read yours.
 | N4  | Studio Vercel project ID  | starts with `prj_`                         | Vercel → project `…-studio` → **Settings → General → Project ID**                                                 | Part 4.5 |
 | N5  | Web App production URL    | `https://<webapp-project-name>.vercel.app` | Vercel → project `…-webapp` → **Settings → Domains**                                                              | Part 3.5 |
 | N6  | Studio production URL     | `https://<studio-project-name>.vercel.app` | Vercel → project `…-studio` → **Settings → Domains**                                                              | Part 4.5 |
-| N7  | Web App staging URL       | `https://<a-free-name>.vercel.app`         | **You choose it** (e.g. `<webapp-project-name>-staging`)                                                          | Part 3.0 |
-| N8  | Studio staging URL        | `https://<a-free-name>.vercel.app`         | **You choose it** (e.g. `<studio-project-name>-staging`)                                                          | Part 4.0 |
+| N7  | Web App development URL   | `https://<a-free-name>.vercel.app`         | **You choose it** (e.g. `<webapp-project-name>-develop`)                                                          | Part 3.0 |
+| N8  | Studio development URL    | `https://<a-free-name>.vercel.app`         | **You choose it** (e.g. `<studio-project-name>-develop`)                                                          | Part 4.0 |
 | N9  | Vercel token              | long random string, **secret**             | <https://vercel.com/account/settings/tokens> → **Create Token** (shown only once: store it in a password manager) | Part 5.1 |
 
 ---
@@ -177,19 +182,19 @@ example. Each row says exactly where to read yours.
 2. If a `production` dataset already exists, keep it but **check that its visibility is Public**
    (if not: open it → change visibility to **Public**). Otherwise **Add dataset** → name `production` →
    visibility **Public**. A private dataset makes the site render empty pages: it has no token.
-3. **Add dataset** → name `staging` → visibility **Public**.
+3. **Add dataset** → name `development` → visibility **Public**.
 
 Why public? The website only **reads published** content and must work **without any token**
 (nothing secret can leak). Drafts stay private; writing always requires a logged-in editor.
 
 > ⚠️ Public means anyone can read the content of the dataset. **Never put confidential data in
-> `staging` or `production`.**
+> `development` or `production`.**
 
 CLI alternative (from `studio/`, after Part 7):
 
 ```bash
 pnpm exec sanity login
-pnpm exec sanity dataset create staging --visibility public
+pnpm exec sanity dataset create development --visibility public
 pnpm exec sanity dataset visibility set production public
 ```
 
@@ -198,24 +203,29 @@ pnpm exec sanity dataset visibility set production public
 Project page → **API** tab → **CORS origins** → **Add CORS origin**, once per row.
 Type the origin **exactly** (scheme + host, no trailing slash) and tick **Allow credentials** only where shown:
 
-| Origin                  | Allow credentials | Why                                    |
-| ----------------------- | ----------------- | -------------------------------------- |
-| `http://localhost:3000` | ❌ No             | Web App on your laptop (read only)     |
-| `http://localhost:3333` | ✅ Yes            | Studio on your laptop (editors log in) |
-| N5 (Web App production) | ❌ No             | Public site reads content              |
-| N7 (Web App staging)    | ❌ No             |                                        |
-| N6 (Studio production)  | ✅ Yes            | Editors log in                         |
-| N8 (Studio staging)     | ✅ Yes            |                                        |
+| Origin                                       | Allow credentials | Why                                        |
+| -------------------------------------------- | ----------------- | ------------------------------------------ |
+| `http://localhost:3000`                      | ❌ No             | Web App on your laptop (read only)         |
+| `http://localhost:3333`                      | ✅ Yes            | Studio on your laptop (editors log in)     |
+| N5 (Web App production)                      | ❌ No             | Public site reads content                  |
+| N7 (Web App development)                     | ❌ No             |                                            |
+| `https://<webapp-project-name>-*.vercel.app` | ❌ No             | Feature: the address of every pull request |
+| N6 (Studio production)                       | ✅ Yes            | Editors log in                             |
+| N8 (Studio development)                      | ✅ Yes            |                                            |
 
-> ⚠️ **Never add wildcards** (`https://*.vercel.app`, `https://staging-*.vercel.app`), above all
-> with credentials: anyone can create a Vercel project matching the pattern and act as your
-> logged-in editors. Exact origins only.
+> ⚠️ **One wildcard only, never with credentials.** Every pull request has its own address, so the
+> Feature row is a pattern, anchored to your web app's project name (if Sanity refuses a partial
+> label: to your team, `https://*-<team-slug>.vercel.app`, the form Sanity's docs recommend), and
+> **without** credentials: it only lets those pages read the public dataset, which anyone can read
+> anyway. Never add a platform-wide pattern (`https://*.vercel.app`), and never a wildcard with
+> credentials: anyone can create a Vercel project matching the pattern and act as your logged-in
+> editors. Studio origins stay exact.
 
 You can add rows for URLs you'll only know later (N5–N8): come back here after Part 4 if needed.
 
-### 2.4 Tokens: one, for the staging seed
+### 2.4 Tokens: one, for the development seed
 
-The website and the Studio use **no token**. The only one is the staging seed's (`github-seed-staging`, created in [§6.2](#62-the-secret-one-value-stored-twice)). Delete any other token under **API → Tokens** unless you know exactly what uses it.
+The website and the Studio use **no token**. The only one is the development seed's (`github-seed-development`, created in [§6.2](#62-the-secret-one-value-stored-twice)). Delete any other token under **API → Tokens** unless you know exactly what uses it.
 
 ### 2.5 Invite the editors
 
@@ -230,9 +240,11 @@ Project page → **Members** → **Invite members** → email + role (**Editor**
 
 - **Project name:** `landing-page-skeleton-webapp`. Vercel gives the project the production domain
   `https://<project-name>.vercel.app` if it is free worldwide.
-- **Staging name:** `landing-page-skeleton-webapp-staging.vercel.app`. This alias is **created by the
-  pipeline** on the first staging deploy ([§8.2](#82-how-the-staging-url-is-created)). The name must be
+- **Development name:** `landing-page-skeleton-webapp-develop.vercel.app`. This alias is **created by the
+  pipeline** on the first development deploy ([§8.2](#82-how-the-development-url-is-created)). The name must be
   unused on all of Vercel. 📝 **Write down N7** (with `https://`).
+- **Feature names** (`<project-name>-pr-<number>.vercel.app`) are created and removed by the pipeline:
+  nothing to choose. Keep the project name short enough for `-pr-<number>` (63 characters at most).
 
 ### 3.1 Import the repository
 
@@ -251,25 +263,28 @@ Project page → **Members** → **Invite members** → email + role (**Editor**
 
 ### 3.2 Environment variables
 
-Project → **Settings** → **Environment Variables**. For **each row** below: enter **Key** and
-**Value**, tick only the listed **Environments**, leave **Branch** empty, keep **Sensitive OFF**, click **Save**.
-When the same key has different values per environment, add it once per value.
+Project → **Settings** → **Environment Variables**. Every key exists in **every** column below,
+with that column's value (the pipeline's **Vercel environments** check fails before any deploy when
+one is missing). For each cell: **Add** → **Key** and **Value**, keep **Sensitive OFF**, pick the target:
 
-| Key                                            | Value              | Environments                     |
-| ---------------------------------------------- | ------------------ | -------------------------------- |
-| `NUXT_PUBLIC_SANITY_PROJECT_ID`                | N1                 | Production, Preview, Development |
-| `NUXT_PUBLIC_SANITY_DATASET`                   | `production`       | Production                       |
-| `NUXT_PUBLIC_SANITY_DATASET`                   | `staging`          | Preview, Development             |
-| `NUXT_PUBLIC_SITE_URL`                         | N5                 | Production                       |
-| `NUXT_PUBLIC_SITE_URL`                         | N7                 | Preview                          |
-| `NUXT_PUBLIC_SITE_URL`                         | the `-dev` URL     | Development                      |
-| `NUXT_SITE_ENV`                                | `production`       | Production                       |
-| `NUXT_SITE_ENV`                                | `staging`          | Preview                          |
-| `NUXT_SITE_ENV`                                | `development`      | Development                      |
-| `NUXT_PUBLIC_SITE_NAME` _(optional)_           | your site name     | Production, Preview, Development |
-| `NUXT_PUBLIC_CONTACT_FORM_ACTION` _(optional)_ | your form endpoint | Production, Preview              |
-| `NUXT_PUBLIC_GTM_ID` _(optional)_              | production `GTM-…` | Production                       |
-| `NUXT_PUBLIC_GTM_ID` _(optional)_              | staging `GTM-…`    | Preview, Development             |
+- **Production**: tick **Production** only.
+- **Development** (`develop`): tick **Preview** only → **Select a custom Preview branch** → `develop`.
+  These rows override the Feature rows on `develop`: add **every** key here, not only those that differ.
+- **Feature** (pull requests): tick **Preview** only, branch left empty (all branches).
+- **Local**: tick **Development** only (Vercel's laptop environment, for `vercel env pull`).
+
+| Key                                            | Production         | Development (Preview · `develop`) | Feature (Preview)                     | Local (Development)     |
+| ---------------------------------------------- | ------------------ | --------------------------------- | ------------------------------------- | ----------------------- |
+| `NUXT_PUBLIC_SANITY_PROJECT_ID`                | N1                 | N1                                | N1                                    | N1                      |
+| `NUXT_PUBLIC_SANITY_DATASET`                   | `production`       | `development`                     | `development`                         | `development`           |
+| `NUXT_PUBLIC_SITE_URL`                         | N5                 | N7                                | any URL, replaced by `-pr-<number>` ¹ | `http://localhost:3000` |
+| `NUXT_SITE_ENV`                                | `production`       | `development`                     | `feature`                             | `local`                 |
+| `NUXT_PUBLIC_SITE_NAME` _(optional)_           | site name          | same                              | same                                  | same                    |
+| `NUXT_PUBLIC_CONTACT_FORM_ACTION` _(optional)_ | form endpoint      | same (or a test form)             | same (or a test form)                 | a test form             |
+| `NUXT_PUBLIC_GTM_ID` _(optional)_              | production `GTM-…` | staging `GTM-…`                   | staging `GTM-…`                       | staging `GTM-…`         |
+
+¹ The **Deploy feature** job writes `https://<project-name>-pr-<number>.vercel.app` for each pull
+request, so canonical links, hreflang and the sitemap of a PR deployment use its own address.
 
 Rules:
 
@@ -279,7 +294,7 @@ Rules:
   Enforce Sensitive Environment Variables** → disable.
 - Paste values **without spaces or line breaks** around them.
 - `NUXT_SITE_ENV=production` is the **only** value that lets search engines index the site;
-  staging always answers `noindex`.
+  Development and Feature always answer `noindex`.
 - `NUXT_PUBLIC_CONTACT_FORM_ACTION` is the endpoint URL of your form at an **EU-hosted** form
   service. The site sends each message there in the background (a `POST` from the browser with
   the fields `name`, `email`, `message` and expects a JSON answer;
@@ -287,15 +302,16 @@ Rules:
   JSON when asked (`Accept: application/json`). Sign a
   data processing agreement with it. Without it, the contact page shows an email link.
 - `NUXT_PUBLIC_GTM_ID` is the Google Tag Manager container of the environment: the production
-  container for **Production**, the shared staging/dev container for **Preview** and
-  **Development**. GTM loads only after a visitor accepts statistics; empty, nothing
+  container for **Production**, the shared staging container (its name in GTM) for **Development**, **Feature**
+  and **Local**. GTM loads only after a visitor accepts statistics; empty, nothing
   analytics-related loads and the consent window does not offer statistics. Creating the
   containers: [docs/analytics/GTM.md](../analytics/GTM.md). With the CLI (it asks for the value):
 
   ```bash
   pnpm dlx vercel@61.0.0 env add NUXT_PUBLIC_GTM_ID production    # GTM-… of the production container
-  pnpm dlx vercel@61.0.0 env add NUXT_PUBLIC_GTM_ID preview       # GTM-… of the staging/dev container
-  pnpm dlx vercel@61.0.0 env add NUXT_PUBLIC_GTM_ID development   # same staging/dev container
+  pnpm dlx vercel@61.0.0 env add NUXT_PUBLIC_GTM_ID preview develop   # staging container (Development)
+  pnpm dlx vercel@61.0.0 env add NUXT_PUBLIC_GTM_ID preview           # same container, all branches (Feature)
+  pnpm dlx vercel@61.0.0 env add NUXT_PUBLIC_GTM_ID development       # same container (Local)
   ```
 
 ### 3.3 Build settings
@@ -315,14 +331,15 @@ Project → **Settings** → **Deployment Protection** → **Vercel Authenticati
 **Disabled** → **Save**.
 
 Why this matters: new Vercel projects protect **Preview** deployments by default ("Standard
-Protection"). Staging **is** a Preview deployment, so the staging URL would answer
+Protection"). Development and Feature **are** Preview deployments, so their URLs would answer
 `HTTP 302 → vercel.com/sso-api` (a Vercel login page) to everyone, including the smoke test, which
 then fails with `answered HTTP 302 (auth wall, redirect or unreachable?)`. Production is never
 affected, which makes this easy to miss.
 [Docs](https://vercel.com/docs/deployment-protection)
 
-Staging becomes publicly reachable, which is fine for a landing page (it is `noindex` and shows
-only staging content).
+Development and Feature become publicly reachable. That is fine for a landing page (they are
+`noindex` and show only development content) and required: PageSpeed Insights audits every PR
+address without logging in.
 
 ### 3.5 Collect the IDs and production URL
 
@@ -341,7 +358,7 @@ Same repository, imported a **second** time, with a different root directory.
 ### 4.0 Choose the names
 
 - **Project name:** `landing-page-skeleton-studio` → production `https://landing-page-skeleton-studio.vercel.app`.
-- **Staging name:** `landing-page-skeleton-studio-staging.vercel.app`. 📝 **Write down N8.**
+- **Development name:** `landing-page-skeleton-studio-develop.vercel.app`. 📝 **Write down N8.**
 
 ### 4.1 Import the repository again
 
@@ -355,13 +372,14 @@ Same repository, imported a **second** time, with a different root directory.
 
 ### 4.2 Environment variables
 
-Same procedure as [§3.2](#32-environment-variables) (Sensitive **OFF**):
+Same procedure and targets as [§3.2](#32-environment-variables) (Sensitive **OFF**, every key in every column):
 
-| Key                        | Value        | Environments                     |
-| -------------------------- | ------------ | -------------------------------- |
-| `SANITY_STUDIO_PROJECT_ID` | N1           | Production, Preview, Development |
-| `SANITY_STUDIO_DATASET`    | `production` | Production                       |
-| `SANITY_STUDIO_DATASET`    | `staging`    | Preview, Development             |
+| Key                        | Production   | Development (Preview · `develop`) | Feature (Preview) | Local (Development) |
+| -------------------------- | ------------ | --------------------------------- | ----------------- | ------------------- |
+| `SANITY_STUDIO_PROJECT_ID` | N1           | N1                                | N1                | N1                  |
+| `SANITY_STUDIO_DATASET`    | `production` | `development`                     | `development`     | `development`       |
+
+The Studio isn't deployed for pull requests; CI builds it with the Feature values.
 
 ### 4.3 Build settings
 
@@ -429,14 +447,14 @@ Why twice? PRs opened by Dependabot ([§6.4](#64-dependabot-optional-but-recomme
 Actions secrets**, only Dependabot secrets. Without this copy, every Dependabot PR fails CI at
 `vercel env pull`. Variables (§6.3) are shared, so they don't need a copy.
 
-3. **Staging demo content** (optional, [§8.0](#80-content-in-sanity)): every deploy of `develop` adds
-   the new demo content to the `staging` dataset. It needs a Sanity token:
+3. **Development demo content** (optional, [§8.0](#80-content-in-sanity)): every deploy of `develop` adds
+   the new demo content to the `development` dataset. It needs a Sanity token:
    <https://www.sanity.io/manage> → your project → **API** → **Tokens** → **Add API token** →
-   name `github-seed-staging`, permissions **Editor** → **Save** → copy it. Then **New repository
+   name `github-seed-development`, permissions **Editor** → **Save** → copy it. Then **New repository
    secret** (Actions only, Dependabot PRs never seed): `SANITY_TOKEN` = that token.
 
    The token can write the whole project (Sanity tokens are per project, not per dataset), so two
-   guards keep it on staging: the workflow pins `SANITY_STUDIO_DATASET=staging`, and the seed
+   guards keep it on development: the workflow pins `SANITY_STUDIO_DATASET=development`, and the seed
    script refuses every other dataset. Only the seed step receives the token.
 
 ### 6.3 The variables (seven)
@@ -450,8 +468,8 @@ Same page → **Variables** tab → **New repository variable**, once per row:
 | `VERCEL_STUDIO_PROJECT_ID` | N4    |
 | `PRODUCTION_WEBAPP_URL`    | N5    |
 | `PRODUCTION_STUDIO_URL`    | N6    |
-| `STAGING_WEBAPP_URL`       | N7    |
-| `STAGING_STUDIO_URL`       | N8    |
+| `DEVELOPMENT_WEBAPP_URL`   | N7    |
+| `DEVELOPMENT_STUDIO_URL`   | N8    |
 
 Rules:
 
@@ -460,7 +478,7 @@ Rules:
 - IDs and URLs are **variables**, not secrets: they aren't sensitive, and secrets make logs unreadable (`***`).
 - **No Sanity value lives in GitHub.** The pipeline pulls them from Vercel.
 - GitHub Free has no environment-scoped secrets: everything is repository-level, and the workflows
-  pick staging or production values themselves.
+  pick development or production values themselves. Feature addresses are computed, not stored.
 
 ### 6.4 Dependabot (optional but recommended)
 
@@ -471,7 +489,7 @@ alerts: **Settings → Code security** → enable **Dependabot alerts** and **De
 ### 6.5 Branches
 
 `main` exists. **Don't create `develop` yet**: creating it triggers the first deployment
-([Part 8](#part-8-first-staging-deployment)).
+([Part 8](#part-8-first-development-deployment)).
 
 On GitHub Free (private repo) you can't enforce branch protection. The team rules are in
 [Part 14](#part-14-golden-rules); CI also rejects PRs into `main` that don't come from `develop` or `hotfix/*`.
@@ -487,8 +505,8 @@ nvm use 24                           # Node 24, as in .nvmrc
 npm install --global pnpm            # once per machine; pnpm then uses the version pinned in package.json
 pnpm install                         # installs the web app and the studio workspace
 
-cp .env.example .env                 # NUXT_PUBLIC_* (dataset: staging)
-cp studio/.env.example studio/.env   # SANITY_STUDIO_* (dataset: staging)
+cp .env.example .env                 # NUXT_PUBLIC_* (dataset: development)
+cp studio/.env.example studio/.env   # SANITY_STUDIO_* (dataset: development)
 ```
 
 Open both `.env` files and set the project ID to N1. Then:
@@ -508,11 +526,11 @@ Alternative to copying `.env` files: `pnpm dlx vercel@61.0.0 link` then
 
 ---
 
-## Part 8: First staging deployment
+## Part 8: First development deployment
 
 ### 8.0 Content in Sanity
 
-`production` starts empty and stays editor-only: no sample content. `staging` can get the demo
+`production` starts empty and stays editor-only: no sample content. `development` can get the demo
 content in one command (repo root, after `cd studio && pnpm exec sanity login && cd ..`):
 
 ```bash
@@ -522,10 +540,10 @@ pnpm studio:seed             # writes the demo content of studio/seed/
 
 **Automatically:** every deploy of `develop` runs `pnpm studio:seed` (needs the
 `SANITY_TOKEN` secret, [§6.2](#62-the-secret-one-value-stored-twice)). A schema change that ships with its demo
-content is therefore visible on staging right after the deploy, without anyone running a command.
+content is therefore visible on Development right after the deploy, without anyone running a command.
 
 Re-running is safe: every demo document has a fixed id. The modes are described in
-[`docs/sanity/SANITY.md`](../sanity/SANITY.md#the-seed-staging-only); the script refuses every dataset but `staging`.
+[`docs/sanity/SANITY.md`](../sanity/SANITY.md#the-seed-development-only); the script refuses every dataset but `development`.
 
 Without the seed, every page exists because the code defines
 it: while its document isn't published it renders empty and is hidden from search engines
@@ -547,12 +565,12 @@ That push starts **Actions → Deploy** (`https://github.com/<owner>/<repo>/acti
 
 1. **CI** (about 5–8 min): lint, format, types, unit tests, Sanity type drift, build both apps, E2E tests.
 2. **Deploy webapp** then **Deploy studio**, one at a time (a free Vercel plan builds one
-   deployment at a time, so a second one would just queue): `vercel pull` (settings + Preview env) →
+   deployment at a time, so a second one would just queue): `vercel pull` (settings + Preview env of `develop`) →
    `vercel build` → `vercel deploy --prebuilt` → wait for the build → `vercel alias set`.
-3. **Smoke test (staging):** the Studio must answer `200` with the Studio page; the Web App must
+3. **Smoke test (development):** the Studio must answer `200` with the Studio page; the Web App must
    render correctly with no console errors.
 
-### 8.2 How the staging URL is created
+### 8.2 How the development URL is created
 
 There is **nothing to create in a dashboard**. The pipeline does it:
 
@@ -560,21 +578,24 @@ There is **nothing to create in a dashboard**. The pipeline does it:
 vercel deploy --prebuilt
    └─▶ https://landing-page-skeleton-webapp-8f3k2la1x-myteam.vercel.app   (new random URL every deploy)
 
-vercel alias set <random URL> landing-page-skeleton-webapp-staging.vercel.app
+vercel alias set <random URL> landing-page-skeleton-webapp-develop.vercel.app
    └─▶ the fixed name now points to this newest deployment
        (first run: the alias is created; next runs: it is moved)
 ```
 
-- The alias name comes from the GitHub variable `STAGING_*_URL`. Whoever deploys first owns a
+- The alias name comes from the GitHub variable `DEVELOPMENT_*_URL`. Whoever deploys first owns a
   `*.vercel.app` name; if it's taken, `vercel alias set` fails: pick another name and update the
   **four places** that must match:
-  1. GitHub variable `STAGING_WEBAPP_URL` / `STAGING_STUDIO_URL`
-  2. Vercel Web App env `NUXT_PUBLIC_SITE_URL` (Preview)
+  1. GitHub variable `DEVELOPMENT_WEBAPP_URL` / `DEVELOPMENT_STUDIO_URL`
+  2. Vercel Web App env `NUXT_PUBLIC_SITE_URL` (Preview, branch `develop`)
   3. Sanity CORS origins
   4. Your notebook (N7 / N8)
 - To see it: Vercel project → **Deployments** → the newest deployment → **Domains** lists the alias.
   Aliases don't appear under Settings → Domains.
-- Previous deployments keep their random URLs (handy to compare versions or roll back staging).
+- Previous deployments keep their random URLs (handy to compare versions or roll back Development).
+- **Feature works the same way, per pull request:** `ci.yml` points `<project-name>-pr-<number>.vercel.app`
+  to the PR's newest deployment, and `feature-cleanup.yml` removes the address and the PR's
+  deployments when the PR is merged or closed.
 - **Production works differently:** `vercel deploy --prod` automatically gives the deployment the
   project's production domains (Settings → Domains). No alias step.
 
@@ -584,7 +605,7 @@ vercel alias set <random URL> landing-page-skeleton-webapp-staging.vercel.app
 - [ ] N7 opens the site **without any Vercel login**, with the content editors published; the language switcher works (e.g. `/kontakt` ↔ `/en/contact`).
 - [ ] N8 opens the Studio and asks for a **Sanity** login (not Vercel); after login you see the content.
 - [ ] In the Studio, edit a text and **Publish**. Reload N7: the change appears within about a minute (CDN).
-- [ ] `N7/robots.txt` disallows everything (staging is never indexed).
+- [ ] `N7/robots.txt` disallows everything (Development is never indexed).
 - [ ] Vercel → each project → **Deployments**: only CLI deployments, none created by the Git integration
       (except the one failed deployment from the import in [§3.1](#31-import-the-repository) / [§4.1](#41-import-the-repository-again)).
 
@@ -595,7 +616,7 @@ vercel alias set <random URL> landing-page-skeleton-webapp-staging.vercel.app
 A release ships what is on `develop` and not yet on `main`. Right after Part 8, both branches point
 to the **same commit**, so there is nothing to release yet (GitHub's compare page says _"There isn't
 anything to compare"_). Land **one change on `develop` first**, through the normal flow
-([Part 10](#part-10-daily-workflow)): for example a PR that adds the live URLs to `README.md`. Check it on staging, then:
+([Part 10](#part-10-daily-workflow)): for example a PR that adds the live URLs to `README.md`. Check it on Development, then:
 
 1. Open a PR **`develop` → `main`**:
    `https://github.com/<owner>/<repo>/compare/main...develop` → **Create pull request**.
@@ -605,11 +626,11 @@ anything to compare"_). Land **one change on `develop` first**, through the norm
 4. **Actions → Deploy** runs again: CI → deploy both apps with `--prod` → **Smoke test (production)**.
 5. Check:
    - [ ] N5 shows the site, N6 the Studio login.
-   - [ ] **Production content is empty at first**: editors fill it in the production Studio, or copy the published staging content once (inside `studio/`):
+   - [ ] **Production content is empty at first**: editors fill it in the production Studio, or copy the published development content once (inside `studio/`):
 
      ```bash
-     pnpm exec sanity dataset export staging staging.tar.gz --no-drafts
-     pnpm exec sanity dataset import staging.tar.gz production --replace   # ⚠️ overwrites documents with the same IDs
+     pnpm exec sanity dataset export development development.tar.gz --no-drafts
+     pnpm exec sanity dataset import development.tar.gz production --replace   # ⚠️ overwrites documents with the same IDs
      ```
 
    - [ ] `N5/robots.txt` allows indexing and points to `N5/sitemap.xml`.
@@ -622,13 +643,13 @@ anything to compare"_). Land **one change on `develop` first**, through the norm
 
 ## Part 10: Daily workflow
 
-| You want to…            | Do                                                                                                 | Result                           |
-| ----------------------- | -------------------------------------------------------------------------------------------------- | -------------------------------- |
-| Build a feature         | Branch `feat/<name>` from `develop` → PR into `develop` → CI green + review → **squash merge**     | Staging deploys automatically    |
-| Release to production   | PR `develop` → `main` → CI green → **merge commit**                                                | Production deploys automatically |
-| Fix production urgently | [§12.2](#122-hotfix)                                                                               |                                  |
-| Change content          | In the Studio (staging Studio for tests, production Studio for real content). No deploy needed.    | Live within about a minute       |
-| Change the schema       | The checklist in [`docs/sanity/SANITY.md`](../sanity/SANITY.md). CI fails if you forget the types. | Deployed with the next release   |
+| You want to…            | Do                                                                                                                      | Result                            |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| Build a feature         | Branch `feat/<name>` from `develop` → PR into `develop` (live at `-pr-<number>`) → CI green + review → **squash merge** | Development deploys automatically |
+| Release to production   | PR `develop` → `main` → CI green → **merge commit**                                                                     | Production deploys automatically  |
+| Fix production urgently | [§12.2](#122-hotfix)                                                                                                    |                                   |
+| Change content          | In the Studio (Development Studio for tests, production Studio for real content). No deploy needed.                     | Live within about a minute        |
+| Change the schema       | The checklist in [`docs/sanity/SANITY.md`](../sanity/SANITY.md). CI fails if you forget the types.                      | Deployed with the next release    |
 
 Before opening or updating a PR, run the same checks as CI:
 
@@ -643,37 +664,41 @@ pnpm build:e2e && CI=1 pnpm test:e2e  # E2E against a production build (fixture 
 
 ### 11.1 Environment variable contract
 
-**Vercel project `webapp`** (Settings → Environment Variables, Sensitive OFF)
+**Every environment has the same keys; only the values differ.** The **Vercel environments** job of
+`ci.yml` compares the keys of Production, Development (Preview · `develop`), Feature (Preview) and
+Local (Vercel Development) on both projects, and fails before any deploy when one is missing.
 
-| Name                              | Production         | Preview (= staging)   | Development     | Required |
-| --------------------------------- | ------------------ | --------------------- | --------------- | -------- |
-| `NUXT_PUBLIC_SANITY_PROJECT_ID`   | N1                 | N1                    | N1              | ✅       |
-| `NUXT_PUBLIC_SANITY_DATASET`      | `production`       | `staging`             | `staging`       | ✅       |
-| `NUXT_PUBLIC_SITE_URL`            | N5                 | N7                    | the `-dev` URL  | ✅       |
-| `NUXT_SITE_ENV`                   | `production`       | `staging`             | `development`   | ✅       |
-| `NUXT_PUBLIC_SITE_NAME`           | site name          | same                  | same            | optional |
-| `NUXT_PUBLIC_CONTACT_FORM_ACTION` | form endpoint      | same (or a test form) | empty           | optional |
-| `NUXT_PUBLIC_GTM_ID`              | production `GTM-…` | staging `GTM-…`       | staging `GTM-…` | optional |
+**Vercel project `webapp`** (Settings → Environment Variables, Sensitive OFF; targets in [§3.2](#32-environment-variables))
 
-`NUXT_PUBLIC_GTM_ID` stays **empty** locally (unless you test GTM against the staging container)
+| Name                              | Production         | Development (Preview · `develop`) | Feature (Preview)          | Local (Development)     | Required |
+| --------------------------------- | ------------------ | --------------------------------- | -------------------------- | ----------------------- | -------- |
+| `NUXT_PUBLIC_SANITY_PROJECT_ID`   | N1                 | N1                                | N1                         | N1                      | ✅       |
+| `NUXT_PUBLIC_SANITY_DATASET`      | `production`       | `development`                     | `development`              | `development`           | ✅       |
+| `NUXT_PUBLIC_SITE_URL`            | N5                 | N7                                | replaced by `-pr-<number>` | `http://localhost:3000` | ✅       |
+| `NUXT_SITE_ENV`                   | `production`       | `development`                     | `feature`                  | `local`                 | ✅       |
+| `NUXT_PUBLIC_SITE_NAME`           | site name          | same                              | same                       | same                    | optional |
+| `NUXT_PUBLIC_CONTACT_FORM_ACTION` | form endpoint      | same (or a test form)             | same (or a test form)      | a test form             | optional |
+| `NUXT_PUBLIC_GTM_ID`              | production `GTM-…` | staging `GTM-…`                   | staging `GTM-…`            | staging `GTM-…`         | optional |
+
+`NUXT_PUBLIC_GTM_ID` stays **empty** in your local `.env` (unless you test GTM against the staging container)
 and in CI builds. The E2E suite sets a fake container (`GTM-E2ETEST`, `tests/e2e/sanity/fixtureCms.ts`)
 and stubs its script: the test runs never reach Google. Setup and verification: [docs/analytics/GTM.md](../analytics/GTM.md);
 legal steps before production: [docs/legal/go-live-checklist.md](../legal/go-live-checklist.md).
 
 **Vercel project `studio`**
 
-| Name                       | Production   | Preview   | Development | Required |
-| -------------------------- | ------------ | --------- | ----------- | -------- |
-| `SANITY_STUDIO_PROJECT_ID` | N1           | N1        | N1          | ✅       |
-| `SANITY_STUDIO_DATASET`    | `production` | `staging` | `staging`   | ✅       |
+| Name                       | Production   | Development (Preview · `develop`) | Feature (Preview) | Local (Development) | Required |
+| -------------------------- | ------------ | --------------------------------- | ----------------- | ------------------- | -------- |
+| `SANITY_STUDIO_PROJECT_ID` | N1           | N1                                | N1                | N1                  | ✅       |
+| `SANITY_STUDIO_DATASET`    | `production` | `development`                     | `development`     | `development`       | ✅       |
 
 **GitHub** (repo → Settings → Secrets and variables → Actions)
 
-| Kind     | Name                                                                                                                                             |
-| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Secret   | `VERCEL_TOKEN` (Actions **and** Dependabot secrets), `SANITY_TOKEN` (Actions only, staging seed), `PAGESPEED_API_KEY` (Actions, web performance) |
-| Variable | `VERCEL_ORG_ID`, `VERCEL_WEBAPP_PROJECT_ID`, `VERCEL_STUDIO_PROJECT_ID`                                                                          |
-| Variable | `STAGING_WEBAPP_URL`, `STAGING_STUDIO_URL`, `PRODUCTION_WEBAPP_URL`, `PRODUCTION_STUDIO_URL`                                                     |
+| Kind     | Name                                                                                                                                                 |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Secret   | `VERCEL_TOKEN` (Actions **and** Dependabot secrets), `SANITY_TOKEN` (Actions only, development seed), `PAGESPEED_API_KEY` (Actions, web performance) |
+| Variable | `VERCEL_ORG_ID`, `VERCEL_WEBAPP_PROJECT_ID`, `VERCEL_STUDIO_PROJECT_ID`                                                                              |
+| Variable | `DEVELOPMENT_WEBAPP_URL`, `DEVELOPMENT_STUDIO_URL`, `PRODUCTION_WEBAPP_URL`, `PRODUCTION_STUDIO_URL`                                                 |
 
 **How they are used**
 
@@ -682,32 +707,33 @@ legal steps before production: [docs/legal/go-live-checklist.md](../legal/go-liv
 - Both builds **fail fast** when a required variable is missing or invalid: `nuxt.config.ts`
   (`REQUIRED_BUILD_ENV`) and `studio/sanity.cli.ts` (`ENV_RULES`). There is no silent fallback to `production`.
 - `apiVersion` is **not** an env var: it is fixed in `constants/sanity.constants.ts` because it changes GROQ behaviour (code).
-- CI tests against the **Preview** values, pulled from Vercel with `vercel env pull`.
+- CI builds against the **Feature** values (Preview, all branches), pulled from Vercel with `vercel env pull`.
 
 ### 11.2 Pipeline files
 
-| File                                | Trigger                                       | What it does                                                                                                                                                                                                                                                                                                                                                                                                       |
-| ----------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `.github/actions/setup/action.yml`  | used by every job                             | pnpm pinned in `package.json`, Node from `.nvmrc`, cached `pnpm install --frozen-lockfile`, optionally the **pinned** Vercel CLI                                                                                                                                                                                                                                                                                   |
-| `.github/workflows/ci.yml`          | PR → `develop`/`main`; called by `deploy.yml` | **Branch policy** (PRs to `main` only from `develop`/`hotfix/*`) · lint · format · Sanity type drift · types · unit tests (coverage ≥ 80 %) · build both apps · E2E · then (pull requests), only if all of these pass, **Deploy dev** (the branch to Vercel Preview, alias `-dev`) → **Web performance** (Google PageSpeed Insights) on that deployment against `webPerformance.config.ts` → **PR report** comment |
-| `.github/workflows/deploy.yml`      | push to `develop` / `main`                    | Full `ci.yml` again, then for **webapp + studio**, one at a time: `vercel pull` → `vercel build` → `vercel deploy --prebuilt` → `vercel inspect --wait` → (staging) `vercel alias set` → **smoke test**; (staging) **seed**: `pnpm studio:seed` (add only)                                                                                                                                                         |
-| `.github/dependabot.yml`            | weekly                                        | pnpm and GitHub Actions updates, PRs into `develop`                                                                                                                                                                                                                                                                                                                                                                |
-| `vercel.json`, `studio/vercel.json` | read by Vercel                                | Build commands, Git auto-deploy **off**, Studio SPA rewrite                                                                                                                                                                                                                                                                                                                                                        |
+| File                                    | Trigger                          | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| --------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.github/actions/setup/action.yml`      | used by every job                | pnpm pinned in `package.json`, Node from `.nvmrc`, cached `pnpm install --frozen-lockfile`, optionally the **pinned** Vercel CLI                                                                                                                                                                                                                                                                                                                                                |
+| `.github/workflows/ci.yml`              | every PR; called by `deploy.yml` | **Branch policy** (PRs to `main` only from `develop`/`hotfix/*`) · lint · format · Sanity type drift · types · unit tests (coverage ≥ 80 %) · build both apps · E2E · **Vercel environments** (same keys everywhere) · then (pull requests), only if all of these pass, **Deploy feature** (the branch to Vercel Preview, alias `-pr-<number>`) → **Web performance** (Google PageSpeed Insights) on that deployment against `webPerformance.config.ts` → **PR report** comment |
+| `.github/workflows/deploy.yml`          | push to `develop` / `main`       | Full `ci.yml` again, then for **webapp + studio**, one at a time: `vercel pull` → `vercel build` → `vercel deploy --prebuilt` → `vercel inspect --wait` → (development) `vercel alias set` → **smoke test**; (development) **seed**: `pnpm studio:seed` (add only)                                                                                                                                                                                                              |
+| `.github/workflows/feature-cleanup.yml` | PR merged or closed              | Removes the PR's address `-pr-<number>` and its deployments (Vercel meta `pr=<number>`), marks its GitHub deployments inactive                                                                                                                                                                                                                                                                                                                                                  |
+| `.github/dependabot.yml`                | weekly                           | pnpm and GitHub Actions updates, PRs into `develop`                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| `vercel.json`, `studio/vercel.json`     | read by Vercel                   | Build commands, Git auto-deploy **off**, Studio SPA rewrite                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
-The **Deploy dev** job (pull requests only, after the tests) pulls the **Development**
-environment's variables with the Vercel CLI (staging dataset, `NUXT_SITE_ENV=development`,
-`NUXT_PUBLIC_SITE_URL` = the `-dev` URL), builds with them, deploys the branch with the same
-variables at run time, and points the alias `-dev` (the host of `NUXT_PUBLIC_SITE_URL`) to it. Vercel deploys only to Preview or Production
-("Development" holds variables; custom environments need Vercel Pro), so the deployment is a
-Preview that carries the Development variables. Then the **Web performance** job asks
+The **Deploy feature** job (pull requests only, after the tests) pulls the **Feature** variables
+with the Vercel CLI (Preview rows for all branches: development dataset, `NUXT_SITE_ENV=feature`),
+sets `NUXT_PUBLIC_SITE_URL` to the PR's own address `https://<project-name>-pr-<number>.vercel.app`,
+builds, deploys the branch with the same variables at run time (tagged `pr=<number>`), and points
+that address to it. Each PR has its own address, so open PRs never replace each other; a new push
+to a PR cancels its older run. Then the **Web performance** job asks
 **Google PageSpeed Insights** (its API: Google's servers, the same measurement as
 pagespeed.web.dev) to audit **that real deployment** on every page in every language, mobile and
 desktop: Vercel's CDN, compression and image optimisation included, nothing measured from a
-laptop or localhost. It audits the deployment's own URL, so another PR moving `-dev` cannot
-change the result. The dev site is noindex (`NUXT_SITE_ENV=development`, and Vercel marks
-previews), so its SEO score is computed without "page is crawlable"; every other audit counts.
-After a merge, `deploy.yml` runs the same budget on `-staging`. Reports are artifacts
-(`web-performance`), and the **PR report** comment shows the table with the dev link.
+laptop or localhost. It audits this commit's deployment URL, so a later push cannot change the
+result. Feature sites are noindex (`NUXT_SITE_ENV=feature`, and Vercel marks previews), so their
+SEO score is computed without "page is crawlable"; every other audit counts. After a merge,
+`deploy.yml` runs the same budget on Development (`-develop`). Reports are artifacts
+(`web-performance`), and the **PR report** comment shows the table with the PR's address.
 
 **PageSpeed Insights API key** (one time, free): Google Cloud Console → a project → **APIs &
 Services → Library** → enable **PageSpeed Insights API** → **Credentials → Create credentials →
@@ -730,7 +756,7 @@ Why CI runs again after a merge: without branch protection anyone could push dir
 merged commit is not always the commit that was tested in the PR.
 
 Design rules: Node 24 from `.nvmrc`; `HUSKY=0` in CI; actions pinned by commit SHA;
-`permissions: contents: read`; deploy concurrency **never cancels a running deploy** (if several pushes arrive meanwhile, only the newest waiting one deploys next);
+`permissions: contents: read`; Development and Production deploys **never cancel a running deploy** (if several pushes arrive meanwhile, only the newest waiting one deploys next);
 Vercel CLI version pinned in the setup action (bump it on purpose, Dependabot doesn't track it).
 
 ### 11.3 What the smoke test proves
@@ -741,14 +767,14 @@ Vercel CLI version pinned in the setup action (bump it on purpose, Dependabot do
 | ----------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
 | Question answered | "Is the **code** correct?"                             | "Is the **live site** working for real visitors?"                                                                                       |
 | Runs against      | A build started **inside the CI runner** (`localhost`) | The **public URL** on Vercel                                                                                                            |
-| Configuration     | Staging env pulled from Vercel, Node server            | The real Vercel deployment, domain, alias and protection                                                                                |
+| Configuration     | Feature env pulled from Vercel, Node server            | The real Vercel deployment, domain, alias and protection                                                                                |
 | Catches           | Bugs in pages, i18n, SEO tags, components              | Wrong env vars for that environment, alias not moved, Vercel login wall, wrong root directory, failed domain, serverless runtime errors |
 | Size              | Full suite (every page and behaviour)                  | Tiny: each route loads and our app rendered (about 30 s)                                                                                |
 
 A green E2E run proves the commit is good; it can't see the hosting. The smoke test is the only
 check that looks at what users actually get, and it's also the only check that runs for
-**production** with production settings. Example: the code passed every E2E test, yet staging
-answered `302` to a Vercel login page for everyone. Only the smoke test caught it.
+**production** with production settings. Example: the code passed every E2E test, yet the
+pre-production site answered `302` to a Vercel login page for everyone. Only the smoke test caught it.
 
 "No errors" is not enough: an auth wall or an SSO login page also answers 200.
 
@@ -760,12 +786,12 @@ answered `302` to a Vercel login page for everyone. Only the smoke test caught i
 
 ### 11.4 Sanity operations
 
-| Task                            | Command (inside `studio/`, after `pnpm exec sanity login`)                                                                                                                                                                   |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Refresh staging from production | `pnpm exec sanity dataset export production prod.tar.gz --no-drafts`, then `pnpm exec sanity dataset import prod.tar.gz staging --replace`                                                                                   |
-| Fill staging with demo content  | `pnpm studio:seed` (repo root, [§8.0](#80-content-in-sanity)). After a refresh from production, the next seed (every staging deploy) fills the copied pages' empty fields with demo text, and `--reset` would overwrite them |
-| List datasets                   | `pnpm exec sanity dataset list`                                                                                                                                                                                              |
-| Export a backup                 | `pnpm exec sanity dataset export production backup.tar.gz`                                                                                                                                                                   |
+| Task                                | Command (inside `studio/`, after `pnpm exec sanity login`)                                                                                                                                                                       |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Refresh development from production | `pnpm exec sanity dataset export production prod.tar.gz --no-drafts`, then `pnpm exec sanity dataset import prod.tar.gz development --replace`                                                                                   |
+| Fill development with demo content  | `pnpm studio:seed` (repo root, [§8.0](#80-content-in-sanity)). After a refresh from production, the next seed (every Development deploy) fills the copied pages' empty fields with demo text, and `--reset` would overwrite them |
+| List datasets                       | `pnpm exec sanity dataset list`                                                                                                                                                                                                  |
+| Export a backup                     | `pnpm exec sanity dataset export production backup.tar.gz`                                                                                                                                                                       |
 
 **Sitemap freshness.** Published pages, offers and articles enter `/sitemap.xml` at build time, so they are
 listed after the next deploy. If Sanity can't be reached during the build, the build **fails** rather
@@ -775,7 +801,7 @@ than ship a sitemap without the CMS pages: re-run it. To redeploy on every publi
    only this repository, permission **Actions: Read and write**. Copy the token.
 2. `https://www.sanity.io/manage` → project → **API → Webhooks → Create webhook**:
    - URL: `https://api.github.com/repos/<owner>/<repo>/actions/workflows/deploy.yml/dispatches`
-   - Dataset: `staging` (or `production`) · Trigger on: **Create, Update, Delete**
+   - Dataset: `development` (or `production`) · Trigger on: **Create, Update, Delete**
    - Filter: `_type in ["offer", "post"] || _id in path("*Page-*")` · Projection: `{"ref": "develop"}` (`"main"` for production)
    - HTTP method: **POST** · HTTP headers: `Authorization: Bearer <token>`, `Accept: application/vnd.github+json`
 3. Publish a page: **Actions → Deploy** starts for that branch (the same pipeline as a push).
@@ -795,7 +821,7 @@ GitHub → **Actions** → **Deploy** → the run → **Summary**: public URL an
 
 1. Branch `hotfix/<name>` **from `main`** → fix → PR into `main` → CI green → **merge commit**.
 2. Production deploys automatically.
-3. **Back-merge:** PR `main` → `develop`, **merge commit** (never squash), so staging doesn't
+3. **Back-merge:** PR `main` → `develop`, **merge commit** (never squash), so Development doesn't
    regress and the next release doesn't conflict.
 
 ### 12.3 Roll back production
@@ -839,7 +865,7 @@ All in one PR:
 
 1. Add it to `.env.example` or `studio/.env.example`, with a comment.
 2. Add it to the table in [§11.1](#111-environment-variable-contract).
-3. Add it in Vercel for **every** environment (Production, Preview, Development).
+3. Add it in Vercel for **every** environment: Production, Preview for `develop` (Development), Preview for all branches (Feature) and Development (Local). The **Vercel environments** check fails until all four have it.
 4. If the build can't work without it, add it to `REQUIRED_BUILD_ENV` (`nuxt.config.ts`) or
    `ENV_RULES` (`studio/sanity.cli.ts`).
 
@@ -863,14 +889,16 @@ A dependency that needs an install script (native binary, postinstall) must be a
 
 | Symptom (where)                                                                                                  | Cause                                                                                                             | Fix                                                                                                                                                                                                                                     |
 | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Smoke: `… answered HTTP 302 (auth wall, redirect or unreachable?)` and the URL redirects to `vercel.com/sso-api` | Vercel Authentication is on (default for Preview = staging)                                                       | [§3.4](#34-deployment-protection-switch-it-off-) / [§4.4](#44-deployment-protection-off-) on **both** projects, then re-run the failed jobs                                                                                             |
+| Smoke: `… answered HTTP 302 (auth wall, redirect or unreachable?)` and the URL redirects to `vercel.com/sso-api` | Vercel Authentication is on (default for Preview = Development and Feature)                                       | [§3.4](#34-deployment-protection-switch-it-off-) / [§4.4](#44-deployment-protection-off-) on **both** projects, then re-run the failed jobs                                                                                             |
 | Smoke: `answered HTTP 301/308`                                                                                   | `*_URL` variable isn't the final URL (http vs https, apex vs www, trailing path)                                  | Set the exact final URL ([§6.3](#63-the-variables-seven))                                                                                                                                                                               |
-| Smoke: `answered HTTP 000`                                                                                       | Host doesn't exist / DNS / typo in the variable                                                                   | Check the variable; for staging, check the alias step succeeded                                                                                                                                                                         |
+| Smoke: `answered HTTP 000`                                                                                       | Host doesn't exist / DNS / typo in the variable                                                                   | Check the variable; for Development, check the alias step succeeded                                                                                                                                                                     |
 | Smoke: `did not serve the Sanity Studio`                                                                         | Studio project builds the wrong folder                                                                            | Root Directory must be `studio` ([§4.1](#41-import-the-repository-again))                                                                                                                                                               |
+| CI: `Vercel project …, <name> environment is missing: …`                                                         | A key exists in one environment but not in another                                                                | Add it to the environment named, with that environment's value ([§11.1](#111-environment-variable-contract))                                                                                                                            |
+| Deploy feature: `… is longer than 63 characters`                                                                 | `<project-name>-pr-<number>` exceeds the host-name limit                                                          | Shorten the Vercel web app project name                                                                                                                                                                                                 |
 | Build: `Missing required env: NUXT_…`                                                                            | Variable missing in Vercel for that environment, or Sensitive ON                                                  | [§3.2](#32-environment-variables)                                                                                                                                                                                                       |
 | Build: `[studio] Missing or invalid env: SANITY_STUDIO_…`                                                        | Same, Studio project                                                                                              | [§4.2](#42-environment-variables)                                                                                                                                                                                                       |
 | `vercel pull`: `Project not found` / `not authorized`                                                            | Wrong `VERCEL_ORG_ID` / project ID, or the token's scope isn't that team                                          | [§5](#part-5-vercel-token-and-ids-for-github), [§6.3](#63-the-variables-seven)                                                                                                                                                          |
-| `vercel alias set` fails (name taken / not authorized)                                                           | The staging name belongs to someone else                                                                          | Pick a new name, update the four places in [§8.2](#82-how-the-staging-url-is-created)                                                                                                                                                   |
+| `vercel alias set` fails (name taken / not authorized)                                                           | The development name belongs to someone else                                                                      | Pick a new name, update the four places in [§8.2](#82-how-the-development-url-is-created)                                                                                                                                               |
 | Deploy: **Wait for the build** times out after 10 min                                                            | The deployment never left `BUILDING`: queued behind another build, or Vercel failed to ingest the prebuilt output | Read the build logs the step prints, or open the **Inspect** URL from the **Deploy prebuilt output** step. Queued: wait for the other build to finish and re-run. Failed: fix the cause, the step already discarded the dead deployment |
 | Build: `Error … fetching` from the sitemap (`nitro:config`)                                                      | Sanity unreachable or wrong project/dataset while building the sitemap                                            | Check the env vars and Sanity status, then re-run the job                                                                                                                                                                               |
 | CI: `types/sanity.types.ts is stale`                                                                             | Schema or query changed without TypeGen                                                                           | `pnpm typegen`, commit the file                                                                                                                                                                                                         |
@@ -893,7 +921,7 @@ Re-run only the failed jobs: Actions → the run → **Re-run jobs → Re-run fa
 2. **Never** deploy from your laptop (`vercel --prod`, `sanity deploy`). Only the pipeline deploys.
 3. **Never** skip or soften a failing smoke test: fix the cause.
 4. **Never** develop against the `production` dataset, and never commit `.env` files.
-5. **Never** add a wildcard CORS origin, or a Sanity token to the web app.
-6. **Three** secrets in GitHub: `VERCEL_TOKEN` (Actions and Dependabot), `SANITY_TOKEN` (staging seed only) and `PAGESPEED_API_KEY` (web performance); app configuration lives **only** in Vercel.
+5. **Never** add a wildcard CORS origin with credentials (the one Feature pattern has none), or a Sanity token to the web app.
+6. **Three** secrets in GitHub: `VERCEL_TOKEN` (Actions and Dependabot), `SANITY_TOKEN` (development seed only) and `PAGESPEED_API_KEY` (web performance); app configuration lives **only** in Vercel.
 7. **Never** seed production: it is filled by editors only.
 8. Code and this document change **together**, in the same PR.

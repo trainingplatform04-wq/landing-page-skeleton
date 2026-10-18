@@ -34,4 +34,4 @@ Nuxt 4 (SSR, flat layout), Vue 3 `<script setup>`, TypeScript strict, Node 24 ·
 
 ## 5. Feature delivery
 
-For a request, `/feature`, or a task file (`docs/tasks/<name>.md`), run [`feature-orchestration.md`](.ai/shared/workflows/feature-orchestration.md): scope → plan (🚦 G1, passed by the Tech Lead for a design approved at D2) → implement on `feat/<name>` from `develop` → local gates → PR into `develop` → [review loop](.ai/shared/workflows/code-review-loop.md) with a fresh reviewer each round → squash-merge after green CI → staging. Production: [`release.md`](.ai/shared/workflows/release.md), 🚦 G2.
+For a request, `/feature`, or a task file (`docs/tasks/<name>.md`), run [`feature-orchestration.md`](.ai/shared/workflows/feature-orchestration.md): scope → plan (🚦 G1, passed by the Tech Lead for a design approved at D2) → implement on `feat/<name>` from `develop` → local gates → PR into `develop` → [review loop](.ai/shared/workflows/code-review-loop.md) with a fresh reviewer each round → squash-merge after green CI → Development. Production: [`release.md`](.ai/shared/workflows/release.md), 🚦 G2.

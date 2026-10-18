@@ -13,7 +13,7 @@
  *
  * - `PAGESPEED_API_KEY` (env): a Google Cloud API key with the PageSpeed Insights API enabled.
  *   Without it Google's anonymous quota is tiny and requests fail with 429.
- * - Deployed previews (dev, staging) are noindex on purpose: their SEO score is computed without
+ * - Deployed previews (Feature, Development) are noindex on purpose: their SEO score is computed without
  *   the "page is crawlable" audit (PageSpeed cannot skip it); every other SEO audit counts.
  * - Reports: `.web-performance/<form factor>/` (Google's report JSON per run) and
  *   `.web-performance/results.json` (the median scores), read by `tests/webPerformance/summary.ts`.

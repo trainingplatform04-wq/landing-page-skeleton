@@ -4,10 +4,10 @@ import type { SeedDocument } from './seed.data'
  * What one run of the seed writes. Every seeded document has a fixed id, so running it again
  * never duplicates anything:
  *
- * - `add` (default, `pnpm studio:seed`, also the pipeline on every staging deploy): creates the
+ * - `add` (default, `pnpm studio:seed`, also the pipeline on every Development deploy): creates the
  *   missing documents and fills their empty top-level fields, on the published document and on
  *   its draft. A value an editor changed is kept; a field an editor emptied is filled again
- *   (staging holds demo content). A document an editor deleted stays deleted.
+ *   (the development dataset holds demo content). A document an editor deleted stays deleted.
  * - `reset` (`--reset`, deliberately, by hand): the dataset matches seed.data.ts afterwards.
  *   Seeded documents are replaced (an editor's change or draft on them is discarded), and the
  *   ones removed from seed.data.ts since the last run are deleted.

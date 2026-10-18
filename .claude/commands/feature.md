@@ -1,5 +1,5 @@
 ---
-description: Delivers a feature end-to-end (scope → plan gate → implement → PR → independent review → merge → staging).
+description: Delivers a feature end-to-end (scope → plan gate → implement → PR → independent review → merge → Development).
 ---
 
 # /feature

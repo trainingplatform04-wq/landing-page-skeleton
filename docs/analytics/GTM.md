@@ -11,11 +11,11 @@ How a fork sets up statistics for its site, without code. Everything here is fre
 
 ## 2. Two containers, two GA4 properties
 
-| Environment                      | GTM container       | GA4 property        | `NUXT_PUBLIC_GTM_ID` in Vercel |
-| -------------------------------- | ------------------- | ------------------- | ------------------------------ |
-| Production                       | `<site> production` | `<site> production` | Production                     |
-| Staging and development (shared) | `<site> staging`    | `<site> staging`    | Preview, Development           |
-| Local, CI, E2E                   | none                | none                | empty                          |
+| Environment                   | GTM container       | GA4 property        | `NUXT_PUBLIC_GTM_ID` in Vercel                    |
+| ----------------------------- | ------------------- | ------------------- | ------------------------------------------------- |
+| Production                    | `<site> production` | `<site> production` | Production                                        |
+| Development, Feature (shared) | `<site> staging`    | `<site> staging`    | Preview (`develop` and all branches), Development |
+| Local, CI, E2E                | none                | none                | empty                                             |
 
 Two of each keep test traffic out of the real numbers. How to set the variable in Vercel: `docs/deployment/DEPLOYMENT.md` §11.1.
 
@@ -27,7 +27,7 @@ Two of each keep test traffic out of the real numbers. How to set the variable i
 4. Business details and objectives: any answer → **Create** → accept the terms (with the **data processing terms** for the EU).
 5. **Data stream**: **Web** → the production URL, stream name `Web` → **Create stream**. Keep **Enhanced measurement** on and check, under its gear, that **Page changes based on browser history events** is on (our page views on navigation).
 6. Copy the **Measurement ID** (`G-…`). It goes into GTM (step 6), not into our code.
-7. Repeat steps 3 to 6 for `<site> staging` (the staging URL).
+7. Repeat steps 3 to 6 for `<site> staging` (the Development URL, `…-webapp-develop`).
 
 ### GA4 settings (both properties)
 
@@ -64,9 +64,9 @@ For each container (production and staging):
 
 **Variables → GA4 measurement ID** → Value: the `G-…` id of the matching property (production container → production property; staging container → staging property) → **Save**.
 
-## 7. Verify on staging, then publish
+## 7. Verify on Development, then publish
 
-1. In the **staging** container: **Preview** → enter the staging URL → **Connect**. Tag Assistant opens the site in a new tab.
+1. In the **staging** container: **Preview** → enter the Development URL (or a PR address `…-pr-<number>`) → **Connect**. Tag Assistant opens the site in a new tab.
 2. Before choosing in the consent window, Tag Assistant shows **no** connection: GTM is not loaded yet. That is correct.
 3. Click **Accept all**. Tag Assistant connects; **Google tag - GA4** fires on the page view.
 4. Trigger each event (§9): click a call to action, read an article to the end, load a video, share, open a related article, open an offer and its button, send the contact form. Each one appears in the left column; its **GA4 event** tag shows **Fired**, with its parameters under **Variables**.

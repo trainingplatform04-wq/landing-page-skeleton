@@ -139,4 +139,4 @@ gh run list --workflow Deploy --branch develop --limit 1
 gh run watch <run-id> --exit-status
 ```
 
-Report the staging URLs from the run summary. A deploy failing because of **code** is fixed forward in a new PR through this same loop. One failing because of a **blocker** gets a signed blocker comment and is re-run once the human confirms.
+Report the Development URLs from the run summary. A deploy failing because of **code** is fixed forward in a new PR through this same loop. One failing because of a **blocker** gets a signed blocker comment and is re-run once the human confirms.

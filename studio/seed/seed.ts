@@ -1,9 +1,9 @@
 /**
- * `pnpm studio:seed`: writes the demo content (seed.data.ts) to the `staging` dataset, as the
+ * `pnpm studio:seed`: writes the demo content (seed.data.ts) to the `development` dataset, as the
  * logged-in Sanity user (`pnpm exec sanity login` in studio/) or `SANITY_AUTH_TOKEN` in CI.
  *
  *   pnpm studio:seed              add missing documents and empty fields (also the pipeline)
- *   pnpm studio:seed --reset      staging matches seed.data.ts, editors' changes discarded
+ *   pnpm studio:seed --reset      development matches seed.data.ts, editors' changes discarded
  *   pnpm studio:seed --dry-run    print the plan, write nothing (with either mode)
  */
 import { getCliClient } from 'sanity/cli'
@@ -14,10 +14,10 @@ import { SEED_IMAGES, seedImageUrl } from './seed.images'
 import { MANIFEST_ID, type ManifestImage, planSeed, type SeedManifest } from './seed.plan'
 
 /** Demo content never reaches production: editors write it there. */
-const SEEDABLE_DATASETS = ['staging']
+const SEEDABLE_DATASETS = ['development']
 
 const args = process.argv.slice(2)
-// The destructive mode is never the default: staging is shared with the client.
+// The destructive mode is never the default: the development dataset is shared with the client.
 const mode = args.includes('--reset') ? 'reset' : 'add'
 const dryRun = args.includes('--dry-run')
 const log = (line: string) => process.stdout.write(`${line}\n`)
@@ -29,7 +29,7 @@ const { projectId, dataset = '' } = client.config()
 if (!SEEDABLE_DATASETS.includes(dataset)) {
   throw new Error(
     `[seed] Refusing to seed dataset "${dataset}": only ${SEEDABLE_DATASETS.join(', ')}. ` +
-      'Set SANITY_STUDIO_DATASET=staging in studio/.env.',
+      'Set SANITY_STUDIO_DATASET=development in studio/.env.',
   )
 }
 

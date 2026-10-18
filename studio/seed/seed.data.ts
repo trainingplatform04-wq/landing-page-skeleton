@@ -1,5 +1,5 @@
 /**
- * The demo content of the `staging` dataset (`pnpm studio:seed`): every page in every
+ * The demo content of the `development` dataset (`pnpm studio:seed`): every page in every
  * language, with every field filled, so a client sees the finished site before writing a
  * word. Production never gets it: editors write their own content there.
  *

@@ -30,7 +30,7 @@ Lint, types and tests are already enforced by CI. Focus on what tools can't catc
 - [ ] **Tests**: behaviour asserted (rendered text, attributes, returned values), not `exists()`; the network boundary (`useSanity`) is the only mock; E2E updated for new pages.
 - [ ] **Simplicity**: no dead code, no speculative abstractions, early returns, names that say what things are; comments follow CODING_STANDARDS §8.
 - [ ] **Security**: no secrets, no environment variable values (container ids, keys, tokens) in files, commits or the PR text (only variable names, operating-model §6), no `v-html` with CMS content, external links safe.
-- [ ] **Web performance**: the CI job **Web performance** (PageSpeed Insights on the dev deployment) is green (no score under 80); only a score under 80 blocks. A 🟡 "below target" (80–89) on a page the PR touches is a non-blocking `[nit]` note with the measured cause; it never withholds approval. A lowered number in `webPerformance.config.ts` comes with the Tech Lead's recorded decision. Page changes don't add render-blocking work (a large image without priority, a heavy script on the first screen).
+- [ ] **Web performance**: the CI job **Web performance** (PageSpeed Insights on the Feature deployment) is green (no score under 80); only a score under 80 blocks. A 🟡 "below target" (80–89) on a page the PR touches is a non-blocking `[nit]` note with the measured cause; it never withholds approval. A lowered number in `webPerformance.config.ts` comes with the Tech Lead's recorded decision. Page changes don't add render-blocking work (a large image without priority, a heavy script on the first screen).
 - [ ] **Docs**: if a convention, env var or workflow changed, the matching doc changed in the same PR.
 
 ## Operating rules

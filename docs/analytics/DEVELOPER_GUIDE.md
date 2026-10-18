@@ -26,5 +26,5 @@ Then:
 
 - Send events with `useAnalytics().track()` in hydrated code, or `data-track="<event>"` with `data-track-<param>` attributes in server-only HTML. Parameters are labels, slugs and paths, never personal data.
 - Raise `CONSENT_REVISION` whenever a category, tool or cookie changes, so every visitor is asked again.
-- Update the privacy text in `studio/seed/seed.copy.ts` (staging) and tell the client's lawyer; the checklist is `docs/legal/go-live-checklist.md`.
+- Update the privacy text in `studio/seed/seed.copy.ts` (development) and tell the client's lawyer; the checklist is `docs/legal/go-live-checklist.md`.
 - The PR gets a Privacy Officer review next to the code review (`.ai/shared/workflows/code-review-loop.md`).

@@ -14,7 +14,7 @@ A production-grade Nuxt 4 + Sanity skeleton for multi-language landing pages (DE
 | CMS        | [Sanity v6](https://www.sanity.io) Studio in `studio/`, one document per language, groqd queries  |
 | i18n / SEO | @nuxtjs/i18n v10 (`/` DE, `/en` EN, translated URLs), hreflang, sitemap, robots, schema.org       |
 | Quality    | ESLint (architecture rules), Prettier, Vitest 5, Playwright, PageSpeed Insights gate              |
-| Delivery   | GitHub Actions → Vercel; staging on `develop`, production on `main`                               |
+| Delivery   | GitHub Actions → Vercel; Feature per PR, Development on `develop`, Production on `main`           |
 
 ## Quick start
 
@@ -22,11 +22,11 @@ A production-grade Nuxt 4 + Sanity skeleton for multi-language landing pages (DE
 nvm use 24                             # Node 24 (.nvmrc)
 npm install --global pnpm              # once per machine; the repo pins the exact pnpm version
 pnpm install                           # web app and Studio (pnpm workspace)
-cp .env.example .env                   # web app → staging dataset
-cp studio/.env.example studio/.env     # Studio  → staging dataset
+cp .env.example .env                   # web app → development dataset
+cp studio/.env.example studio/.env     # Studio  → development dataset
 # set NUXT_PUBLIC_SANITY_PROJECT_ID in .env and SANITY_STUDIO_PROJECT_ID in studio/.env
 pnpm exec sanity login                 # once, inside studio/
-pnpm studio:seed                       # optional: demo content in the staging dataset
+pnpm studio:seed                       # optional: demo content in the development dataset
 pnpm dev                               # web http://localhost:3000 · Studio http://localhost:3333
 ```
 
@@ -43,7 +43,7 @@ pnpm dev                               # web http://localhost:3000 · Studio htt
 | `pnpm test` / `test:watch` / `test:coverage` | Vitest                                                               |
 | `pnpm test:e2e` / `test:smoke`               | Playwright (E2E on the fixture CMS / smoke on `PLAYWRIGHT_BASE_URL`) |
 | `pnpm typegen`                               | Regenerate `types/sanity.types.ts` from the Studio schema            |
-| `pnpm studio:seed`                           | Demo content in the `staging` dataset (`--reset`, `--dry-run`)       |
+| `pnpm studio:seed`                           | Demo content in the `development` dataset (`--reset`, `--dry-run`)   |
 | `pnpm studio:build`                          | Production build of the Studio                                       |
 | `pnpm web-performance --url=<URL>`           | PageSpeed Insights on every page (needs `PAGESPEED_API_KEY`)         |
 | `pnpm design:capture` / `design:verify`      | The design gate (`docs/design/DESIGN_WORKFLOW.md`)                   |
@@ -66,13 +66,13 @@ pnpm dev                               # web http://localhost:3000 · Studio htt
 
 Every link is on the repository's **Deployments** panel and in the report comment of every pull request.
 
-| Environment    | Deployed from                        | Content                          |
-| -------------- | ------------------------------------ | -------------------------------- |
-| **dev**        | every pull request, after its checks | `staging` dataset                |
-| **staging**    | every merge into `develop`           | `staging` dataset (demo content) |
-| **production** | every merge into `main` (Gate G2)    | `production` dataset             |
+| Environment     | Deployed from                                                   | Content                              |
+| --------------- | --------------------------------------------------------------- | ------------------------------------ |
+| **Feature**     | every pull request, after its checks, at `…-webapp-pr-<number>` | `development` dataset                |
+| **Development** | every merge into `develop`, at `…-webapp-develop`               | `development` dataset (demo content) |
+| **Production**  | every merge into `main` (Gate G2)                               | `production` dataset                 |
 
-A pull request runs CI (lint, types, tests, both builds, E2E), deploys the web app to **dev** and audits every page with PageSpeed Insights: 90+ is the aim, under 80 blocks. Details: [`docs/deployment/DEPLOYMENT.md`](docs/deployment/DEPLOYMENT.md).
+Every environment has the same variables in Vercel; only the values differ. A pull request runs CI (lint, types, tests, both builds, E2E), deploys the web app to its own **Feature** address (removed when the PR closes) and audits every page with PageSpeed Insights: 90+ is the aim, under 80 blocks. Details: [`docs/deployment/DEPLOYMENT.md`](docs/deployment/DEPLOYMENT.md).
 
 ## License
 

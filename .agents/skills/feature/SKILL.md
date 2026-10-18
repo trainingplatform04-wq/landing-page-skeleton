@@ -2,7 +2,7 @@
 name: feature
 description: >-
   The end-to-end delivery pipeline for a feature: scope, plan (human gate G1),
-  implementation, PR, independent review loop, merge and staging deploy.
+  implementation, PR, independent review loop, merge and Development deploy.
 ---
 
 # Feature Delivery Orchestration Skill
