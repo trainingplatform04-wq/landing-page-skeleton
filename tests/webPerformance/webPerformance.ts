@@ -1,7 +1,8 @@
 /**
  * `pnpm web-performance --url=<base>`: the web performance gate, measured by Google PageSpeed Insights
- * (https://pagespeed.web.dev, its API v5): Google's servers audit every page of the site in every
- * language on a deployed URL, mobile and desktop, against `webPerformance.config.ts`.
+ * (https://pagespeed.web.dev, its API v5): Google's servers audit each page template once on a
+ * deployed URL, mobile and desktop, against `webPerformance.config.ts`: every page in the default
+ * language (the other languages render the same templates) and one example per slug template.
  *
  * - Every page is visited twice first (warm-up), then measured `runs` times, all in parallel
  *   within Google's quota. A page whose median is under `minimum` gets `confirmationRuns` more
@@ -23,7 +24,7 @@
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { LOCALES } from '../../constants/i18n.constants.ts'
+import { DEFAULT_LOCALE } from '../../constants/i18n.constants.ts'
 import { ROUTE_PATHS } from '../../constants/routes.constants.ts'
 import budget from '../../webPerformance.config.ts'
 
@@ -91,19 +92,13 @@ if (!base) {
 if (!key) process.stderr.write('PAGESPEED_API_KEY is not set: Google may refuse requests (429).\n')
 
 /**
- * Every page of the site in every language; for templates with a slug (their pages belong to
- * editors), the examples of `budget.slugPages`.
+ * Each page template once: every page in the default language (unprefixed URL), and for templates
+ * with a slug (their pages belong to editors), the one example of `budget.slugPages`.
  */
 function pagePaths(): string[] {
   const pages = Object.entries(ROUTE_PATHS)
     .filter(([route]) => !route.endsWith('-slug'))
-    .flatMap(([, paths]) =>
-      LOCALES.map(({ code }, index) => {
-        const path = paths[code]
-        if (index === 0) return path
-        return path === '/' ? `/${code}` : `/${code}${path}`
-      }),
-    )
+    .map(([, paths]) => paths[DEFAULT_LOCALE])
   return [...pages, ...budget.slugPages]
 }
 

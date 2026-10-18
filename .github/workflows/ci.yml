@@ -206,9 +206,9 @@ jobs:
           echo "- Deployment: $DEPLOY_URL" >> "$GITHUB_STEP_SUMMARY"
 
   # Web performance gate on the feature deployment, measured by Google PageSpeed Insights (Google's
-  # servers, as pagespeed.web.dev): every page in every language, mobile and desktop, against
-  # webPerformance.config.ts (aim 90+, fails under 80). It audits this commit's deployment URL, so a
-  # later push to the PR cannot change the result.
+  # servers, as pagespeed.web.dev): each page template once, in the default language, mobile and
+  # desktop, against webPerformance.config.ts (aim 90+, fails under 80). It audits this commit's
+  # deployment URL, so a later push to the PR cannot change the result.
   web-performance:
     name: Web performance
     needs: deploy-feature

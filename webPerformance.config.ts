@@ -1,5 +1,6 @@
 /**
  * The PageSpeed Insights budget of every page, mobile and desktop (rules: CODING_STANDARDS §7.1).
+ * Each page template is measured once, in the default language: the budget holds for every page.
  * `target`: what every page aims for; `minimum`: below it, a score blocks the PR. The median of
  * `runs` decides; a page under the minimum gets `confirmationRuns` more, so noise never blocks.
  * Raising a number is free; lowering one is a Tech Lead decision recorded in the PR.
@@ -28,8 +29,9 @@ export interface WebPerformanceBudget {
   /** PageSpeed strategies: `mobile` (throttled phone) and `desktop`. */
   formFactors: Array<'mobile' | 'desktop'>
   /**
-   * Pages with a slug belong to editors, so the audit takes one published example of each
-   * such template (from the development seed, which the Feature deployment reads).
+   * Pages with a slug belong to editors and share one template, so the audit takes one published
+   * example of each such template, in the default language (from the development seed, which the
+   * Feature deployment reads).
    */
   slugPages: string[]
   categories: Category[]
@@ -42,7 +44,7 @@ export default {
   runs: 3,
   confirmationRuns: 2,
   formFactors: ['mobile', 'desktop'],
-  slugPages: ['/magazin/protein-ohne-pulver', '/en/magazine/protein-without-powder'],
+  slugPages: ['/angebote/personal-training', '/magazin/protein-ohne-pulver'],
   categories: ['performance', 'accessibility', 'best-practices', 'seo'],
   metrics: [
     'first-contentful-paint',

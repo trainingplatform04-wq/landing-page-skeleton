@@ -34,19 +34,19 @@ pnpm dev                               # web http://localhost:3000 · Studio htt
 
 ## Scripts
 
-| Script                                       | What it does                                                         |
-| -------------------------------------------- | -------------------------------------------------------------------- |
-| `pnpm dev`                                   | Web app + Studio in watch mode                                       |
-| `pnpm build` / `pnpm preview`                | Production build of the web app / serve it locally                   |
-| `pnpm build:e2e`                             | Production build against the fixture CMS, for `CI=1 pnpm test:e2e`   |
-| `pnpm verify`                                | Lint, format check, types, unit and component tests with coverage    |
-| `pnpm test` / `test:watch` / `test:coverage` | Vitest                                                               |
-| `pnpm test:e2e` / `test:smoke`               | Playwright (E2E on the fixture CMS / smoke on `PLAYWRIGHT_BASE_URL`) |
-| `pnpm typegen`                               | Regenerate `types/sanity.types.ts` from the Studio schema            |
-| `pnpm studio:seed`                           | Demo content in the `development` dataset (`--reset`, `--dry-run`)   |
-| `pnpm studio:build`                          | Production build of the Studio                                       |
-| `pnpm web-performance --url=<URL>`           | PageSpeed Insights on every page (needs `PAGESPEED_API_KEY`)         |
-| `pnpm design:capture` / `design:verify`      | The design gate (`docs/design/DESIGN_WORKFLOW.md`)                   |
+| Script                                       | What it does                                                            |
+| -------------------------------------------- | ----------------------------------------------------------------------- |
+| `pnpm dev`                                   | Web app + Studio in watch mode                                          |
+| `pnpm build` / `pnpm preview`                | Production build of the web app / serve it locally                      |
+| `pnpm build:e2e`                             | Production build against the fixture CMS, for `CI=1 pnpm test:e2e`      |
+| `pnpm verify`                                | Lint, format check, types, unit and component tests with coverage       |
+| `pnpm test` / `test:watch` / `test:coverage` | Vitest                                                                  |
+| `pnpm test:e2e` / `test:smoke`               | Playwright (E2E on the fixture CMS / smoke on `PLAYWRIGHT_BASE_URL`)    |
+| `pnpm typegen`                               | Regenerate `types/sanity.types.ts` from the Studio schema               |
+| `pnpm studio:seed`                           | Demo content in the `development` dataset (`--reset`, `--dry-run`)      |
+| `pnpm studio:build`                          | Production build of the Studio                                          |
+| `pnpm web-performance --url=<URL>`           | PageSpeed Insights, each page template once (needs `PAGESPEED_API_KEY`) |
+| `pnpm design:capture` / `design:verify`      | The design gate (`docs/design/DESIGN_WORKFLOW.md`)                      |
 
 ## Documentation
 

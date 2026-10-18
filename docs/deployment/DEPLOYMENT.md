@@ -734,9 +734,10 @@ builds, deploys the branch with the same variables at run time (tagged `pr=<numb
 that address to it. Each PR has its own address, so open PRs never replace each other; a new push
 to a PR cancels its older run. Then the **Web performance** job asks
 **Google PageSpeed Insights** (its API: Google's servers, the same measurement as
-pagespeed.web.dev) to audit **that real deployment** on every page in every language, mobile and
-desktop: Vercel's CDN, compression and image optimisation included, nothing measured from a
-laptop or localhost. It audits this commit's deployment URL, so a later push cannot change the
+pagespeed.web.dev) to audit **that real deployment**, each page template once, mobile and desktop:
+every page in German (the default language; English renders the same templates) and one example
+per slug template (one offer, one article). Vercel's CDN, compression and image optimisation are
+included, nothing is measured from a laptop or localhost. It audits this commit's deployment URL, so a later push cannot change the
 result. Feature sites are noindex (`NUXT_SITE_ENV=feature`, and Vercel marks previews), so their
 SEO score is computed without "page is crawlable"; every other audit counts. After a merge,
 `deploy.yml` runs the same budget on Development (`-develop`). Reports are artifacts
