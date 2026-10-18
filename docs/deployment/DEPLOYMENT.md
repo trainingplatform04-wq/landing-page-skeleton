@@ -738,10 +738,11 @@ pagespeed.web.dev) to audit **that real deployment**, each page template once, m
 every page in German (the default language; English renders the same templates) and one example
 per slug template (one offer, one article). Vercel's CDN, compression and image optimisation are
 included, nothing is measured from a laptop or localhost. It audits this commit's deployment URL,
-so a later push cannot change the result. Feature sites are noindex (`NUXT_SITE_ENV=feature`, and Vercel marks previews), so their
-SEO score is computed without "page is crawlable"; every other audit counts. After a merge,
-`deploy.yml` runs the same budget on Development (`-develop`). Reports are artifacts
-(`web-performance`), and the **PR report** comment shows the table with the PR's address.
+so a later push cannot change the result. Feature sites are noindex (`NUXT_SITE_ENV=feature`, and
+Vercel marks previews), so their SEO score is computed without "page is crawlable"; every other
+audit counts. After a merge, `deploy.yml` runs the same budget on Development (`-develop`).
+Reports are artifacts (`web-performance`), and the **PR report** comment shows the table with the
+PR's address.
 
 **PageSpeed Insights API key** (one time, free): Google Cloud Console → a project → **APIs &
 Services → Library** → enable **PageSpeed Insights API** → **Credentials → Create credentials →

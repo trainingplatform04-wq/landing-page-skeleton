@@ -23,9 +23,9 @@ export interface WebPerformanceBudget {
   /** Score below which the PR is blocked (0–100), for every category and metric. */
   minimum: number
   /**
-   * Google runs PageSpeed on machines of different speeds (Lighthouse's benchmark index): the same
-   * page scores 98 on a fast one and under 80 on a slow one. A run on a machine under this index is
-   * made again, up to `slowMachineReruns` times; the run from the fastest machine counts.
+   * Google runs PageSpeed on machines of different speeds (Lighthouse's benchmark index), and a
+   * slow one lowers the scores of the same page. A run on a machine under this index is made again,
+   * up to `slowMachineReruns` times; the run from the fastest machine counts.
    */
   minimumBenchmarkIndex: number
   slowMachineReruns: number

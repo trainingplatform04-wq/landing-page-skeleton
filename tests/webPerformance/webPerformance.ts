@@ -8,9 +8,9 @@
  *   all in parallel within Google's quota. A score under `minimum` blocks; scores under `target`
  *   pass but are reported.
  * - A run made on a PageSpeed machine slower than `minimumBenchmarkIndex` is run again, up to
- *   `slowMachineReruns` times: the same page scores 98 on a fast machine and under 80 on a slow
- *   one, so such a run says nothing about the code. If every try lands on a slow machine, the run
- *   from the fastest one counts.
+ *   `slowMachineReruns` times: a slow machine lowers the scores of the same page, so such a run
+ *   says nothing about the code. If every try lands on a slow machine or a re-run fails, the run
+ *   from the fastest machine so far counts.
  * - A run Google cannot complete (quota, a server error, a Lighthouse runtime error such as
  *   `NO_FCP`) is retried; a page with no completed run is reported as not measured and fails the
  *   gate at the end, after every other page has been measured.
@@ -128,7 +128,7 @@ const machineSpeed = (report: Report) => report.environment?.benchmarkIndex ?? 0
 /**
  * One PageSpeed Insights run (Google's report, measured fresh) on a machine at least as fast as
  * `minimumBenchmarkIndex`: a run on a slower one is made again, up to `slowMachineReruns` times,
- * and the run from the fastest machine counts.
+ * and the run from the fastest machine counts. Only a failed first run leaves the page unmeasured.
  */
 async function measuredRun(
   url: string,
@@ -141,8 +141,13 @@ async function measuredRun(
     slowReruns < budget.slowMachineReruns
   ) {
     slowReruns++
-    const next = await runPageSpeed(url, formFactor)
-    if (machineSpeed(next) > machineSpeed(report)) report = next
+    try {
+      const next = await runPageSpeed(url, formFactor)
+      if (machineSpeed(next) > machineSpeed(report)) report = next
+    } catch {
+      // The page is measured already: the run from the fastest machine so far counts.
+      break
+    }
   }
   return { report, slowReruns }
 }
