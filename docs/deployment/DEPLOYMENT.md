@@ -305,9 +305,9 @@ Rules:
   JSON when asked (`Accept: application/json`). Sign a
   data processing agreement with it. Without it, the contact page shows an email link.
 - `NUXT_PUBLIC_GTM_ID` is the site's Google Tag Manager container, the same in **Production**,
-  **Development**, **Feature** and **Local**. GTM loads only after a visitor accepts statistics; empty, nothing
-  analytics-related loads and the consent window does not offer statistics. Creating the
-  container: [docs/analytics/GTM.md](../analytics/GTM.md). With the CLI (it asks for the value):
+  **Development**, **Feature** and **Local**. GTM loads only after a visitor accepts statistics;
+  empty, nothing analytics-related loads and the consent window does not offer statistics.
+  Creating the container: [docs/analytics/GTM.md](../analytics/GTM.md). With the CLI (it asks for the value):
 
   ```bash
   pnpm dlx vercel@61.0.0 env add NUXT_PUBLIC_GTM_ID production        # GTM-… (Production)
@@ -384,7 +384,7 @@ Same procedure and targets as [§3.2](#32-environment-variables) (Sensitive **OF
 
 The Studio isn't deployed for pull requests; CI builds it with the Feature values.
 
-³ Not read by the Studio (it reads only the `SANITY_STUDIO_*` keys). The project already had it, so it stays, with the same value as the web app, in every environment.
+³ Not read by the Studio (it reads only the `SANITY_STUDIO_*` keys), but **required**: `deploy.yml` stops a Studio deploy when the pulled `NUXT_SITE_ENV` is not `development` (develop) or `production` (main). Same value as the web app, in every environment.
 
 ### 4.3 Build settings
 
@@ -691,11 +691,11 @@ legal steps before production: [docs/legal/go-live-checklist.md](../legal/go-liv
 
 **Vercel project `studio`**
 
-| Name                       | Production   | Development (Preview · `develop`) | Feature (Preview) | Local (Development) | Value    |
-| -------------------------- | ------------ | --------------------------------- | ----------------- | ------------------- | -------- |
-| `SANITY_STUDIO_PROJECT_ID` | N1           | N1                                | N1                | N1                  | ✅       |
-| `SANITY_STUDIO_DATASET`    | `production` | `development`                     | `development`     | `development`       | ✅       |
-| `NUXT_SITE_ENV` ³          | `production` | `development`                     | `feature`         | `local`             | not read |
+| Name                       | Production   | Development (Preview · `develop`) | Feature (Preview) | Local (Development) | Value                    |
+| -------------------------- | ------------ | --------------------------------- | ----------------- | ------------------- | ------------------------ |
+| `SANITY_STUDIO_PROJECT_ID` | N1           | N1                                | N1                | N1                  | ✅                       |
+| `SANITY_STUDIO_DATASET`    | `production` | `development`                     | `development`     | `development`       | ✅                       |
+| `NUXT_SITE_ENV` ³          | `production` | `development`                     | `feature`         | `local`             | required by `deploy.yml` |
 
 **GitHub** (repo → Settings → Secrets and variables → Actions)
 
