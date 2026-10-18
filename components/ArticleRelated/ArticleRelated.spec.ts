@@ -12,7 +12,7 @@ const card = (id: string): PostCard => ({
   to: `/en/magazine/article-${id}`,
   date: '1 Sep 2026',
   dateTime: '2026-09-01T06:00:00Z',
-  readingTime: '1 min read',
+  readingMinutes: 1,
 })
 
 describe('ArticleRelated', () => {

@@ -12,17 +12,17 @@ This file is the single source of truth for **autonomy, human gates, blockers, r
 
 ## 1. Human gates: agents stop exactly twice
 
-| Gate                       | When                                        | Who stops    | What the human sees                            |
-| -------------------------- | ------------------------------------------- | ------------ | ---------------------------------------------- |
-| **G1: Plan approval**      | After the Tech Lead's plan, before any code | Tech Lead    | Plan, directory tree, owner → task list, risks |
-| **G2: Production release** | Before `develop` → `main` is merged         | Orchestrator | Release PR, changelog, staging verification    |
+| Gate                       | When                                        | Who stops    | What the human sees                             |
+| -------------------------- | ------------------------------------------- | ------------ | ----------------------------------------------- |
+| **G1: Plan approval**      | After the Tech Lead's plan, before any code | Tech Lead    | Plan, directory tree, owner → task list, risks  |
+| **G2: Production release** | Before `develop` → `main` is merged         | Orchestrator | Release PR, changelog, Development verification |
 
 **G1 is passed by the Tech Lead, not the human, when the task comes from an approved design**
 (a `Design change` approved at gate D2): the human already decided the scope, the look and the
 content at D1 and D2. The Tech Lead writes the plan into the task file and implementation starts
 at once. G1 stops for the human only for a feature without an approved design.
 
-Everything else is **autonomous**, with no permission requests: branching, implementation, tests, PR, the review loop, fixes, merge into `develop` (method per `.ai/shared/workflows/code-review-loop.md` §5), staging deploy and its verification. Agents never add stops of their own.
+Everything else is **autonomous**, with no permission requests: branching, implementation, tests, PR, the review loop, fixes, merge into `develop` (method per `.ai/shared/workflows/code-review-loop.md` §5), Development deploy and its verification. Agents never add stops of their own.
 
 The **design track** (`.ai/shared/workflows/design-orchestration.md`, `/design`) is human-driven and runs before a feature: its gates **D1 (brief)** and **D2 (design)** belong to it, not to the feature pipeline. After D2 nothing stops for the human until G2: the plan (above), the screenshots of the design gate (checked by an independent designer reviewer, DESIGN_WORKFLOW §13) and the merge into `develop` are autonomous.
 
@@ -103,8 +103,9 @@ a persona, a workflow or `CLAUDE.md`, in a PR.
   web-performance reports are working files: never committed (`.gitignore`). Pictures live in
   Sanity, uploaded by the seed.
 - **No HTML comments** in templates or Markdown; explain in the script block or in prose.
-- **Reference implementation** for design → code: the magazine (brief `0001`, changeset
-  `docs/design/changes/0001-magazine/`) and the article page (`0002`). Every page follows them.
+- **Reference implementation** for design → code: the magazine and the article page (briefs
+  `0001`, `0002`, their changesets in `docs/design/changes/`, the code in
+  `components/Magazine*` and `components/Article*`). Every page follows them; the code wins.
 - **Environment values stay in the environment.** The values of environment variables
   (container ids, keys, tokens) live only in `.env` (gitignored), Vercel and GitHub secrets.
   Repository files, commit messages, PR descriptions and comments name the variable
@@ -112,5 +113,5 @@ a persona, a workflow or `CLAUDE.md`, in a PR.
   environments, the pipeline's PR report) are not environment values. A value that slipped into a pushed branch is removed from its history (owner,
   2026-10-14).
 - **Shared data is not ours to break.** `pnpm studio:seed --reset` (discards Studio edits on
-  staging) and other destructive actions on shared environments need the owner's go; everything
+  Development) and other destructive actions on shared environments need the owner's go; everything
   else runs without asking.

@@ -1,20 +1,16 @@
 <script setup lang="ts">
 import { useArticle } from '~/composables/useArticle/useArticle'
+import { useArticleSlugs } from '~/composables/useArticleSlugs/useArticleSlugs'
 import { usePageMeta } from '~/composables/usePageMeta/usePageMeta'
-import { ARTICLE_SLUGS_STATE } from '~/constants/article.constants'
 
-// An article's content. On a page load it renders on the server only (its page never hydrates
-// it), so its data, sections and code stay out of the page's first JavaScript; after a
-// client-side navigation it renders in the browser. ArticleEnhancer adds the interactions.
+// Never hydrated on a page load; ArticleEnhancer adds the interactions in the browser.
 const article = await useArticle()
 const setI18nParams = useSetI18nParams()
 
 usePageMeta(article.seo)
-// The language switcher and hreflang link this article's own slug in each language. The
-// slugs also go to the page's state (set on every render, so they always belong to this
-// article), from which ArticleEnhancer hands them to the switcher after a page load.
+// The language switcher and hreflang link this article's own slug in each language.
 setI18nParams(article.slugs)
-useState(ARTICLE_SLUGS_STATE).value = article.slugs
+useArticleSlugs().value = article.slugs
 useSeoMeta({ ogType: 'article', articlePublishedTime: article.dateTime })
 useSchemaOrg([
   defineArticle({
@@ -40,7 +36,7 @@ useSchemaOrg([
       :author="article.author"
       :date="article.date"
       :date-time="article.dateTime"
-      :reading-time="article.readingTime"
+      :reading-minutes="article.readingMinutes"
       :cover="article.cover"
     />
     <ArticleTakeaways :items="article.takeaways" />
@@ -52,6 +48,6 @@ useSchemaOrg([
       :magazine-to="article.magazineTo"
     />
     <ArticleRelated :posts="article.related" />
-    <MagazineClosing v-bind="article.closing" section="article-closing" />
+    <ClosingBand v-if="article.closing" v-bind="article.closing" section="article-closing" />
   </div>
 </template>

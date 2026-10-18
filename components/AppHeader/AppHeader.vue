@@ -8,6 +8,8 @@ defineProps<{
 }>()
 
 const { t } = useI18n()
+// The switch reads the visitor's scheme, known only in the browser: rendered there, with a
+// same-size placeholder on the server (no layout shift, no hydration mismatch).
 </script>
 
 <template>
@@ -15,6 +17,12 @@ const { t } = useI18n()
     <UNavigationMenu :items="navigation" :aria-label="t('nav.label')" />
 
     <template #right>
+      <ClientOnly>
+        <UColorModeButton />
+        <template #fallback>
+          <span class="inline-block size-8" aria-hidden="true" />
+        </template>
+      </ClientOnly>
       <LocaleSwitcher />
     </template>
 

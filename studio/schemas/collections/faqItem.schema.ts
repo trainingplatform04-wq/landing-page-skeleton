@@ -1,13 +1,14 @@
-import { HelpCircleIcon } from '@sanity/icons/HelpCircle'
+import { UnknownIcon } from '@sanity/icons/Unknown'
 import { defineField, defineType } from 'sanity'
 
 import { languageField } from '../fields'
 
+/** One question and its answer: listed on the FAQ page, picked for the home page. */
 export const faqItemSchema = defineType({
   name: 'faqItem',
-  title: 'FAQ',
+  title: 'Question',
   type: 'document',
-  icon: HelpCircleIcon,
+  icon: UnknownIcon,
   fields: [
     languageField,
     defineField({

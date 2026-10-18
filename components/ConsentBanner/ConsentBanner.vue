@@ -1,35 +1,32 @@
 <script setup lang="ts">
-import { CONSENT_COOKIE, CONSENT_QUEUE, CONSENT_REVISION } from '~/constants/consent.constants'
+import {
+  CONSENT_COOKIE,
+  CONSENT_QUEUE,
+  CONSENT_REVISION,
+  offeredCategories,
+} from '~/constants/consent.constants'
+import { consentQueueScript } from '~/utils/consent/consent.utils'
 
 const { t } = useI18n()
 const { public: config } = useRuntimeConfig()
-// Without a GTM container there are no statistics to ask for: the text does not name them.
 const description = computed(() =>
-  t(config.gtmId ? 'consent.description' : 'consent.descriptionNoStatistics'),
+  t(
+    offeredCategories(config.gtmId).includes('statistics')
+      ? 'consent.description'
+      : 'consent.descriptionNoStatistics',
+  ),
 )
 const localePath = useLocalePath()
 
-// The consent window, in the server HTML: it paints with the page, so it never becomes a late
-// "largest element" or a late full-screen change (web performance). It is rendered only when the
-// visitor has no valid choice (none yet, or one given for an older revision). Its buttons work
-// through plugins/consent.client.ts (`data-consent`), which also removes it once answered.
+// Server HTML, so it paints with the page instead of becoming a late "largest element". Shown
+// until the visitor has chosen for the current revision; plugins/consent.client.ts removes it.
 const stored = useCookie<{ revision?: number } | null>(CONSENT_COOKIE, { readonly: true })
 const answered = computed(() => stored.value?.revision === CONSENT_REVISION)
 
-// A visitor may answer before the app's JavaScript has run: this tiny script (in the head, before
-// the window can be clicked) keeps the answer, and plugins/consent.client.ts applies it. Without
-// it the click would be lost (never taken as consent, but the visitor would have to click again).
 useHead(() =>
   answered.value
     ? {}
-    : {
-        script: [
-          {
-            key: 'consent-queue',
-            innerHTML: `window.${CONSENT_QUEUE}=[];document.addEventListener('click',function(e){var t=e.target,b=t&&t.closest&&t.closest('[data-consent]');if(b&&window.${CONSENT_QUEUE}){e.preventDefault();window.${CONSENT_QUEUE}.push(b.getAttribute('data-consent'))}},true)`,
-          },
-        ],
-      },
+    : { script: [{ key: 'consent-queue', innerHTML: consentQueueScript(CONSENT_QUEUE) }] },
 )
 </script>
 

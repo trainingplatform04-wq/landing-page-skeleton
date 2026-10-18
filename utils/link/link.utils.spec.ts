@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { type LocalePath, resolveLink, toTelHref } from './link.utils'
+import { linkTarget, type LocalePath, resolveLink, toTelHref } from './link.utils'
 
 const localePath: LocalePath = (route) =>
   typeof route === 'string' ? `/en/${route}` : `/en/offers/${route.params.slug}`
@@ -49,5 +49,13 @@ describe('resolveLink', () => {
 describe('toTelHref', () => {
   it('keeps only what a phone dials', () => {
     expect(toTelHref('+49 (0)30 123-45 67')).toBe('tel:+49301234567')
+  })
+})
+
+describe('linkTarget', () => {
+  it('opens other websites in a new tab, never email or phone links', () => {
+    expect(linkTarget({ to: 'https://example.com', external: true })).toBe('_blank')
+    expect(linkTarget({ to: 'mailto:hi@example.com', external: true })).toBeUndefined()
+    expect(linkTarget({ to: '/en/contact', external: false })).toBeUndefined()
   })
 })

@@ -10,7 +10,7 @@ const post = (id: string) => ({
   to: `/magazin/${id}`,
   date: '28. Sept. 2026',
   dateTime: '2026-09-28',
-  readingTime: '2 Min. Lesezeit',
+  readingMinutes: 2,
 })
 
 describe('MagazineFeatured', () => {

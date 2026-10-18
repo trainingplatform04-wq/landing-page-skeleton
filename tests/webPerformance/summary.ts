@@ -1,6 +1,6 @@
 /**
  * `node tests/webPerformance/summary.ts`: the PageSpeed Insights results as a Markdown table (one
- * row per page, mobile and desktop, each category's median score), for the CI job summary and the
+ * row per page, mobile and desktop, each category's score), for the CI job summary and the
  * pull request report. Reads `.web-performance/results.json` (tests/webPerformance/webPerformance.ts).
  *
  * ✅ every score meets the target · 🟡 passes the minimum, under the target · ❌ under the minimum
@@ -50,7 +50,7 @@ for (const path of paths) {
   // Every score counts, the performance metrics included (a metric can fail on its own); a page
   // not measured fails.
   const lowest = Math.min(
-    ...pageResults.flatMap((result) => (result?.runs ? Object.values(result.scores) : [0])),
+    ...pageResults.flatMap((result) => (result?.measured ? Object.values(result.scores) : [0])),
   )
   const status = lowest < budget.minimum ? '❌' : lowest < budget.target ? '🟡' : '✅'
   if (status === '❌') count.failing++
@@ -62,12 +62,14 @@ for (const path of paths) {
 }
 
 const unmeasured = results
-  .filter((result) => !result.runs)
+  .filter((result) => !result.measured)
   .map(
     ({ formFactor, path, error }) =>
       `- ❌ \`${path}\` (${formFactor}) could not be measured: ${error}`,
   )
   .join('\n')
+
+const slowReruns = results.reduce((sum, result) => sum + result.slowReruns, 0)
 
 const verdict = count.failing
   ? `❌ ${count.failing} of ${paths.length} pages under the ${budget.minimum} minimum or not measured.`
@@ -77,5 +79,5 @@ const verdict = count.failing
 process.stdout.write(
   `${verdict}\n\n${lines.join('\n')}\n\n` +
     (unmeasured ? `${unmeasured}\n\n` : '') +
-    `Target ${budget.target}, minimum ${budget.minimum} (\`webPerformance.config.ts\`), for every category and performance metric · **bold**: under the minimum · _italic_: under the target · median of ${budget.runs} runs per page (after a warm-up), ${budget.runs + budget.confirmationRuns} for pages under the minimum.\n`,
+    `Target ${budget.target}, minimum ${budget.minimum} (\`webPerformance.config.ts\`), for every category and performance metric · **bold**: under the minimum · _italic_: under the target · one run per page on mobile and one on desktop (after a warm-up) · a run on a PageSpeed machine under benchmark index ${budget.minimumBenchmarkIndex} is made again (${slowReruns} this time).\n`,
 )

@@ -50,7 +50,7 @@ _AI agents run `.ai/shared/workflows/feature-orchestration.md` from Step 2, unde
 
 ## 📋 Definition of Done
 
-- [ ] Acceptance criteria met on staging.
+- [ ] Acceptance criteria met on Development.
 - [ ] Code review `APPROVED`, every thread resolved.
 - [ ] No `any`, no `console.*`, no `fetch`/`$fetch`, no `server/api/` routes.
 - [ ] Lovable project knowledge still matches the tokens (DESIGN_WORKFLOW §6.3); registry date updated.

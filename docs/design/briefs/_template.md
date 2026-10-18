@@ -62,7 +62,7 @@ Every text the prototype shows, item by item. This is the text Lovable puts on t
 
 ## Other locales (Product Owner)
 
-The same content in every other locale (German), for the i18n files and the staging seed.
+The same content in every other locale (German), for the i18n files and the development seed.
 
 ## Technical notes (Tech Lead, Frontend)
 

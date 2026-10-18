@@ -1,43 +1,49 @@
 /**
  * `pnpm web-performance --url=<base>`: the web performance gate, measured by Google PageSpeed Insights
- * (https://pagespeed.web.dev, its API v5): Google's servers audit every page of the site in every
- * language on a deployed URL, mobile and desktop, against `webPerformance.config.ts`.
+ * (https://pagespeed.web.dev, its API v5): Google's servers audit each page template once on a
+ * deployed URL, mobile and desktop, against `webPerformance.config.ts`: every page in the default
+ * language (the other languages render the same templates) and one example per slug template.
  *
- * - Every page is visited twice first (warm-up), then measured `runs` times, all in parallel
- *   within Google's quota. A page whose median is under `minimum` gets `confirmationRuns` more
- *   runs, and the median of each score decides: noise cannot block a PR, a real regression still
- *   does. Scores under `target` pass but are reported.
+ * - Every page is visited twice first (warm-up), then measured once on mobile and once on desktop,
+ *   all in parallel within Google's quota. A score under `minimum` blocks; scores under `target`
+ *   pass but are reported.
+ * - A run made on a PageSpeed machine slower than `minimumBenchmarkIndex` is run again, up to
+ *   `slowMachineReruns` times: a slow machine lowers the scores of the same page, so such a run
+ *   says nothing about the code. If every try lands on a slow machine or a re-run fails, the run
+ *   from the fastest machine so far counts.
  * - A run Google cannot complete (quota, a server error, a Lighthouse runtime error such as
  *   `NO_FCP`) is retried; a page with no completed run is reported as not measured and fails the
  *   gate at the end, after every other page has been measured.
  *
  * - `PAGESPEED_API_KEY` (env): a Google Cloud API key with the PageSpeed Insights API enabled.
  *   Without it Google's anonymous quota is tiny and requests fail with 429.
- * - Deployed previews (dev, staging) are noindex on purpose: their SEO score is computed without
+ * - Deployed previews (Feature, Development) are noindex on purpose: their SEO score is computed without
  *   the "page is crawlable" audit (PageSpeed cannot skip it); every other SEO audit counts.
  * - Reports: `.web-performance/<form factor>/` (Google's report JSON per run) and
- *   `.web-performance/results.json` (the median scores), read by `tests/webPerformance/summary.ts`.
+ *   `.web-performance/results.json` (the scores), read by `tests/webPerformance/summary.ts`.
  *
  * Run by pnpm: `node tests/webPerformance/webPerformance.ts` (Node strips the types).
  */
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { LOCALES } from '../../constants/i18n.constants.ts'
+import { DEFAULT_LOCALE } from '../../constants/i18n.constants.ts'
 import { ROUTE_PATHS } from '../../constants/routes.constants.ts'
 import budget from '../../webPerformance.config.ts'
 
 type FormFactor = (typeof budget.formFactors)[number]
 
 /**
- * The median scores (0–100) of one page on one form factor, by category and metric id. A page
- * that could not be measured has no runs, no scores and the reason in `error`.
+ * The scores (0–100) of one page on one form factor, by category and metric id. A page that could
+ * not be measured has no scores and the reason in `error`.
  */
 export interface PageResult {
   formFactor: FormFactor
   path: string
-  runs: number
+  measured: boolean
   scores: Record<string, number>
+  /** Times the run was made again because Google measured it on a slow machine. */
+  slowReruns: number
   error?: string
 }
 
@@ -49,6 +55,8 @@ interface AuditRef {
 interface Report {
   categories: Record<string, { score: number | null; auditRefs: AuditRef[] }>
   audits: Record<string, { score: number | null; numericValue?: number }>
+  /** The speed of the machine Google measured on (Lighthouse's benchmark index). */
+  environment?: { benchmarkIndex?: number }
 }
 
 const API = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed'
@@ -91,19 +99,13 @@ if (!base) {
 if (!key) process.stderr.write('PAGESPEED_API_KEY is not set: Google may refuse requests (429).\n')
 
 /**
- * Every page of the site in every language; for templates with a slug (their pages belong to
- * editors), the examples of `budget.slugPages`.
+ * Each page template once: every page in the default language (unprefixed URL), and for templates
+ * with a slug (their pages belong to editors), the one example of `budget.slugPages`.
  */
 function pagePaths(): string[] {
   const pages = Object.entries(ROUTE_PATHS)
     .filter(([route]) => !route.endsWith('-slug'))
-    .flatMap(([, paths]) =>
-      LOCALES.map(({ code }, index) => {
-        const path = paths[code]
-        if (index === 0) return path
-        return path === '/' ? `/${code}` : `/${code}${path}`
-      }),
-    )
+    .map(([, paths]) => paths[DEFAULT_LOCALE])
   return [...pages, ...budget.slugPages]
 }
 
@@ -120,6 +122,35 @@ function errorMessage(body: string): string {
 let runCount = 0
 const freshUrl = (url: string) =>
   `${url}${url.includes('?') ? '&' : '?'}wp=${Date.now()}-${++runCount}`
+
+const machineSpeed = (report: Report) => report.environment?.benchmarkIndex ?? 0
+
+/**
+ * One PageSpeed Insights run (Google's report, measured fresh) on a machine at least as fast as
+ * `minimumBenchmarkIndex`: a run on a slower one is made again, up to `slowMachineReruns` times,
+ * and the run from the fastest machine counts. Only a failed first run leaves the page unmeasured.
+ */
+async function measuredRun(
+  url: string,
+  formFactor: FormFactor,
+): Promise<{ report: Report; slowReruns: number }> {
+  let report = await runPageSpeed(url, formFactor)
+  let slowReruns = 0
+  while (
+    machineSpeed(report) < budget.minimumBenchmarkIndex &&
+    slowReruns < budget.slowMachineReruns
+  ) {
+    slowReruns++
+    try {
+      const next = await runPageSpeed(url, formFactor)
+      if (machineSpeed(next) > machineSpeed(report)) report = next
+    } catch {
+      // The page is measured already: the run from the fastest machine so far counts.
+      break
+    }
+  }
+  return { report, slowReruns }
+}
 
 /**
  * One PageSpeed Insights run (Google's report, measured fresh); retried on Google's transient
@@ -182,37 +213,25 @@ function scoresOf(report: Report): Record<string, number> {
   return scores
 }
 
-const median = (values: number[]) => {
-  const sorted = [...values].sort((a, b) => a - b)
-  return sorted[Math.floor((sorted.length - 1) / 2)]!
-}
-
-/** The median of each score over a page's runs. */
-function medianScores(runs: Array<Record<string, number>>): Record<string, number> {
-  return Object.fromEntries(
-    Object.keys(runs[0]!).map((id) => [id, median(runs.map((scores) => scores[id]!))]),
-  )
-}
-
-const belowMinimum = (scores: Record<string, number>) =>
-  Object.values(scores).some((score) => score < budget.minimum)
-
 interface Page {
   formFactor: FormFactor
   url: string
-  reports: Report[]
-  /** Why the last run failed; reported when the page has no completed run. */
+  report?: Report
+  slowReruns: number
+  /** Why the run failed; reported when the page could not be measured. */
   error?: string
 }
 
 /**
- * Measures every page once more, all in parallel within Google's quota. A run that still fails
- * after its retries is logged on the page; the other pages go on.
+ * Measures every page once, all in parallel within Google's quota. A run that still fails after
+ * its retries is logged on the page; the other pages go on.
  */
 async function measure(targets: Page[]): Promise<void> {
   const tasks = targets.map((page) => async () => {
     try {
-      page.reports.push(await runPageSpeed(page.url, page.formFactor))
+      const { report, slowReruns } = await measuredRun(page.url, page.formFactor)
+      page.report = report
+      page.slowReruns = slowReruns
     } catch (error) {
       page.error = error instanceof Error ? error.message : String(error)
       process.stderr.write(`${page.formFactor} ${page.url}: ${page.error}\n`)
@@ -223,7 +242,7 @@ async function measure(targets: Page[]): Promise<void> {
 
 const urls = pagePaths().map((path) => `${base.replace(/\/$/, '')}${path}`)
 const pages: Page[] = budget.formFactors.flatMap((formFactor) =>
-  urls.map((url) => ({ formFactor, url, reports: [] })),
+  urls.map((url) => ({ formFactor, url, slowReruns: 0 })),
 )
 
 /**
@@ -239,22 +258,10 @@ async function warmUp(targets: string[]): Promise<void> {
 }
 
 process.stdout.write(
-  `PageSpeed Insights · ${urls.length} pages · ${budget.formFactors.join(' + ')} · ${budget.runs} runs each
-`,
+  `PageSpeed Insights · ${urls.length} pages · ${budget.formFactors.join(' + ')} · one run each\n`,
 )
 await warmUp(urls)
-for (let run = 0; run < budget.runs; run++) await measure(pages)
-
-const suspects = pages.filter(
-  (page) => page.reports.length && belowMinimum(medianScores(page.reports.map(scoresOf))),
-)
-if (suspects.length) {
-  process.stdout.write(
-    `${suspects.length} page(s) under ${budget.minimum}: ${budget.confirmationRuns} confirmation run(s) each
-`,
-  )
-  for (let run = 0; run < budget.confirmationRuns; run++) await measure(suspects)
-}
+await measure(pages)
 
 rmSync('.web-performance', { recursive: true, force: true })
 const results: PageResult[] = []
@@ -262,30 +269,34 @@ for (const page of pages) {
   const dir = join('.web-performance', page.formFactor)
   mkdirSync(dir, { recursive: true })
   const path = new URL(page.url).pathname
-  page.reports.forEach((report, run) => {
-    // The SEO score as the budget sees it (noindex audit left out), as in the PR report.
-    report.categories.seo!.score = categoryScore(report, 'seo') / 100
-    writeFileSync(
-      join(dir, `${path.replace(/\W+/g, '_') || 'root'}-${run + 1}.json`),
-      JSON.stringify(report),
-    )
-  })
-  if (!page.reports.length) {
-    results.push({ formFactor: page.formFactor, path, runs: 0, scores: {}, error: page.error })
+  const { report, slowReruns, error } = page
+  if (!report) {
+    results.push({
+      formFactor: page.formFactor,
+      path,
+      measured: false,
+      scores: {},
+      slowReruns,
+      error,
+    })
     continue
   }
+  // The SEO score as the budget sees it (noindex audit left out), as in the PR report.
+  report.categories.seo!.score = categoryScore(report, 'seo') / 100
+  writeFileSync(join(dir, `${path.replace(/\W+/g, '_') || 'root'}.json`), JSON.stringify(report))
   results.push({
     formFactor: page.formFactor,
     path,
-    runs: page.reports.length,
-    scores: medianScores(page.reports.map(scoresOf)),
+    measured: true,
+    scores: scoresOf(report),
+    slowReruns,
   })
 }
 writeFileSync(join('.web-performance', 'results.json'), JSON.stringify(results, null, 2))
 
 const label = ({ formFactor, path }: PageResult) => `${formFactor} ${path}`
 const failures = results.flatMap((result) =>
-  result.runs
+  result.measured
     ? Object.entries(result.scores)
         .filter(([, score]) => score < budget.minimum)
         .map(([id, score]) => `${label(result)} · ${id} ${score} < ${budget.minimum}`)
@@ -297,6 +308,12 @@ const belowTarget = results.flatMap((result) =>
     .map(([id, score]) => `${label(result)} · ${id} ${score} < ${budget.target}`),
 )
 
+const slowReruns = results.reduce((sum, result) => sum + result.slowReruns, 0)
+if (slowReruns) {
+  process.stdout.write(
+    `\n${slowReruns} run(s) made again: measured on a PageSpeed machine under benchmark index ${budget.minimumBenchmarkIndex}.\n`,
+  )
+}
 if (belowTarget.length) {
   process.stdout.write(
     `\nBelow the ${budget.target} target (passes, to improve):\n${belowTarget.map((f) => `  ⚠ ${f}`).join('\n')}\n`,

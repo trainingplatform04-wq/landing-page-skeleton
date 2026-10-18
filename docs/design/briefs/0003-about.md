@@ -110,7 +110,7 @@ Menu entry: About
 
 ## Other locales (Product Owner)
 
-German, for the i18n files and the staging seed:
+German, for the i18n files and the development seed:
 
 - Menu: Über mich
 - Label: Über mich

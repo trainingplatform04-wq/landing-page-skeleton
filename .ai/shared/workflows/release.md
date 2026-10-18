@@ -15,14 +15,14 @@ Obey `.ai/shared/workflows/operating-model.md`. A production release is **Gate G
    **Legal (privacy-officer).** For the client's first production release, and for any release that changes tools, cookies, embeds, forms or tracking, `docs/legal/go-live-checklist.md` is complete for this client. An incomplete checklist is a blocker (operating-model §2): the release PR is not opened until it is complete.
 2. **Release PR (orchestrator).**
 
-   The body is what the human reads at Gate G2: the changes since the last release, the staging URLs, and every env-var or dashboard change production needs **before** the deploy.
+   The body is what the human reads at Gate G2: the changes since the last release, the Development URLs, and every env-var or dashboard change production needs **before** the deploy.
 
    ```bash
    notes="$(mktemp)"   # outside the repo: never commit release notes by accident
    {
      echo "**🤖 Orchestrator** · Release · <yyyy-mm-dd>"
      echo; echo "## Changes"; git log origin/main..origin/develop --first-parent --format='- %s'
-     echo; echo "## Staging (verified)"; echo "- Web: \$STAGING_WEBAPP_URL"; echo "- Studio: \$STAGING_STUDIO_URL"
+     echo; echo "## Development (verified)"; echo "- Web: \$DEVELOPMENT_WEBAPP_URL"; echo "- Studio: \$DEVELOPMENT_STUDIO_URL"
      echo; echo "## Production prerequisites"; echo "- <env vars / dashboard changes, or 'none'>"
      echo; echo "## Legal"; echo "- docs/legal/go-live-checklist.md: <complete on yyyy-mm-dd, or 'no privacy-relevant change'>"
      echo; echo "<!-- agent=orchestrator; kind=release; round=0 -->"
@@ -32,12 +32,12 @@ Obey `.ai/shared/workflows/operating-model.md`. A production release is **Gate G
 
    Replace the placeholders before creating the PR. The PR must never open with an empty body.
 
-3. **Review loop.** Run `.ai/shared/workflows/code-review-loop.md` on the release PR. The review focuses on release risk: env contract, migrations, config drift between staging and production.
+3. **Review loop.** Run `.ai/shared/workflows/code-review-loop.md` on the release PR. The review focuses on release risk: env contract, migrations, config drift between Development and Production.
 4. **🚦 Gate G2.** After `APPROVED`, green CI and a complete legal go-live checklist, post the signed comment below and **stop**. Continue only when the human says go.
 
    ```text
    **🤖 Orchestrator** · Release · 🚦 awaiting human go
-   …summary, staging URLs, production prerequisites…
+   …summary, Development URLs, production prerequisites…
    <!-- agent=orchestrator; kind=release; round=0 -->
    ```
 
@@ -54,4 +54,4 @@ Obey `.ai/shared/workflows/operating-model.md`. A production release is **Gate G
 1. Branch from `main`: `git checkout -b hotfix/<name> origin/main`. Keep the change minimal.
 2. PR into `main` (the branch policy only allows `develop` and `hotfix/*`), then the full review loop.
 3. **Gate G2** as above, then `gh pr merge <PR> --merge` and verify production.
-4. **Back-merge** so staging never regresses: PR `main` → `develop`, run the review loop (usually trivial), then merge with **`--merge`**, never squash. A squash would give `develop` a new commit instead of `main`'s, and the next release PR would conflict on every line the hotfix touched.
+4. **Back-merge** so Development never regresses: PR `main` → `develop`, run the review loop (usually trivial), then merge with **`--merge`**, never squash. A squash would give `develop` a new commit instead of `main`'s, and the next release PR would conflict on every line the hotfix touched.

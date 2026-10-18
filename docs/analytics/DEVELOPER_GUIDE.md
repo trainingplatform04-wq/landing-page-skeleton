@@ -1,6 +1,6 @@
 # Consent and analytics: developer guide
 
-For developers. The GTM and GA4 setup for a site owner is in [`GTM.md`](GTM.md); the design decisions are in [`docs/tasks/gtm-consent.md`](../tasks/gtm-consent.md) and the architecture in [`ARCHITECTURE.md`](../conventions/ARCHITECTURE.md).
+For developers. The GTM and GA4 setup for a site owner is in [`GTM.md`](GTM.md); the architecture in [`ARCHITECTURE.md`](../conventions/ARCHITECTURE.md#consent-and-analytics).
 
 ## Try it locally
 
@@ -10,7 +10,7 @@ For developers. The GTM and GA4 setup for a site owner is in [`GTM.md`](GTM.md);
 4. **Reject all** keeps everything optional off.
 5. To be asked again, delete the `cc_cookie` cookie, or use **Cookie settings** in the footer.
 
-Local runs, CI and E2E use no container, so tests never send data to Google.
+Local runs use no container by default. E2E uses a fake one (`GTM-E2ETEST`) and stubs `googletagmanager.com`, so tests never send data to Google.
 
 ## Add something optional
 
@@ -26,5 +26,5 @@ Then:
 
 - Send events with `useAnalytics().track()` in hydrated code, or `data-track="<event>"` with `data-track-<param>` attributes in server-only HTML. Parameters are labels, slugs and paths, never personal data.
 - Raise `CONSENT_REVISION` whenever a category, tool or cookie changes, so every visitor is asked again.
-- Update the privacy text in `studio/seed/seed.data.ts` (staging) and tell the client's lawyer; the checklist is `docs/legal/go-live-checklist.md`.
+- Update the privacy text in `studio/seed/seed.copy.ts` (development) and tell the client's lawyer; the checklist is `docs/legal/go-live-checklist.md`.
 - The PR gets a Privacy Officer review next to the code review (`.ai/shared/workflows/code-review-loop.md`).

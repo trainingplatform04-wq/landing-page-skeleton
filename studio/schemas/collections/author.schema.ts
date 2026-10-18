@@ -1,4 +1,4 @@
-import { UserIcon } from '@sanity/icons/User'
+import { UsersIcon } from '@sanity/icons/Users'
 import { defineField, defineType } from 'sanity'
 
 import { languageField } from '../fields'
@@ -8,7 +8,7 @@ export const authorSchema = defineType({
   name: 'author',
   title: 'Author',
   type: 'document',
-  icon: UserIcon,
+  icon: UsersIcon,
   fields: [
     languageField,
     defineField({

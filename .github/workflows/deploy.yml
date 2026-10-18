@@ -2,9 +2,10 @@
 # Deploy — the ONLY way code reaches Vercel (Git auto-deploys are disabled in
 # vercel.json / studio/vercel.json).
 #
-#   push develop → CI → deploy webapp + studio to Preview    → alias → smoke + seed → web performance (STAGING)
-#   push main    → CI → deploy webapp + studio to Production          → smoke  (PRODUCTION)
-#   workflow_dispatch on develop/main → same as a push to that branch
+#   push develop  → CI → deploy webapp + studio to Preview, develop rows → alias → smoke + seed → web performance (DEVELOPMENT)
+#   push main     → CI → deploy webapp + studio to Production                  → smoke  (PRODUCTION)
+#   pull request  → ci.yml: deploy webapp to Preview at <project>-pr-<n>             (FEATURE)
+#   workflow_dispatch on develop/main → same as a push to that branch (any other branch: nothing runs)
 #
 # Docs: docs/deployment/DEPLOYMENT.md
 # ─────────────────────────────────────────────────────────────────────────────
@@ -32,9 +33,12 @@ env:
 jobs:
   ci:
     name: CI
+    # Run workflow can be started on any branch: only develop and main deploy, every other job
+    # needs this one.
+    if: github.ref_name == 'develop' || github.ref_name == 'main'
     uses: ./.github/workflows/ci.yml
     secrets: inherit
-    # The most any job of ci.yml asks for (Deploy dev, PR report): GitHub refuses to start the
+    # The most any job of ci.yml asks for (Deploy feature, PR report): GitHub refuses to start the
     # run when a called workflow asks for more than its caller grants. Those jobs run on pull
     # requests only, so on a push nothing here writes.
     permissions:
@@ -44,7 +48,7 @@ jobs:
       pull-requests: write
 
   deploy:
-    name: Deploy ${{ matrix.app }} (${{ github.ref_name == 'main' && 'production' || 'staging' }})
+    name: Deploy ${{ matrix.app }} (${{ github.ref_name == 'main' && 'production' || 'development' }})
     needs: ci
     runs-on: ubuntu-latest
     permissions:
@@ -52,7 +56,7 @@ jobs:
       deployments: write
     # The repository's Deployments panel lists the current URL of every environment.
     environment:
-      name: ${{ github.ref_name == 'main' && 'production' || 'staging' }}${{ matrix.app == 'studio' && '-studio' || '' }}
+      name: ${{ github.ref_name == 'main' && 'production' || 'development' }}${{ matrix.app == 'studio' && '-studio' || '' }}
       url: ${{ matrix.url }}
     # setup + build (~6 min) + the 12 min build wait, with room to report and clean up.
     timeout-minutes: 25
@@ -64,17 +68,19 @@ jobs:
         include:
           - app: webapp
             project-id: ${{ vars.VERCEL_WEBAPP_PROJECT_ID }}
-            url: ${{ github.ref_name == 'main' && vars.PRODUCTION_WEBAPP_URL || vars.STAGING_WEBAPP_URL }}
+            url: ${{ github.ref_name == 'main' && vars.PRODUCTION_WEBAPP_URL || vars.DEVELOPMENT_WEBAPP_URL }}
             nitro-preset: vercel
           - app: studio
             project-id: ${{ vars.VERCEL_STUDIO_PROJECT_ID }}
-            url: ${{ github.ref_name == 'main' && vars.PRODUCTION_STUDIO_URL || vars.STAGING_STUDIO_URL }}
+            url: ${{ github.ref_name == 'main' && vars.PRODUCTION_STUDIO_URL || vars.DEVELOPMENT_STUDIO_URL }}
             nitro-preset: ''
     env:
       VERCEL_PROJECT_ID: ${{ matrix.project-id }}
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       TARGET: ${{ github.ref_name == 'main' && 'production' || 'preview' }}
       PROD_FLAG: ${{ github.ref_name == 'main' && '--prod' || '' }}
+      # Development = the Preview rows scoped to the `develop` branch (DEPLOYMENT.md §11.1).
+      BRANCH_FLAG: ${{ github.ref_name == 'main' && '' || '--git-branch=develop' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup
@@ -82,7 +88,16 @@ jobs:
           vercel-cli: 'true'
 
       # Project settings + env vars of the target environment (source of truth).
-      - run: vercel pull --yes --environment="$TARGET" --token="$VERCEL_TOKEN"
+      - run: vercel pull --yes --environment="$TARGET" $BRANCH_FLAG --token="$VERCEL_TOKEN"
+
+      # A key missing from the `develop` rows silently takes its Feature value (Preview, all
+      # branches): stop before building if the pulled values are not this environment's.
+      - name: Check the environment values
+        env:
+          EXPECTED: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+        run: |
+          actual=$(grep -E '^NUXT_SITE_ENV=' ".vercel/.env.$TARGET.local" | cut -d= -f2- | tr -d '"' || true)
+          [ "$actual" = "$EXPECTED" ] || { echo "::error::NUXT_SITE_ENV is '$actual' in the pulled values, expected '$EXPECTED': set the $EXPECTED rows in Vercel (docs/deployment/DEPLOYMENT.md §11.1)."; exit 1; }
 
       - run: vercel build $PROD_FLAG --token="$VERCEL_TOKEN"
         env:
@@ -92,11 +107,17 @@ jobs:
       # inside it turns every slow or failing deployment into a bare "step timed out"
       # with nothing to debug. `--no-wait` returns the URL as soon as the upload is
       # accepted; the next step waits and prints Vercel's own build logs.
+      # Development: the pulled `develop` values are also the run-time values (`-e`), so the
+      # server never falls back to the Feature values of Vercel Preview.
       - name: Deploy prebuilt output
         id: deploy
         timeout-minutes: 5
         run: |
-          url=$(vercel deploy --prebuilt --no-wait $PROD_FLAG --token="$VERCEL_TOKEN")
+          runtime=()
+          if [ "$IS_PRODUCTION" != true ]; then
+            while IFS= read -r line; do runtime+=(-e "${line//\"/}"); done < <(grep -E '^NUXT_' .vercel/.env.preview.local || true)
+          fi
+          url=$(vercel deploy --prebuilt --no-wait $PROD_FLAG "${runtime[@]}" --token="$VERCEL_TOKEN")
           echo "url=$url" >> "$GITHUB_OUTPUT"
 
       # --timeout must expire before the step timeout below, so a deployment stuck in
@@ -115,8 +136,8 @@ jobs:
           DEPLOY_URL: ${{ steps.deploy.outputs.url }}
         run: vercel remove "$DEPLOY_URL" --yes --token="$VERCEL_TOKEN" || true
 
-      # Staging gets a stable URL; production domains are assigned by --prod.
-      - name: Point staging alias
+      # Development gets a stable URL; production domains are assigned by --prod.
+      - name: Point the development alias
         if: env.IS_PRODUCTION != 'true'
         env:
           DEPLOY_URL: ${{ steps.deploy.outputs.url }}
@@ -132,31 +153,31 @@ jobs:
           echo "- Public URL: $PUBLIC_URL" >> "$GITHUB_STEP_SUMMARY"
           echo "- Deployment: $DEPLOY_URL" >> "$GITHUB_STEP_SUMMARY"
 
-  # Staging only: adds the demo content that is new in studio/seed/seed.data.ts (new
+  # Development only: adds the demo content that is new in studio/seed/seed.data.ts (new
   # documents, new fields) and keeps everything editors changed, emptied or deleted.
   # Never deletes; a full reset stays a deliberate `pnpm studio:seed --reset` from a laptop.
   # After the deploy, so the new Studio schema is live before its content arrives.
   seed:
-    name: Seed staging (new demo content)
+    name: Seed development (new demo content)
     needs: deploy
     if: github.ref_name == 'develop'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
       # Pinned here as well: the seed script also refuses every other dataset.
-      SANITY_STUDIO_DATASET: staging
+      SANITY_STUDIO_DATASET: development
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup
         with:
           vercel-cli: 'true'
 
-      # The Studio's staging env (project ID) from Vercel, as CI does.
-      - name: Pull Studio staging env from Vercel
+      # The Studio's Development env (project ID) from Vercel.
+      - name: Pull Studio Development env from Vercel
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           STUDIO_PROJECT_ID: ${{ vars.VERCEL_STUDIO_PROJECT_ID }}
-        run: VERCEL_PROJECT_ID="$STUDIO_PROJECT_ID" vercel env pull studio/.env --environment=preview --yes --token="$VERCEL_TOKEN"
+        run: VERCEL_PROJECT_ID="$STUDIO_PROJECT_ID" vercel env pull studio/.env --environment=preview --git-branch=develop --yes --token="$VERCEL_TOKEN"
 
       # The token reaches this step only, never `pnpm install` and its scripts.
       - name: Add new demo content (keeps editors' changes)
@@ -172,8 +193,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      WEBAPP_URL: ${{ github.ref_name == 'main' && vars.PRODUCTION_WEBAPP_URL || vars.STAGING_WEBAPP_URL }}
-      STUDIO_URL: ${{ github.ref_name == 'main' && vars.PRODUCTION_STUDIO_URL || vars.STAGING_STUDIO_URL }}
+      WEBAPP_URL: ${{ github.ref_name == 'main' && vars.PRODUCTION_WEBAPP_URL || vars.DEVELOPMENT_WEBAPP_URL }}
+      STUDIO_URL: ${{ github.ref_name == 'main' && vars.PRODUCTION_STUDIO_URL || vars.DEVELOPMENT_STUDIO_URL }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup
@@ -196,11 +217,11 @@ jobs:
         env:
           PLAYWRIGHT_BASE_URL: ${{ env.WEBAPP_URL }}
 
-  # Staging only: the same budget (webPerformance.config.ts) on the real deployment, measured by Google
+  # Development only: the same budget (webPerformance.config.ts) on the real deployment, measured by Google
   # PageSpeed Insights, after the smoke test proved it serves. It cannot block the merged PR; it
   # fails this run loudly instead. Production starts with an empty dataset (ADR 0004).
   web-performance:
-    name: Web performance staging
+    name: Web performance development
     needs: smoke
     if: github.ref_name == 'develop'
     runs-on: ubuntu-latest
@@ -208,10 +229,10 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup
-      - name: PageSpeed Insights on staging
+      - name: PageSpeed Insights on development
         env:
           PAGESPEED_API_KEY: ${{ secrets.PAGESPEED_API_KEY }}
-        run: pnpm web-performance --url="${{ vars.STAGING_WEBAPP_URL }}"
+        run: pnpm web-performance --url="${{ vars.DEVELOPMENT_WEBAPP_URL }}"
       - name: Web performance summary
         if: always()
         run: node tests/webPerformance/summary.ts >> "$GITHUB_STEP_SUMMARY"
@@ -219,7 +240,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: web-performance-staging
+          name: web-performance-development
           path: .web-performance
           include-hidden-files: true
           retention-days: 14

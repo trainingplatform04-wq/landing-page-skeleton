@@ -15,7 +15,7 @@ As `docs/design/changes/0001-magazine/sections/magazine-closing.md`.
 
 ## Components (Nuxt UI first)
 
-Reuse the component behind `magazine-closing` (`MagazineClosing`) with `section="about-closing"`
+Reuse the component behind `magazine-closing` (`ClosingBand`) with `section="about-closing"`
 and the page's own title, text and button; no copy of the markup.
 
 ## Tokens

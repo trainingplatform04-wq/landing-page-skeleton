@@ -16,7 +16,7 @@ Client: `<name>` · Production URL: `<url>` · Completed by: `<name>` on `<date>
 
 ## 2. Privacy text
 
-- [ ] Written by the editors in the **production** Studio, in every locale (the staging seed is only a draft).
+- [ ] Written by the editors in the **production** Studio, in every locale (the development seed is only a draft).
 - [ ] Controller data match the imprint.
 - [ ] Every processor named with purpose, legal basis and any transfer outside the EU (§5).
 - [ ] The contact form's service named with company and address.
@@ -25,11 +25,11 @@ Client: `<name>` · Production URL: `<url>` · Completed by: `<name>` on `<date>
 
 ## 3. Google Tag Manager and GA4 (`docs/analytics/GTM.md`)
 
-- [ ] Two **Web** containers (production; staging/dev), imported from `docs/analytics/gtm-container.json`, the "GA4 measurement ID" variable filled in each.
-- [ ] `NUXT_PUBLIC_GTM_ID` set in Vercel: production container for **Production**, staging container for **Preview** and **Development** (`docs/deployment/DEPLOYMENT.md` §11.1).
-- [ ] GA4 standard property per environment; Google signals off; ads personalisation off; account data sharing off; event data retention 14 months.
+- [ ] One **Web** container, imported from `docs/analytics/gtm-container.json`, the "GA4 measurement ID" variable filled in.
+- [ ] `NUXT_PUBLIC_GTM_ID` set in Vercel to the same container id in **Production**, **Preview** (Development: branch `develop`; Feature: all branches) and Vercel **Development** (Local) (`docs/deployment/DEPLOYMENT.md` §11.1).
+- [ ] One GA4 standard property; Google signals off; ads personalisation off; account data sharing off; event data retention 14 months.
 - [ ] Google's data processing terms accepted in GA4 and GTM.
-- [ ] Production container published and checked once with Tag Assistant Preview.
+- [ ] The container published (`docs/analytics/GTM.md` §7) and checked once with Tag Assistant Preview on the production URL.
 
 Without statistics: leave `NUXT_PUBLIC_GTM_ID` empty, remove the statistics section from the privacy text, and tick this block as not applicable.
 
@@ -69,5 +69,5 @@ YouTube is not a processor: Google Ireland Limited is responsible for it in its 
 ## Additional checks (Privacy Officer, PR #17)
 
 - [ ] Withdrawal: after "Cookie settings" → "Reject all", the page reloads, then navigate to at least three more pages: no request to googletagmanager.com, google-analytics.com or youtube(-nocookie).com, and no `_ga` / `_ga_*` cookie on the registrable domain (check the parent domain too).
-- [ ] Lawyer: the first-layer wording of the consent window, the "necessary" classification of the colour-scheme storage (`nuxt-color-mode`, kept by the owner's decision to offer dark mode), YouTube (Google) as independent or joint controller, the legal basis for keeping the consent cookie, and the wording on GA4 and IP addresses.
+- [ ] Lawyer: the first-layer wording of the consent window, the "necessary" classification of the colour-scheme cookie (`color-mode`, set only when the visitor picks a scheme with the header switch), YouTube (Google) as independent or joint controller, the legal basis for keeping the consent cookie, and the wording on GA4 and IP addresses.
 - [ ] Vercel: the log retention of the client's plan and whether a data protection officer is required.

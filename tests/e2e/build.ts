@@ -3,7 +3,7 @@
  *
  * The sitemap reads Sanity at build time, so the build gets the same fixture CMS as the
  * app at runtime (tests/e2e/sanity/server.ts): E2E stays hermetic and never depends on
- * staging content or availability. Deployments build with `vercel build` instead.
+ * a live dataset's content or availability. Deployments build with `vercel build` instead.
  *
  * Run by pnpm: `node tests/e2e/build.ts` (Node strips the types).
  */

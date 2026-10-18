@@ -1,8 +1,6 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { describe, expect, it } from 'vitest'
 
-import { COOKIES } from '~/constants/cookies.constants'
-
 import CookieTable from './CookieTable.vue'
 
 describe('CookieTable', () => {
@@ -10,10 +8,7 @@ describe('CookieTable', () => {
     const wrapper = await mountSuspended(CookieTable)
     const names = wrapper.findAll('tbody tr td:first-child').map((cell) => cell.text())
 
-    const expected = COOKIES.filter(({ category }) => category !== 'statistics').map(
-      ({ name }) => name,
-    )
-    expect(names).toEqual(expected)
+    expect(names).toEqual(['cc_cookie', 'color-mode', 'VISITOR_INFO1_LIVE', 'YSC'])
   })
 
   it('reopens the consent window', async () => {

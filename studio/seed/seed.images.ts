@@ -2,8 +2,7 @@
  * The demo pictures of the seed: real photos chosen by context, one per place an editor would
  * put a photo. Nothing is stored in the repository: the seed downloads each photo from its URL
  * and uploads it to the Sanity dataset, where editors see and replace it. Same file → Sanity
- * keeps one asset, so re-runs reuse it. When a page gets its approved Lovable design, its photos
- * replace these (docs/design/DESIGN_WORKFLOW.md §10).
+ * keeps one asset, so re-runs reuse it.
  *
  * All from Unsplash, under the Unsplash License (free for commercial use, no attribution
  * required): https://unsplash.com/license. Each URL fixes the photo and its crop.
@@ -16,7 +15,7 @@ const IMAGES = {
   hero: unsplash('photo-1534258936925-c58bed479fcb', 1600, 900),
   // unsplash.com/photos/smiling-woman-in-front-of-window-YMYFCxWgHMw
   portrait: unsplash('photo-1536914356815-690cf1fa40e2', 800, 1000),
-  // About page (docs/design/changes/0003-about): a coach with a client, wide crop (21:9).
+  // 21:9: the About page shows it full width.
   about: unsplash('photo-1571019614242-c5c5dee9f50b', 1680, 720),
   // unsplash.com/photos/woman-kneeling-beside-man-R0y_bEUjiOM
   offerPersonal: unsplash('photo-1571019614242-c5c5dee9f50b', 1200, 800),
@@ -33,15 +32,14 @@ const IMAGES = {
   training: unsplash('photo-1536922246289-88c42f957773', 1200, 700),
   // unsplash.com/photos/man-holding-black-barbell-hOuJYX2K5DA
   share: unsplash('photo-1517838277536-f5f99be501cd', 1200, 630),
-  // Magazine (docs/design/changes/0001-magazine): covers 16:10 and author portraits, chosen to
-  // match the prototype's picture descriptions.
+  // Magazine covers (16:10) and author portraits.
   postStrength: unsplash('photo-1517836357463-d25dfeac3438', 1600, 1000),
   postProtein: unsplash('photo-1546069901-ba9599a7e63c', 1600, 1000),
   postMotivation: unsplash('photo-1594381898411-846e7d193883', 1600, 1000),
   postMobility: unsplash('photo-1518611012118-696072aa579a', 1600, 1000),
   postEating: unsplash('photo-1490645935967-10de6ba17061', 1600, 1000),
   postSleep: unsplash('photo-1520206183501-b80df61043c2', 1600, 1000),
-  // Article figure (docs/design/changes/0002-article): fresh ingredients in bowls on a counter.
+  // The article figure: fresh ingredients in bowls on a counter.
   postProteinBasics: unsplash('photo-1498837167922-ddd27525d352', 1500, 1000),
   authorLena: unsplash('photo-1438761681033-6461ffad8d80', 400, 400),
   authorJonas: unsplash('photo-1500648767791-00dcc994a43e', 400, 400),

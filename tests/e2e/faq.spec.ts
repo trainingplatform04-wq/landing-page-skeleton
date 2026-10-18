@@ -10,6 +10,15 @@ test.describe('FAQ page', () => {
     await expect(page.getByText('Is there a trial session?')).toHaveCount(0)
   })
 
+  test("lists the editor's order first, then the other questions", async ({ page }) => {
+    await page.goto('/faq')
+
+    await expect(page.locator('main [aria-expanded]')).toHaveText([
+      'Was kostet eine Einheit?',
+      'Gibt es ein Probetraining?',
+    ])
+  })
+
   test('renders without page text, out of search engines, where it is unpublished', async ({
     page,
   }) => {

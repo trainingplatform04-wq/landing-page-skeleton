@@ -14,6 +14,8 @@ export default defineConfig({
           include: [
             'utils/**/*.spec.ts',
             'studio/utils/**/*.spec.ts',
+            'studio/seed/**/*.spec.ts',
+            'studio/schemas/**/*.spec.ts',
             'tests/orchestration/**/*.spec.ts',
             'tests/tooling/**/*.spec.ts',
           ],
@@ -31,7 +33,13 @@ export default defineConfig({
     ],
     coverage: {
       provider: 'v8',
-      include: ['components/**', 'composables/**', 'utils/**', 'studio/utils/**'],
+      include: [
+        'components/**',
+        'composables/**',
+        'utils/**',
+        'studio/utils/**',
+        'studio/seed/seed.plan.ts',
+      ],
       exclude: ['**/*.spec.ts'],
       thresholds: {
         branches: 80,

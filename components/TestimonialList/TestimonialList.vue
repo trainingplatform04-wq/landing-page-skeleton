@@ -13,7 +13,7 @@ defineProps<{ testimonials: Testimonial[] }>()
           :name="testimonial.author"
           :avatar="
             testimonial.photo
-              ? { src: testimonial.photo.url, alt: testimonial.photo.alt }
+              ? { src: testimonial.photo.url, alt: testimonial.photo.alt, loading: 'lazy' }
               : undefined
           "
         />

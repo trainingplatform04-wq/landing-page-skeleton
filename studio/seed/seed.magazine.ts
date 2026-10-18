@@ -1,8 +1,7 @@
 /**
- * The magazine's demo content (docs/design/changes/0001-magazine/content/magazine.json, approved
- * at gate D2): the page, its categories, authors and articles in every language. Every article
- * has every block of the article page (docs/design/changes/0002-article), so each one shows the
- * whole design: key takeaways, questions, a coach tip, a pull quote, a video and a figure.
+ * The magazine's demo content: the page, its categories, authors and articles in every language.
+ * Every article uses every block of the article page (takeaways, questions, coach tip, pull
+ * quote, video, figure), so each one shows the whole design.
  */
 import type { LocaleCode } from '../../constants/i18n.constants'
 import type { SeedImage } from './seed.images'
@@ -31,7 +30,7 @@ export interface PostCopy {
 
 export const MAGAZINE_PAGE = {
   de: {
-    kicker: 'Magazin',
+    label: 'Magazin',
     title: 'Wissen, das dich weiterbringt.',
     intro: 'Training, Ernährung und Mindset: Artikel von unseren Coaches, fürs echte Leben.',
     closingTitle: 'Bereit für den ersten Schritt?',
@@ -40,7 +39,7 @@ export const MAGAZINE_PAGE = {
     seoDescription: 'Artikel zu Training, Ernährung und Mindset von unseren Coaches.',
   },
   en: {
-    kicker: 'Magazine',
+    label: 'Magazine',
     title: 'Know-how that moves you forward.',
     intro: 'Training, nutrition and mindset: articles from our coaches, for real life.',
     closingTitle: 'Ready for the first step?',

@@ -1,57 +1,37 @@
 # Welcome, AI Agents (Claude, Gemini, OpenAI)
 
-This is an **Enterprise Nuxt 4 Starter Skeleton** designed to support **Autonomous AI Orchestration workflows**.
+A **Nuxt 4 + Sanity skeleton** for multi-language landing pages, delivered by **autonomous AI orchestration**. Start a client project from it with `/new-project` ([`docs/NEW_PROJECT.md`](docs/NEW_PROJECT.md)); what is core and what is an example: [`docs/SKELETON.md`](docs/SKELETON.md).
 
-## 1. AI Configuration & Roles
+## 1. AI configuration
 
-- `.ai/shared/agents/*.md`: Core system prompts and agent personas (Tech Lead, Frontend Engineer, Code Reviewer, Privacy Officer, etc.). Single source of truth.
-- `.ai/shared/workflows/*.md`: Shared business logic for AI orchestration (e.g. feature delivery).
-- `.claude/commands/`: Claude Code slash commands pointing to the shared workflows and agents.
-- `.agents/rules/` & `skills/`: Google Antigravity rules and skills pointing to the shared workflows.
-- `.agents/agents/`: Flat YAML pointers for Antigravity's native agent UI.
-- **Tools (MCP)**: Agents use the Model Context Protocol for GitHub, Sanity and Jira.
-- **Operating model** ([`.ai/shared/workflows/operating-model.md`](.ai/shared/workflows/operating-model.md)): the two human gates (G1 plan, G2 production), blockers (never hold, report), mandatory independent reviewer subagent, and signed GitHub comments. It overrides anything conflicting.
-- **Commands**: `/design [idea]`, `/feature <request>`, `/review <PR>`, `/release [hotfix <name>]`, `/agents`.
-- **Design track** ([`docs/design/DESIGN_WORKFLOW.md`](docs/design/DESIGN_WORKFLOW.md)): `/design` runs discovery → brief (gate D1) → one Lovable prompt → approved design (gate D2) → a design changeset in `docs/design/changes/` that a task points to. Lovable builds a React prototype only; production code is always this Nuxt repository: the frontend never reads Lovable code, it implements the changeset's facts under our architecture, and `pnpm design:verify <change>` (pixel comparison with screenshots of our build, checked against the specs by an independent designer reviewer; never committed) must pass before the PR. Lovable is read only through its MCP server; Playwright runs on our app only. Pictures live in Sanity only, uploaded by the seed.
-- **Drift guard**: `tests/orchestration/orchestration.spec.ts` fails CI if personas, pointers or referenced paths drift.
+- `.ai/shared/agents/*.md`: the personas (Tech Lead, engineers, Code Reviewer, Privacy Officer, …). Single source of truth.
+- `.ai/shared/workflows/*.md`: the workflows. **[`operating-model.md`](.ai/shared/workflows/operating-model.md) overrides anything conflicting**: two human gates (G1 plan, G2 production), blockers reported never held, an independent reviewer subagent each round, signed GitHub comments.
+- `.claude/commands/`, `.agents/` (Antigravity): thin pointers to the shared files.
+- **Commands**: `/new-project <client>`, `/design [idea]`, `/feature <request>`, `/review <PR>`, `/release [hotfix <name>]`, `/agents`.
+- **Design track** ([`docs/design/DESIGN_WORKFLOW.md`](docs/design/DESIGN_WORKFLOW.md)): brief (gate D1) → one Lovable prompt → approved design (gate D2) → a changeset in `docs/design/changes/`. Lovable builds a React prototype only; the frontend implements the changeset's facts under our architecture and `pnpm design:verify <change>` passes before the PR.
+- **Drift guard**: `tests/orchestration/orchestration.spec.ts` fails CI when personas, pointers or referenced paths drift.
 
-## 2. Architecture (read before writing code)
+## 2. Read before writing code
 
-- [`docs/conventions/ARCHITECTURE.md`](docs/conventions/ARCHITECTURE.md) — directories, data flow, i18n, SEO.
-- [`docs/conventions/CODING_STANDARDS.md`](docs/conventions/CODING_STANDARDS.md) — rules, most of them **enforced by ESLint**.
-- [`docs/deployment/DEPLOYMENT.md`](docs/deployment/DEPLOYMENT.md) — environments, env vars, pipeline.
+- [`docs/conventions/ARCHITECTURE.md`](docs/conventions/ARCHITECTURE.md): directories, data flow, rendering, i18n, SEO.
+- [`docs/conventions/CODING_STANDARDS.md`](docs/conventions/CODING_STANDARDS.md): every rule, most **enforced by ESLint**; the local gates (§7); comments (§8); docs (§9).
+- [`docs/sanity/SANITY.md`](docs/sanity/SANITY.md): the content model, queries, the seed.
+- [`docs/deployment/DEPLOYMENT.md`](docs/deployment/DEPLOYMENT.md): environments, env vars, pipeline.
 
-Principles: **KISS & SOLID**, **co-location** (`composables/<useName>/<useName>.ts` + its `.spec.ts`), flat Nuxt layout (no `app/`).
-**Two-Case Rule**: `PascalCase` for Vue components, `camelCase` for everything else.
+## 3. Stack
 
-## 3. Tech Stack
+Nuxt 4 (SSR, flat layout), Vue 3 `<script setup>`, TypeScript strict, Node 24 · Nuxt UI v4 + Tailwind v4 · Sanity v6 (`studio/`), groqd queries, TypeGen schema types · @nuxtjs/i18n v10 · Vitest 5 + Playwright · Vercel + GitHub Actions.
 
-- **Nuxt 4** (SSR, flat layout via `srcDir: '.'`), Vue 3 `<script setup>`, TypeScript strict — Node 24
-- **Nuxt UI v4** + Tailwind CSS v4
-- **Sanity v6** (Studio in `studio/`, one document per language (DE/EN)); queries with **groqd**, schema types from TypeGen
-- **@nuxtjs/i18n v10**, **@nuxtjs/robots** + **@nuxtjs/sitemap**
-- **Vitest 5** (`unit` + `nuxt` projects) & **Playwright**
+## 4. Hard rules
 
-## 4. Rules to Enforce
+- **No server code** (`server/`, `api/`): this is a frontend layer.
+- **One door to the CMS**: page composables call `useCmsQuery`; views never fetch (ESLint).
+- **One document per language**: every query filters `language == $locale` ([ADR 0001](docs/adr/0001-i18n-translated-urls.md)).
+- **Code owns pages, Sanity owns content** ([ADR 0004](docs/adr/0004-skeleton-scope-and-data-flow.md)). Every schema change updates `types/sanity.types.ts` (`pnpm typegen`), the seed (`studio/seed/`) and the E2E fixtures in the same PR.
+- **No hardcoded text**, no `any`, no `!`, no `console.*`, no `fetch`/`$fetch`, no `../` imports; dates with an explicit time zone.
+- **Web performance: aim 90+, block under 80** (PageSpeed Insights, every page, mobile and desktop).
+- **The code is the truth**: a doc that describes code changes with it.
 
-- **No APIs**: never create `server/api/` routes. This is a frontend layer.
-- **Data access only in composables**: `useSanity()` + `useAsyncData` live in `composables/`. Components, pages and layouts calling them fail lint.
-- **Queries** are written with groqd at the top of the composable that runs them; shared pieces are fragments in `utils/groqd/groqd.utils.ts`. A page composable returns one view of plain values; components never see CMS types. After changing a schema: `pnpm typegen` and commit `types/sanity.types.ts`.
-- **Translated content** ([ADR 0001](docs/adr/0001-i18n-translated-urls.md)): **every document with text is in one language** (`language` field; every query filters `language == $locale`). No field-level translation.
-- **Skeleton** ([ADR 0003](docs/adr/0003-structured-content.md), [ADR 0004](docs/adr/0004-skeleton-scope-and-data-flow.md), [ADR 0005](docs/adr/0005-magazine.md), [ADR 0006](docs/adr/0006-about-page.md)): 9 pages (the magazine and the About page included); code owns pages, routes, layout and menu; Sanity owns their content (one document per page and language) and the collections editors create (offers, magazine articles with their categories and authors, testimonials, FAQ). No page builder; no sample content in production. Staging demo content lives in `studio/seed/seed.data.ts` (`pnpm studio:seed`): **every schema change (type, field, section added, changed or removed) updates it in the same PR**. Translated paths are declared once in `constants/routes.constants.ts`; editors own only the slug of an offer.
-- **Imports**: Vue/Nuxt APIs are auto-imported; project code (composables, utils, constants) is imported explicitly from its `~/` file.
-- **No `fetch`/`$fetch`, no `console.*`, no `any`**, no parent-relative imports (`~/` alias).
-- **Early returns** (Bouncer Pattern). No deeply nested `if/else`.
-- **No hardcoded text**: `t()` / `$t()`; every key exists in every locale.
-- **Dates**: always pass an explicit time zone (`utils/date/date.utils.ts`); never render `new Date()` output directly.
-- **Web performance: aim 90+, blocks under 80** (Google PageSpeed Insights, every page, mobile and desktop, every category and metric; `webPerformance.config.ts`). Write for 90+: thin pages with never-hydrated content, the lightest hydration that works, the largest image first, no new client JavaScript on the first screen ([ARCHITECTURE](docs/conventions/ARCHITECTURE.md) "Rendering & platform").
+## 5. Feature delivery
 
-## 5. Autonomous Feature Delivery Workflow
-
-For a request, `/feature`, or a task file (e.g. "Implement `docs/tasks/<name>.md`"), run the single pipeline [`.ai/shared/workflows/feature-orchestration.md`](.ai/shared/workflows/feature-orchestration.md):
-
-1. **Scope** (task file) → **Plan** → 🚦 **Gate G1: wait for human approval** (passed by the Tech Lead when the task comes from a design approved at D2: no human stop until G2).
-2. **Implement** on `feat/<name>` from `develop` → local gates (`pnpm verify` + E2E, defined once in `docs/conventions/CODING_STANDARDS.md` §7).
-3. **PR** into `develop` → [review loop](.ai/shared/workflows/code-review-loop.md) with a **fresh reviewer subagent** each round, until `APPROVED` (every comment resolved, max 5 rounds; in round 5 the Tech Lead settles every conflict and plans the fixes before engineers work).
-4. **Merge** (squash) after green CI → verify the staging deploy. Blockers are reported, never held.
-5. **Production**: [`release.md`](.ai/shared/workflows/release.md), 🚦 **Gate G2: human "go"**.
+For a request, `/feature`, or a task file (`docs/tasks/<name>.md`), run [`feature-orchestration.md`](.ai/shared/workflows/feature-orchestration.md): scope → plan (🚦 G1, passed by the Tech Lead for a design approved at D2) → implement on `feat/<name>` from `develop` → local gates → PR into `develop` → [review loop](.ai/shared/workflows/code-review-loop.md) with a fresh reviewer each round → squash-merge after green CI → Development. Production: [`release.md`](.ai/shared/workflows/release.md), 🚦 G2.

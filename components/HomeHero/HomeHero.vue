@@ -18,6 +18,7 @@ defineProps<{
     <NuxtImg
       v-if="image"
       :src="image.url"
+      :style="{ objectPosition: image.position }"
       :alt="image.alt"
       width="800"
       height="600"

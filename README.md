@@ -1,131 +1,78 @@
-# Landing Page Base
+# Landing Page Skeleton
 
-A small, production-grade Nuxt 4 + Sanity skeleton for multi-language landing pages (DE/EN), built to be forked by people and AI agents. Code owns the pages, Sanity owns their content ([ADR 0004](docs/adr/0004-skeleton-scope-and-data-flow.md)).
+A production-grade Nuxt 4 + Sanity skeleton for multi-language landing pages (DE/EN), built to start client projects from, by people and AI agents. Code owns the pages, Sanity owns their content.
+
+- **Start a project**: [`docs/NEW_PROJECT.md`](docs/NEW_PROJECT.md) (or `/new-project` with Claude Code).
+- **What's core, what's an example**: [`docs/SKELETON.md`](docs/SKELETON.md).
 
 ## Stack
 
-| Concern    | Choice                                                                                                        |
-| ---------- | ------------------------------------------------------------------------------------------------------------- |
-| Framework  | [Nuxt 4](https://nuxt.com) (SSR, flat layout), Vue 3 `<script setup>`, TypeScript strict, Node 24             |
-| UI         | [Nuxt UI v4](https://ui.nuxt.com) + Tailwind CSS v4 (light/dark via semantic colors)                          |
-| CMS        | [Sanity v6](https://www.sanity.io) Studio in `studio/`, one document per language (DE/EN), queries with groqd |
-| i18n / SEO | @nuxtjs/i18n v10 (`/` DE, `/en` EN, translated URLs), canonical + hreflang, @nuxtjs/robots, @nuxtjs/sitemap   |
-| Quality    | ESLint (architecture rules enforced), Prettier, Vitest 5 (unit + Nuxt runtime), Playwright                    |
-| Delivery   | GitHub Actions → Vercel (staging on `develop`, production on `main`), both apps per environment               |
+| Concern    | Choice                                                                                            |
+| ---------- | ------------------------------------------------------------------------------------------------- |
+| Framework  | [Nuxt 4](https://nuxt.com) (SSR, flat layout), Vue 3 `<script setup>`, TypeScript strict, Node 24 |
+| UI         | [Nuxt UI v4](https://ui.nuxt.com) + Tailwind CSS v4, light and dark                               |
+| CMS        | [Sanity v6](https://www.sanity.io) Studio in `studio/`, one document per language, groqd queries  |
+| i18n / SEO | @nuxtjs/i18n v10 (`/` DE, `/en` EN, translated URLs), hreflang, sitemap, robots, schema.org       |
+| Quality    | ESLint (architecture rules), Prettier, Vitest 5, Playwright, PageSpeed Insights gate              |
+| Delivery   | GitHub Actions → Vercel; Feature per PR, Development on `develop`, Production on `main`           |
 
 ## Quick start
 
 ```bash
 nvm use 24                             # Node 24 (.nvmrc)
-npm install --global pnpm              # once per machine: pnpm 10 or newer (see below)
-pnpm install                           # installs the web app and the Studio (pnpm workspace)
-cp .env.example .env                   # web app → staging dataset
-cp studio/.env.example studio/.env     # Studio  → staging dataset
-# then set your Sanity project ID: NUXT_PUBLIC_SANITY_PROJECT_ID in .env, SANITY_STUDIO_PROJECT_ID in studio/.env
-pnpm exec sanity login                 # once, for the Studio
-pnpm studio:seed                       # optional: fill the staging dataset with demo content
+npm install --global pnpm              # once per machine; the repo pins the exact pnpm version
+pnpm install                           # web app and Studio (pnpm workspace)
+cp .env.example .env                   # web app → development dataset
+cp studio/.env.example studio/.env     # Studio  → development dataset
+# set NUXT_PUBLIC_SANITY_PROJECT_ID in .env and SANITY_STUDIO_PROJECT_ID in studio/.env
+pnpm exec sanity login                 # once, inside studio/
+pnpm studio:seed                       # optional: demo content in the development dataset
 pnpm dev                               # web http://localhost:3000 · Studio http://localhost:3333
 ```
 
-### Package manager: pnpm only
-
-- **One version for everyone**: `package.json` pins pnpm (`packageManager` for pnpm ≤ 10, `devEngines` for pnpm ≥ 11). Any pnpm 10 or newer you have
-  installed downloads and uses that exact version inside this repo, so nobody has to upgrade by hand.
-  CI reads the same field.
-- **npm is blocked**: `npm install` fails on purpose (`EBADDEVENGINES`, set by `devEngines`).
-- **Workspace settings** (Studio workspace, `overrides`, dependencies allowed to run install
-  scripts) live in `pnpm-workspace.yaml`. `pnpm-lock.yaml` is the same on every OS: commit it as is.
-
-Switching a clone that was installed with npm (once, in the repo root, any OS):
-
-```bash
-node -e "for (const d of ['node_modules', 'studio/node_modules', 'package-lock.json']) require('fs').rmSync(d, { recursive: true, force: true })"
-pnpm install
-```
+**pnpm only**: `npm install` fails on purpose (`devEngines`). A clone installed with npm: delete `node_modules`, `studio/node_modules` and `package-lock.json`, then `pnpm install`.
 
 ## Scripts
 
-| Script                                       | What it does                                                                     |
-| -------------------------------------------- | -------------------------------------------------------------------------------- |
-| `pnpm dev`                                   | Web app + Studio in watch mode                                                   |
-| `pnpm build` / `pnpm preview`                | Production build of the web app / serve it locally                               |
-| `pnpm build:e2e`                             | Production build against the fixture CMS, for `CI=1 pnpm test:e2e`               |
-| `pnpm studio:build`                          | Production build of the Studio                                                   |
-| `pnpm studio:seed`                           | Fill the `staging` dataset with demo content (`--reset`, `--dry-run`, see below) |
-| `pnpm typegen`                               | Regenerate `types/sanity.types.ts` (schema types) from the Studio schema         |
-| `pnpm lint` / `lint:fix`                     | ESLint                                                                           |
-| `pnpm format` / `format:check`               | Prettier                                                                         |
-| `pnpm typecheck`                             | `vue-tsc` for the web app + `tsc` for the Studio                                 |
-| `pnpm test` / `test:watch` / `test:coverage` | Vitest (`unit` + `nuxt` projects, coverage ≥ 80 %)                               |
-| `pnpm test:e2e`                              | Playwright: dev server locally; `CI=1` after `pnpm build:e2e` (as in CI)         |
-| `pnpm test:smoke`                            | Playwright smoke suite against `PLAYWRIGHT_BASE_URL`                             |
-
-## Demo content (staging)
-
-`pnpm studio:seed` fills the `staging` dataset with `studio/seed/seed.data.ts`: every page in German and English,
-offers, testimonials, FAQ, business profile and placeholder pictures, all labelled as demo. Open the
-staging Studio or site right after and everything is there. It needs `pnpm exec sanity login` once
-(inside `studio/`) and refuses every dataset but `staging`; production is always filled by hand.
-
-| Command                      | Effect                                                                                                         |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `pnpm studio:seed`           | Adds what is new in the seed file (documents, fields): editors' changes stay. Also run by every staging deploy |
-| `pnpm studio:seed --reset`   | Staging matches the seed file: demo documents reset, editors' changes on them discarded, removed ones deleted  |
-| `pnpm studio:seed --dry-run` | Prints what would change, writes nothing                                                                       |
-
-Running it again never creates duplicates: each demo document has a fixed id. Documents editors
-created themselves are never touched. **Any schema change updates the seed file in the same PR**
-(new field, section or page filled in every language; removed ones removed).
+| Script                                       | What it does                                                            |
+| -------------------------------------------- | ----------------------------------------------------------------------- |
+| `pnpm dev`                                   | Web app + Studio in watch mode                                          |
+| `pnpm build` / `pnpm preview`                | Production build of the web app / serve it locally                      |
+| `pnpm build:e2e`                             | Production build against the fixture CMS, for `CI=1 pnpm test:e2e`      |
+| `pnpm verify`                                | Lint, format check, types, unit and component tests with coverage       |
+| `pnpm test` / `test:watch` / `test:coverage` | Vitest                                                                  |
+| `pnpm test:e2e` / `test:smoke`               | Playwright (E2E on the fixture CMS / smoke on `PLAYWRIGHT_BASE_URL`)    |
+| `pnpm typegen`                               | Regenerate `types/sanity.types.ts` from the Studio schema               |
+| `pnpm studio:seed`                           | Demo content in the `development` dataset (`--reset`, `--dry-run`)      |
+| `pnpm studio:build`                          | Production build of the Studio                                          |
+| `pnpm web-performance --url=<URL>`           | PageSpeed Insights, each page template once (needs `PAGESPEED_API_KEY`) |
+| `pnpm design:capture` / `design:verify`      | The design gate (`docs/design/DESIGN_WORKFLOW.md`)                      |
 
 ## Documentation
 
-- [Architecture](docs/conventions/ARCHITECTURE.md): directories, data flow, i18n, SEO
-- [Coding standards](docs/conventions/CODING_STANDARDS.md): rules and what enforces them
-- [Deployment & environments](docs/deployment/DEPLOYMENT.md): env contract, pipeline, runbooks
-- [Consent & analytics, developer guide](docs/analytics/DEVELOPER_GUIDE.md): try the consent window locally, add a tool, cookie or event
-- [GTM and GA4 setup](docs/analytics/GTM.md) and [legal go-live checklist](docs/legal/go-live-checklist.md)
-- [AI agents](CLAUDE.md): orchestration setup and the autonomous delivery workflow
-
-## Analytics and consent
-
-A consent window (Accept all, Reject all, Settings) asks every visitor first. Google Tag Manager,
-and Google Analytics 4 inside it, load only after the visitor accepts **Statistics**; YouTube
-videos only after a click or **External media**. Without `NUXT_PUBLIC_GTM_ID` nothing
-analytics-related loads at all.
-
-For a fork:
-
-1. [GTM and GA4 setup](docs/analytics/GTM.md): free, no code. Import
-   [the container](docs/analytics/gtm-container.json), fill in the measurement ID, publish.
-2. `NUXT_PUBLIC_GTM_ID` per Vercel environment: [deployment guide §11.1](docs/deployment/DEPLOYMENT.md#111-environment-variable-contract).
-3. [Legal go-live checklist](docs/legal/go-live-checklist.md): imprint, privacy text checked by a
-   lawyer or eRecht24, processors, consent tests. The production release waits for it.
-
-The cookie inventory is `constants/cookies.constants.ts`; the latest privacy audit is in [docs/legal](docs/legal/).
+| Doc                                                                                          | For                                                  |
+| -------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| [Architecture](docs/conventions/ARCHITECTURE.md)                                             | Directories, data flow, rendering, i18n, SEO         |
+| [Coding standards](docs/conventions/CODING_STANDARDS.md)                                     | Every rule and what enforces it; local gates         |
+| [Sanity](docs/sanity/SANITY.md)                                                              | Content model, queries, the seed                     |
+| [Deployment](docs/deployment/DEPLOYMENT.md)                                                  | Accounts, environments, env vars, pipeline, runbooks |
+| [Consent & analytics](docs/analytics/DEVELOPER_GUIDE.md), [GTM setup](docs/analytics/GTM.md) | Adding a tool, cookie or event; GA4 setup            |
+| [Legal go-live checklist](docs/legal/go-live-checklist.md)                                   | Before the first production release                  |
+| [Design workflow](docs/design/DESIGN_WORKFLOW.md)                                            | Designing pages with Lovable                         |
+| [Decisions](docs/adr/)                                                                       | Why the main choices were made                       |
+| [AI agents](CLAUDE.md)                                                                       | The agent team and the delivery workflow             |
 
 ## Environments
 
-No Vercel access needed: every link is here, on the repository's **Deployments** panel, and in
-the report comment of every pull request.
+Every link is on the repository's **Deployments** panel and in the report comment of every pull request.
 
-| Environment    | Web app                                                                                                    | Studio                                                                                                     | Deployed from                                                  | Content                          |
-| -------------- | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | -------------------------------- |
-| **dev**        | [landing-page-skeleton-webapp-dev.vercel.app](https://landing-page-skeleton-webapp-dev.vercel.app)         | (uses staging)                                                                                             | every pull request, after its checks pass (the latest PR wins) | `staging` dataset                |
-| **staging**    | [landing-page-skeleton-webapp-staging.vercel.app](https://landing-page-skeleton-webapp-staging.vercel.app) | [landing-page-skeleton-studio-staging.vercel.app](https://landing-page-skeleton-studio-staging.vercel.app) | every merge into `develop`                                     | `staging` dataset (demo content) |
-| **production** | [landing-page-skeleton-webapp.vercel.app](https://landing-page-skeleton-webapp.vercel.app)                 | [landing-page-skeleton-studio.vercel.app](https://landing-page-skeleton-studio.vercel.app)                 | every merge into `main`                                        | `production` dataset             |
+| Environment     | Deployed from                                                   | Content                              |
+| --------------- | --------------------------------------------------------------- | ------------------------------------ |
+| **Feature**     | every pull request, after its checks, at `…-webapp-pr-<number>` | `development` dataset                |
+| **Development** | every merge into `develop`, at `…-webapp-develop`               | `development` dataset (demo content) |
+| **Production**  | every merge into `main` (Gate G2)                               | `production` dataset                 |
 
-- **Pull requests**: the report comment shows the branch, the commit, the `-dev` link, every
-  check's result and the web performance scores (PageSpeed Insights) of every page. "View deployment" on the PR opens it too.
-- **Which version is live**: the repository home page → **Deployments** (`dev`, `staging`,
-  `production`, `staging-studio`, `production-studio`), each with its current URL and commit.
-- Variables per environment: `docs/deployment/DEPLOYMENT.md` §11.1.
-
-## Delivery flow
-
-- **PR** → `develop`/`main`: CI (lint, format, TypeGen drift, types, unit, both builds, E2E) → web app deployed to **dev** → web performance (PageSpeed Insights) on dev → report comment on the PR
-- **Web performance**: every page, mobile and desktop, aims for **90+** in every category and metric; under **80** blocks the PR (🟡 in the report: passes, below the 90 target). Numbers in `webPerformance.config.ts`.
-- **Merge to `develop`**: full CI → web app + Studio deployed to **staging** → smoke test → web performance on staging
-- **Merge to `main`**: full CI → web app + Studio deployed to **production** → smoke test
+Every environment has the same variables in Vercel; only the values differ. A pull request runs CI (lint, types, tests, both builds, E2E), deploys the web app to its own **Feature** address (removed when the PR closes) and audits each page template once with PageSpeed Insights: 90+ is the aim, under 80 blocks. Details: [`docs/deployment/DEPLOYMENT.md`](docs/deployment/DEPLOYMENT.md).
 
 ## License
 

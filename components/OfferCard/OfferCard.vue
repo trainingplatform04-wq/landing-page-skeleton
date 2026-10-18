@@ -6,8 +6,8 @@ defineProps<{
   /** The first card of the page: its image is the page's largest, loaded first. */
   priority?: boolean
 }>()
-// The card's header is full width: Nuxt UI aligns it to the start, which made the image box
-// 0px wide (and the cards below jump down) until the picture had loaded.
+// Full-width header: Nuxt UI aligns it to the start, so the picture box would stay 0px wide (and
+// the cards below jump) until the picture loads.
 </script>
 
 <template>
@@ -20,6 +20,7 @@ defineProps<{
     <template v-if="offer.image" #header>
       <NuxtImg
         :src="offer.image.url"
+        :style="{ objectPosition: offer.image.position }"
         :alt="offer.image.alt"
         width="480"
         height="320"

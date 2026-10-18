@@ -1,66 +1,22 @@
-import { z } from 'zod'
-
-import { useCms } from '~/composables/useCms/useCms'
-import { type MapContext, toCta, toSeo, unpublishedSeo } from '~/utils/content/content.utils'
-import { ctaFragment, postCardFragment, q, seoFragment } from '~/utils/groqd/groqd.utils'
+import { useCmsQuery } from '~/composables/useCmsQuery/useCmsQuery'
+import { type MagazineData, magazineQuery } from '~/composables/useMagazine/magazine.query'
+import { useMapContext } from '~/composables/useMapContext/useMapContext'
+import { type MapContext, toClosing, toSeo, unpublishedSeo } from '~/utils/content/content.utils'
+import { pageCount, pageHref, pageRange, parsePageParam } from '~/utils/pagination/pagination.utils'
 import { toPostCard } from '~/utils/post/post.utils'
 
-import type { Cta, MagazineTab, PostCard, Seo } from '~/types/content.types'
-import type { InferResultType } from 'groqd'
+import type { Closing, MagazineTab, PostCard, Seo } from '~/types/content.types'
 
 /** On "All", page 1 opens with the 3 newest articles; every page lists 9 more. */
 const FEATURED_COUNT = 3
 const PAGE_SIZE = 9
 
-/**
- * The filter, the same in every language (a category's slug is too): @nuxtjs/i18n copies the
- * query into the other language's links (hreflang, language switcher) unchanged.
- */
-const CATEGORY_PARAM = 'category'
-
-const POSTS_FILTER =
-  'language == $locale && defined(slug.current) && ($category == "" || category->slug.current == $category)'
-
-const magazineQuery = q
-  .parameters<{ locale: string; category: string; start: number; end: number }>()
-  .project((root) => ({
-    page: root.star
-      .filterByType('magazinePage')
-      .filterRaw('_id == "magazinePage-" + $locale')
-      .slice(0)
-      .project((page) => ({
-        kicker: z.string().nullable(),
-        title: z.string(),
-        intro: z.string().nullable(),
-        closingTitle: z.string().nullable(),
-        closingText: z.string().nullable(),
-        cta: page.field('cta').project(ctaFragment).nullable(true),
-        seo: page.field('seo').project(seoFragment).nullable(true),
-      }))
-      .nullable(true),
-    categories: root.star
-      .filterByType('category')
-      .filterRaw('language == $locale && defined(slug.current)')
-      .order('order asc')
-      .project({ title: z.string(), slug: ['slug.current', z.string()] }),
-    total: root.raw(`count(*[_type == "post" && ${POSTS_FILTER}])`, z.number()),
-    posts: root.star
-      .filterByType('post')
-      .filterRaw(POSTS_FILTER)
-      .order('publishedAt desc')
-      .raw('[$start...$end]', 'passthrough')
-      .project(postCardFragment),
-  }))
-
-type MagazineData = InferResultType<typeof magazineQuery>
-
-/** Everything the magazine page shows. */
 export interface MagazineView {
   seo: Seo
-  kicker?: string
+  label?: string
   title: string
   intro?: string
-  closing?: { title?: string; text?: string; cta?: Cta }
+  closing?: Closing
   tabs: MagazineTab[]
   /** The 3 newest articles: on "All", page 1 only. */
   featured: PostCard[]
@@ -74,43 +30,37 @@ export interface MagazineView {
   allTo: string
 }
 
-/** Where the current page starts in the list of articles, and how many it fetches. */
-export function magazineRange(page: number, category: string): { start: number; end: number } {
-  if (category) return { start: (page - 1) * PAGE_SIZE, end: page * PAGE_SIZE }
-  if (page === 1) return { start: 0, end: FEATURED_COUNT + PAGE_SIZE }
-  const start = FEATURED_COUNT + (page - 1) * PAGE_SIZE
-  return { start, end: start + PAGE_SIZE }
+/**
+ * The category and page in the URL. `null` for a URL that is not a view of its own: an empty or
+ * repeated category (a duplicate of "All") or a page that is not 2, 3, ….
+ */
+function parseFilter(query: { category?: unknown; page?: unknown }) {
+  const { category = '' } = query
+  const page = parsePageParam(query.page)
+  if (typeof category !== 'string' || (query.category !== undefined && !category)) return null
+  return page ? { category, page } : null
 }
 
+/** `null` for a view that doesn't exist: an unknown category or a page past the last one. */
 function toMagazineView(
   data: MagazineData,
   context: MapContext,
-  filter: { page: number; category: string },
-  texts: { emptyTitle: string; all: string; readingTime: (minutes: number) => string },
+  { category, page }: { category: string; page: number },
+  texts: { emptyTitle: string; all: string },
 ): MagazineView | null {
-  const known = !filter.category || data.categories.some(({ slug }) => slug === filter.category)
-  if (!known) return null
+  const known = !category || data.categories.some(({ slug }) => slug === category)
+  const pages = pageCount(data.total, PAGE_SIZE, category ? 0 : FEATURED_COUNT)
+  if (!known || page > pages) return null
+
   const base = context.localePath('magazine')
-  const query = (category: string, page: number) => {
-    const search = new URLSearchParams()
-    if (category) search.set(CATEGORY_PARAM, category)
-    if (page > 1) search.set('page', String(page))
-    const text = search.toString()
-    return text ? `${base}?${text}` : base
-  }
-
-  const cards = data.posts.map((post) => toPostCard(post, context, texts.readingTime))
-  const opening = !filter.category && filter.page === 1
-  const listed = filter.category ? data.total : Math.max(data.total - FEATURED_COUNT, 0)
-  const pageCount = Math.max(1, Math.ceil(listed / PAGE_SIZE))
-  if (filter.page > pageCount) return null
-
+  const cards = data.posts.map((post) => toPostCard(post, context))
+  const opening = !category && page === 1
   const tabs: MagazineTab[] = [
-    { label: texts.all, to: base, active: !filter.category },
+    { label: texts.all, to: base, active: !category },
     ...data.categories.map(({ title, slug }) => ({
       label: title,
-      to: query(slug, 1),
-      active: slug === filter.category,
+      to: pageHref(base, { category: slug }, 1),
+      active: slug === category,
     })),
   ]
   const shared = {
@@ -118,74 +68,44 @@ function toMagazineView(
     featured: opening ? cards.slice(0, FEATURED_COUNT) : [],
     posts: opening ? cards.slice(FEATURED_COUNT) : cards,
     pages:
-      pageCount > 1
-        ? Array.from({ length: pageCount }, (_, index) => query(filter.category, index + 1))
+      pages > 1
+        ? Array.from({ length: pages }, (_, index) => pageHref(base, { category }, index + 1))
         : [],
-    page: filter.page,
-    filtered: Boolean(filter.category),
+    page,
+    filtered: Boolean(category),
     allTo: base,
   }
 
   if (!data.page)
     return { seo: unpublishedSeo(texts.emptyTitle), title: texts.emptyTitle, ...shared }
-  const { page } = data
-  const cta = toCta(page.cta, context)
-  // Shown with a title or a button; a text alone has nothing to lead to.
-  const closing =
-    page.closingTitle || cta
-      ? { title: page.closingTitle ?? undefined, text: page.closingText ?? undefined, cta }
-      : undefined
   return {
-    seo: toSeo(page.seo, { title: page.title, description: page.intro }),
-    kicker: page.kicker ?? undefined,
-    title: page.title,
-    intro: page.intro ?? undefined,
-    closing,
+    seo: toSeo(data.page.seo, { title: data.page.title, description: data.page.intro }),
+    label: data.page.label ?? undefined,
+    title: data.page.title,
+    intro: data.page.intro ?? undefined,
+    closing: toClosing(data.page.closing, context),
     ...shared,
   }
 }
 
 /**
  * The magazine page in the active language, filtered and paginated by the URL: 404 for an
- * unknown category or a page past the last one, 503 on a CMS error.
+ * unknown category or page, 503 on a CMS error.
  */
 export async function useMagazine(): Promise<MagazineView> {
-  const { runQuery, context } = useCms()
+  const context = useMapContext()
   const { t } = useI18n()
-  const route = useRoute()
+  const filter = parseFilter(useRoute().query)
+  if (!filter) throw createError({ status: 404, fatal: true })
 
-  const filter = route.query[CATEGORY_PARAM]
-  // An empty or repeated filter is not a view of its own (it would duplicate "All").
-  if (filter !== undefined && (typeof filter !== 'string' || !filter)) {
-    throw createError({ status: 404, fatal: true })
-  }
-  const category = filter ?? ''
-  // Page 1 has no `page` parameter; only "2", "3", … name a page (no duplicate of another URL).
-  const requested = route.query.page
-  const page = requested === undefined ? 1 : Number(requested)
-  const isPage = requested === undefined || (String(page) === requested && page >= 2)
-  if (!isPage) throw createError({ status: 404, fatal: true })
-  const range = magazineRange(page, category)
-
-  const fetchMagazine = () =>
-    runQuery(magazineQuery, { parameters: { locale: context.locale, category, ...range } })
-  const { data, error } = await useAsyncData(
-    `magazine:${context.locale}:${category}:${page}`,
-    fetchMagazine,
-  )
-
-  if (error.value || !data.value) throw createError({ status: 503, fatal: true })
-
-  const magazine = toMagazineView(
-    data.value,
-    context,
-    { page, category },
-    {
-      emptyTitle: t('nav.magazine'),
-      all: t('magazine.all'),
-      readingTime: (minutes) => t('magazine.readingTime', { n: minutes }),
-    },
-  )
+  const { category, page } = filter
+  const data = await useCmsQuery('magazine', magazineQuery, {
+    category,
+    ...pageRange(page, PAGE_SIZE, category ? 0 : FEATURED_COUNT),
+  })
+  const magazine =
+    data &&
+    toMagazineView(data, context, filter, { emptyTitle: t('nav.magazine'), all: t('magazine.all') })
   if (!magazine) throw createError({ status: 404, fatal: true })
   return magazine
 }

@@ -1,17 +1,14 @@
 import { BUSINESS_TIME_ZONE } from '~/constants/date.constants'
 import { type MapContext, toImage } from '~/utils/content/content.utils'
 import { formatShortDate } from '~/utils/date/date.utils'
+import { pageHref } from '~/utils/pagination/pagination.utils'
 import { readingMinutes } from '~/utils/readingTime/readingTime.utils'
 
-import type { PostCard } from '~/types/content.types'
-import type { PostCardData } from '~/utils/groqd/groqd.utils'
+import type { Author, PostCard, RichText } from '~/types/content.types'
+import type { AuthorData, PostCardData } from '~/utils/groqd/groqd.utils'
 
 /** An article on a card: its link, date and reading time ready to show. */
-export function toPostCard(
-  post: PostCardData,
-  context: MapContext,
-  readingTime: (minutes: number) => string,
-): PostCard {
+export function toPostCard(post: PostCardData, context: MapContext): PostCard {
   return {
     id: post.id,
     title: post.title,
@@ -22,7 +19,31 @@ export function toPostCard(
     author: post.author ? { name: post.author.name, photo: toImage(post.author.photo) } : undefined,
     date: formatShortDate(post.publishedAt, context.language, BUSINESS_TIME_ZONE),
     dateTime: post.publishedAt,
-    readingTime: readingTime(readingMinutes(post.words ?? [])),
+    readingMinutes: readingMinutes(post.words),
+  }
+}
+
+/** `undefined` without an author (a weak reference to a deleted one included). */
+export function toAuthor(author: AuthorData | null | undefined): Author | undefined {
+  if (!author) return undefined
+  return {
+    name: author.name,
+    firstName: author.name.split(' ')[0] ?? author.name,
+    role: author.role ?? undefined,
+    bio: author.bio ?? undefined,
+    photo: toImage(author.photo),
+  }
+}
+
+/** The article's category, linking to the magazine filtered by it. */
+export function toCategoryLink(
+  category: { title: string; slug: string } | null | undefined,
+  context: MapContext,
+): { title: string; to: string } | undefined {
+  if (!category) return undefined
+  return {
+    title: category.title,
+    to: pageHref(context.localePath('magazine'), { category: category.slug }, 1),
   }
 }
 
@@ -44,4 +65,31 @@ export function headingIds(texts: string[]): string[] {
     seen.set(base, count)
     return count === 1 ? base : `${base}-${count}`
   })
+}
+
+/** The text of a Portable Text block: its spans joined. */
+function plainText(block: RichText[number]): string {
+  const children = Array.isArray(block.children) ? block.children : []
+  return children.map((child) => (typeof child?.text === 'string' ? child.text : '')).join('')
+}
+
+/**
+ * The article's H2s get an id (`anchor`, read by the renderer) and make the table of contents.
+ */
+export function withHeadingAnchors(blocks: RichText): {
+  body: RichText
+  toc: Array<{ id: string; text: string }>
+} {
+  const headings = blocks.filter((block) => block._type === 'block' && block.style === 'h2')
+  const ids = headingIds(headings.map(plainText))
+  const toc = headings.map((block, index) => ({
+    key: block._key,
+    id: ids[index] ?? '',
+    text: plainText(block),
+  }))
+  const body = blocks.map((block) => {
+    const entry = toc.find(({ key }) => key === block._key)
+    return entry ? { ...block, anchor: entry.id } : block
+  })
+  return { body, toc: toc.map(({ id, text }) => ({ id, text })) }
 }

@@ -5,6 +5,7 @@
  * What the specs rely on:
  * - Every page exists in both languages, except the FAQ page and the imprint (German
  *   only): in English they render empty (the FAQ page still lists the English questions).
+ *   The German FAQ page lists its editor-ordered question (prices) before the trial question.
  * - "Personal training" and "Strength group" are translated with different slugs;
  *   "Online coaching" is German only (no English link, no hreflang).
  * - The About page has a title, a description and a closing band in both languages, and no
@@ -58,7 +59,7 @@ const page = (type: string, language: string, fields: object) => ({
 
 /** Links language versions, as the Studio's translation plugin does. */
 const translations = (id: string, versions: Record<string, string>, type = 'offer') => ({
-  _id: `translation.metadata.${id}`,
+  _id: `translation-${id}`,
   _type: 'translation.metadata',
   schemaTypes: [type],
   translations: Object.entries(versions).map(([language, ref]) => ({
@@ -208,19 +209,25 @@ const aboutIn = (language: 'de' | 'en') => [
     label: language === 'de' ? 'Über mich' : 'About me',
     title: language === 'de' ? 'Hallo, ich bin Ihre Trainerin' : "Hi, I'm your coach",
     description: language === 'de' ? 'Seit 2010 an Ihrer Seite.' : 'By your side since 2010.',
-    closingTitle:
-      language === 'de' ? 'Bereit für die erste Einheit?' : 'Ready for your first session?',
-    cta: routeCta(language === 'de' ? 'Probetraining anfragen' : 'Request a free trial', 'contact'),
+    closing: {
+      title: language === 'de' ? 'Bereit für die erste Einheit?' : 'Ready for your first session?',
+      cta: routeCta(
+        language === 'de' ? 'Probetraining anfragen' : 'Request a free trial',
+        'contact',
+      ),
+    },
   }),
 ]
 
 const magazineIn = (language: 'de' | 'en') => [
   page('magazinePage', language, {
-    kicker: language === 'de' ? 'Magazin' : 'Magazine',
+    label: language === 'de' ? 'Magazin' : 'Magazine',
     title:
       language === 'de' ? 'Wissen, das dich weiterbringt.' : 'Know-how that moves you forward.',
-    closingTitle: language === 'de' ? 'Bereit?' : 'Ready?',
-    cta: routeCta(language === 'de' ? 'Probetraining' : 'Free trial', 'contact'),
+    closing: {
+      title: language === 'de' ? 'Bereit?' : 'Ready?',
+      cta: routeCta(language === 'de' ? 'Probetraining' : 'Free trial', 'contact'),
+    },
   }),
   category('training', language, 'Training', 'training', 1),
   category('nutrition', language, language === 'de' ? 'Ernährung' : 'Nutrition', 'nutrition', 2),
@@ -256,7 +263,19 @@ export const documents = () => [
   translations('post-2', { de: 'post-2-de', en: 'post-2-en' }, 'post'),
 
   // German only.
-  page('faqPage', 'de', { title: 'Häufige Fragen', intro: 'Alles, was Sie wissen möchten.' }),
+  // The editor put "prices" first: it is listed before the older trial question.
+  page('faqPage', 'de', {
+    title: 'Häufige Fragen',
+    intro: 'Alles, was Sie wissen möchten.',
+    order: keyed([reference('faq-prices-de')]),
+  }),
+  {
+    _id: 'faq-prices-de',
+    _type: 'faqItem',
+    language: 'de',
+    question: 'Was kostet eine Einheit?',
+    answer: text('Ab 25 Euro.'),
+  },
   page('imprintPage', 'de', { title: 'Impressum', body: text('Angaben gemäß § 5 DDG') }),
   {
     _id: 'testimonial-anna',
