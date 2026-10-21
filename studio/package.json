@@ -10,13 +10,13 @@
     "seed": "sanity exec seed/seed.ts --with-user-token --"
   },
   "dependencies": {
-    "@sanity/document-internationalization": "^6.2.39",
+    "@sanity/document-internationalization": "^6.2.43",
     "@sanity/icons": "^5.2.3",
-    "react": "^19.2.2",
-    "react-dom": "^19.2.2",
-    "sanity": "^6.17.0",
-    "sanity-plugin-internationalized-array": "^5.3.2",
-    "styled-components": "^6.1.19"
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "sanity": "^6.19.0",
+    "sanity-plugin-internationalized-array": "^5.3.6",
+    "styled-components": "^6.6.0"
   },
   "devDependencies": {
     "@types/react": "^19.3.0"
