@@ -37,13 +37,14 @@ export const imageFragment = q.fragment<AccessibleImage>().project((image) => ({
   hotspot: image.field('hotspot').project({ x: z.number(), y: z.number() }).nullable(true),
 }))
 
-/** What the editor picked: a page, an offer (with its slug and language) or an address. */
-const linkFragment = q.fragment<Link>().project((link) => ({
-  kind: z.enum(['route', 'reference', 'external']).nullable(),
+/**
+ * What the editor picked: a page or an address. `kind` is any string: a link saved while the
+ * picker still had another kind (an offer) must not fail the whole page, it just isn't shown.
+ */
+const linkFragment = q.fragment<Link>().project(() => ({
+  kind: z.string().nullable(),
   route: z.string().nullable(),
   href: z.string().nullable(),
-  offerSlug: link.field('reference').deref().field('slug.current', z.string().nullable()),
-  offerLanguage: link.field('reference').deref().field('language', z.string().nullable()),
 }))
 
 /** A button as the editor filled it; the mapper (`toCta`) drops it unless label and link are set. */
@@ -67,69 +68,13 @@ export const seoFragment = q.fragment<Seo>().project((seo) => ({
   image: seo.field('image.asset').deref().field('url', z.string().nullable()),
 }))
 
-/** An offer on a card (the offers page, the home page's featured offers). */
-export const offerCardFragment = q.fragmentForType<'offer'>().project((offer) => ({
-  id: ['_id', z.string()],
-  title: z.string(),
-  summary: z.string(),
-  slug: ['slug.current', z.string()],
-  image: offer.field('image').project(imageFragment).nullable(true),
-  price: z.number().nullable(),
-}))
-
-/** The author signing an article; the photo is null when none was uploaded. */
-export const authorFragment = q.fragmentForType<'author'>().project((author) => ({
-  name: z.string(),
-  role: z.string().nullable(),
-  bio: z.string().nullable(),
-  photo: author.field('photo').project(imageFragment).nullable(true),
-}))
-
-/**
- * The number of words of a Portable Text field, counted by the CMS: only the count travels,
- * not the text (the reading time of a card).
- */
-export const wordCountField = (field: string) =>
-  [`length(string::split(pt::text(${field}), " "))`, z.number().nullable()] as const
-
-/** A magazine article on a card (the magazine grid, "Keep reading"). */
-export const postCardFragment = q.fragmentForType<'post'>().project((post) => ({
-  id: ['_id', z.string()],
-  title: z.string(),
-  slug: ['slug.current', z.string()],
-  excerpt: z.string(),
-  publishedAt: z.string(),
-  cover: post.field('cover').project(imageFragment).nullable(true),
-  category: post.field('category').deref().field('title', z.string()).nullable(true),
-  author: post
-    .field('author')
-    .deref()
-    .project((author) => ({
-      name: z.string(),
-      photo: author.field('photo').project(imageFragment).nullable(true),
-    }))
-    .nullable(true),
-  words: post.raw(...wordCountField('body')),
-}))
-
-/**
- * The slug of a document in every language it is translated into (the Studio's translation
- * plugin links them). Use it as `document.raw(...translationsField)`.
- */
-export const translationsField = [
-  '*[_type == "translation.metadata" && references(^._id)][0].translations[].value->{ language, "slug": slug.current }',
-  z.array(z.object({ language: z.string(), slug: z.string() }).nullable()).nullable(),
-] as const
-
 const richTextMark = z
   .object({
     _type: z.string(),
     _key: z.string(),
-    kind: z.enum(['route', 'reference', 'external']).nullish(),
+    kind: z.string().nullish(),
     route: z.string().nullish(),
     href: z.string().nullish(),
-    offerSlug: z.string().nullish(),
-    offerLanguage: z.string().nullish(),
   })
   .passthrough()
 
@@ -139,17 +84,14 @@ const richTextBlock = z
   .passthrough()
 
 /**
- * A rich-text field (Portable Text) with what the page needs added: the slug and language of
- * linked offers, the URL of images and of an article's figures. Use it as
+ * A rich-text field (Portable Text) with what the page needs added: the URL of images. Use it as
  * `page.raw(...richTextField('body'))`.
  */
 export const richTextField = (field: string) =>
   [
     `${field}[]{
       ...,
-      markDefs[]{ ..., "offerSlug": reference->slug.current, "offerLanguage": reference->language },
-      _type == "accessibleImage" => { "url": asset->url },
-      _type == "figure" => { "image": { "alt": image.alt, "url": image.asset->url } }
+      _type == "accessibleImage" => { "url": asset->url }
     }`,
     z.array(richTextBlock).nullable(),
   ] as const
@@ -182,9 +124,5 @@ export type ImageData = InferFragmentType<typeof imageFragment>
 export type CtaData = InferFragmentType<typeof ctaFragment>
 export type ClosingData = InferFragmentType<typeof closingFragment>
 export type SeoData = InferFragmentType<typeof seoFragment>
-export type OfferCardData = InferFragmentType<typeof offerCardFragment>
-export type AuthorData = InferFragmentType<typeof authorFragment>
-export type PostCardData = InferFragmentType<typeof postCardFragment>
 export type BusinessData = NonNullable<InferResultType<typeof businessQuery>>
 export type RichTextData = z.infer<typeof richTextBlock>[]
-export type TranslationsData = z.infer<(typeof translationsField)[1]>

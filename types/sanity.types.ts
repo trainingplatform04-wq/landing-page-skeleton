@@ -149,18 +149,32 @@ export type AboutPage = {
   seo?: Seo
 }
 
-export type Closing = {
-  _type: 'closing'
-  title?: string
-  text?: string
-  cta?: Cta
-}
-
 export type SanityImageAssetReference = {
   _ref: string
   _type: 'reference'
   _weak?: boolean
   [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+}
+
+export type Seo = {
+  _type: 'seo'
+  title?: string
+  description?: string
+  image?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+  }
+  noIndex?: boolean
+}
+
+export type Closing = {
+  _type: 'closing'
+  title?: string
+  text?: string
+  cta?: Cta
 }
 
 export type AccessibleImage = {
@@ -170,51 +184,6 @@ export type AccessibleImage = {
   hotspot?: SanityImageHotspot
   crop?: SanityImageCrop
   alt: string
-}
-
-export type MagazinePage = {
-  _id: string
-  _type: 'magazinePage'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  language?: string
-  label?: string
-  title: string
-  intro?: string
-  closing?: Closing
-  seo?: Seo
-}
-
-export type OfferReference = {
-  _ref: string
-  _type: 'reference'
-  _weak?: boolean
-  [internalGroqTypeReferenceTo]?: 'offer'
-}
-
-export type OffersPage = {
-  _id: string
-  _type: 'offersPage'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  language?: string
-  title: string
-  intro?: string
-  order?: Array<
-    {
-      _key: string
-    } & OfferReference
-  >
-  cta?: Cta
-  seo?: Seo
-}
-
-export type Cta = {
-  _type: 'cta'
-  label?: string
-  link?: Link
 }
 
 export type TestimonialReference = {
@@ -238,12 +207,6 @@ export type HomePage = {
     image?: AccessibleImage
     cta?: Cta
   }
-  showOffers?: boolean
-  featuredOffers?: Array<
-    {
-      _key: string
-    } & OfferReference
-  >
   about?: {
     title?: string
     portrait?: AccessibleImage
@@ -266,70 +229,33 @@ export type HomePage = {
   seo?: Seo
 }
 
-export type Seo = {
-  _type: 'seo'
-  title?: string
-  description?: string
-  image?: {
-    asset?: SanityImageAssetReference
-    media?: unknown
-    hotspot?: SanityImageHotspot
-    crop?: SanityImageCrop
-    _type: 'image'
-  }
-  noIndex?: boolean
+export type Cta = {
+  _type: 'cta'
+  label?: string
+  link?: Link
 }
-
-export type ArticleBody = Array<
-  | {
-      children?: Array<{
-        marks?: Array<string>
-        text?: string
-        _type: 'span'
-        _key: string
-      }>
-      style?: 'normal' | 'h2' | 'h3'
-      listItem?: 'bullet' | 'number'
-      markDefs?: Array<
-        {
-          _key: string
-        } & Link
-      >
-      level?: number
-      _type: 'block'
-      _key: string
-    }
-  | {
-      text: string
-      _type: 'coachTip'
-      _key: string
-    }
-  | {
-      text: string
-      attribution?: string
-      _type: 'pullQuote'
-      _key: string
-    }
-  | {
-      image: AccessibleImage
-      caption?: string
-      _type: 'figure'
-      _key: string
-    }
-  | {
-      videoId: string
-      title: string
-      _type: 'youtubeVideo'
-      _key: string
-    }
->
 
 export type Link = {
   _type: 'link'
-  kind?: 'route' | 'reference' | 'external'
-  route?: 'index' | 'offers' | 'magazine' | 'about' | 'faq' | 'contact' | 'imprint' | 'privacy'
-  reference?: OfferReference
+  kind?: 'route' | 'external'
+  route?: 'index' | 'about' | 'faq' | 'contact' | 'imprint' | 'privacy'
   href?: string
+}
+
+export type SanityImageCrop = {
+  _type: 'sanity.imageCrop'
+  top: number
+  bottom: number
+  left: number
+  right: number
+}
+
+export type SanityImageHotspot = {
+  _type: 'sanity.imageHotspot'
+  x: number
+  y: number
+  height: number
+  width: number
 }
 
 export type TranslationMetadata = {
@@ -348,93 +274,10 @@ export type InternationalizedArrayReference = Array<
   } & InternationalizedArrayReferenceValue
 >
 
-export type PostReference = {
-  _ref: string
-  _type: 'reference'
-  _weak?: boolean
-  [internalGroqTypeReferenceTo]?: 'post'
-}
-
-export type CategoryReference = {
-  _ref: string
-  _type: 'reference'
-  _weak?: boolean
-  [internalGroqTypeReferenceTo]?: 'category'
-}
-
-export type AuthorReference = {
-  _ref: string
-  _type: 'reference'
-  _weak?: boolean
-  [internalGroqTypeReferenceTo]?: 'author'
-}
-
 export type InternationalizedArrayReferenceValue = {
   _type: 'internationalizedArrayReferenceValue'
-  value?:
-    | OfferReference
-    | TestimonialReference
-    | FaqItemReference
-    | PostReference
-    | CategoryReference
-    | AuthorReference
+  value?: TestimonialReference | FaqItemReference
   language: string
-}
-
-export type Post = {
-  _id: string
-  _type: 'post'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  language?: string
-  title: string
-  slug: Slug
-  excerpt: string
-  cover?: AccessibleImage
-  category?: CategoryReference
-  author?: AuthorReference
-  publishedAt: string
-  keyTakeaways?: Array<string>
-  body?: ArticleBody
-  faq?: Array<{
-    question: string
-    answer: string
-    _type: 'question'
-    _key: string
-  }>
-  seo?: Seo
-}
-
-export type Author = {
-  _id: string
-  _type: 'author'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  language?: string
-  name: string
-  role?: string
-  bio?: string
-  photo?: AccessibleImage
-}
-
-export type Category = {
-  _id: string
-  _type: 'category'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  language?: string
-  title: string
-  slug: Slug
-  order: number
-}
-
-export type Slug = {
-  _type: 'slug'
-  current: string
-  source?: string
 }
 
 export type FaqItem = {
@@ -459,39 +302,6 @@ export type Testimonial = {
   author: string
   photo?: AccessibleImage
   consentConfirmed?: boolean
-}
-
-export type Offer = {
-  _id: string
-  _type: 'offer'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  language?: string
-  title: string
-  slug: Slug
-  summary: string
-  image?: AccessibleImage
-  body?: RichText
-  price?: number
-  cta?: Cta
-  seo?: Seo
-}
-
-export type SanityImageCrop = {
-  _type: 'sanity.imageCrop'
-  top: number
-  bottom: number
-  left: number
-  right: number
-}
-
-export type SanityImageHotspot = {
-  _type: 'sanity.imageHotspot'
-  x: number
-  y: number
-  height: number
-  width: number
 }
 
 export type SanityImagePaletteSwatch = {
@@ -591,6 +401,12 @@ export type Geopoint = {
   alt?: number
 }
 
+export type Slug = {
+  _type: 'slug'
+  current: string
+  source?: string
+}
+
 export type AllSanitySchemaTypes =
   | SiteSettings
   | BusinessProfile
@@ -601,33 +417,21 @@ export type AllSanitySchemaTypes =
   | FaqItemReference
   | FaqPage
   | AboutPage
-  | Closing
   | SanityImageAssetReference
+  | Seo
+  | Closing
   | AccessibleImage
-  | MagazinePage
-  | OfferReference
-  | OffersPage
-  | Cta
   | TestimonialReference
   | HomePage
-  | Seo
-  | ArticleBody
+  | Cta
   | Link
-  | TranslationMetadata
-  | InternationalizedArrayReference
-  | PostReference
-  | CategoryReference
-  | AuthorReference
-  | InternationalizedArrayReferenceValue
-  | Post
-  | Author
-  | Category
-  | Slug
-  | FaqItem
-  | Testimonial
-  | Offer
   | SanityImageCrop
   | SanityImageHotspot
+  | TranslationMetadata
+  | InternationalizedArrayReference
+  | InternationalizedArrayReferenceValue
+  | FaqItem
+  | Testimonial
   | SanityImagePaletteSwatch
   | SanityImagePalette
   | SanityImageDimensions
@@ -636,3 +440,4 @@ export type AllSanitySchemaTypes =
   | SanityAssetSourceData
   | SanityImageAsset
   | Geopoint
+  | Slug

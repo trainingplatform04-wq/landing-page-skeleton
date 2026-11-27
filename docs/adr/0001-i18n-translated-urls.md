@@ -4,16 +4,16 @@
 
 ## Decision
 
-| Topic               | Rule                                                                                                                                                                    |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| URLs                | German at `/…` (no prefix), English at `/en/…`. Every path is translated (`/angebote`, `/en/offers`).                                                                   |
-| Page paths          | Declared once in code, `constants/routes.constants.ts` (`ROUTE_PATHS`): read by the router, the Studio's link picker, the sitemap and the tests.                        |
-| Slugs               | Only offers and articles have one, set by the editor, unique per type and language. A changed slug makes the old URL answer 404 (no redirects).                         |
-| Content             | **One document per language** for everything with text (`language` field). No field-level translation. Every query filters `language == $locale`.                       |
-| Translations        | `@sanity/document-internationalization` links the language versions of collection documents (for hreflang and the language switcher).                                   |
-| Missing language    | A page that isn't published renders empty with `noindex`. An offer or article without a translation disables the other language in the switcher and drops its hreflang. |
-| Browser language    | No redirect (`detectBrowserLanguage: false`): `/` is German, `/en` English, the switcher is in the header.                                                              |
-| hreflang, canonical | From `@nuxtjs/i18n` (`experimental.strictSeo`), with `x-default` (German).                                                                                              |
+| Topic               | Rule                                                                                                                                                                         |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| URLs                | German at `/…` (no prefix), English at `/en/…`. Every path is translated (`/kontakt`, `/en/contact`).                                                                        |
+| Page paths          | Declared once in code, `constants/routes.constants.ts` (`ROUTE_PATHS`): read by the router, the Studio's link picker, the sitemap and the tests.                             |
+| Slugs               | Pages have none. A collection with its own URL (offers and articles in the skeleton) has one, set by the editor, unique per type and language.                               |
+| Content             | **One document per language** for everything with text (`language` field). No field-level translation. Every query filters `language == $locale`.                            |
+| Translations        | `@sanity/document-internationalization` links the language versions of collection documents (for hreflang and the language switcher).                                        |
+| Missing language    | A page that isn't published renders empty with `noindex`. A document with its own URL and no translation disables the other language in the switcher and drops its hreflang. |
+| Browser language    | No redirect (`detectBrowserLanguage: false`): `/` is German, `/en` English, the switcher is in the header.                                                                   |
+| hreflang, canonical | From `@nuxtjs/i18n` (`experimental.strictSeo`), with `x-default` (German).                                                                                                   |
 
 ## Why
 

@@ -17,33 +17,13 @@ const IMAGES = {
   portrait: unsplash('photo-1536914356815-690cf1fa40e2', 800, 1000),
   // 21:9: the About page shows it full width.
   about: unsplash('photo-1571019614242-c5c5dee9f50b', 1680, 720),
-  // unsplash.com/photos/woman-kneeling-beside-man-R0y_bEUjiOM
-  offerPersonal: unsplash('photo-1571019614242-c5c5dee9f50b', 1200, 800),
-  // unsplash.com/photos/three-person-lifting-barbels-Lx_GDv7VA9M
-  offerStrength: unsplash('photo-1554284126-aa88f22d8b74', 1200, 800),
-  // unsplash.com/photos/woman-in-black-t-shirt-and-black-pants-lying-on-black-yoga-mat-qa1wvrlWCio
-  offerOnline: unsplash('photo-1586439496903-c96e9f18f212', 1200, 800),
   // unsplash.com/photos/woman-in-white-crew-neck-shirt-smiling-IF9TK5Uy-KI
   clientAnna: unsplash('photo-1580489944761-15a19d654956', 400, 400),
   // unsplash.com/photos/man-wearing-white-crew-neck-shirt-outdoor-selective-focus-photography-TMt3JGoVlng
   clientJonas: unsplash('photo-1564564244660-5d73c057f2d2', 400, 400),
   clientMira: unsplash('photo-1494790108377-be9c29b29330', 400, 400),
-  // unsplash.com/photos/people-performing-box-jumps-workout-wy_L8W0zcpI
-  training: unsplash('photo-1536922246289-88c42f957773', 1200, 700),
   // unsplash.com/photos/man-holding-black-barbell-hOuJYX2K5DA
   share: unsplash('photo-1517838277536-f5f99be501cd', 1200, 630),
-  // Magazine covers (16:10) and author portraits.
-  postStrength: unsplash('photo-1517836357463-d25dfeac3438', 1600, 1000),
-  postProtein: unsplash('photo-1546069901-ba9599a7e63c', 1600, 1000),
-  postMotivation: unsplash('photo-1594381898411-846e7d193883', 1600, 1000),
-  postMobility: unsplash('photo-1518611012118-696072aa579a', 1600, 1000),
-  postEating: unsplash('photo-1490645935967-10de6ba17061', 1600, 1000),
-  postSleep: unsplash('photo-1520206183501-b80df61043c2', 1600, 1000),
-  // The article figure: fresh ingredients in bowls on a counter.
-  postProteinBasics: unsplash('photo-1498837167922-ddd27525d352', 1500, 1000),
-  authorLena: unsplash('photo-1438761681033-6461ffad8d80', 400, 400),
-  authorJonas: unsplash('photo-1500648767791-00dcc994a43e', 400, 400),
-  authorMira: unsplash('photo-1544005313-94ddf0286df2', 400, 400),
 } as const
 
 export type SeedImage = keyof typeof IMAGES

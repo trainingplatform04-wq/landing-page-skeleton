@@ -8,7 +8,7 @@ describe('CookieTable', () => {
     const wrapper = await mountSuspended(CookieTable)
     const names = wrapper.findAll('tbody tr td:first-child').map((cell) => cell.text())
 
-    expect(names).toEqual(['cc_cookie', 'color-mode', 'VISITOR_INFO1_LIVE', 'YSC'])
+    expect(names).toEqual(['cc_cookie', 'color-mode'])
   })
 
   it('reopens the consent window', async () => {

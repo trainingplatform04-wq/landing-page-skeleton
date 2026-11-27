@@ -12,18 +12,12 @@
 import type {
   AboutPage,
   AccessibleImage,
-  Author,
   BusinessProfile,
-  Category,
   ContactPage,
   FaqItem,
   FaqPage,
   HomePage,
   ImprintPage,
-  MagazinePage,
-  Offer,
-  OffersPage,
-  Post,
   PrivacyPage,
   Seo,
   SiteSettings,
@@ -35,39 +29,29 @@ import { type LocaleCode, LOCALES } from '../../constants/i18n.constants'
 import { PAGE_TYPES } from '../../constants/routes.constants'
 import { singletonId } from '../utils/singleton/singleton.utils'
 import {
-  articleBody,
   closing,
   cta,
-  externalLink,
   keyed,
-  offerLink,
   type Part,
   reference,
   richText,
   routeLink,
   type Stored,
 } from './seed.builders'
-import { COPY, FAQ, OFFERS, TESTIMONIALS } from './seed.copy'
+import { COPY, FAQ, TESTIMONIALS } from './seed.copy'
 import type { SeedImage } from './seed.images'
-import { AUTHORS, CATEGORIES, MAGAZINE_PAGE, POSTS } from './seed.magazine'
 
 export type SeedDocument =
   | Stored<BusinessProfile>
   | Stored<SiteSettings>
   | Stored<HomePage>
-  | Stored<OffersPage>
   | Stored<FaqPage>
   | Stored<ContactPage>
   | Stored<ImprintPage>
   | Stored<PrivacyPage>
-  | Stored<MagazinePage>
   | Stored<AboutPage>
-  | Stored<Offer>
   | Stored<Testimonial>
   | Stored<FaqItem>
-  | Stored<Post>
-  | Stored<Category>
-  | Stored<Author>
   | Stored<TranslationMetadata>
 
 /** The id of an uploaded demo picture (`image-…`), resolved by the seed script. */
@@ -77,12 +61,8 @@ const UPDATED_AT = '2026-10-01'
 
 const EMAIL = 'demo@example.com'
 
-const offerId = (key: string, locale: LocaleCode) => `offer-${key}-${locale}`
 const testimonialId = (key: string, locale: LocaleCode) => `testimonial-${key}-${locale}`
 const faqId = (key: string, locale: LocaleCode) => `faq-${key}-${locale}`
-const postId = (key: string, locale: LocaleCode) => `post-${key}-${locale}`
-const categoryId = (key: string, locale: LocaleCode) => `category-${key}-${locale}`
-const authorId = (key: string, locale: LocaleCode) => `author-${key}-${locale}`
 
 /** Public ids (no dot): the web app reads the translations for hreflang and the switcher. */
 const translationId = (type: string, key: string) => `seed-translation-${type}-${key}`
@@ -127,26 +107,6 @@ export function seedDocuments(imageAssetId: ImageAssetId): SeedDocument[] {
   const inLocale = (locale: LocaleCode): SeedDocument[] => {
     const copy = COPY[locale]
 
-    const offers = OFFERS.map(({ key, image: picture, price, [locale]: offer }) => ({
-      _id: offerId(key, locale),
-      _type: 'offer' as const,
-      language: locale,
-      title: offer.title,
-      slug: { _type: 'slug' as const, current: offer.slug },
-      summary: offer.summary,
-      image: image(picture, `${offer.title}: ${copy.offers.imageAlt}`),
-      body: richText([
-        { text: offer.body },
-        { text: copy.offers.pointsTitle, style: 'h2' },
-        ...offer.points.map((point) => ({ text: point, listItem: 'bullet' as const })),
-        { image: image('training', copy.offers.imageAlt) },
-        { text: copy.offers.price },
-      ]),
-      price,
-      cta: cta(copy.offers.offerCta, routeLink('contact')),
-      seo: pageSeo(locale, offer.title, offer.summary),
-    }))
-
     const testimonials = TESTIMONIALS.map(({ key, image: picture, author, [locale]: quote }) => ({
       _id: testimonialId(key, locale),
       _type: 'testimonial' as const,
@@ -173,10 +133,8 @@ export function seedDocuments(imageAssetId: ImageAssetId): SeedDocument[] {
         title: copy.home.heroTitle,
         text: copy.home.heroText,
         image: image('hero', copy.home.heroAlt),
-        cta: cta(copy.home.heroCta, routeLink('offers')),
+        cta: cta(copy.home.heroCta, routeLink('about')),
       },
-      showOffers: true,
-      featuredOffers: keyed(offers.map(({ _id }) => reference(_id))),
       about: {
         title: copy.home.aboutTitle,
         portrait: image('portrait', copy.home.portraitAlt),
@@ -184,7 +142,7 @@ export function seedDocuments(imageAssetId: ImageAssetId): SeedDocument[] {
           {
             text: `${copy.home.about} `,
             linkText: copy.home.aboutLink,
-            link: offerLink(offerId('personal', locale)),
+            link: routeLink('about'),
           },
         ]),
         highlights: [...copy.home.highlights],
@@ -195,15 +153,6 @@ export function seedDocuments(imageAssetId: ImageAssetId): SeedDocument[] {
       faq: keyed(faqItems.map(({ _id }) => reference(_id))),
       closing: closing(copy.home.closingTitle, copy.home.closingText, copy.home.closingCta),
       seo: pageSeo(locale, copy.home.title, copy.home.seoDescription),
-    }
-
-    const offersPage: Stored<OffersPage> = {
-      ...page(PAGE_TYPES.offers, locale),
-      title: copy.offers.title,
-      intro: copy.offers.intro,
-      order: keyed(offers.map(({ _id }) => reference(_id))),
-      cta: cta(copy.offers.cta, externalLink(`mailto:${EMAIL}`)),
-      seo: pageSeo(locale, copy.offers.title, copy.offers.intro),
     }
 
     const faqPage: Stored<FaqPage> = {
@@ -257,58 +206,6 @@ export function seedDocuments(imageAssetId: ImageAssetId): SeedDocument[] {
       seo: pageSeo(locale, copy.privacy.title, copy.privacy.description),
     }
 
-    const categories = CATEGORIES.map(({ key, order, [locale]: category }) => ({
-      _id: categoryId(key, locale),
-      _type: 'category' as const,
-      language: locale,
-      title: category.title,
-      slug: { _type: 'slug' as const, current: category.slug },
-      order,
-    }))
-
-    const authors = AUTHORS.map(({ key, name, image: picture, [locale]: author }) => ({
-      _id: authorId(key, locale),
-      _type: 'author' as const,
-      language: locale,
-      name,
-      role: author.role,
-      bio: author.bio,
-      photo: image(picture, name),
-    }))
-
-    const posts = POSTS.map(
-      ({ key, category, author, publishedAt, image: picture, [locale]: post }) => ({
-        _id: postId(key, locale),
-        _type: 'post' as const,
-        language: locale,
-        title: post.title,
-        slug: { _type: 'slug' as const, current: post.slug },
-        excerpt: post.excerpt,
-        cover: image(picture, post.imageAlt),
-        category: reference(categoryId(category, locale)),
-        author: reference(authorId(author, locale)),
-        publishedAt,
-        keyTakeaways: post.keyTakeaways,
-        body: articleBody(post.body, image),
-        faq: post.faq?.map((item, index) => ({
-          _key: `q${index}`,
-          _type: 'question' as const,
-          ...item,
-        })),
-        seo: pageSeo(locale, post.title, post.excerpt),
-      }),
-    )
-
-    const magazine = MAGAZINE_PAGE[locale]
-    const magazinePage: Stored<MagazinePage> = {
-      ...page(PAGE_TYPES.magazine, locale),
-      label: magazine.label,
-      title: magazine.title,
-      intro: magazine.intro,
-      closing: closing(magazine.closingTitle, magazine.closingText, magazine.cta),
-      seo: pageSeo(locale, magazine.label, magazine.seoDescription),
-    }
-
     const about = copy.about
     const aboutPage: Stored<AboutPage> = {
       ...page(PAGE_TYPES.about, locale),
@@ -328,19 +225,13 @@ export function seedDocuments(imageAssetId: ImageAssetId): SeedDocument[] {
     return [
       siteSettings,
       home,
-      offersPage,
-      magazinePage,
       aboutPage,
       faqPage,
       contactPage,
       imprintPage,
       privacyPage,
-      ...offers,
       ...testimonials,
       ...faqItems,
-      ...categories,
-      ...authors,
-      ...posts,
     ]
   }
 
@@ -365,11 +256,7 @@ export function seedDocuments(imageAssetId: ImageAssetId): SeedDocument[] {
   return [
     businessProfile,
     ...LOCALES.flatMap(({ code }) => inLocale(code)),
-    ...OFFERS.map(({ key }) => translation('offer', key, offerId)),
     ...TESTIMONIALS.map(({ key }) => translation('testimonial', key, testimonialId)),
     ...FAQ.map(({ key }) => translation('faqItem', key, faqId)),
-    ...POSTS.map(({ key }) => translation('post', key, postId)),
-    ...CATEGORIES.map(({ key }) => translation('category', key, categoryId)),
-    ...AUTHORS.map(({ key }) => translation('author', key, authorId)),
   ]
 }

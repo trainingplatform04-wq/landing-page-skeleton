@@ -1,7 +1,7 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { closing, cta, image, noSeo, offerCard, text } from '~~/tests/helpers/cmsData'
+import { closing, cta, image, noSeo, text } from '~~/tests/helpers/cmsData'
 import { mountComposable, thrownBy } from '~~/tests/helpers/mountComposable'
 
 import { useHome } from './useHome'
@@ -15,10 +15,8 @@ const home = {
     title: 'Train smarter',
     text: 'Personal coaching.',
     image: null,
-    cta: cta('See the offers', 'offers'),
+    cta: cta('More about me', 'about'),
   },
-  showOffers: true,
-  featuredOffers: [offerCard('o1', 'Yoga', 'yoga')],
   about: {
     title: 'About me',
     portrait: image('https://cdn/me.jpg', 'Portrait'),
@@ -50,9 +48,8 @@ describe('useHome', () => {
       title: 'Train smarter',
       text: 'Personal coaching.',
       image: undefined,
-      cta: { label: 'See the offers', to: '/en/offers', external: false },
+      cta: { label: 'More about me', to: '/en/about', external: false },
     })
-    expect(view.offers.map(({ to }) => to)).toEqual(['/en/offers/yoga'])
     expect(view.about).toMatchObject({
       title: 'About me',
       portrait: { url: 'https://cdn/me.jpg', alt: 'Portrait' },
@@ -73,7 +70,6 @@ describe('useHome', () => {
   it('leaves out the sections the editor switched off or left empty', async () => {
     fetchMock.mockResolvedValue({
       ...home,
-      showOffers: false,
       showTestimonials: false,
       showFaq: false,
       about: empty,
@@ -81,7 +77,6 @@ describe('useHome', () => {
     })
     const view = await mountComposable(useHome)
 
-    expect(view.offers).toEqual([])
     expect(view.testimonials).toEqual([])
     expect(view.faq).toEqual([])
     expect(view.about).toBeUndefined()
@@ -105,7 +100,6 @@ describe('useHome', () => {
     expect(view).toEqual({
       seo: { title: 'Home', noIndex: true },
       hero: { title: 'Home' },
-      offers: [],
       testimonials: [],
       faq: [],
     })

@@ -1,44 +1,30 @@
 import { ROUTE_PATHS, type RouteName } from '~/constants/routes.constants'
 
 /** `localePath` from @nuxtjs/i18n, passed in so these stay plain functions. */
-export type LocalePath = (
-  route: RouteName | { name: RouteName; params: { slug: string } },
-) => string
+export type LocalePath = (route: RouteName) => string
 
-const isPageRoute = (route: string): route is RouteName =>
-  route in ROUTE_PATHS && !route.endsWith('-slug')
+const isPageRoute = (route: string): route is RouteName => route in ROUTE_PATHS
 
 /** A link as the editor picked it in the Studio. */
 interface LinkInput {
-  kind?: 'route' | 'reference' | 'external' | null
+  kind?: string | null
   route?: string | null
   href?: string | null
-  offerSlug?: string | null
-  offerLanguage?: string | null
 }
 
 const SAFE_EXTERNAL_HREF = /^(https:\/\/|mailto:|tel:)/
 
 /**
- * The address of a link: a page of the site, an offer in the active language, or an
- * https/mailto/tel address. `null` when it can't be shown (unknown page, offer not
- * published in this language, unsafe address).
+ * The address of a link: a page of the site or an https/mailto/tel address. `null` when it
+ * can't be shown (unknown page, unsafe address).
  */
 export function resolveLink(
   link: LinkInput | null,
-  { localePath, locale }: { localePath: LocalePath; locale: string },
+  { localePath }: { localePath: LocalePath },
 ): { to: string; external: boolean } | null {
   if (link?.kind === 'route') {
     if (!link.route || !isPageRoute(link.route)) return null
     return { to: localePath(link.route), external: false }
-  }
-
-  if (link?.kind === 'reference') {
-    if (!link.offerSlug || link.offerLanguage !== locale) return null
-    return {
-      to: localePath({ name: 'offers-slug', params: { slug: link.offerSlug } }),
-      external: false,
-    }
   }
 
   if (link?.kind === 'external' && link.href && SAFE_EXTERNAL_HREF.test(link.href)) {

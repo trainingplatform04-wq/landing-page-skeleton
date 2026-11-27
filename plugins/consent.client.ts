@@ -42,7 +42,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   const record = () => {
     const accepted = (category: ConsentCategory) =>
       categories.includes(category) && api?.acceptedCategory(category) === true
-    consent.record({ statistics: accepted('statistics'), externalMedia: accepted('externalMedia') })
+    consent.record({ statistics: accepted('statistics') })
     document.getElementById('consent-banner')?.remove()
   }
 
@@ -65,8 +65,8 @@ export default defineNuxtPlugin((nuxtApp) => {
           category,
           category === 'necessary'
             ? { enabled: true, readOnly: true }
-            : // Withdrawing a granted category reloads the page: its scripts and players
-              // (GTM, YouTube) stop at once, nothing keeps running without consent.
+            : // Withdrawing a granted category reloads the page: its scripts
+              // (GTM) stop at once, nothing keeps running without consent.
               { autoClear: { cookies: clear, reloadPage: true } },
         ]
       }),

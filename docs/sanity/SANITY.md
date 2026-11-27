@@ -4,27 +4,27 @@ The CMS is Sanity v6. The Studio (the editors' app) lives in `studio/`; the webs
 
 ## The content model
 
-| Kind            | Documents                                                                                                     | Language                                               | In the Studio                                                |
-| --------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------ |
-| **Pages**       | `homePage`, `offersPage`, `magazinePage`, `aboutPage`, `faqPage`, `contactPage`, `imprintPage`, `privacyPage` | One per language, fixed id `<type>-<language>`         | **Pages → Home → Deutsch**: opened, never created or deleted |
-| **Collections** | `offer` and `post` (have a URL), `category`, `author`, `testimonial`, `faqItem`                               | One language each, linked by the **Translations** menu | **Offers → Deutsch** lists and creates them                  |
-| **Settings**    | `businessProfile` (no text), `siteSettings` (footer note)                                                     | One in total / one per language                        | At the bottom of the desk                                    |
+| Kind            | Documents                                                                       | Language                                               | In the Studio                                                |
+| --------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------ |
+| **Pages**       | `homePage`, `aboutPage`, `faqPage`, `contactPage`, `imprintPage`, `privacyPage` | One per language, fixed id `<type>-<language>`         | **Pages → Home → Deutsch**: opened, never created or deleted |
+| **Collections** | `testimonial`, `faqItem`                                                        | One language each, linked by the **Translations** menu | **Testimonials → Deutsch** lists and creates them            |
+| **Settings**    | `businessProfile` (no text), `siteSettings` (footer note)                       | One in total / one per language                        | At the bottom of the desk                                    |
 
-Reusable objects: `accessibleImage` (picture + required alt text, crop and focal point), `cta` (a button: empty or label + link), `link` (a page, an offer or an `https:`/`mailto:`/`tel:` address), `closing` (the band that ends a page), `richText`, `articleBody`, `seo`.
+Reusable objects: `accessibleImage` (picture + required alt text, crop and focal point), `cta` (a button: empty or label + link), `link` (a page or an `https:`/`mailto:`/`tel:` address), `closing` (the band that ends a page), `richText`, `seo`.
 
 ## Where things are
 
-| Path                                                   | What                                                                                                                                      |
-| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `studio/schemas/{pages,collections,objects,settings}/` | One schema per file; registered in `studio/schemas/index.ts`                                                                              |
-| `studio/schemas/fields.ts`                             | Shared fields: `languageField`, `titleField`, `slugField`, `referenceListField`, …                                                        |
-| `studio/sanity.structure.ts`                           | The desk (left-hand menu)                                                                                                                 |
-| `studio/utils/singleton/`                              | Language templates, singleton ids and actions                                                                                             |
-| `studio/seed/`                                         | Development demo content: `seed.data.ts` (documents), `seed.copy.ts` and `seed.magazine.ts` (words), `seed.builders.ts`, `seed.images.ts` |
-| `utils/groqd/groqd.utils.ts`                           | The query builder `q` and the shared fragments                                                                                            |
-| `composables/<useName>/<name>.query.ts`                | One page's query                                                                                                                          |
-| `composables/useCmsQuery/`                             | The only door to the CMS from the website                                                                                                 |
-| `types/sanity.types.ts`                                | Generated schema types (`pnpm typegen`), never edited                                                                                     |
+| Path                                                   | What                                                                                                               |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `studio/schemas/{pages,collections,objects,settings}/` | One schema per file; registered in `studio/schemas/index.ts`                                                       |
+| `studio/schemas/fields.ts`                             | Shared fields: `languageField`, `titleField`, `slugField`, `referenceListField`, …                                 |
+| `studio/sanity.structure.ts`                           | The desk (left-hand menu)                                                                                          |
+| `studio/utils/singleton/`                              | Language templates, singleton ids and actions                                                                      |
+| `studio/seed/`                                         | Development demo content: `seed.data.ts` (documents), `seed.copy.ts` (words), `seed.builders.ts`, `seed.images.ts` |
+| `utils/groqd/groqd.utils.ts`                           | The query builder `q` and the shared fragments                                                                     |
+| `composables/<useName>/<name>.query.ts`                | One page's query                                                                                                   |
+| `composables/useCmsQuery/`                             | The only door to the CMS from the website                                                                          |
+| `types/sanity.types.ts`                                | Generated schema types (`pnpm typegen`), never edited                                                              |
 
 ## Add or change a field (checklist, one PR)
 
@@ -60,8 +60,6 @@ The seed refuses every dataset but `development`. Pictures are downloaded from t
 
 ## Good to know
 
-- A changed slug makes the old URL answer 404 (no redirects).
-- A category's slug is the same in every language (the magazine filter `?category=`).
 - A testimonial shows only with the client's recorded consent.
 - There is no draft preview: Development is the preview.
 - The sitemap is built from published content at deploy time.

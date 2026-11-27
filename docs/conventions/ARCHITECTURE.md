@@ -14,7 +14,7 @@ Nuxt 4 with the **flat layout** (`srcDir: '.'`): Nuxt directories live at the re
 | `constants/`             | Routes, locales, menu, consent, cookies, analytics events, time zone, Sanity settings                | Shared values; routes, locales and Sanity settings also by the Studio.             |
 | `types/`                 | `content.types.ts` (what components receive), `sanity.types.ts` (**generated**)                      | Never edit the generated file.                                                     |
 | `plugins/`               | `consent.client.ts`, `analytics.client.ts`, `colorMode.client.ts` (browser only, `.client`)          | Consent, analytics: one click listener each, logic in `utils/`. Color mode: below. |
-| `modules/`               | `sitemap.ts`: reads published pages, offers and articles when building                               | Loaded before the `~/` alias exists: relative imports.                             |
+| `modules/`               | `sitemap.ts`: reads published pages when building                                                    | Loaded before the `~/` alias exists: relative imports.                             |
 | `i18n/locales/`          | `de.json`, `en.json`                                                                                 | The same keys in every language.                                                   |
 | `studio/`                | Sanity Studio, its schemas and the development seed ([`docs/sanity/SANITY.md`](../sanity/SANITY.md)) | Its own workspace and Vercel project.                                              |
 | `tests/`                 | `e2e/` (Playwright, fixture CMS), `visual/` (design gate), `webPerformance/`, `orchestration/`       | See CODING_STANDARDS §6.                                                           |
@@ -27,11 +27,11 @@ Vue, Nuxt and module functions are auto-imported. Project code is imported expli
 Sanity ─▶ useCmsQuery(name, query, params) ─▶ mapper ─▶ view (plain values) ─▶ page ─▶ components
 ```
 
-A page composable reads top to bottom (`composables/useArticle/` is the full example):
+A page composable reads top to bottom (`composables/useFaq/` is a full example):
 
-1. **The query**, in `<name>.query.ts`: groqd (`q` from `utils/groqd/groqd.utils.ts`), checked against the schema types, its answer validated when it arrives. Shared pieces are fragments in `groqd.utils.ts` (`imageFragment`, `ctaFragment`, `closingFragment`, `seoFragment`, `richTextField`, `translationsField`, …).
-2. **The view type**: everything the page shows, in plain values (`ArticleView`).
-3. **The mapper**: a pure function from the answer to the view. Shared mappers are in `utils/content` (`toImage`, `toCta`, `toClosing`, `toSeo`, `toSlugs`, `toRichText`, `editorOrder`) and `utils/post`.
+1. **The query**, in `<name>.query.ts`: groqd (`q` from `utils/groqd/groqd.utils.ts`), checked against the schema types, its answer validated when it arrives. Shared pieces are fragments in `groqd.utils.ts` (`imageFragment`, `ctaFragment`, `closingFragment`, `seoFragment`, `richTextField`, …).
+2. **The view type**: everything the page shows, in plain values (`FaqView`).
+3. **The mapper**: a pure function from the answer to the view. Shared mappers are in `utils/content` (`toImage`, `toCta`, `toClosing`, `toSeo`, `toRichText`, `editorOrder`).
 4. **The composable**: `useMapContext()` (the visitor's language), `await useCmsQuery(...)`, then the mapper. `null` from the query means unpublished (an empty `noindex` view) or an unknown slug (404).
 
 `useCmsQuery` sends `$locale` with every query, caches the answer per query and parameters (`useAsyncData`), and answers **503** on a CMS error (`{ optional: true }` returns `null` instead: the footer). It is the only caller of the Sanity client (ESLint).
@@ -39,8 +39,7 @@ A page composable reads top to bottom (`composables/useArticle/` is the full exa
 ## Rendering
 
 - **Server first**: `await` in `<script setup>` sends complete HTML with the right status (SEO).
-- **Thin pages**: a page without interaction renders one content component with `hydrate-never` (`OffersContent`, `MagazineContent`, `AboutContent`, `LegalDocument`, `ArticleContent`). It calls the composable on the server; its data and code never reach the browser's first JavaScript.
-- **Interactions on thin pages**: one small component without CMS data adds them through `data-` attributes (`ArticleEnhancer`, `hydrate-on-idle`: progress bar, current heading, video, share). Disclosures are native `<details>`.
+- **Thin pages**: a page without interaction renders one content component with `hydrate-never` (`AboutContent`, `LegalDocument`). It calls the composable on the server; its data and code never reach the browser's first JavaScript.
 - **Hydration modes**: header `hydrate-on-idle`, accordions `hydrate-on-visible`, cards and heroes `hydrate-never`. A new component takes the lightest mode that works.
 - **Footer**: `SiteFooter` runs `useFooter` on the server, never hydrated; it is keyed by the locale, so a language switch renders a new one.
 - **Images**: the largest one loads first (`fetchpriority="high"` + preload), the others lazily. The editor's crop is cut by Sanity's CDN and the focal point becomes `object-position` (`toImage`). Vercel Image Optimization in deployments, IPX locally and in E2E.
@@ -50,23 +49,18 @@ A page composable reads top to bottom (`composables/useArticle/` is the full exa
 
 German at `/…`, English at `/en/…`, every path translated ([ADR 0001](../adr/0001-i18n-translated-urls.md)). Paths are declared once in `constants/routes.constants.ts`.
 
-| Page     | File                        | German             | English               |
-| -------- | --------------------------- | ------------------ | --------------------- |
-| Home     | `pages/index.vue`           | `/`                | `/en`                 |
-| Offers   | `pages/offers/index.vue`    | `/angebote`        | `/en/offers`          |
-| Offer    | `pages/offers/[slug].vue`   | `/angebote/<slug>` | `/en/offers/<slug>`   |
-| Magazine | `pages/magazine/index.vue`  | `/magazin`         | `/en/magazine`        |
-| Article  | `pages/magazine/[slug].vue` | `/magazin/<slug>`  | `/en/magazine/<slug>` |
-| About    | `pages/about.vue`           | `/ueber-uns`       | `/en/about`           |
-| FAQ      | `pages/faq.vue`             | `/faq`             | `/en/faq`             |
-| Contact  | `pages/contact.vue`         | `/kontakt`         | `/en/contact`         |
-| Imprint  | `pages/imprint.vue`         | `/impressum`       | `/en/imprint`         |
-| Privacy  | `pages/privacy.vue`         | `/datenschutz`     | `/en/privacy`         |
+| Page    | File                | German         | English       |
+| ------- | ------------------- | -------------- | ------------- |
+| Home    | `pages/index.vue`   | `/`            | `/en`         |
+| About   | `pages/about.vue`   | `/ueber-uns`   | `/en/about`   |
+| FAQ     | `pages/faq.vue`     | `/faq`         | `/en/faq`     |
+| Contact | `pages/contact.vue` | `/kontakt`     | `/en/contact` |
+| Imprint | `pages/imprint.vue` | `/impressum`   | `/en/imprint` |
+| Privacy | `pages/privacy.vue` | `/datenschutz` | `/en/privacy` |
 
 - **Menu**: `constants/navigation.constants.ts`. The legal pages are in the footer.
-- **Language switcher**: `<SwitchLocalePathLink>` (right from the server render). Offer and article pages pass their translated slugs with `useSetI18nParams`.
-- **Lists with pages** (the magazine): the filter and the page are in the URL; the CMS sends only the current page (`utils/pagination`).
-- **Editor links** (a page, an offer or an `https:`/`mailto:`/`tel:` address) are resolved by the mappers (`utils/link`); editors never type internal URLs.
+- **Language switcher**: `<SwitchLocalePathLink>` (right from the server render).
+- **Editor links** (a page or an `https:`/`mailto:`/`tel:` address) are resolved by the mappers (`utils/link`); editors never type internal URLs.
 
 ## Consent and analytics
 
@@ -86,14 +80,14 @@ The contact form (`UForm` + zod) sends in the background to EmailJS (`NUXT_PUBLI
 
 - `useSiteHead()` (app and error page): title template, Open Graph defaults. `@nuxtjs/i18n` adds `lang`, canonical, hreflang, og:locale.
 - `usePageMeta(view.seo)` on every page: title, description, share image, `noindex` when asked or unpublished.
-- Structured data: the module's defaults, `LocalBusiness` (footer), `Article` and `Question` (article page).
-- `/sitemap.xml` lists the published pages, offers and articles with their language versions, read from Sanity when building (`modules/sitemap.ts`). Only `NUXT_SITE_ENV=production` is indexable.
+- Structured data: the module's defaults, `LocalBusiness` (footer).
+- `/sitemap.xml` lists the published pages with their language versions, read from Sanity when building (`modules/sitemap.ts`). Only `NUXT_SITE_ENV=production` is indexable.
 
 ## Recipes
 
 - **Add a page**: a route in `ROUTE_PATHS` (+ `PAGE_TYPES`), a schema in `studio/schemas/pages/` (registered in `studio/schemas/index.ts`), a composable with its query file, the page file, its i18n keys, its demo content in `studio/seed/`, its test content in `tests/e2e/sanity/fixtures.ts`, an E2E spec.
-- **Add a collection with its own URL** (like offers): a schema with `languageField`, `titleField`, `slugField`, added to `COLLECTION_SCHEMAS` and `TRANSLATED_TYPES`; a list and a detail composable (404 for an unknown slug, `toSlugs` for the switcher); add it to `modules/sitemap.ts`.
+- **Add a collection with its own URL** (a slug): a schema with `languageField`, `titleField`, `slugField`, added to `COLLECTION_SCHEMAS` and `TRANSLATED_TYPES`; a list page and a detail page with a `[slug]` route (`<name>-slug` in `ROUTE_PATHS`), a detail composable (404 for an unknown slug, translated slugs for the switcher with `useSetI18nParams`), and an entry in `modules/sitemap.ts`. The Offers example in the skeleton's git history shows the whole pattern.
 - **Add a list of references on a page** (like testimonials): `referenceListField` in the schema; in the query filter by language before `deref()`.
-- **Add a paginated list**: see `useMagazine` with `utils/pagination`.
+- **Add a paginated list**: `utils/pagination` (the Magazine example in the skeleton's git history shows its use).
 - **Add a locale**: [ADR 0001](../adr/0001-i18n-translated-urls.md).
 - **Global client state** (cart, login): add `@pinia/nuxt` then. **Server routes**: never in this project.

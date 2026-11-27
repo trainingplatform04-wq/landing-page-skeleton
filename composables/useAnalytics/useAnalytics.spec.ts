@@ -7,7 +7,7 @@ describe('useAnalytics', () => {
   it('does nothing without a GTM container (no data layer, no error)', () => {
     const analytics = useAnalytics()
 
-    expect(() => analytics.track('share', { method: 'copy' })).not.toThrow()
+    expect(() => analytics.track('cta_click', { label: 'Book' })).not.toThrow()
     expect('dataLayer' in window).toBe(false)
   })
 })

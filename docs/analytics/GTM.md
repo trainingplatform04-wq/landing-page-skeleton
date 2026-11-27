@@ -64,7 +64,7 @@ Admin (gear, bottom left) →
 1. In the container: **Preview** → enter the Development URL (or a PR address `…-pr-<number>`) → **Connect**. Tag Assistant opens the site in a new tab.
 2. Before choosing in the consent window, Tag Assistant shows **no** connection: GTM is not loaded yet. That is correct.
 3. Click **Accept all**. Tag Assistant connects; **Google tag - GA4** fires on the page view.
-4. Trigger each event (§9): click a call to action, read an article to the end, load a video, share, open a related article, open an offer and its button, send the contact form. Each one appears in the left column; its **GA4 event** tag shows **Fired**, with its parameters under **Variables**.
+4. Trigger each event (§9): click a call to action, send the contact form. Each one appears in the left column; its **GA4 event** tag shows **Fired**, with its parameters under **Variables**.
 5. In GA4: **Admin → DebugView** shows the same events within seconds.
 6. Reload, open **Cookie settings** in the footer, switch **Statistics** off → **Save**: nothing more arrives, the `_ga` cookies are gone (DevTools → Application → Cookies).
 7. **Submit** → Version name `Initial setup` → **Publish**. After the release, check it once with **Preview** on the production URL.
@@ -89,19 +89,13 @@ A change later (a new event) is verified the same way with **Preview** on Develo
 
 The site pushes `{ event, page, …parameters }` to the `dataLayer` (`composables/useAnalytics/useAnalytics.ts`, `plugins/analytics.client.ts`, names in `constants/analytics.constants.ts`). Every push carries `page`, the current path. Parameters are labels, slugs and paths: **never** names, email addresses or message text.
 
-| Event            | When                                                  | Parameters sent to GA4 |
-| ---------------- | ----------------------------------------------------- | ---------------------- |
-| `contact_submit` | the contact form was sent successfully                | `page`                 |
-| `cta_click`      | a call-to-action button                               | `label`, `page`        |
-| `article_read`   | the article text read to the end                      | `article`              |
-| `video_load`     | "Load video" clicked, or a video loaded after consent | `video`, `page`        |
-| `share`          | copy link or native share                             | `method`, `page`       |
-| `related_click`  | a "Keep reading" card                                 | `article`, `target`    |
-| `offer_view`     | an offer page viewed                                  | `offer`                |
-| `offer_cta`      | an offer's call to action                             | `offer`, `label`       |
+| Event            | When                                   | Parameters sent to GA4 |
+| ---------------- | -------------------------------------- | ---------------------- |
+| `contact_submit` | the contact form was sent successfully | `page`                 |
+| `cta_click`      | a call-to-action button                | `label`, `page`        |
 
 Page views are GA4's own (`page_view`, browser history changes included), sent by the Google tag.
 
-To see a parameter in GA4 reports (not only in DebugView), register it once per property: **Admin → Data display → Custom definitions → Create custom dimension**, scope **Event**, event parameter `label` (then `article`, `video`, `method`, `target`, `offer`, `page`).
+To see a parameter in GA4 reports (not only in DebugView), register it once per property: **Admin → Data display → Custom definitions → Create custom dimension**, scope **Event**, event parameter `label` (then `page`).
 
 A new event: add its name to `constants/analytics.constants.ts`, a trigger and a GA4 event tag to `docs/analytics/gtm-container.json` and this table, in the same PR. The Privacy Officer reviews it.

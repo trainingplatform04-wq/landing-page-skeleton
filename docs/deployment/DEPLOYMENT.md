@@ -736,8 +736,7 @@ that address to it. Each PR has its own address, so open PRs never replace each 
 to a PR cancels its older run. Then the **Web performance** job asks
 **Google PageSpeed Insights** (its API: Google's servers, the same measurement as
 pagespeed.web.dev) to audit **that real deployment**, each page template once, mobile and desktop:
-every page in German (the default language; English renders the same templates) and one example
-per slug template (one offer, one article). Vercel's CDN, compression and image optimisation are
+every page in German (the default language; English renders the same templates). Vercel's CDN, compression and image optimisation are
 included, nothing is measured from a laptop or localhost. It audits this commit's deployment URL,
 so a later push cannot change the result. Feature sites are noindex (`NUXT_SITE_ENV=feature`, and
 Vercel marks previews), so their SEO score is computed without "page is crawlable"; every other
@@ -805,7 +804,7 @@ pre-production site answered `302` to a Vercel login page for everyone. Only the
 | List datasets                       | `pnpm exec sanity dataset list`                                                                                                                                                                                                  |
 | Export a backup                     | `pnpm exec sanity dataset export production backup.tar.gz`                                                                                                                                                                       |
 
-**Sitemap freshness.** Published pages, offers and articles enter `/sitemap.xml` at build time, so they are
+**Sitemap freshness.** Published pages enter `/sitemap.xml` at build time, so they are
 listed after the next deploy. If Sanity can't be reached during the build, the build **fails** rather
 than ship a sitemap without the CMS pages: re-run it. To redeploy on every publish (optional, once per environment):
 
@@ -814,7 +813,7 @@ than ship a sitemap without the CMS pages: re-run it. To redeploy on every publi
 2. `https://www.sanity.io/manage` → project → **API → Webhooks → Create webhook**:
    - URL: `https://api.github.com/repos/<owner>/<repo>/actions/workflows/deploy.yml/dispatches`
    - Dataset: `development` (or `production`) · Trigger on: **Create, Update, Delete**
-   - Filter: `_type in ["offer", "post"] || _id in path("*Page-*")` · Projection: `{"ref": "develop"}` (`"main"` for production)
+   - Filter: `_id in path("*Page-*")` · Projection: `{"ref": "develop"}` (`"main"` for production)
    - HTTP method: **POST** · HTTP headers: `Authorization: Bearer <token>`, `Accept: application/vnd.github+json`
 3. Publish a page: **Actions → Deploy** starts for that branch (the same pipeline as a push). On any
    other branch than `develop` or `main`, it does nothing.

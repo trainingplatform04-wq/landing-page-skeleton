@@ -4,7 +4,6 @@ import {
   closingFragment,
   ctaFragment,
   imageFragment,
-  offerCardFragment,
   q,
   richTextField,
   seoFragment,
@@ -25,13 +24,6 @@ export const homeQuery = q
       image: hero.field('image').project(imageFragment).nullable(true),
       cta: hero.field('cta').project(ctaFragment).nullable(true),
     })),
-    showOffers: z.boolean().nullable(),
-    featuredOffers: home
-      .field('featuredOffers[]')
-      .filterRaw('@->language == $locale && defined(@->slug.current)')
-      .deref()
-      .project(offerCardFragment)
-      .nullable(true),
     about: home
       .field('about')
       .project((about) => ({

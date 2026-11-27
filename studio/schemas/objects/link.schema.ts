@@ -1,18 +1,18 @@
 import { defineField, defineType } from 'sanity'
 
 import { ROUTE_PATHS } from '../../../constants/routes.constants'
-import { sameLanguageFilter } from '../fields'
 
-/** Pages a link may target (every route without a slug), shown by their German address. */
-const ROUTE_OPTIONS = Object.entries(ROUTE_PATHS)
-  .filter(([route]) => !route.endsWith('-slug'))
-  .map(([route, paths]) => ({ value: route, title: route === 'index' ? 'Home (/)' : paths.de }))
+/** Pages a link may target, shown by their German address. */
+const ROUTE_OPTIONS = Object.entries(ROUTE_PATHS).map(([route, paths]) => ({
+  value: route,
+  title: route === 'index' ? 'Home (/)' : paths.de,
+}))
 
 const EXTERNAL_HREF = /^(https:\/\/|mailto:|tel:)/
 
 /**
- * A link target the editor picks, never a free internal path: a page of the site, an
- * offer in the same language, or an external https/mailto/tel address.
+ * A link target the editor picks, never a free internal path: a page of the site or an
+ * external https/mailto/tel address.
  */
 export const linkSchema = defineType({
   name: 'link',
@@ -28,7 +28,6 @@ export const linkSchema = defineType({
         direction: 'horizontal',
         list: [
           { value: 'route', title: 'A page' },
-          { value: 'reference', title: 'An offer' },
           { value: 'external', title: 'An external address' },
         ],
       },
@@ -42,19 +41,6 @@ export const linkSchema = defineType({
       validation: (rule) =>
         rule.custom((route, { parent }) =>
           (parent as { kind?: string })?.kind !== 'route' || route ? true : 'Pick a page',
-        ),
-    }),
-    defineField({
-      name: 'reference',
-      title: 'Offer',
-      type: 'reference',
-      to: [{ type: 'offer' }],
-      weak: true,
-      options: { filter: sameLanguageFilter },
-      hidden: ({ parent }) => parent?.kind !== 'reference',
-      validation: (rule) =>
-        rule.custom((reference, { parent }) =>
-          (parent as { kind?: string })?.kind !== 'reference' || reference ? true : 'Pick an offer',
         ),
     }),
     defineField({

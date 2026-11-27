@@ -6,7 +6,7 @@ const otherLocales = computed(() => locales.value.filter(({ code }) => code !== 
 
 // SwitchLocalePathLink (@nuxtjs/i18n, not Nuxt UI) links the same page in the other language,
 // right from the server render; a page without a translation gets `data-i18n-disabled`.
-// Known once the page has set its translated slugs: in the browser, after mounting. The
+// Known once the page has set its translated params (`useSetI18nParams`): in the browser, after mounting. The
 // server's HTML gets the same state from SwitchLocalePathLink (`data-i18n-disabled`).
 const mounted = ref(false)
 onMounted(() => (mounted.value = true))

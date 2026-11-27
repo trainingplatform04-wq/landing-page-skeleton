@@ -22,16 +22,6 @@ const highlights = home.about?.highlights.map((title) => ({ title, icon: 'i-luci
     <LazyHomeHero hydrate-never v-bind="home.hero" />
 
     <UPageSection
-      v-if="home.offers.length"
-      :title="t('home.featuredOffers')"
-      :links="[moreLink(t('home.allOffers'), localePath('offers'))]"
-    >
-      <UPageGrid>
-        <LazyOfferCard v-for="offer in home.offers" :key="offer.id" hydrate-never :offer="offer" />
-      </UPageGrid>
-    </UPageSection>
-
-    <UPageSection
       v-if="home.about"
       :title="home.about.title"
       :features="highlights"

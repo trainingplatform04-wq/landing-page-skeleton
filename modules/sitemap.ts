@@ -11,7 +11,7 @@ import {
   SANITY_API_VERSION,
   SANITY_PERSPECTIVE,
 } from '../constants/sanity.constants'
-import { q, translationsField } from '../utils/groqd/groqd.utils'
+import { q } from '../utils/groqd/groqd.utils'
 
 interface SitemapEntry {
   loc: string
@@ -19,13 +19,7 @@ interface SitemapEntry {
   alternatives: Array<{ hreflang: string; href: string }>
 }
 
-/** Documents with their own URL (a slug), by the route that shows them. */
-const SLUG_ROUTES = { offer: 'offers-slug', post: 'magazine-slug' } as const satisfies Record<
-  string,
-  RouteName
->
-
-/** Published pages, offers and articles, each with the languages it exists in. */
+/** Published pages, each with the languages it exists in. */
 const sitemapQuery = q.project((root) => ({
   pages: root.star
     .filterByType(...Object.values(PAGE_TYPES))
@@ -35,28 +29,17 @@ const sitemapQuery = q.project((root) => ({
       language: z.string().nullable(),
       updatedAt: ['_updatedAt', z.string()],
     }),
-  slugged: root.star
-    .filterByType('offer', 'post')
-    .filterRaw('defined(language) && defined(slug.current) && seo.noIndex != true')
-    .project((document) => ({
-      type: ['_type', z.enum(['offer', 'post'])],
-      language: z.string().nullable(),
-      slug: ['slug.current', z.string()],
-      updatedAt: ['_updatedAt', z.string()],
-      translations: document.raw(...translationsField),
-    })),
 }))
 
 const ROUTE_OF_PAGE_TYPE = Object.fromEntries(
   Object.entries(PAGE_TYPES).map(([route, type]) => [type, route as RouteName]),
 )
 
-/** `/angebote/yoga`, `/en/offers/yoga`: the path of a route in a language. */
-function pathOf(route: RouteName, language: string, slug = '') {
+/** `/kontakt`, `/en/contact`: the path of a route in a language. */
+function pathOf(route: RouteName, language: string) {
   const path = ROUTE_PATHS[route][language as keyof (typeof ROUTE_PATHS)[RouteName]]
-  const withSlug = path.replace('[slug]', slug)
-  if (language === DEFAULT_LOCALE) return withSlug
-  return withSlug === '/' ? `/${language}` : `/${language}${withSlug}`
+  if (language === DEFAULT_LOCALE) return path
+  return path === '/' ? `/${language}` : `/${language}${path}`
 }
 
 /** hreflang links for the languages a page exists in, plus `x-default` (German). */
@@ -81,13 +64,13 @@ async function fetchSitemapEntries(): Promise<SitemapEntry[]> {
     useCdn: false,
   })
   const runQuery = makeSafeQueryRunner((query, { parameters }) => client.fetch(query, parameters))
-  const { pages, slugged } = await runQuery(sitemapQuery)
+  const { pages } = await runQuery(sitemapQuery)
 
   const published = pages.flatMap(({ type, language, updatedAt }) => {
     const route = ROUTE_OF_PAGE_TYPE[type]
     return route && language ? [{ route, language, updatedAt }] : []
   })
-  const pageEntries = published.map(({ route, language, updatedAt }) => {
+  return published.map(({ route, language, updatedAt }) => {
     const versions = published
       .filter((page) => page.route === route)
       .map((page) => ({ language: page.language, path: pathOf(route, page.language) }))
@@ -97,29 +80,10 @@ async function fetchSitemapEntries(): Promise<SitemapEntry[]> {
       alternatives: alternativesOf(versions),
     }
   })
-
-  const sluggedEntries = slugged.flatMap(({ type, language, slug, updatedAt, translations }) => {
-    if (!language) return []
-    const route = SLUG_ROUTES[type]
-    const versions = (translations ?? [{ language, slug }]).flatMap((version) =>
-      version
-        ? [{ language: version.language, path: pathOf(route, version.language, version.slug) }]
-        : [],
-    )
-    return [
-      {
-        loc: pathOf(route, language, slug),
-        lastmod: updatedAt,
-        alternatives: alternativesOf(versions),
-      },
-    ]
-  })
-
-  return [...pageEntries, ...sluggedEntries]
 }
 
 /**
- * Reads the published pages, offers and articles from Sanity when building for production, so
+ * Reads the published pages from Sanity when building for production, so
  * the sitemap lists them with their language versions. Its own client: a module runs before the
  * app exists, so `useCmsQuery` is not available. A CMS error fails the build instead of shipping
  * an empty sitemap. Never runs in dev, `nuxt prepare` or tests.

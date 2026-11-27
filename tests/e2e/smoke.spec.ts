@@ -6,16 +6,13 @@ import { ROUTE_PATHS } from '../../constants/routes.constants'
 // Runs against the local production build in CI and against every deployment
 // (PLAYWRIGHT_BASE_URL). It must prove that *our app* answered: an auth wall,
 // an SSO redirect or a platform error page also returns 200 without console errors.
-// Every page without a slug, in every language: it renders (empty while unpublished) whatever
-// the CMS holds. Slugs belong to editors, so those pages are not listed.
-const ROUTES = Object.values(ROUTE_PATHS)
-  .filter((paths) => !Object.values(paths).some((path) => path.includes('[slug]')))
-  .flatMap((paths) =>
-    LOCALES.map(({ code }) => {
-      if (code === DEFAULT_LOCALE) return paths[code]
-      return paths[code] === '/' ? `/${code}` : `/${code}${paths[code]}`
-    }),
-  )
+// Every page, in every language: it renders (empty while unpublished) whatever the CMS holds.
+const ROUTES = Object.values(ROUTE_PATHS).flatMap((paths) =>
+  LOCALES.map(({ code }) => {
+    if (code === DEFAULT_LOCALE) return paths[code]
+    return paths[code] === '/' ? `/${code}` : `/${code}${paths[code]}`
+  }),
+)
 
 test.describe('Smoke', () => {
   for (const route of ROUTES) {

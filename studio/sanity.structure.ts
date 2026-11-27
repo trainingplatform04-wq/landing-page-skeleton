@@ -5,11 +5,7 @@ import type { StructureBuilder, StructureResolver } from 'sanity/structure'
 
 import { type LocaleCode, LOCALES } from '../constants/i18n.constants'
 import { SANITY_API_VERSION } from '../constants/sanity.constants'
-import { authorSchema } from './schemas/collections/author.schema'
-import { categorySchema } from './schemas/collections/category.schema'
 import { faqItemSchema } from './schemas/collections/faqItem.schema'
-import { offerSchema } from './schemas/collections/offer.schema'
-import { postSchema } from './schemas/collections/post.schema'
 import { testimonialSchema } from './schemas/collections/testimonial.schema'
 import { PAGE_SCHEMAS } from './schemas/index'
 import { businessProfileSchema } from './schemas/settings/businessProfile.schema'
@@ -93,13 +89,8 @@ export const structure: StructureResolver = (S) => {
     .items([
       pages,
       S.divider(),
-      collection(offerSchema),
       collection(testimonialSchema, { field: 'author', direction: 'asc' }),
       collection(faqItemSchema, { field: 'question', direction: 'asc' }),
-      S.divider(),
-      collection(postSchema, { field: 'publishedAt', direction: 'desc' }),
-      collection(categorySchema, { field: 'order', direction: 'asc' }),
-      collection(authorSchema, { field: 'name', direction: 'asc' }),
       S.divider(),
       businessProfile,
       singleton(siteSettingsSchema),

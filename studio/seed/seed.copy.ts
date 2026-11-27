@@ -1,94 +1,5 @@
-/** The words of the demo content (pages, offers, testimonials, questions) in every language. */
+/** The words of the demo content (pages, testimonials, questions) in every language. */
 import type { LocaleCode } from '../../constants/i18n.constants'
-
-export const OFFERS = [
-  {
-    key: 'personal',
-    image: 'offerPersonal',
-    price: 89,
-    de: {
-      title: 'Personal Training',
-      slug: 'personal-training',
-      summary:
-        '60 Minuten Eins-zu-eins-Training, abgestimmt auf Ihre Ziele, Ihren Körper und Ihren Kalender.',
-      body: 'Wir starten mit einer Bewegungsanalyse und bauen daraus Ihren Plan. Jede Einheit ist vorbereitet, jede Übung erklärt.',
-      points: [
-        'Bewegungsanalyse in der ersten Stunde',
-        'Trainingsplan für zu Hause',
-        'Termine morgens, mittags und abends',
-      ],
-    },
-    en: {
-      title: 'Personal coaching',
-      slug: 'personal-coaching',
-      summary:
-        '60 minutes of one-to-one training, matched to your goals, your body and your calendar.',
-      body: 'We start with a movement assessment and build your plan from it. Every session is prepared, every exercise explained.',
-      points: [
-        'Movement assessment in the first session',
-        'Training plan for home',
-        'Sessions in the morning, at lunch and in the evening',
-      ],
-    },
-  },
-  {
-    key: 'strength',
-    image: 'offerStrength',
-    price: 25,
-    de: {
-      title: 'Kraftgruppe',
-      slug: 'kraftgruppe',
-      summary:
-        'Kleingruppe mit höchstens sechs Personen: Grundübungen sauber lernen und gemeinsam stärker werden.',
-      body: 'Zweimal pro Woche trainieren wir Kniebeuge, Kreuzheben, Drücken und Ziehen, mit Technik vor Gewicht.',
-      points: [
-        'Maximal sechs Teilnehmende',
-        'Dienstag und Donnerstag, 18:30',
-        'Für Einsteiger und Fortgeschrittene',
-      ],
-    },
-    en: {
-      title: 'Strength group',
-      slug: 'strength-group',
-      summary:
-        'A small group of six people at most: learn the main lifts properly and get stronger together.',
-      body: 'Twice a week we train squats, deadlifts, presses and pulls, with technique before load.',
-      points: [
-        'Six participants at most',
-        'Tuesday and Thursday, 6:30 pm',
-        'For beginners and advanced lifters',
-      ],
-    },
-  },
-  {
-    key: 'online',
-    image: 'offerOnline',
-    price: 149,
-    de: {
-      title: 'Online-Coaching',
-      slug: 'online-coaching',
-      summary:
-        'Ihr Trainingsplan per App, wöchentliches Feedback per Video und Antworten innerhalb von 24 Stunden.',
-      body: 'Für alle, die selbstständig trainieren und trotzdem jemanden an ihrer Seite wollen.',
-      points: [
-        'Plan in der App, jede Woche angepasst',
-        'Video-Feedback zu Ihrer Technik',
-        'Monatlich kündbar',
-      ],
-    },
-    en: {
-      title: 'Online coaching',
-      slug: 'online-coaching',
-      summary: 'Your training plan in an app, weekly video feedback and answers within 24 hours.',
-      body: 'For people who train on their own and still want someone at their side.',
-      points: [
-        'Plan in the app, adjusted every week',
-        'Video feedback on your technique',
-        'Cancel monthly',
-      ],
-    },
-  },
-] as const
 
 export const TESTIMONIALS = [
   {
@@ -164,13 +75,13 @@ export const COPY = {
       heroTitle: 'Klüger trainieren, nicht härter',
       heroText:
         'Personal Training und Kleingruppen in Berlin-Mitte: mit Plan, mit Technik und mit Spaß.',
-      heroCta: 'Angebote ansehen',
+      heroCta: 'Mehr über mich',
       heroAlt: 'Trainerin zeigt einer Kundin eine Kniebeuge',
       aboutTitle: 'Über mich',
       portraitAlt: 'Porträt der Trainerin',
       about:
-        'Seit 2010 helfe ich Menschen, stärker und schmerzfrei zu werden. Mein Lieblingsangebot zum Einstieg:',
-      aboutLink: 'Personal Training',
+        'Seit 2010 helfe ich Menschen, stärker und schmerzfrei zu werden. Mehr zu meiner Arbeit:',
+      aboutLink: 'Mehr über mich',
       highlights: [
         'Zertifizierte Trainerin (Demo)',
         'Über 500 betreute Kundinnen und Kunden',
@@ -194,15 +105,6 @@ export const COPY = {
       cta: 'Probetraining anfragen',
       seoDescription:
         'Lernen Sie Ihre Trainerin kennen: Seit 2010 hilft sie Menschen in Berlin-Mitte, stärker zu werden und sich schmerzfrei zu bewegen.',
-    },
-    offers: {
-      title: 'Angebote',
-      intro: 'Drei Wege zu Ihrem Ziel. Alle beginnen mit einem kostenlosen Probetraining.',
-      cta: 'Frage per E-Mail stellen',
-      offerCta: 'Probetraining anfragen',
-      pointsTitle: 'Das ist enthalten',
-      imageAlt: 'Trainingssituation im Studio',
-      price: 'Preis pro Einheit beziehungsweise Monat, inklusive Mehrwertsteuer.',
     },
     faq: {
       title: 'Häufige Fragen',
@@ -256,24 +158,23 @@ export const COPY = {
         {
           heading: 'Einwilligung und Cookies',
           text: [
-            'Beim ersten Besuch fragt ein Fenster, was Sie erlauben: „Alle akzeptieren“, „Alle ablehnen“ oder eine Auswahl unter „Einstellungen“. Bis Sie entscheiden, lädt die Website nur, was für ihren Betrieb nötig ist: keine Statistik, keine externen Medien.',
+            'Beim ersten Besuch fragt ein Fenster, was Sie erlauben: „Alle akzeptieren“, „Alle ablehnen“ oder eine Auswahl unter „Einstellungen“. Bis Sie entscheiden, lädt die Website nur, was für ihren Betrieb nötig ist: keine Statistik.',
             'Ihre Wahl speichern wir 6 Monate im Cookie cc_cookie, damit wir Sie nicht bei jedem Besuch erneut fragen; danach, oder wenn sich die eingesetzten Dienste ändern, fragen wir erneut. Rechtsgrundlage dafür sind § 25 Abs. 2 Nr. 2 TDDDG und Art. 6 Abs. 1 lit. c DSGVO (Nachweis der Einwilligung). Wählen Sie oben ein helles oder dunkles Farbschema, speichern wir diese Wahl 1 Jahr im Cookie color-mode (§ 25 Abs. 2 Nr. 2 TDDDG: von Ihnen gewünschte Funktion).',
-            'Sie können Ihre Einwilligung jederzeit mit Wirkung für die Zukunft ändern oder widerrufen: über „Cookie-Einstellungen“ unten auf jeder Seite. Beim Widerruf werden Statistik und Videos sofort beendet (die Seite lädt neu) und die Statistik-Cookies gelöscht. Cookies, die YouTube auf youtube.com setzt, können wir nicht löschen: Sie entfernen sie in Ihrem Browser. Die Tabelle unter diesem Text nennt jedes Cookie mit Anbieter, Zweck und Dauer.',
+            'Sie können Ihre Einwilligung jederzeit mit Wirkung für die Zukunft ändern oder widerrufen: über „Cookie-Einstellungen“ unten auf jeder Seite. Beim Widerruf wird die Statistik sofort beendet (die Seite lädt neu) und die Statistik-Cookies werden gelöscht. Die Tabelle unter diesem Text nennt jedes Cookie mit Anbieter, Zweck und Dauer.',
           ],
         },
         {
           heading: 'Statistik (Google Tag Manager und Google Analytics 4)',
           text: [
-            'Nur wenn Sie der Kategorie „Statistik“ zustimmen, laden wir Google Tag Manager und darüber Google Analytics 4. Anbieter ist Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland. So sehen wir, wie die Website genutzt wird, und können sie verbessern: aufgerufene Seiten, Klicks auf Schaltflächen, gesendete Formulare (ohne deren Inhalt), gelesene Artikel und geladene Videos.',
+            'Nur wenn Sie der Kategorie „Statistik“ zustimmen, laden wir Google Tag Manager und darüber Google Analytics 4. Anbieter ist Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland. So sehen wir, wie die Website genutzt wird, und können sie verbessern: aufgerufene Seiten, Klicks auf Schaltflächen, gesendete Formulare (ohne deren Inhalt).',
             'Google Analytics setzt die Cookies _ga und _ga_<Kennung> mit einer zufälligen Kennung und verarbeitet Angaben zu Gerät, Browser, ungefährem Standort und Herkunft des Besuchs. Google Analytics 4 speichert keine IP-Adressen; sie dienen nur kurz der groben Standortbestimmung. Google Signals, Werbefunktionen und die Datenfreigabe an Google sind ausgeschaltet. Die Daten werden nach 14 Monaten gelöscht, die Cookies laufen nach 2 Jahren ab.',
             'Rechtsgrundlage ist Ihre Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG. Google kann Daten an Google LLC in den USA übermitteln; Google ist unter dem EU-US Data Privacy Framework zertifiziert (Art. 45 DSGVO). Mit Google besteht ein Vertrag zur Auftragsverarbeitung.',
           ],
         },
         {
-          heading: 'Externe Medien (YouTube)',
+          heading: 'Externe Links',
           text: [
-            'Videos in Artikeln binden wir über youtube-nocookie.com ein, einen Dienst von Google Ireland Limited, die dafür eigenständig verantwortlich ist (Rolle je Kunde rechtlich zu prüfen). Vor Ihrem Klick auf „Video laden“ oder Ihrer Zustimmung zur Kategorie „Externe Medien“ wird nichts von YouTube geladen. Danach erhält YouTube Ihre IP-Adresse, Browserdaten und die aufgerufene Seite und kann Cookies und Einträge im Speicher Ihres Browsers setzen, zum Beispiel VISITOR_INFO1_LIVE (6 Monate) und YSC (Sitzung).',
-            'Rechtsgrundlage ist Ihre Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG. Google kann Daten an Google LLC in den USA übermitteln, auf Grundlage des EU-US Data Privacy Framework. Links zu unseren Profilen in sozialen Netzwerken sind einfache Links: Erst Ihr Klick öffnet die jeweilige Seite.',
+            'Links zu unseren Profilen in sozialen Netzwerken sind einfache Links: Erst Ihr Klick öffnet die jeweilige Seite.',
           ],
         },
         {
@@ -308,13 +209,13 @@ export const COPY = {
       heroTitle: 'Train smarter, not harder',
       heroText:
         'Personal training and small groups in Berlin-Mitte: with a plan, with technique and with fun.',
-      heroCta: 'See the offers',
+      heroCta: 'More about me',
       heroAlt: 'Coach showing a client a squat',
       aboutTitle: 'About me',
       portraitAlt: 'Portrait of the coach',
       about:
-        'Since 2010 I have been helping people get stronger and pain-free. My favourite way to start:',
-      aboutLink: 'Personal coaching',
+        'Since 2010 I have been helping people get stronger and pain-free. More about my work:',
+      aboutLink: 'More about me',
       highlights: [
         'Certified coach (demo)',
         'More than 500 clients coached',
@@ -337,15 +238,6 @@ export const COPY = {
       cta: 'Request a free trial',
       seoDescription:
         'Meet your coach: since 2010 helping people get stronger and move without pain, from a studio in Berlin-Mitte.',
-    },
-    offers: {
-      title: 'Offers',
-      intro: 'Three ways to your goal. All of them start with a free trial session.',
-      cta: 'Ask by email',
-      offerCta: 'Request a trial session',
-      pointsTitle: 'What is included',
-      imageAlt: 'Training in the studio',
-      price: 'Price per session or month, VAT included.',
     },
     faq: { title: 'FAQ', intro: 'Everything you want to know before your first session.' },
     contact: {
@@ -396,24 +288,23 @@ export const COPY = {
         {
           heading: 'Consent and cookies',
           text: [
-            'On your first visit a window asks what you allow: “Accept all”, “Reject all” or a choice under “Settings”. Until you decide, the website loads only what it needs to work: no statistics, no external media.',
+            'On your first visit a window asks what you allow: “Accept all”, “Reject all” or a choice under “Settings”. Until you decide, the website loads only what it needs to work: no statistics.',
             'We store your choice for 6 months in the cookie cc_cookie, so we do not ask on every visit; after that, or when the services we use change, we ask again. The legal basis is § 25(2) no. 2 TDDDG and Art. 6(1)(c) GDPR (proof of consent). When you pick a light or dark colour scheme at the top, we store that choice for 1 year in the cookie color-mode (§ 25(2) no. 2 TDDDG: a function you asked for).',
-            'You can change or withdraw your consent at any time, with effect for the future: through “Cookie settings” at the bottom of every page. When you withdraw, statistics and videos stop at once (the page reloads) and the statistics cookies are deleted. Cookies that YouTube sets on youtube.com cannot be deleted by us: you remove them in your browser. The table below this text lists every cookie with its provider, purpose and duration.',
+            'You can change or withdraw your consent at any time, with effect for the future: through “Cookie settings” at the bottom of every page. When you withdraw, statistics stop at once (the page reloads) and the statistics cookies are deleted. The table below this text lists every cookie with its provider, purpose and duration.',
           ],
         },
         {
           heading: 'Statistics (Google Tag Manager and Google Analytics 4)',
           text: [
-            'Only if you allow the “Statistics” category do we load Google Tag Manager and, through it, Google Analytics 4. The provider is Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Ireland. This shows us how the website is used so we can improve it: pages viewed, clicks on buttons, forms sent (without their content), articles read and videos loaded.',
+            'Only if you allow the “Statistics” category do we load Google Tag Manager and, through it, Google Analytics 4. The provider is Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Ireland. This shows us how the website is used so we can improve it: pages viewed, clicks on buttons, forms sent (without their content).',
             'Google Analytics sets the cookies _ga and _ga_<id> with a random identifier and processes information about your device, browser, approximate location and where the visit came from. Google Analytics 4 does not store IP addresses; they are used only briefly to derive an approximate location. Google Signals, advertising features and data sharing with Google are switched off. The data is deleted after 14 months; the cookies expire after 2 years.',
             'The legal basis is your consent under Art. 6(1)(a) GDPR and § 25(1) TDDDG. Google may transfer data to Google LLC in the USA; Google is certified under the EU–US Data Privacy Framework (Art. 45 GDPR). We have a data processing agreement with Google.',
           ],
         },
         {
-          heading: 'External media (YouTube)',
+          heading: 'External links',
           text: [
-            'Videos in articles are embedded through youtube-nocookie.com, a service of Google Ireland Limited, which is responsible for it in its own right (its role to be checked legally per client). Nothing is loaded from YouTube before you click “Load video” or allow the “External media” category. After that, YouTube receives your IP address, browser data and the page you are on, and may set cookies and entries in your browser’s storage, for example VISITOR_INFO1_LIVE (6 months) and YSC (session).',
-            'The legal basis is your consent under Art. 6(1)(a) GDPR and § 25(1) TDDDG. Google may transfer data to Google LLC in the USA, relying on the EU–US Data Privacy Framework. Links to our social media profiles are plain links: only your click opens the page.',
+            'Links to our social media profiles are plain links: only your click opens the page.',
           ],
         },
         {

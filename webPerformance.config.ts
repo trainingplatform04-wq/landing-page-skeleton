@@ -31,13 +31,6 @@ export interface WebPerformanceBudget {
   slowMachineReruns: number
   /** PageSpeed strategies: `mobile` (throttled phone) and `desktop`. */
   formFactors: Array<'mobile' | 'desktop'>
-  /**
-   * Pages with a slug belong to editors and share one template, so the audit takes one published
-   * example of each such template, in the default language (from the development seed, which the
-   * Feature deployment reads). Both documents stay published on Development, or every pull
-   * request's Web performance fails.
-   */
-  slugPages: string[]
   categories: Category[]
   metrics: Metric[]
 }
@@ -48,7 +41,6 @@ export default {
   minimumBenchmarkIndex: 600,
   slowMachineReruns: 3,
   formFactors: ['mobile', 'desktop'],
-  slugPages: ['/angebote/personal-training', '/magazin/protein-ohne-pulver'],
   categories: ['performance', 'accessibility', 'best-practices', 'seo'],
   metrics: [
     'first-contentful-paint',

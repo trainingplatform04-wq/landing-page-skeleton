@@ -6,18 +6,16 @@ import { expect, type Page, test } from '@playwright/test'
 test.use({ storageState: { cookies: [], origins: [] } })
 
 const GOOGLE = /googletagmanager\.com|google-analytics\.com|\/gtm\.js/
-const YOUTUBE = /youtube(-nocookie)?\.com/
 
-/** Records every request to Google or YouTube, and stubs GTM with an empty script. */
+/** Records every request to Google, and stubs GTM with an empty script. */
 async function watchThirdParties(page: Page) {
   const requests: string[] = []
   page.on('request', (request) => {
-    if (GOOGLE.test(request.url()) || YOUTUBE.test(request.url())) requests.push(request.url())
+    if (GOOGLE.test(request.url())) requests.push(request.url())
   })
   await page.route(GOOGLE, (route) =>
     route.fulfill({ contentType: 'text/javascript', body: '/* GTM stub */' }),
   )
-  await page.route(YOUTUBE, (route) => route.fulfill({ contentType: 'text/html', body: '' }))
   return requests
 }
 
@@ -89,9 +87,15 @@ test.describe('Consent', () => {
       const context = await browser.newContext({ locale: 'de-DE' })
       const page = await context.newPage()
       await watchThirdParties(page)
-      // A direct visit: the offer page sends offer_view before the visitor has answered.
-      await page.goto('/angebote/personal-training')
+      // A direct visit: a tracked link is activated before the visitor has answered. The window
+      // covers the page, so the click is dispatched on the link itself, and not followed (a
+      // static link would reload the page and forget the event).
+      await page.goto('/')
       await page.waitForLoadState('networkidle')
+      await page.evaluate(() =>
+        document.addEventListener('click', (click) => click.preventDefault(), { capture: true }),
+      )
+      await page.getByRole('link', { name: 'Mehr über mich' }).first().dispatchEvent('click')
       await page.getByRole('button', { name: button }).click()
       await page.waitForTimeout(1000)
       const layer: Array<Record<string, unknown>> = await dataLayer(page)
@@ -101,10 +105,10 @@ test.describe('Consent', () => {
 
     const accepted = await answer('Alle akzeptieren')
     const gtmAt = accepted.findIndex((entry) => entry.event === 'gtm.js')
-    const offerAt = accepted.findIndex((entry) => entry.event === 'offer_view')
+    const clickAt = accepted.findIndex((entry) => entry.event === 'cta_click')
     expect(gtmAt).toBeGreaterThanOrEqual(0)
-    expect(offerAt).toBeGreaterThan(gtmAt)
-    expect(accepted[offerAt]).toMatchObject({ offer: 'personal-training' })
+    expect(clickAt).toBeGreaterThan(gtmAt)
+    expect(accepted[clickAt]).toMatchObject({ label: 'Mehr über mich' })
 
     expect(await answer('Alle ablehnen')).toEqual([])
   })
@@ -188,23 +192,10 @@ test.describe('Consent', () => {
 
     expect(await analyticsCookies(page)).toEqual([])
     requests.length = 0
-    await page.goto('/angebote')
+    await page.goto('/ueber-uns')
     await page.goto('/faq')
     await page.waitForTimeout(500)
     expect(requests).toEqual([])
-  })
-
-  test('external media: videos load directly once allowed, never before', async ({ page }) => {
-    const requests = await watchThirdParties(page)
-    await page.goto('/en/magazine/protein-without-powder')
-    await expect(page.locator('iframe')).toHaveCount(0)
-    expect(requests.filter((url) => YOUTUBE.test(url))).toEqual([])
-
-    await page.getByRole('button', { name: 'Accept all' }).click()
-
-    await expect(
-      page.locator('iframe[src^="https://www.youtube-nocookie.com/embed/"]'),
-    ).toHaveCount(1)
   })
 
   test('the privacy page lists every cookie of the inventory', async ({ page }) => {
@@ -212,7 +203,7 @@ test.describe('Consent', () => {
     await page.getByRole('button', { name: 'Alle ablehnen' }).click()
 
     const table = page.getByRole('table')
-    for (const name of ['cc_cookie', 'color-mode', '_ga', '_ga_*', 'VISITOR_INFO1_LIVE', 'YSC'])
+    for (const name of ['cc_cookie', 'color-mode', '_ga', '_ga_*'])
       await expect(table.getByText(name, { exact: true })).toBeVisible()
   })
 })

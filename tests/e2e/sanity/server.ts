@@ -18,7 +18,7 @@ import { evaluate, parse } from 'groq-js'
 
 import { EMAILJS_SEND_PATH } from '../../../constants/contact.constants.ts'
 import { SANITY_MOCK_PORT } from './fixtureCms.ts'
-import { CMS_ERROR_SLUG, documents } from './fixtures.ts'
+import { documents } from './fixtures.ts'
 
 async function readBody(request: IncomingMessage) {
   const chunks: Buffer[] = []
@@ -58,7 +58,6 @@ createServer(async (request, response) => {
 
   try {
     const { query, params } = await readQuery(request, url)
-    if (params.slug === CMS_ERROR_SLUG) throw new Error('Simulated CMS failure')
     const value = await evaluate(parse(query, { params }), { dataset: documents(), params })
     response.end(JSON.stringify({ query, result: await value.get(), ms: 0 }))
   } catch (error) {

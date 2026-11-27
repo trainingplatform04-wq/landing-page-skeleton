@@ -6,7 +6,7 @@ defineProps<{
   text?: string
   cta?: Cta
   /** The page it closes, named for the design gate's screenshots. */
-  section: 'magazine-closing' | 'article-closing' | 'about-closing'
+  section: 'about-closing'
 }>()
 </script>
 

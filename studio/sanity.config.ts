@@ -31,7 +31,7 @@ function documentActions(actions: DocumentActionComponent[], schemaType: string)
 // Values are validated at build/dev time in sanity.cli.ts.
 export default defineConfig({
   name: 'default',
-  title: 'Landing Page',
+  title: 'Portfolio 26',
   projectId: process.env.SANITY_STUDIO_PROJECT_ID ?? '',
   dataset: process.env.SANITY_STUDIO_DATASET ?? '',
 

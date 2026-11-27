@@ -38,15 +38,6 @@ export interface Seo {
  */
 export type RichText = Array<{ _type: string; _key: string; [field: string]: unknown }>
 
-export interface OfferCard {
-  id: string
-  title: string
-  summary: string
-  to: string
-  image?: Image
-  price?: string
-}
-
 export interface FaqItem {
   id: string
   question: string
@@ -66,37 +57,4 @@ export interface Business {
   phone?: { label: string; href: string }
   addressLines: string[]
   socials: Array<{ platform: string; url: string }>
-}
-
-/** Who signs an article. */
-export interface Author {
-  name: string
-  /** "More from Lena": the first word of the name. */
-  firstName: string
-  role?: string
-  bio?: string
-  photo?: Image
-}
-
-/** A magazine article on a card, its date already formatted. */
-export interface PostCard {
-  id: string
-  title: string
-  excerpt: string
-  to: string
-  category?: string
-  image?: Image
-  author?: { name: string; photo?: Image }
-  /** Shown: "28 Sep 2026". */
-  date: string
-  /** Machine-readable, for `<time datetime>`. */
-  dateTime: string
-  readingMinutes: number
-}
-
-/** A filter tab of the magazine: "All" or one category. */
-export interface MagazineTab {
-  label: string
-  to: string
-  active: boolean
 }

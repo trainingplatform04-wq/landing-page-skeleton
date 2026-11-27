@@ -9,5 +9,5 @@ export const LOCALES = [
 
 export type LocaleCode = (typeof LOCALES)[number]['code']
 
-/** Served without a URL prefix (`/angebote`); others are prefixed (`/en/offers`). */
+/** Served without a URL prefix (`/kontakt`); others are prefixed (`/en/contact`). */
 export const DEFAULT_LOCALE: LocaleCode = 'de'

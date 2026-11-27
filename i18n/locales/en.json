@@ -2,8 +2,6 @@
   "nav": {
     "label": "Main navigation",
     "home": "Home",
-    "offers": "Offers",
-    "magazine": "Magazine",
     "about": "About",
     "contact": "Contact",
     "faq": "FAQ"
@@ -19,8 +17,6 @@
     "cookieSettings": "Cookie settings"
   },
   "home": {
-    "featuredOffers": "Featured offers",
-    "allOffers": "All offers",
     "aboutMore": "More about me"
   },
   "testimonials": {
@@ -30,10 +26,6 @@
     "title": "Frequently asked questions",
     "all": "All questions",
     "empty": "No questions yet"
-  },
-  "offers": {
-    "empty": "No offers yet",
-    "price": "Price: {price}"
   },
   "contact": {
     "form": {
@@ -65,41 +57,9 @@
       "message": "An unexpected error occurred. Please try again later."
     }
   },
-  "magazine": {
-    "all": "All",
-    "categoriesLabel": "Article categories",
-    "none": "No articles yet.",
-    "empty": "No articles in this category yet.",
-    "showAll": "All articles",
-    "paginationLabel": "Article pages",
-    "readingTime": "{n} min read"
-  },
-  "article": {
-    "breadcrumb": "Magazine",
-    "takeaways": "At a glance",
-    "toc": "In this article",
-    "progress": "Article reading progress",
-    "coachTip": "Coach tip",
-    "video": {
-      "consent": "Playing sends data to YouTube.",
-      "load": "Load video"
-    },
-    "share": {
-      "label": "Share this article",
-      "copy": "Copy link",
-      "native": "Share",
-      "copied": "Link copied",
-      "copyFailed": "Unable to copy the link. Please try again.",
-      "failed": "Unable to share the article. Please try again."
-    },
-    "faq": "Frequently asked questions",
-    "writtenBy": "Written by",
-    "moreFrom": "More from {name}",
-    "related": "Keep reading"
-  },
   "consent": {
     "title": "Your privacy",
-    "description": "We use cookies and similar technologies that the website needs to work (they store your choice and the colour scheme). Only with your consent do we also use Google Tag Manager and Google Analytics (statistics) and show YouTube videos (external media); data may then be transferred to Google in the USA. You can change your choice at any time under \"Cookie settings\" at the bottom of every page.",
+    "description": "We use cookies and similar technologies that the website needs to work (they store your choice and the colour scheme). Only with your consent do we also use Google Tag Manager and Google Analytics (statistics); data may then be transferred to Google in the USA. You can change your choice at any time under \"Cookie settings\" at the bottom of every page.",
     "acceptAll": "Accept all",
     "rejectAll": "Reject all",
     "settings": "Settings",
@@ -115,13 +75,9 @@
       "statistics": {
         "title": "Statistics",
         "description": "Google Tag Manager and Google Analytics measure how the site is used (pages, clicks), pseudonymously and without advertising."
-      },
-      "externalMedia": {
-        "title": "External media",
-        "description": "Loads YouTube videos directly. As soon as a video loads, data is sent to YouTube (Google), possibly to the USA."
       }
     },
-    "descriptionNoStatistics": "We use cookies and similar technologies that the website needs to work (they store your choice and the colour scheme). Only with your consent do we show YouTube videos (external media); data may then be transferred to Google in the USA. You can change your choice at any time under \"Cookie settings\" at the bottom of every page."
+    "descriptionNoStatistics": "We only use cookies and similar technologies that the website needs to work (they store your choice and the colour scheme). You can change your choice at any time under \"Cookie settings\" at the bottom of every page."
   },
   "cookies": {
     "title": "Cookies on this site",
@@ -132,8 +88,7 @@
     "category": "Category",
     "providers": {
       "site": "This website",
-      "google": "Google",
-      "youtube": "YouTube (Google)"
+      "google": "Google"
     },
     "consent": {
       "purpose": "Stores your consent choice",
@@ -146,14 +101,6 @@
     "gaSession": {
       "purpose": "Keeps the session for statistics",
       "duration": "2 years"
-    },
-    "youtubeVisitor": {
-      "purpose": "Set by YouTube when a video loads; the player also stores data in the browser (yt-remote-*, ytidb::*)",
-      "duration": "6 months"
-    },
-    "youtubeSession": {
-      "purpose": "Set by YouTube when a video plays",
-      "duration": "Session"
     },
     "colorMode": {
       "purpose": "Remembers the colour scheme (light or dark) you picked with the switch at the top; set only when you pick one",

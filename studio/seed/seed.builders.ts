@@ -1,15 +1,5 @@
 /** Small builders that write Sanity documents the way the Studio stores them. */
-import type {
-  AccessibleImage,
-  ArticleBody,
-  Closing,
-  Cta,
-  Link,
-  RichText,
-} from '~/types/sanity.types'
-
-import type { SeedImage } from './seed.images'
-import type { BodyPart } from './seed.magazine'
+import type { AccessibleImage, Closing, Cta, Link, RichText } from '~/types/sanity.types'
 
 /** A document as it is written: Sanity adds the timestamps and the revision. */
 export type Stored<T> = Omit<T, '_createdAt' | '_updatedAt' | '_rev'>
@@ -23,12 +13,6 @@ export const routeLink = (route: NonNullable<Link['route']>): Link => ({
   _type: 'link',
   kind: 'route',
   route,
-})
-
-export const offerLink = (id: string): Link => ({
-  _type: 'link',
-  kind: 'reference',
-  reference: reference(id),
 })
 
 export const externalLink = (href: string): Link => ({ _type: 'link', kind: 'external', href })
@@ -76,41 +60,5 @@ export function richText(parts: Part[]): RichText {
       markDefs: [],
       children: [span(part.text)],
     }
-  })
-}
-
-/** An article's text from short parts: paragraphs, headings, lists and the magazine blocks. */
-export function articleBody(
-  parts: BodyPart[],
-  image: (name: SeedImage, alt: string) => AccessibleImage,
-): ArticleBody {
-  const span = (text: string) => ({ _type: 'span' as const, _key: 's0', text, marks: [] })
-  const block = (_key: string, text: string, style: 'normal' | 'h2' = 'normal') => ({
-    _type: 'block' as const,
-    _key,
-    style,
-    markDefs: [],
-    children: [span(text)],
-  })
-  return parts.flatMap((part, index): ArticleBody => {
-    const _key = `b${index}`
-    if ('p' in part) return [block(_key, part.p)]
-    if ('h2' in part) return [block(_key, part.h2, 'h2')]
-    if ('tip' in part) return [{ _type: 'coachTip', _key, text: part.tip }]
-    if ('quote' in part) {
-      return [{ _type: 'pullQuote', _key, text: part.quote, attribution: part.attribution }]
-    }
-    if ('video' in part)
-      return [{ _type: 'youtubeVideo', _key, videoId: part.video, title: part.title }]
-    if ('figure' in part) {
-      return [{ _type: 'figure', _key, image: image(part.figure, part.alt), caption: part.caption }]
-    }
-    const listItem = 'ul' in part ? 'bullet' : 'number'
-    const items = 'ul' in part ? part.ul : part.ol
-    return items.map((text, item) => ({
-      ...block(`${_key}i${item}`, text),
-      listItem,
-      level: 1,
-    }))
   })
 }
