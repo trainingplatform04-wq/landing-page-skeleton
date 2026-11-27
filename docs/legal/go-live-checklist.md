@@ -40,10 +40,9 @@ Turning statistics on later (setting `NUXT_PUBLIC_GTM_ID` in an environment wher
 - [ ] `CONSENT_REVISION` in `constants/consent.constants.ts` raised for every change of tools, cookies or purposes since the last release.
 - [ ] The cookie table on the privacy page matches `constants/cookies.constants.ts` and what the browser actually stores (DevTools → Application → Cookies and Local storage, after "Accept all").
 - [ ] **Reject all** and **Accept all** have the same size, style and row; no category is pre-ticked; the window is readable on a phone.
-- [ ] **Rejected, nothing loads**: in a private window, "Reject all", then reload and visit every page type: DevTools → Network shows no request to `googletagmanager.com`, `google-analytics.com`, `youtube-nocookie.com`, `youtube.com` or any other third party; no `_ga*` cookie exists.
+- [ ] **Rejected, nothing loads**: in a private window, "Reject all", then reload and visit every page type: DevTools → Network shows no request to `googletagmanager.com`, `google-analytics.com` or any other third party; no `_ga*` cookie exists.
 - [ ] **No choice yet, nothing loads**: the same check before clicking anything in the window.
 - [ ] **Withdrawal works**: "Cookie settings" in the footer reopens the choice; switching Statistics off deletes the `_ga*` cookies.
-- [ ] Videos show the "Load video" placeholder until clicked or until External media is allowed.
 
 ## 5. Processors
 
@@ -57,8 +56,6 @@ Each with a signed data processing agreement (Art. 28 GDPR) and a named transfer
 | Google Ireland Limited (Google Workspace)         | The mailbox the contact emails are sent from and kept in | [ ] | EU–US Data Privacy Framework (Google LLC)     |
 | Google Ireland Limited                            | GTM, GA4                                                 | [ ] | EU–US Data Privacy Framework (Google LLC)     |
 
-YouTube is not a processor: Google Ireland Limited is responsible for it in its own right (independent or joint controller, no data processing agreement; transfer under the EU–US Data Privacy Framework). Its role is a lawyer item (§ "Additional checks").
-
 - [ ] Each US company's certification checked at <https://www.dataprivacyframework.gov/list>.
 - [ ] Any other service added since the audit (`docs/legal/`) is in this table and in the privacy text.
 
@@ -69,8 +66,8 @@ YouTube is not a processor: Google Ireland Limited is responsible for it in its 
 
 ## Additional checks (Privacy Officer, PR #17)
 
-- [ ] Withdrawal: after "Cookie settings" → "Reject all", the page reloads, then navigate to at least three more pages: no request to googletagmanager.com, google-analytics.com or youtube(-nocookie).com, and no `_ga` / `_ga_*` cookie on the registrable domain (check the parent domain too).
-- [ ] Lawyer: the first-layer wording of the consent window, the "necessary" classification of the colour-scheme cookie (`color-mode`, set only when the visitor picks a scheme with the header switch), YouTube (Google) as independent or joint controller, the legal basis for keeping the consent cookie, and the wording on GA4 and IP addresses.
+- [ ] Withdrawal: after "Cookie settings" → "Reject all", the page reloads, then navigate to at least three more pages: no request to googletagmanager.com or google-analytics.com, and no `_ga` / `_ga_*` cookie on the registrable domain (check the parent domain too).
+- [ ] Lawyer: the first-layer wording of the consent window, the "necessary" classification of the colour-scheme cookie (`color-mode`, set only when the visitor picks a scheme with the header switch), the legal basis for keeping the consent cookie, and the wording on GA4 and IP addresses.
 - [ ] Vercel: the log retention of the client's plan and whether a data protection officer is required.
 
 ## Additional checks (Privacy Officer, PR #33: contact form)

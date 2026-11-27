@@ -4,7 +4,7 @@
  */
 
 /** The categories of the consent window, in the order shown. */
-export const CONSENT_CATEGORIES = ['necessary', 'statistics', 'externalMedia'] as const
+export const CONSENT_CATEGORIES = ['necessary', 'statistics'] as const
 
 export type ConsentCategory = (typeof CONSENT_CATEGORIES)[number]
 
@@ -19,7 +19,7 @@ export type OptionalCategory = Exclude<ConsentCategory, 'necessary'>
  * Raise it whenever a category, a tool or a cookie changes: every visitor is asked again
  * (their earlier consent no longer covers what the site does).
  */
-export const CONSENT_REVISION = 2
+export const CONSENT_REVISION = 3
 
 /** A choice is remembered 6 months, then the visitor is asked again. */
 export const CONSENT_DAYS = 182

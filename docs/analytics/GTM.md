@@ -96,6 +96,6 @@ The site pushes `{ event, page, …parameters }` to the `dataLayer` (`composable
 
 Page views are GA4's own (`page_view`, browser history changes included), sent by the Google tag.
 
-To see a parameter in GA4 reports (not only in DebugView), register it once per property: **Admin → Data display → Custom definitions → Create custom dimension**, scope **Event**, event parameter `label` (then `article`, `video`, `method`, `target`, `offer`, `page`).
+To see a parameter in GA4 reports (not only in DebugView), register it once per property: **Admin → Data display → Custom definitions → Create custom dimension**, scope **Event**, event parameter `label` (then `page`).
 
 A new event: add its name to `constants/analytics.constants.ts`, a trigger and a GA4 event tag to `docs/analytics/gtm-container.json` and this table, in the same PR. The Privacy Officer reviews it.

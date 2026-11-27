@@ -14,7 +14,7 @@ export interface CookieEntry {
   id: string
   /** The cookie's name as the browser shows it (`*` stands for a variable part). */
   name: string
-  provider: 'site' | 'google' | 'youtube'
+  provider: 'site' | 'google'
   category: ConsentCategory
   /** Removed from the browser when the visitor withdraws the category (`autoClear`). */
   clear?: RegExp
@@ -25,13 +25,6 @@ export const COOKIES: CookieEntry[] = [
   { id: 'colorMode', name: COLOR_MODE_COOKIE, provider: 'site', category: 'necessary' },
   { id: 'ga', name: '_ga', provider: 'google', category: 'statistics', clear: /^_ga$/ },
   { id: 'gaSession', name: '_ga_*', provider: 'google', category: 'statistics', clear: /^_ga_/ },
-  {
-    id: 'youtubeVisitor',
-    name: 'VISITOR_INFO1_LIVE',
-    provider: 'youtube',
-    category: 'externalMedia',
-  },
-  { id: 'youtubeSession', name: 'YSC', provider: 'youtube', category: 'externalMedia' },
 ]
 
 export const cookiesOf = (category: ConsentCategory) =>

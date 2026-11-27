@@ -5,7 +5,6 @@ export interface ConsentState {
   /** The visitor has answered the consent window (Accept, Reject or Settings). */
   decided: boolean
   statistics: boolean
-  externalMedia: boolean
 }
 
 /**
@@ -17,7 +16,6 @@ export function useConsent() {
   const state = useState<ConsentState>('consent', () => ({
     decided: false,
     statistics: false,
-    externalMedia: false,
   }))
 
   return {

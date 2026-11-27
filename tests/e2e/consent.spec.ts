@@ -6,18 +6,16 @@ import { expect, type Page, test } from '@playwright/test'
 test.use({ storageState: { cookies: [], origins: [] } })
 
 const GOOGLE = /googletagmanager\.com|google-analytics\.com|\/gtm\.js/
-const YOUTUBE = /youtube(-nocookie)?\.com/
 
-/** Records every request to Google or YouTube, and stubs GTM with an empty script. */
+/** Records every request to Google, and stubs GTM with an empty script. */
 async function watchThirdParties(page: Page) {
   const requests: string[] = []
   page.on('request', (request) => {
-    if (GOOGLE.test(request.url()) || YOUTUBE.test(request.url())) requests.push(request.url())
+    if (GOOGLE.test(request.url())) requests.push(request.url())
   })
   await page.route(GOOGLE, (route) =>
     route.fulfill({ contentType: 'text/javascript', body: '/* GTM stub */' }),
   )
-  await page.route(YOUTUBE, (route) => route.fulfill({ contentType: 'text/html', body: '' }))
   return requests
 }
 

@@ -9,13 +9,13 @@ describe('HomeHero', () => {
       props: {
         title: 'Train smarter',
         text: 'Personal coaching.',
-        cta: { label: 'See the offers', to: '/en/offers', external: false },
+        cta: { label: 'More about me', to: '/en/about', external: false },
       },
     })
 
     expect(wrapper.find('h1').text()).toBe('Train smarter')
     expect(wrapper.text()).toContain('Personal coaching.')
-    expect(wrapper.find('a[href="/en/offers"]').text()).toBe('See the offers')
+    expect(wrapper.find('a[href="/en/about"]').text()).toBe('More about me')
   })
 
   it('shows the image with its alternative text', async () => {

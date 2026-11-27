@@ -59,7 +59,7 @@
   },
   "consent": {
     "title": "Ihre Privatsphäre",
-    "description": "Wir nutzen Cookies und ähnliche Technologien, die die Website zum Funktionieren braucht (sie speichern Ihre Wahl und das Farbschema). Nur mit Ihrer Einwilligung nutzen wir außerdem Google Tag Manager und Google Analytics (Statistik) und zeigen YouTube-Videos (externe Medien); dabei können Daten an Google in den USA übermittelt werden. Sie können Ihre Wahl jederzeit unter „Cookie-Einstellungen“ unten auf jeder Seite ändern.",
+    "description": "Wir nutzen Cookies und ähnliche Technologien, die die Website zum Funktionieren braucht (sie speichern Ihre Wahl und das Farbschema). Nur mit Ihrer Einwilligung nutzen wir außerdem Google Tag Manager und Google Analytics (Statistik); dabei können Daten an Google in den USA übermittelt werden. Sie können Ihre Wahl jederzeit unter „Cookie-Einstellungen“ unten auf jeder Seite ändern.",
     "acceptAll": "Alle akzeptieren",
     "rejectAll": "Alle ablehnen",
     "settings": "Einstellungen",
@@ -75,13 +75,9 @@
       "statistics": {
         "title": "Statistik",
         "description": "Google Tag Manager und Google Analytics messen, wie die Seite genutzt wird (Seiten, Klicks), pseudonymisiert und ohne Werbung."
-      },
-      "externalMedia": {
-        "title": "Externe Medien",
-        "description": "Lädt YouTube-Videos direkt. Sobald ein Video geladen wird, werden Daten an YouTube (Google) gesendet, gegebenenfalls in die USA."
       }
     },
-    "descriptionNoStatistics": "Wir nutzen Cookies und ähnliche Technologien, die die Website zum Funktionieren braucht (sie speichern Ihre Wahl und das Farbschema). Nur mit Ihrer Einwilligung zeigen wir YouTube-Videos (externe Medien); dabei können Daten an Google in den USA übermittelt werden. Sie können Ihre Wahl jederzeit unter „Cookie-Einstellungen“ unten auf jeder Seite ändern."
+    "descriptionNoStatistics": "Wir nutzen nur Cookies und ähnliche Technologien, die die Website zum Funktionieren braucht (sie speichern Ihre Wahl und das Farbschema). Sie können Ihre Wahl jederzeit unter „Cookie-Einstellungen“ unten auf jeder Seite ändern."
   },
   "cookies": {
     "title": "Cookies auf dieser Seite",
@@ -92,8 +88,7 @@
     "category": "Kategorie",
     "providers": {
       "site": "Diese Website",
-      "google": "Google",
-      "youtube": "YouTube (Google)"
+      "google": "Google"
     },
     "consent": {
       "purpose": "Speichert Ihre Einwilligung",
@@ -106,14 +101,6 @@
     "gaSession": {
       "purpose": "Hält die Sitzung für die Statistik",
       "duration": "2 Jahre"
-    },
-    "youtubeVisitor": {
-      "purpose": "Wird von YouTube beim Laden eines Videos gesetzt; der Player speichert zudem Daten im Browser (yt-remote-*, ytidb::*)",
-      "duration": "6 Monate"
-    },
-    "youtubeSession": {
-      "purpose": "Wird von YouTube beim Abspielen gesetzt",
-      "duration": "Sitzung"
     },
     "colorMode": {
       "purpose": "Merkt sich das Farbschema (hell oder dunkel), das Sie mit dem Schalter oben gewählt haben; erst bei dieser Wahl gesetzt",
