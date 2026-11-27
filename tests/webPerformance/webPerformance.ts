@@ -98,15 +98,9 @@ if (!base) {
 }
 if (!key) process.stderr.write('PAGESPEED_API_KEY is not set: Google may refuse requests (429).\n')
 
-/**
- * Each page template once: every page in the default language (unprefixed URL), and for templates
- * with a slug (their pages belong to editors), the one example of `budget.slugPages`.
- */
+/** Every page in the default language (unprefixed URL). */
 function pagePaths(): string[] {
-  const pages = Object.entries(ROUTE_PATHS)
-    .filter(([route]) => !route.endsWith('-slug'))
-    .map(([, paths]) => paths[DEFAULT_LOCALE])
-  return [...pages, ...budget.slugPages]
+  return Object.values(ROUTE_PATHS).map((paths) => paths[DEFAULT_LOCALE])
 }
 
 /** The error message of a failed PageSpeed response, or its body. */

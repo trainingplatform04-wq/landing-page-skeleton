@@ -25,11 +25,11 @@ test.describe('About page', () => {
     await expect(page).toHaveURL(/\/en\/contact$/)
   })
 
-  test('is in the main menu after the magazine', async ({ page }) => {
+  test('is in the main menu', async ({ page }) => {
     await page.goto('/en')
     const menu = page.getByRole('navigation', { name: 'Main navigation' }).first()
 
-    await expect(menu.getByRole('link')).toContainText(['Offers', 'Magazine', 'About', 'FAQ'])
+    await expect(menu.getByRole('link')).toContainText(['About', 'FAQ', 'Contact'])
     await menu.getByRole('link', { name: 'About' }).first().click()
 
     await expect(page).toHaveURL(/\/en\/about$/)

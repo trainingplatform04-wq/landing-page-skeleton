@@ -35,7 +35,7 @@ Ask only what is still unknown, most decisive first:
 - **Goal**: what should a visitor do after this page or section (book, write, read on)? How do we know it worked?
 - **Audience**: who lands here, from where (search, ad, recommendation), on which device first?
 - **Message**: the one sentence a visitor must remember; the proof (numbers, testimonials, certifications).
-- **Call to action**: label, target (page, offer, email, phone), one primary per section.
+- **Call to action**: label, target (page, email, phone), one primary per section.
 - **Content**: the real copy in **every locale**, or who provides it and when; what the client edits later in the Studio.
 - **Out of scope**: what this design deliberately does not do.
 

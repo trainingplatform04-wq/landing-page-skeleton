@@ -9,10 +9,6 @@ type LocalizedPaths = Record<LocaleCode, `/${string}`>
  */
 export const ROUTE_PATHS = {
   index: { de: '/', en: '/' },
-  offers: { de: '/angebote', en: '/offers' },
-  'offers-slug': { de: '/angebote/[slug]', en: '/offers/[slug]' },
-  magazine: { de: '/magazin', en: '/magazine' },
-  'magazine-slug': { de: '/magazin/[slug]', en: '/magazine/[slug]' },
   about: { de: '/ueber-uns', en: '/about' },
   faq: { de: '/faq', en: '/faq' },
   contact: { de: '/kontakt', en: '/contact' },
@@ -25,8 +21,6 @@ export type RouteName = keyof typeof ROUTE_PATHS
 /** The Sanity document behind each page, one per language (id `<type>-<locale>`). */
 export const PAGE_TYPES = {
   index: 'homePage',
-  offers: 'offersPage',
-  magazine: 'magazinePage',
   about: 'aboutPage',
   faq: 'faqPage',
   contact: 'contactPage',

@@ -2,8 +2,6 @@
   "nav": {
     "label": "Hauptnavigation",
     "home": "Startseite",
-    "offers": "Angebote",
-    "magazine": "Magazin",
     "about": "Über mich",
     "contact": "Kontakt",
     "faq": "FAQ"
@@ -19,8 +17,6 @@
     "cookieSettings": "Cookie-Einstellungen"
   },
   "home": {
-    "featuredOffers": "Ausgewählte Angebote",
-    "allOffers": "Alle Angebote",
     "aboutMore": "Mehr über mich"
   },
   "testimonials": {
@@ -30,10 +26,6 @@
     "title": "Häufige Fragen",
     "all": "Alle Fragen",
     "empty": "Noch keine Fragen"
-  },
-  "offers": {
-    "empty": "Noch keine Angebote",
-    "price": "Preis: {price}"
   },
   "contact": {
     "form": {
@@ -64,38 +56,6 @@
       "title": "Etwas ist schiefgelaufen",
       "message": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
     }
-  },
-  "magazine": {
-    "all": "Alle",
-    "categoriesLabel": "Artikelkategorien",
-    "none": "Noch keine Artikel.",
-    "empty": "Noch keine Artikel in dieser Kategorie.",
-    "showAll": "Alle Artikel",
-    "paginationLabel": "Artikelseiten",
-    "readingTime": "{n} Min. Lesezeit"
-  },
-  "article": {
-    "breadcrumb": "Magazin",
-    "takeaways": "Auf einen Blick",
-    "toc": "In diesem Artikel",
-    "progress": "Lesefortschritt des Artikels",
-    "coachTip": "Coach-Tipp",
-    "video": {
-      "consent": "Beim Abspielen werden Daten an YouTube gesendet.",
-      "load": "Video laden"
-    },
-    "share": {
-      "label": "Artikel teilen",
-      "copy": "Link kopieren",
-      "native": "Teilen",
-      "copied": "Link kopiert",
-      "copyFailed": "Der Link konnte nicht kopiert werden. Bitte versuch es noch einmal.",
-      "failed": "Der Artikel konnte nicht geteilt werden. Bitte versuch es noch einmal."
-    },
-    "faq": "Häufige Fragen",
-    "writtenBy": "Geschrieben von",
-    "moreFrom": "Mehr von {name}",
-    "related": "Weiterlesen"
   },
   "consent": {
     "title": "Ihre Privatsphäre",

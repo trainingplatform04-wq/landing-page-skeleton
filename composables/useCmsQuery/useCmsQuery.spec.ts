@@ -12,8 +12,8 @@ mockNuxtImport('useSanity', () => () => ({ fetch: fetchMock }))
 
 const titlesQuery = q
   .parameters<{ locale: string; slug: string }>()
-  .star.filterByType('offer')
-  .project({ title: z.string() })
+  .star.filterByType('faqItem')
+  .project({ question: z.string() })
 
 describe('useCmsQuery', () => {
   beforeEach(() => {
@@ -22,7 +22,7 @@ describe('useCmsQuery', () => {
   })
 
   it("sends the query with the visitor's language and returns the checked answer", async () => {
-    fetchMock.mockResolvedValue([{ title: 'Yoga' }])
+    fetchMock.mockResolvedValue([{ question: 'Yoga' }])
     const titles = await mountComposable(
       () => useCmsQuery('titles', titlesQuery, { slug: 'yoga' }),
       {
@@ -30,7 +30,7 @@ describe('useCmsQuery', () => {
       },
     )
 
-    expect(titles).toEqual([{ title: 'Yoga' }])
+    expect(titles).toEqual([{ question: 'Yoga' }])
     expect(fetchMock).toHaveBeenCalledWith(titlesQuery.query, { locale: 'en', slug: 'yoga' })
   })
 
@@ -41,7 +41,7 @@ describe('useCmsQuery', () => {
     })
 
     clearNuxtData()
-    fetchMock.mockResolvedValueOnce([{ title: 42 }])
+    fetchMock.mockResolvedValueOnce([{ question: 42 }])
     expect(await thrownBy(() => useCmsQuery('titles', titlesQuery, { slug: 'b' }))).toMatchObject({
       status: 503,
     })

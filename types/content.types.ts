@@ -38,15 +38,6 @@ export interface Seo {
  */
 export type RichText = Array<{ _type: string; _key: string; [field: string]: unknown }>
 
-export interface OfferCard {
-  id: string
-  title: string
-  summary: string
-  to: string
-  image?: Image
-  price?: string
-}
-
 export interface FaqItem {
   id: string
   question: string

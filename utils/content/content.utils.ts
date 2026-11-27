@@ -1,16 +1,13 @@
 import { type LocalePath, resolveLink, toTelHref } from '~/utils/link/link.utils'
-import { formatPrice } from '~/utils/price/price.utils'
 
-import type { Business, Closing, Cta, Image, OfferCard, RichText, Seo } from '~/types/content.types'
+import type { Business, Closing, Cta, Image, RichText, Seo } from '~/types/content.types'
 import type {
   BusinessData,
   ClosingData,
   CtaData,
   ImageData,
-  OfferCardData,
   RichTextData,
   SeoData,
-  TranslationsData,
 } from '~/utils/groqd/groqd.utils'
 
 /** What the mappers need to know about the visitor's language. */
@@ -87,18 +84,6 @@ export function unpublishedSeo(title: string): Seo {
   return { title, noIndex: true }
 }
 
-/**
- * The slug of a document in each language, for the language switcher and hreflang:
- * `{ en: { slug: 'yoga' } }`. A document not linked to any translation has only its own.
- */
-export function toSlugs(
-  translations: TranslationsData,
-  own: { language: string; slug: string },
-): Record<string, { slug: string }> {
-  const versions = (translations ?? [own]).flatMap((version) => (version ? [version] : []))
-  return Object.fromEntries(versions.map(({ language, slug }) => [language, { slug }]))
-}
-
 /** Rich text with its links resolved; a link that can't be shown renders as plain text. */
 export function toRichText(blocks: RichTextData | null | undefined, context: MapContext): RichText {
   return (blocks ?? []).map((block) => {
@@ -110,18 +95,6 @@ export function toRichText(blocks: RichTextData | null | undefined, context: Map
     })
     return { ...block, markDefs }
   })
-}
-
-/** An offer on a card: its link in this language and its price formatted for the visitor. */
-export function toOfferCard(offer: OfferCardData, context: MapContext): OfferCard {
-  return {
-    id: offer.id,
-    title: offer.title,
-    summary: offer.summary,
-    to: context.localePath({ name: 'offers-slug', params: { slug: offer.slug } }),
-    image: toImage(offer.image),
-    price: offer.price == null ? undefined : formatPrice(offer.price, context.language),
-  }
 }
 
 /** The business facts ready to show: address lines and a dialable phone link. */

@@ -6,7 +6,6 @@ import {
   toClosing,
   toCta,
   toImage,
-  toOfferCard,
   toRichText,
   toSeo,
   unpublishedSeo,
@@ -17,7 +16,6 @@ import type {
   Cta,
   FaqItem,
   Image,
-  OfferCard,
   RichText,
   Seo,
   Testimonial,
@@ -27,7 +25,6 @@ import type {
 export interface HomeView {
   seo: Seo
   hero: { title: string; text?: string; image?: Image; cta?: Cta }
-  offers: OfferCard[]
   about?: { title?: string; portrait?: Image; body: RichText; highlights: string[] }
   testimonials: Testimonial[]
   faq: FaqItem[]
@@ -50,9 +47,6 @@ function toHomeView(home: HomeData, context: MapContext): HomeView {
       image: toImage(home.hero.image),
       cta: toCta(home.hero.cta, context),
     },
-    offers: home.showOffers
-      ? (home.featuredOffers ?? []).map((offer) => toOfferCard(offer, context))
-      : [],
     about: toAbout(home.about, context),
     testimonials: home.showTestimonials
       ? (home.testimonials ?? []).map((testimonial) => ({
@@ -77,7 +71,7 @@ export async function useHome(): Promise<HomeView> {
   const home = await useCmsQuery('home', homeQuery)
   if (!home) {
     const title = t('nav.home')
-    return { seo: unpublishedSeo(title), hero: { title }, offers: [], testimonials: [], faq: [] }
+    return { seo: unpublishedSeo(title), hero: { title }, testimonials: [], faq: [] }
   }
   return toHomeView(home, context)
 }

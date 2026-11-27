@@ -15,32 +15,15 @@ test.describe('Internationalization & SEO', () => {
     await expect(page.locator('link[rel="canonical"]')).toHaveCount(1)
   })
 
-  test('links an offer to its translation at its own slug', async ({ page }) => {
-    await page.goto('/angebote/personal-training')
-
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
-      'href',
-      /\/angebote\/personal-training$/,
-    )
-    await expect(page.locator('link[rel="alternate"][hreflang="en-US"]')).toHaveAttribute(
-      'href',
-      /\/en\/offers\/personal-coaching$/,
-    )
-    await expect(page.getByRole('link', { name: 'English' })).toHaveAttribute(
-      'href',
-      '/en/offers/personal-coaching',
-    )
-  })
-
   test('switches language to the translated URL of the same page and back', async ({ page }) => {
-    await page.goto('/angebote/personal-training')
+    await page.goto('/ueber-uns')
     await page.getByRole('link', { name: 'English' }).click()
 
-    await expect(page).toHaveURL(/\/en\/offers\/personal-coaching$/)
+    await expect(page).toHaveURL(/\/en\/about$/)
     await expect(page.locator('html')).toHaveAttribute('lang', 'en-US')
     // The layout stays mounted across the switch: its menu and footer must follow the language.
     const nav = page.getByRole('navigation', { name: 'Main navigation' }).first()
-    await expect(nav.getByRole('link', { name: 'Offers' })).toHaveAttribute('href', '/en/offers')
+    await expect(nav.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/en/about')
     const legal = page.getByRole('contentinfo').getByRole('navigation')
     await expect(legal.getByRole('link', { name: 'Imprint' })).toHaveAttribute(
       'href',
@@ -48,23 +31,7 @@ test.describe('Internationalization & SEO', () => {
     )
 
     await page.getByRole('link', { name: 'Deutsch' }).click()
-    await expect(page).toHaveURL(/\/angebote\/personal-training$/)
-  })
-
-  test('never links an offer to a language it is not translated into', async ({ page }) => {
-    await page.goto('/angebote/online-coaching')
-
-    await expect(page.locator('link[rel="alternate"][hreflang="en-US"]')).toHaveCount(0)
-    const english = page.getByRole('link', { name: 'English' })
-    await expect(english).toHaveAttribute('data-i18n-disabled')
-    await expect(english).toHaveAttribute('aria-disabled', 'true')
-    await expect(english).toHaveAttribute('tabindex', '-1')
-  })
-
-  test('is a 404 when a slug is requested in the wrong language', async ({ page }) => {
-    const response = await page.goto('/en/offers/personal-training')
-
-    expect(response?.status()).toBe(404)
+    await expect(page).toHaveURL(/\/ueber-uns$/)
   })
 
   test('translates page paths and the menu', async ({ page }) => {

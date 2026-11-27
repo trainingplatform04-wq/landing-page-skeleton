@@ -20,7 +20,6 @@ test.describe('Home page', () => {
     await page.goto('/')
     const main = page.locator('main')
 
-    await expect(main.getByText('Kraftgruppe', { exact: true })).toBeVisible()
     await expect(main.getByRole('heading', { name: 'Über mich' })).toBeVisible()
     await expect(main.getByText('Zertifizierte Trainerin')).toBeVisible()
     await expect(main.getByText('Gibt es ein Probetraining?')).toBeVisible()
@@ -40,14 +39,14 @@ test.describe('Home page', () => {
 
   test('links the button to the page the editor picked, in each language', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('link', { name: 'Angebote ansehen' }).click()
-    await expect(page).toHaveURL(/\/angebote$/)
+    await page.getByRole('link', { name: 'Mehr über mich' }).first().click()
+    await expect(page).toHaveURL(/\/ueber-uns$/)
 
     await page.goto('/en')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Train smarter, not harder')
-    await expect(page.getByRole('link', { name: 'See the offers' })).toHaveAttribute(
+    await expect(page.getByRole('link', { name: 'More about me' }).first()).toHaveAttribute(
       'href',
-      '/en/offers',
+      '/en/about',
     )
   })
 })
@@ -58,18 +57,5 @@ test.describe('Error pages', () => {
 
     expect(response?.status()).toBe(404)
     await expect(page.getByText('Seite nicht gefunden')).toBeVisible()
-  })
-
-  test('answers 404 for an unknown offer', async ({ page }) => {
-    const response = await page.goto('/angebote/gibt-es-nicht')
-
-    expect(response?.status()).toBe(404)
-  })
-
-  test('answers 503 when the CMS fails, never an empty page', async ({ page }) => {
-    const response = await page.goto('/angebote/cms-error')
-
-    expect(response?.status()).toBe(503)
-    await expect(page.getByText('Etwas ist schiefgelaufen')).toBeVisible()
   })
 })

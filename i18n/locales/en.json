@@ -2,8 +2,6 @@
   "nav": {
     "label": "Main navigation",
     "home": "Home",
-    "offers": "Offers",
-    "magazine": "Magazine",
     "about": "About",
     "contact": "Contact",
     "faq": "FAQ"
@@ -19,8 +17,6 @@
     "cookieSettings": "Cookie settings"
   },
   "home": {
-    "featuredOffers": "Featured offers",
-    "allOffers": "All offers",
     "aboutMore": "More about me"
   },
   "testimonials": {
@@ -30,10 +26,6 @@
     "title": "Frequently asked questions",
     "all": "All questions",
     "empty": "No questions yet"
-  },
-  "offers": {
-    "empty": "No offers yet",
-    "price": "Price: {price}"
   },
   "contact": {
     "form": {
@@ -64,38 +56,6 @@
       "title": "Something went wrong",
       "message": "An unexpected error occurred. Please try again later."
     }
-  },
-  "magazine": {
-    "all": "All",
-    "categoriesLabel": "Article categories",
-    "none": "No articles yet.",
-    "empty": "No articles in this category yet.",
-    "showAll": "All articles",
-    "paginationLabel": "Article pages",
-    "readingTime": "{n} min read"
-  },
-  "article": {
-    "breadcrumb": "Magazine",
-    "takeaways": "At a glance",
-    "toc": "In this article",
-    "progress": "Article reading progress",
-    "coachTip": "Coach tip",
-    "video": {
-      "consent": "Playing sends data to YouTube.",
-      "load": "Load video"
-    },
-    "share": {
-      "label": "Share this article",
-      "copy": "Copy link",
-      "native": "Share",
-      "copied": "Link copied",
-      "copyFailed": "Unable to copy the link. Please try again.",
-      "failed": "Unable to share the article. Please try again."
-    },
-    "faq": "Frequently asked questions",
-    "writtenBy": "Written by",
-    "moreFrom": "More from {name}",
-    "related": "Keep reading"
   },
   "consent": {
     "title": "Your privacy",

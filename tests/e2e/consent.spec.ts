@@ -89,9 +89,11 @@ test.describe('Consent', () => {
       const context = await browser.newContext({ locale: 'de-DE' })
       const page = await context.newPage()
       await watchThirdParties(page)
-      // A direct visit: the offer page sends offer_view before the visitor has answered.
-      await page.goto('/angebote/personal-training')
+      // A direct visit: a tracked click is made before the visitor has answered.
+      await page.goto('/')
       await page.waitForLoadState('networkidle')
+      await page.getByRole('link', { name: 'Mehr über mich' }).first().click()
+      await expect(page).toHaveURL(/\/ueber-uns$/)
       await page.getByRole('button', { name: button }).click()
       await page.waitForTimeout(1000)
       const layer: Array<Record<string, unknown>> = await dataLayer(page)
@@ -101,10 +103,10 @@ test.describe('Consent', () => {
 
     const accepted = await answer('Alle akzeptieren')
     const gtmAt = accepted.findIndex((entry) => entry.event === 'gtm.js')
-    const offerAt = accepted.findIndex((entry) => entry.event === 'offer_view')
+    const clickAt = accepted.findIndex((entry) => entry.event === 'cta_click')
     expect(gtmAt).toBeGreaterThanOrEqual(0)
-    expect(offerAt).toBeGreaterThan(gtmAt)
-    expect(accepted[offerAt]).toMatchObject({ offer: 'personal-training' })
+    expect(clickAt).toBeGreaterThan(gtmAt)
+    expect(accepted[clickAt]).toMatchObject({ label: 'Mehr über mich' })
 
     expect(await answer('Alle ablehnen')).toEqual([])
   })
@@ -188,23 +190,10 @@ test.describe('Consent', () => {
 
     expect(await analyticsCookies(page)).toEqual([])
     requests.length = 0
-    await page.goto('/angebote')
+    await page.goto('/ueber-uns')
     await page.goto('/faq')
     await page.waitForTimeout(500)
     expect(requests).toEqual([])
-  })
-
-  test('external media: videos load directly once allowed, never before', async ({ page }) => {
-    const requests = await watchThirdParties(page)
-    await page.goto('/en/magazine/protein-without-powder')
-    await expect(page.locator('iframe')).toHaveCount(0)
-    expect(requests.filter((url) => YOUTUBE.test(url))).toEqual([])
-
-    await page.getByRole('button', { name: 'Accept all' }).click()
-
-    await expect(
-      page.locator('iframe[src^="https://www.youtube-nocookie.com/embed/"]'),
-    ).toHaveCount(1)
   })
 
   test('the privacy page lists every cookie of the inventory', async ({ page }) => {

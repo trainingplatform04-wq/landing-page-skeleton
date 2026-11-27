@@ -43,16 +43,6 @@ export const homePageSchema = defineType({
       ],
       validation: (rule) => rule.required(),
     }),
-    { ...toggleField('showOffers', 'Show featured offers'), group: 'sections' },
-    {
-      ...referenceListField({
-        name: 'featuredOffers',
-        title: 'Featured offers',
-        to: 'offer',
-        max: 3,
-      }),
-      group: 'sections',
-    },
     defineField({
       name: 'about',
       title: 'About',

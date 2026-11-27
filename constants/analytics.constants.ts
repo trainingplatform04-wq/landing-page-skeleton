@@ -3,16 +3,7 @@
  * container export in `docs/analytics/gtm-container.json` has a trigger and a GA4 event for
  * each. Parameters never carry personal data: no names, emails or messages.
  */
-export const ANALYTICS_EVENTS = [
-  'contact_submit',
-  'cta_click',
-  'article_read',
-  'video_load',
-  'share',
-  'related_click',
-  'offer_view',
-  'offer_cta',
-] as const
+export const ANALYTICS_EVENTS = ['contact_submit', 'cta_click'] as const
 
 export type AnalyticsEvent = (typeof ANALYTICS_EVENTS)[number]
 

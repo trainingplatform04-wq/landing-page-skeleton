@@ -11,7 +11,7 @@ import {
 
 const template = (schemaType: string): Template => ({
   id: schemaType,
-  title: schemaType === 'offer' ? 'Offer' : schemaType,
+  title: schemaType === 'faqItem' ? 'Question' : schemaType,
   schemaType,
   value: {},
 })
@@ -21,15 +21,15 @@ const action = (name: string) =>
 
 describe('filterTemplates', () => {
   const templates = filterTemplates(
-    ['offer', 'homePage', 'businessProfile', 'translation.metadata', 'faqItem'].map(template),
+    ['faqItem', 'homePage', 'businessProfile', 'translation.metadata'].map(template),
   )
   const ids = templates.map(({ id }) => id)
 
   it('replaces the defaults of translated types with one template per language', () => {
-    expect(ids).not.toContain('offer')
-    expect(templates.find(({ id }) => id === 'offer-en')).toMatchObject({
-      title: 'Offer (English)',
-      schemaType: 'offer',
+    expect(ids).not.toContain('faqItem')
+    expect(templates.find(({ id }) => id === 'faqItem-en')).toMatchObject({
+      title: 'Question (English)',
+      schemaType: 'faqItem',
       value: { language: 'en' },
     })
   })
@@ -47,7 +47,7 @@ describe('isCreatableFromMenu', () => {
   it('hides singletons, which the desk opens by their fixed id', () => {
     expect(isCreatableFromMenu('homePage-de')).toBe(false)
     expect(isCreatableFromMenu('businessProfile')).toBe(false)
-    expect(isCreatableFromMenu('offer-de')).toBe(true)
+    expect(isCreatableFromMenu('faqItem-de')).toBe(true)
   })
 })
 
@@ -73,6 +73,6 @@ describe('singleton actions', () => {
   it('apply to pages, site settings and the business profile only', () => {
     expect(isSingletonType('faqPage')).toBe(true)
     expect(isSingletonType('businessProfile')).toBe(true)
-    expect(isSingletonType('offer')).toBe(false)
+    expect(isSingletonType('faqItem')).toBe(false)
   })
 })

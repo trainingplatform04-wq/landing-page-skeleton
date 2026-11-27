@@ -1,94 +1,5 @@
-/** The words of the demo content (pages, offers, testimonials, questions) in every language. */
+/** The words of the demo content (pages, testimonials, questions) in every language. */
 import type { LocaleCode } from '../../constants/i18n.constants'
-
-export const OFFERS = [
-  {
-    key: 'personal',
-    image: 'offerPersonal',
-    price: 89,
-    de: {
-      title: 'Personal Training',
-      slug: 'personal-training',
-      summary:
-        '60 Minuten Eins-zu-eins-Training, abgestimmt auf Ihre Ziele, Ihren Körper und Ihren Kalender.',
-      body: 'Wir starten mit einer Bewegungsanalyse und bauen daraus Ihren Plan. Jede Einheit ist vorbereitet, jede Übung erklärt.',
-      points: [
-        'Bewegungsanalyse in der ersten Stunde',
-        'Trainingsplan für zu Hause',
-        'Termine morgens, mittags und abends',
-      ],
-    },
-    en: {
-      title: 'Personal coaching',
-      slug: 'personal-coaching',
-      summary:
-        '60 minutes of one-to-one training, matched to your goals, your body and your calendar.',
-      body: 'We start with a movement assessment and build your plan from it. Every session is prepared, every exercise explained.',
-      points: [
-        'Movement assessment in the first session',
-        'Training plan for home',
-        'Sessions in the morning, at lunch and in the evening',
-      ],
-    },
-  },
-  {
-    key: 'strength',
-    image: 'offerStrength',
-    price: 25,
-    de: {
-      title: 'Kraftgruppe',
-      slug: 'kraftgruppe',
-      summary:
-        'Kleingruppe mit höchstens sechs Personen: Grundübungen sauber lernen und gemeinsam stärker werden.',
-      body: 'Zweimal pro Woche trainieren wir Kniebeuge, Kreuzheben, Drücken und Ziehen, mit Technik vor Gewicht.',
-      points: [
-        'Maximal sechs Teilnehmende',
-        'Dienstag und Donnerstag, 18:30',
-        'Für Einsteiger und Fortgeschrittene',
-      ],
-    },
-    en: {
-      title: 'Strength group',
-      slug: 'strength-group',
-      summary:
-        'A small group of six people at most: learn the main lifts properly and get stronger together.',
-      body: 'Twice a week we train squats, deadlifts, presses and pulls, with technique before load.',
-      points: [
-        'Six participants at most',
-        'Tuesday and Thursday, 6:30 pm',
-        'For beginners and advanced lifters',
-      ],
-    },
-  },
-  {
-    key: 'online',
-    image: 'offerOnline',
-    price: 149,
-    de: {
-      title: 'Online-Coaching',
-      slug: 'online-coaching',
-      summary:
-        'Ihr Trainingsplan per App, wöchentliches Feedback per Video und Antworten innerhalb von 24 Stunden.',
-      body: 'Für alle, die selbstständig trainieren und trotzdem jemanden an ihrer Seite wollen.',
-      points: [
-        'Plan in der App, jede Woche angepasst',
-        'Video-Feedback zu Ihrer Technik',
-        'Monatlich kündbar',
-      ],
-    },
-    en: {
-      title: 'Online coaching',
-      slug: 'online-coaching',
-      summary: 'Your training plan in an app, weekly video feedback and answers within 24 hours.',
-      body: 'For people who train on their own and still want someone at their side.',
-      points: [
-        'Plan in the app, adjusted every week',
-        'Video feedback on your technique',
-        'Cancel monthly',
-      ],
-    },
-  },
-] as const
 
 export const TESTIMONIALS = [
   {
@@ -164,13 +75,13 @@ export const COPY = {
       heroTitle: 'Klüger trainieren, nicht härter',
       heroText:
         'Personal Training und Kleingruppen in Berlin-Mitte: mit Plan, mit Technik und mit Spaß.',
-      heroCta: 'Angebote ansehen',
+      heroCta: 'Mehr über mich',
       heroAlt: 'Trainerin zeigt einer Kundin eine Kniebeuge',
       aboutTitle: 'Über mich',
       portraitAlt: 'Porträt der Trainerin',
       about:
-        'Seit 2010 helfe ich Menschen, stärker und schmerzfrei zu werden. Mein Lieblingsangebot zum Einstieg:',
-      aboutLink: 'Personal Training',
+        'Seit 2010 helfe ich Menschen, stärker und schmerzfrei zu werden. Mehr zu meiner Arbeit:',
+      aboutLink: 'Mehr über mich',
       highlights: [
         'Zertifizierte Trainerin (Demo)',
         'Über 500 betreute Kundinnen und Kunden',
@@ -194,15 +105,6 @@ export const COPY = {
       cta: 'Probetraining anfragen',
       seoDescription:
         'Lernen Sie Ihre Trainerin kennen: Seit 2010 hilft sie Menschen in Berlin-Mitte, stärker zu werden und sich schmerzfrei zu bewegen.',
-    },
-    offers: {
-      title: 'Angebote',
-      intro: 'Drei Wege zu Ihrem Ziel. Alle beginnen mit einem kostenlosen Probetraining.',
-      cta: 'Frage per E-Mail stellen',
-      offerCta: 'Probetraining anfragen',
-      pointsTitle: 'Das ist enthalten',
-      imageAlt: 'Trainingssituation im Studio',
-      price: 'Preis pro Einheit beziehungsweise Monat, inklusive Mehrwertsteuer.',
     },
     faq: {
       title: 'Häufige Fragen',
@@ -308,13 +210,13 @@ export const COPY = {
       heroTitle: 'Train smarter, not harder',
       heroText:
         'Personal training and small groups in Berlin-Mitte: with a plan, with technique and with fun.',
-      heroCta: 'See the offers',
+      heroCta: 'More about me',
       heroAlt: 'Coach showing a client a squat',
       aboutTitle: 'About me',
       portraitAlt: 'Portrait of the coach',
       about:
-        'Since 2010 I have been helping people get stronger and pain-free. My favourite way to start:',
-      aboutLink: 'Personal coaching',
+        'Since 2010 I have been helping people get stronger and pain-free. More about my work:',
+      aboutLink: 'More about me',
       highlights: [
         'Certified coach (demo)',
         'More than 500 clients coached',
@@ -337,15 +239,6 @@ export const COPY = {
       cta: 'Request a free trial',
       seoDescription:
         'Meet your coach: since 2010 helping people get stronger and move without pain, from a studio in Berlin-Mitte.',
-    },
-    offers: {
-      title: 'Offers',
-      intro: 'Three ways to your goal. All of them start with a free trial session.',
-      cta: 'Ask by email',
-      offerCta: 'Request a trial session',
-      pointsTitle: 'What is included',
-      imageAlt: 'Training in the studio',
-      price: 'Price per session or month, VAT included.',
     },
     faq: { title: 'FAQ', intro: 'Everything you want to know before your first session.' },
     contact: {

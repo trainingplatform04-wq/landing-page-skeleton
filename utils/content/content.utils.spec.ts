@@ -7,26 +7,21 @@ import {
   toClosing,
   toCta,
   toImage,
-  toOfferCard,
   toRichText,
   toSeo,
-  toSlugs,
   unpublishedSeo,
 } from './content.utils'
 
 const context: MapContext = {
   locale: 'en',
   language: 'en-US',
-  localePath: (route) =>
-    typeof route === 'string' ? `/en/${route}` : `/en/offers/${route.params.slug}`,
+  localePath: (route) => `/en/${route}`,
 }
 
 const link = {
   kind: 'route' as const,
   route: 'contact',
   href: null,
-  offerSlug: null,
-  offerLanguage: null,
 }
 
 const picture = {
@@ -103,25 +98,6 @@ describe('toClosing', () => {
   })
 })
 
-describe('toSlugs', () => {
-  it('gives the slug of every translation', () => {
-    const translations = [
-      { language: 'de', slug: 'yoga-de' },
-      null,
-      { language: 'en', slug: 'yoga' },
-    ]
-
-    expect(toSlugs(translations, { language: 'en', slug: 'yoga' })).toEqual({
-      de: { slug: 'yoga-de' },
-      en: { slug: 'yoga' },
-    })
-  })
-
-  it('has only its own slug without translations', () => {
-    expect(toSlugs(null, { language: 'de', slug: 'online' })).toEqual({ de: { slug: 'online' } })
-  })
-})
-
 describe('editorOrder', () => {
   it('puts the documents the editor ordered first, the others after in their order', () => {
     const items = [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }]
@@ -171,24 +147,6 @@ describe('toRichText', () => {
 
   it('is empty without text', () => {
     expect(toRichText(null, context)).toEqual([])
-  })
-})
-
-describe('toOfferCard', () => {
-  it('links the offer and formats its price for the visitor', () => {
-    expect(
-      toOfferCard(
-        { id: 'o1', title: 'Yoga', summary: 'Calm.', slug: 'yoga', image: null, price: 25 },
-        context,
-      ),
-    ).toEqual({
-      id: 'o1',
-      title: 'Yoga',
-      summary: 'Calm.',
-      to: '/en/offers/yoga',
-      image: undefined,
-      price: '€25.00',
-    })
   })
 })
 

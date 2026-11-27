@@ -4,9 +4,9 @@ import { isAnalyticsEvent, trackParams } from './analytics.utils'
 
 describe('trackParams', () => {
   it('turns the data-track-* attributes into event parameters', () => {
-    const dataset = { track: 'cta_click', trackLabel: 'Book', trackOfferSlug: 'yoga', other: 'x' }
+    const dataset = { track: 'cta_click', trackLabel: 'Book', trackTarget: 'yoga', other: 'x' }
 
-    expect(trackParams(dataset)).toEqual({ label: 'Book', offerSlug: 'yoga' })
+    expect(trackParams(dataset)).toEqual({ label: 'Book', target: 'yoga' })
   })
 })
 

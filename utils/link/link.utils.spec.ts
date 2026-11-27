@@ -2,10 +2,9 @@ import { describe, expect, it } from 'vitest'
 
 import { linkTarget, type LocalePath, resolveLink, toTelHref } from './link.utils'
 
-const localePath: LocalePath = (route) =>
-  typeof route === 'string' ? `/en/${route}` : `/en/offers/${route.params.slug}`
+const localePath: LocalePath = (route) => `/en/${route}`
 
-const context = { localePath, locale: 'en' }
+const context = { localePath }
 
 describe('resolveLink', () => {
   it('links a page of the site in the active language', () => {
@@ -15,18 +14,8 @@ describe('resolveLink', () => {
     })
   })
 
-  it('never links an unknown page or a page that needs a slug', () => {
+  it('never links an unknown page', () => {
     expect(resolveLink({ kind: 'route', route: 'nope' }, context)).toBeNull()
-    expect(resolveLink({ kind: 'route', route: 'offers-slug' }, context)).toBeNull()
-  })
-
-  it('links an offer only in its own language', () => {
-    const offer = { kind: 'reference' as const, offerSlug: 'yoga' }
-    expect(resolveLink({ ...offer, offerLanguage: 'en' }, context)).toEqual({
-      to: '/en/offers/yoga',
-      external: false,
-    })
-    expect(resolveLink({ ...offer, offerLanguage: 'de' }, context)).toBeNull()
   })
 
   it('allows https, mailto and tel addresses only', () => {

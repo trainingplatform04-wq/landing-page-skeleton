@@ -7,8 +7,6 @@ export const link = (route: string) => ({
   kind: 'route',
   route,
   href: null,
-  offerSlug: null,
-  offerLanguage: null,
 })
 
 export const cta = (label: string, route: string) => ({ label, link: link(route) })
@@ -36,15 +34,6 @@ export const closing = (
 ) => ({ title, text, cta: button })
 
 export const noSeo = { title: null, description: null, noIndex: null, image: null }
-
-export const offerCard = (id: string, title: string, slug: string) => ({
-  id,
-  title,
-  summary: `${title} summary`,
-  slug,
-  image: null,
-  price: null,
-})
 
 export const business = {
   name: 'Landing Page',
