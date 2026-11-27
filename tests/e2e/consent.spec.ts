@@ -89,11 +89,15 @@ test.describe('Consent', () => {
       const context = await browser.newContext({ locale: 'de-DE' })
       const page = await context.newPage()
       await watchThirdParties(page)
-      // A direct visit: a tracked click is made before the visitor has answered.
+      // A direct visit: a tracked link is activated before the visitor has answered. The window
+      // covers the page, so the click is dispatched on the link itself, and not followed (a
+      // static link would reload the page and forget the event).
       await page.goto('/')
       await page.waitForLoadState('networkidle')
-      await page.getByRole('link', { name: 'Mehr über mich' }).first().click()
-      await expect(page).toHaveURL(/\/ueber-uns$/)
+      await page.evaluate(() =>
+        document.addEventListener('click', (click) => click.preventDefault(), { capture: true }),
+      )
+      await page.getByRole('link', { name: 'Mehr über mich' }).first().dispatchEvent('click')
       await page.getByRole('button', { name: button }).click()
       await page.waitForTimeout(1000)
       const layer: Array<Record<string, unknown>> = await dataLayer(page)
