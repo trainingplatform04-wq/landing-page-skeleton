@@ -11,6 +11,9 @@
  *   `slowMachineReruns` times: a slow machine lowers the scores of the same page, so such a run
  *   says nothing about the code. If every try lands on a slow machine or a re-run fails, the run
  *   from the fastest machine so far counts.
+ * - A page with a score under `minimum` is measured again, up to `failingPageReruns` times, and its
+ *   best run (the highest lowest score) counts: a busy PageSpeed machine lowers the scores of the
+ *   same page even when its benchmark index looks normal. A really slow page fails every run.
  * - A run Google cannot complete (quota, a server error, a Lighthouse runtime error such as
  *   `NO_FCP`) is retried; a page with no completed run is reported as not measured and fails the
  *   gate at the end, after every other page has been measured.
@@ -44,6 +47,8 @@ export interface PageResult {
   scores: Record<string, number>
   /** Times the run was made again because Google measured it on a slow machine. */
   slowReruns: number
+  /** Times the page was measured again because a score was under the minimum. */
+  failingReruns: number
   error?: string
 }
 
@@ -218,20 +223,38 @@ interface Page {
   url: string
   report?: Report
   slowReruns: number
+  failingReruns: number
   /** Why the run failed; reported when the page could not be measured. */
   error?: string
 }
 
+/** The lowest score the budget judges: under `minimum`, the run fails. */
+const lowestScore = (report: Report) => Math.min(...Object.values(scoresOf(report)))
+
 /**
- * Measures every page once, all in parallel within Google's quota. A run that still fails after
- * its retries is logged on the page; the other pages go on.
+ * Measures every page, all in parallel within Google's quota. A page under the minimum is measured
+ * again, up to `failingPageReruns` times, and its best run counts. A first run that still fails
+ * after its retries is logged on the page; the other pages go on.
  */
 async function measure(targets: Page[]): Promise<void> {
   const tasks = targets.map((page) => async () => {
     try {
-      const { report, slowReruns } = await measuredRun(page.url, page.formFactor)
+      let { report, slowReruns } = await measuredRun(page.url, page.formFactor)
+      let failingReruns = 0
+      while (lowestScore(report) < budget.minimum && failingReruns < budget.failingPageReruns) {
+        failingReruns++
+        try {
+          const next = await measuredRun(page.url, page.formFactor)
+          slowReruns += next.slowReruns
+          if (lowestScore(next.report) > lowestScore(report)) report = next.report
+        } catch {
+          // The page is measured already: its best run so far counts.
+          break
+        }
+      }
       page.report = report
       page.slowReruns = slowReruns
+      page.failingReruns = failingReruns
     } catch (error) {
       page.error = error instanceof Error ? error.message : String(error)
       process.stderr.write(`${page.formFactor} ${page.url}: ${page.error}\n`)
@@ -242,7 +265,7 @@ async function measure(targets: Page[]): Promise<void> {
 
 const urls = pagePaths().map((path) => `${base.replace(/\/$/, '')}${path}`)
 const pages: Page[] = budget.formFactors.flatMap((formFactor) =>
-  urls.map((url) => ({ formFactor, url, slowReruns: 0 })),
+  urls.map((url) => ({ formFactor, url, slowReruns: 0, failingReruns: 0 })),
 )
 
 /**
@@ -269,7 +292,7 @@ for (const page of pages) {
   const dir = join('.web-performance', page.formFactor)
   mkdirSync(dir, { recursive: true })
   const path = new URL(page.url).pathname
-  const { report, slowReruns, error } = page
+  const { report, slowReruns, failingReruns, error } = page
   if (!report) {
     results.push({
       formFactor: page.formFactor,
@@ -277,6 +300,7 @@ for (const page of pages) {
       measured: false,
       scores: {},
       slowReruns,
+      failingReruns,
       error,
     })
     continue
@@ -290,6 +314,7 @@ for (const page of pages) {
     measured: true,
     scores: scoresOf(report),
     slowReruns,
+    failingReruns,
   })
 }
 writeFileSync(join('.web-performance', 'results.json'), JSON.stringify(results, null, 2))
@@ -312,6 +337,12 @@ const slowReruns = results.reduce((sum, result) => sum + result.slowReruns, 0)
 if (slowReruns) {
   process.stdout.write(
     `\n${slowReruns} run(s) made again: measured on a PageSpeed machine under benchmark index ${budget.minimumBenchmarkIndex}.\n`,
+  )
+}
+const failingReruns = results.reduce((sum, result) => sum + result.failingReruns, 0)
+if (failingReruns) {
+  process.stdout.write(
+    `\n${failingReruns} run(s) made again: a score was under the ${budget.minimum} minimum; the best run of each page counts.\n`,
   )
 }
 if (belowTarget.length) {

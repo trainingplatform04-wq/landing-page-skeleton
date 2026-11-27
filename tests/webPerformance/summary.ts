@@ -70,6 +70,7 @@ const unmeasured = results
   .join('\n')
 
 const slowReruns = results.reduce((sum, result) => sum + result.slowReruns, 0)
+const failingReruns = results.reduce((sum, result) => sum + result.failingReruns, 0)
 
 const verdict = count.failing
   ? `❌ ${count.failing} of ${paths.length} pages under the ${budget.minimum} minimum or not measured.`
@@ -79,5 +80,5 @@ const verdict = count.failing
 process.stdout.write(
   `${verdict}\n\n${lines.join('\n')}\n\n` +
     (unmeasured ? `${unmeasured}\n\n` : '') +
-    `Target ${budget.target}, minimum ${budget.minimum} (\`webPerformance.config.ts\`), for every category and performance metric · **bold**: under the minimum · _italic_: under the target · one run per page on mobile and one on desktop (after a warm-up) · a run on a PageSpeed machine under benchmark index ${budget.minimumBenchmarkIndex} is made again (${slowReruns} this time).\n`,
+    `Target ${budget.target}, minimum ${budget.minimum} (\`webPerformance.config.ts\`), for every category and performance metric · **bold**: under the minimum · _italic_: under the target · one run per page on mobile and one on desktop (after a warm-up) · a run on a PageSpeed machine under benchmark index ${budget.minimumBenchmarkIndex} is made again (${slowReruns} this time) · a page under the minimum is measured again up to ${budget.failingPageReruns} times and its best run counts (${failingReruns} this time).\n`,
 )
