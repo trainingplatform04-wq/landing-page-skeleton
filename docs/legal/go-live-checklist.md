@@ -19,7 +19,7 @@ Client: `<name>` · Production URL: `<url>` · Completed by: `<name>` on `<date>
 - [ ] Written by the editors in the **production** Studio, in every locale (the development seed is only a draft).
 - [ ] Controller data match the imprint.
 - [ ] Every processor named with purpose, legal basis and any transfer outside the EU (§5).
-- [ ] The contact form's service named with company and address.
+- [ ] The contact form's service named with company and address (EmailJS Pte. Ltd., servers in the USA), including the confirmation email to the visitor.
 - [ ] Supervisory authority of the client's federal state named.
 - [ ] **Checked by a lawyer or eRecht24**; who checked and when: `<name, date>`.
 
@@ -49,12 +49,12 @@ Turning statistics on later (setting `NUXT_PUBLIC_GTM_ID` in an environment wher
 
 Each with a signed data processing agreement (Art. 28 GDPR) and a named transfer mechanism outside the EU.
 
-| Processor                  | Purpose                       | DPA | Transfer outside the EU                   |
-| -------------------------- | ----------------------------- | --- | ----------------------------------------- |
-| Vercel Inc. (USA)          | Hosting, images, request logs | [ ] | EU–US Data Privacy Framework, SCCs        |
-| Sanity (Norway, USA)       | Content management            | [ ] | EU–US Data Privacy Framework or SCCs      |
-| Form service `<name>` (EU) | Contact form                  | [ ] | none expected (EU)                        |
-| Google Ireland Limited     | GTM, GA4                      | [ ] | EU–US Data Privacy Framework (Google LLC) |
+| Processor               | Purpose                       | DPA | Transfer outside the EU                   |
+| ----------------------- | ----------------------------- | --- | ----------------------------------------- |
+| Vercel Inc. (USA)       | Hosting, images, request logs | [ ] | EU–US Data Privacy Framework, SCCs        |
+| Sanity (Norway, USA)    | Content management            | [ ] | EU–US Data Privacy Framework or SCCs      |
+| EmailJS Pte. Ltd. (USA) | Contact form, auto-reply      | [ ] | Standard contractual clauses              |
+| Google Ireland Limited  | GTM, GA4                      | [ ] | EU–US Data Privacy Framework (Google LLC) |
 
 YouTube is not a processor: Google Ireland Limited is responsible for it in its own right (independent or joint controller, no data processing agreement; transfer under the EU–US Data Privacy Framework). Its role is a lawyer item (§ "Additional checks").
 

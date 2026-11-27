@@ -272,22 +272,24 @@ with that column's value. For each cell: **Add** → **Key** and **Value**, keep
 - **Feature** (pull requests): tick **Preview** only, branch left empty (all branches).
 - **Local**: tick **Development** only (Vercel's laptop environment, for `vercel env pull`).
 
-| Key                                 | Production    | Development (Preview · `develop`) | Feature (Preview)                     | Local (Development)     |
-| ----------------------------------- | ------------- | --------------------------------- | ------------------------------------- | ----------------------- |
-| `NUXT_PUBLIC_SANITY_PROJECT_ID`     | N1            | N1                                | N1                                    | N1                      |
-| `NUXT_PUBLIC_SANITY_DATASET`        | `production`  | `development`                     | `development`                         | `development`           |
-| `NUXT_PUBLIC_SITE_URL`              | N5            | N7                                | any URL, replaced by `-pr-<number>` ¹ | `http://localhost:3000` |
-| `NUXT_SITE_ENV`                     | `production`  | `development`                     | `feature`                             | `local`                 |
-| `NUXT_PUBLIC_SITE_NAME` ²           | site name     | same                              | same                                  | same                    |
-| `NUXT_PUBLIC_CONTACT_FORM_ACTION` ² | form endpoint | same                              | same                                  | same                    |
-| `NUXT_PUBLIC_GTM_ID` ²              | `GTM-…`       | same                              | same                                  | same                    |
+| Key                                 | Production   | Development (Preview · `develop`) | Feature (Preview)                     | Local (Development)     |
+| ----------------------------------- | ------------ | --------------------------------- | ------------------------------------- | ----------------------- |
+| `NUXT_PUBLIC_SANITY_PROJECT_ID`     | N1           | N1                                | N1                                    | N1                      |
+| `NUXT_PUBLIC_SANITY_DATASET`        | `production` | `development`                     | `development`                         | `development`           |
+| `NUXT_PUBLIC_SITE_URL`              | N5           | N7                                | any URL, replaced by `-pr-<number>` ¹ | `http://localhost:3000` |
+| `NUXT_SITE_ENV`                     | `production` | `development`                     | `feature`                             | `local`                 |
+| `NUXT_PUBLIC_SITE_NAME` ²           | site name    | same                              | same                                  | same                    |
+| `NUXT_PUBLIC_EMAILJS_SERVICE_ID` ²  | service id   | same                              | same                                  | same                    |
+| `NUXT_PUBLIC_EMAILJS_TEMPLATE_ID` ² | template id  | same                              | same                                  | same                    |
+| `NUXT_PUBLIC_EMAILJS_PUBLIC_KEY` ²  | public key   | same                              | same                                  | same                    |
+| `NUXT_PUBLIC_GTM_ID` ²              | `GTM-…`      | same                              | same                                  | same                    |
 
 ¹ The **Deploy feature** job writes `https://<project-name>-pr-<number>.vercel.app` for each pull
 request, so canonical links, hreflang and the sitemap of a PR deployment use its own address.
 
 ² The **key** is required in every environment like the others; its **value** may be empty where
-the feature is off (no GTM container yet: no statistics; no form endpoint: an email link). The GTM
-container and the form endpoint have the same value in every environment.
+the feature is off (no GTM container yet: no statistics; no EmailJS ids: an email link). The GTM
+container and the EmailJS ids have the same value in every environment.
 
 Rules:
 
@@ -298,12 +300,11 @@ Rules:
 - Paste values **without spaces or line breaks** around them.
 - `NUXT_SITE_ENV=production` is the **only** value that lets search engines index the site;
   Development and Feature always answer `noindex`.
-- `NUXT_PUBLIC_CONTACT_FORM_ACTION` is the endpoint URL of your form at an **EU-hosted** form
-  service. The site sends each message there in the background (a `POST` from the browser with
-  the fields `name`, `email`, `message` and expects a JSON answer;
-  the service emails you. Pick a service that accepts such posts from your domain (CORS), answers
-  JSON when asked (`Accept: application/json`). Sign a
-  data processing agreement with it. Without it, the contact page shows an email link.
+- `NUXT_PUBLIC_EMAILJS_SERVICE_ID`, `NUXT_PUBLIC_EMAILJS_TEMPLATE_ID` and
+  `NUXT_PUBLIC_EMAILJS_PUBLIC_KEY` are the contact form's EmailJS account (public values). The site
+  sends each message there from the browser; EmailJS emails you and sends the visitor a
+  confirmation. Setup, templates and the data processing agreement:
+  [docs/contact/EMAILJS.md](../contact/EMAILJS.md). Any of the three empty: an email link.
 - `NUXT_PUBLIC_GTM_ID` is the site's Google Tag Manager container, the same in **Production**,
   **Development**, **Feature** and **Local**. GTM loads only after a visitor accepts statistics;
   empty, nothing analytics-related loads and the consent window does not offer statistics.
@@ -674,15 +675,17 @@ pnpm build:e2e && CI=1 pnpm test:e2e  # E2E against a production build (fixture 
 
 **Vercel project `webapp`** (Settings → Environment Variables, Sensitive OFF; targets in [§3.2](#32-environment-variables))
 
-| Name                              | Production    | Development (Preview · `develop`) | Feature (Preview)          | Local (Development)     | Value        |
-| --------------------------------- | ------------- | --------------------------------- | -------------------------- | ----------------------- | ------------ |
-| `NUXT_PUBLIC_SANITY_PROJECT_ID`   | N1            | N1                                | N1                         | N1                      | ✅           |
-| `NUXT_PUBLIC_SANITY_DATASET`      | `production`  | `development`                     | `development`              | `development`           | ✅           |
-| `NUXT_PUBLIC_SITE_URL`            | N5            | N7                                | replaced by `-pr-<number>` | `http://localhost:3000` | ✅           |
-| `NUXT_SITE_ENV`                   | `production`  | `development`                     | `feature`                  | `local`                 | ✅           |
-| `NUXT_PUBLIC_SITE_NAME`           | site name     | same                              | same                       | same                    | may be empty |
-| `NUXT_PUBLIC_CONTACT_FORM_ACTION` | form endpoint | same                              | same                       | same                    | may be empty |
-| `NUXT_PUBLIC_GTM_ID`              | `GTM-…`       | same                              | same                       | same                    | may be empty |
+| Name                              | Production   | Development (Preview · `develop`) | Feature (Preview)          | Local (Development)     | Value        |
+| --------------------------------- | ------------ | --------------------------------- | -------------------------- | ----------------------- | ------------ |
+| `NUXT_PUBLIC_SANITY_PROJECT_ID`   | N1           | N1                                | N1                         | N1                      | ✅           |
+| `NUXT_PUBLIC_SANITY_DATASET`      | `production` | `development`                     | `development`              | `development`           | ✅           |
+| `NUXT_PUBLIC_SITE_URL`            | N5           | N7                                | replaced by `-pr-<number>` | `http://localhost:3000` | ✅           |
+| `NUXT_SITE_ENV`                   | `production` | `development`                     | `feature`                  | `local`                 | ✅           |
+| `NUXT_PUBLIC_SITE_NAME`           | site name    | same                              | same                       | same                    | may be empty |
+| `NUXT_PUBLIC_EMAILJS_SERVICE_ID`  | service id   | same                              | same                       | same                    | may be empty |
+| `NUXT_PUBLIC_EMAILJS_TEMPLATE_ID` | template id  | same                              | same                       | same                    | may be empty |
+| `NUXT_PUBLIC_EMAILJS_PUBLIC_KEY`  | public key   | same                              | same                       | same                    | may be empty |
+| `NUXT_PUBLIC_GTM_ID`              | `GTM-…`      | same                              | same                       | same                    | may be empty |
 
 Every key is present everywhere; "may be empty" is about the value only. `NUXT_PUBLIC_GTM_ID` stays **empty** in the `.env` you copy from `.env.example` (a `vercel env pull` brings the container)
 and in CI builds. The E2E suite sets a fake container (`GTM-E2ETEST`, `tests/e2e/sanity/fixtureCms.ts`)

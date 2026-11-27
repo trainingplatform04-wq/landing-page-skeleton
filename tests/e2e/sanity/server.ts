@@ -8,14 +8,15 @@
  * and never depends on what editors published. Live Sanity is checked by the
  * post-deploy smoke test (tests/e2e/smoke.spec.ts), which doesn't depend on content.
  *
- * It also stands in for the contact form service (`POST /form`, NUXT_PUBLIC_CONTACT_FORM_ACTION):
- * like the real one, it accepts the message and answers JSON.
+ * It also stands in for EmailJS (`POST /api/v1.0/email/send`, NUXT_PUBLIC_EMAILJS_API_HOST):
+ * like the real one, it accepts the message and answers `OK`.
  *
  * Run by Playwright and tests/e2e/build.ts: `node tests/e2e/sanity/server.ts` (Node strips the types).
  */
 import { createServer, type IncomingMessage } from 'node:http'
 import { evaluate, parse } from 'groq-js'
 
+import { EMAILJS_SEND_PATH } from '../../../constants/contact.constants.ts'
 import { SANITY_MOCK_PORT } from './fixtureCms.ts'
 import { CMS_ERROR_SLUG, documents } from './fixtures.ts'
 
@@ -48,9 +49,10 @@ createServer(async (request, response) => {
 
   const url = new URL(request.url ?? '/', 'http://localhost')
   if (url.pathname === '/health') return response.end('{"ok":true}')
-  if (url.pathname === '/form' && request.method === 'POST') {
+  if (url.pathname === EMAILJS_SEND_PATH && request.method === 'POST') {
     await readBody(request)
-    return response.end('{"ok":true}')
+    response.setHeader('Content-Type', 'text/plain')
+    return response.end('OK')
   }
   if (!url.pathname.includes('/data/query/')) return response.writeHead(404).end('{}')
 

@@ -57,6 +57,7 @@ pnpm dev                               # web http://localhost:3000 · Studio htt
 | [Sanity](docs/sanity/SANITY.md)                                                              | Content model, queries, the seed                     |
 | [Deployment](docs/deployment/DEPLOYMENT.md)                                                  | Accounts, environments, env vars, pipeline, runbooks |
 | [Consent & analytics](docs/analytics/DEVELOPER_GUIDE.md), [GTM setup](docs/analytics/GTM.md) | Adding a tool, cookie or event; GA4 setup            |
+| [EmailJS setup](docs/contact/EMAILJS.md)                                                     | The contact form's emails and templates              |
 | [Legal go-live checklist](docs/legal/go-live-checklist.md)                                   | Before the first production release                  |
 | [Design workflow](docs/design/DESIGN_WORKFLOW.md)                                            | Designing pages with Lovable                         |
 | [Decisions](docs/adr/)                                                                       | Why the main choices were made                       |

@@ -249,8 +249,8 @@ export const COPY = {
         {
           heading: 'Kontaktformular',
           text: [
-            'Wenn Sie das Kontaktformular senden, übermittelt Ihr Browser Name, E-Mail-Adresse und Nachricht sowie technisch bedingt Ihre IP-Adresse und den Zeitpunkt an unseren Formulardienst mit Sitz in der EU, der uns die Nachricht per E-Mail zustellt. Vor dem Livegang hier den Dienst mit Namen und Anschrift nennen.',
-            'Wir nutzen die Angaben nur, um Ihre Anfrage zu beantworten. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, wenn Ihre Anfrage einen Vertrag betrifft, sonst Art. 6 Abs. 1 lit. f DSGVO (unser Interesse, Anfragen zu beantworten). Mit dem Formulardienst besteht ein Vertrag zur Auftragsverarbeitung. Wir löschen die Daten, wenn Ihre Anfrage erledigt ist, außer gesetzliche Aufbewahrungspflichten stehen dem entgegen. Sie können uns auch direkt per E-Mail schreiben.',
+            'Wenn Sie das Kontaktformular senden, übermittelt Ihr Browser Name, E-Mail-Adresse und Nachricht sowie technisch bedingt Ihre IP-Adresse und den Zeitpunkt an EmailJS (EmailJS Pte. Ltd., Server in den USA). EmailJS stellt uns die Nachricht per E-Mail zu und sendet Ihnen in unserem Namen eine Eingangsbestätigung mit Ihrer Nachricht an die angegebene Adresse.',
+            'Wir nutzen die Angaben nur, um Ihre Anfrage zu beantworten. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, wenn Ihre Anfrage einen Vertrag betrifft, sonst Art. 6 Abs. 1 lit. f DSGVO (unser Interesse, Anfragen zu beantworten). Mit EmailJS besteht ein Vertrag zur Auftragsverarbeitung; die Übermittlung in die USA erfolgt auf Grundlage von Standardvertragsklauseln. Wir löschen die Daten, wenn Ihre Anfrage erledigt ist, außer gesetzliche Aufbewahrungspflichten stehen dem entgegen. Sie können uns auch direkt per E-Mail schreiben.',
           ],
         },
         {
@@ -389,8 +389,8 @@ export const COPY = {
         {
           heading: 'Contact form',
           text: [
-            'When you send the contact form, your browser transmits your name, email address and message, and for technical reasons your IP address and the time, to our form service based in the EU, which emails the message to us. Before going live, name the service here with its address.',
-            'We use the data only to answer your request. The legal basis is Art. 6(1)(b) GDPR when your request concerns a contract, otherwise Art. 6(1)(f) GDPR (our interest in answering requests). We have a data processing agreement with the form service. We delete the data once your request is settled, unless statutory retention periods apply. You can also write to us directly by email.',
+            'When you send the contact form, your browser transmits your name, email address and message, and for technical reasons your IP address and the time, to EmailJS (EmailJS Pte. Ltd., servers in the USA). EmailJS emails the message to us and, on our behalf, sends you a confirmation with your message to the address you entered.',
+            'We use the data only to answer your request. The legal basis is Art. 6(1)(b) GDPR when your request concerns a contract, otherwise Art. 6(1)(f) GDPR (our interest in answering requests). We have a data processing agreement with EmailJS; the transfer to the USA relies on standard contractual clauses. We delete the data once your request is settled, unless statutory retention periods apply. You can also write to us directly by email.',
           ],
         },
         {

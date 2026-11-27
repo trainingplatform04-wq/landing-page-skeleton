@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-// The form sends in the background to the form service (the test CMS stands in for it,
+// The form sends in the background to EmailJS (the test CMS stands in for it,
 // tests/e2e/sanity/server.ts) and a toast thanks the visitor.
 test.describe('Contact', () => {
   test('shows the business facts', async ({ page }) => {
@@ -25,8 +25,14 @@ test.describe('Contact', () => {
     await page.getByLabel('Email').fill('ada@example.com')
     await page.getByLabel('Message').fill('Hello')
     await page.getByRole('checkbox').check()
+    const sent = page.waitForRequest((request) => request.url().endsWith('/api/v1.0/email/send'))
     await page.getByRole('button', { name: 'Send' }).click()
 
+    expect((await sent).postDataJSON().template_params).toEqual({
+      name: 'Ada',
+      email: 'ada@example.com',
+      message: 'Hello',
+    })
     await expect(
       page.getByText('Thank you! We will get back to you shortly.', { exact: true }),
     ).toBeVisible()
