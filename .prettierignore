@@ -1,3 +1,6 @@
 # Prettier also skips everything in .gitignore.
 pnpm-lock.yaml
 types/sanity.types.ts
+
+# The email templates are pasted into EmailJS as written: Prettier would break their lines.
+docs/contact/EMAILJS.md

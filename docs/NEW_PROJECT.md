@@ -31,6 +31,6 @@ Read [`SKELETON.md`](SKELETON.md). For every example the client doesn't need, fo
 ## 5. Before going live
 
 1. Analytics: `docs/analytics/GTM.md` (optional; without `NUXT_PUBLIC_GTM_ID` nothing is tracked).
-2. Contact form: an EU form service in `NUXT_PUBLIC_CONTACT_FORM_ACTION` (without it, the contact page shows an email link).
+2. Contact form: EmailJS, `docs/contact/EMAILJS.md` (without `NUXT_PUBLIC_EMAILJS_*`, the contact page shows an email link).
 3. Legal: `docs/legal/go-live-checklist.md` (imprint, privacy text checked by a lawyer).
 4. Editors write the production content; the first release follows `.ai/shared/workflows/release.md` (Gate G2).

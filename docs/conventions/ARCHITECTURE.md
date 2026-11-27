@@ -80,7 +80,7 @@ Nothing optional loads before the visitor agrees (GDPR, TDDDG §25). Developer g
 
 ## Forms
 
-The contact form (`UForm` + zod) sends in the background to an EU form service (`NUXT_PUBLIC_CONTACT_FORM_ACTION`), the one documented exception to "no `$fetch`" (`useContactForm`). It renders in the browser only; without a configured service the page shows an email link.
+The contact form (`UForm` + zod) sends in the background to EmailJS (`NUXT_PUBLIC_EMAILJS_*`), the one documented exception to "no `$fetch`" (`useContactForm`). EmailJS emails the owner and sends the visitor a confirmation ([setup](../contact/EMAILJS.md)). It renders in the browser only; without the three ids the page shows an email link.
 
 ## SEO
 

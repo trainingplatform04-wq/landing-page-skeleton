@@ -19,7 +19,7 @@ Client: `<name>` · Production URL: `<url>` · Completed by: `<name>` on `<date>
 - [ ] Written by the editors in the **production** Studio, in every locale (the development seed is only a draft).
 - [ ] Controller data match the imprint.
 - [ ] Every processor named with purpose, legal basis and any transfer outside the EU (§5).
-- [ ] The contact form's service named with company and address.
+- [ ] The contact form's service named with company and seat, address if the service publishes one (EmailJS Pte. Ltd., Singapore, servers in the USA), the mailbox provider (Google), EmailJS's sending log and the confirmation email to the visitor.
 - [ ] Supervisory authority of the client's federal state named.
 - [ ] **Checked by a lawyer or eRecht24**; who checked and when: `<name, date>`.
 
@@ -49,12 +49,13 @@ Turning statistics on later (setting `NUXT_PUBLIC_GTM_ID` in an environment wher
 
 Each with a signed data processing agreement (Art. 28 GDPR) and a named transfer mechanism outside the EU.
 
-| Processor                  | Purpose                       | DPA | Transfer outside the EU                   |
-| -------------------------- | ----------------------------- | --- | ----------------------------------------- |
-| Vercel Inc. (USA)          | Hosting, images, request logs | [ ] | EU–US Data Privacy Framework, SCCs        |
-| Sanity (Norway, USA)       | Content management            | [ ] | EU–US Data Privacy Framework or SCCs      |
-| Form service `<name>` (EU) | Contact form                  | [ ] | none expected (EU)                        |
-| Google Ireland Limited     | GTM, GA4                      | [ ] | EU–US Data Privacy Framework (Google LLC) |
+| Processor                                         | Purpose                                                  | DPA | Transfer outside the EU                       |
+| ------------------------------------------------- | -------------------------------------------------------- | --- | --------------------------------------------- |
+| Vercel Inc. (USA)                                 | Hosting, images, request logs                            | [ ] | EU–US Data Privacy Framework, SCCs            |
+| Sanity (Norway, USA)                              | Content management                                       | [ ] | EU–US Data Privacy Framework or SCCs          |
+| EmailJS Pte. Ltd. (Singapore; servers in the USA) | Contact form, auto-reply                                 | [ ] | Standard contractual clauses (Singapore, USA) |
+| Google Ireland Limited (Google Workspace)         | The mailbox the contact emails are sent from and kept in | [ ] | EU–US Data Privacy Framework (Google LLC)     |
+| Google Ireland Limited                            | GTM, GA4                                                 | [ ] | EU–US Data Privacy Framework (Google LLC)     |
 
 YouTube is not a processor: Google Ireland Limited is responsible for it in its own right (independent or joint controller, no data processing agreement; transfer under the EU–US Data Privacy Framework). Its role is a lawyer item (§ "Additional checks").
 
@@ -71,3 +72,9 @@ YouTube is not a processor: Google Ireland Limited is responsible for it in its 
 - [ ] Withdrawal: after "Cookie settings" → "Reject all", the page reloads, then navigate to at least three more pages: no request to googletagmanager.com, google-analytics.com or youtube(-nocookie).com, and no `_ga` / `_ga_*` cookie on the registrable domain (check the parent domain too).
 - [ ] Lawyer: the first-layer wording of the consent window, the "necessary" classification of the colour-scheme cookie (`color-mode`, set only when the visitor picks a scheme with the header switch), YouTube (Google) as independent or joint controller, the legal basis for keeping the consent cookie, and the wording on GA4 and IP addresses.
 - [ ] Vercel: the log retention of the client's plan and whether a data protection officer is required.
+
+## Additional checks (Privacy Officer, PR #33: contact form)
+
+- [ ] The sending mailbox is **Google Workspace** with Google's data processing agreement accepted; a free Gmail account has no Art. 28 agreement and is for testing only.
+- [ ] Lawyer: the confirmation quotes the visitor's message to an address nobody verified (a typo reaches a stranger; anyone can send any text to any address from the mailbox).
+- [ ] Lawyer: the "Email sent via EmailJS.com" footer the free plan adds to the confirmation, against the no-advertising rule for automatic replies (BGH, VI ZR 134/15); a paid plan removes it.

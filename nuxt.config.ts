@@ -1,4 +1,5 @@
 import { COLOR_MODE_COOKIE } from './constants/consent.constants'
+import { EMAILJS_API_HOST } from './constants/contact.constants'
 import { DEFAULT_LOCALE, LOCALES } from './constants/i18n.constants'
 import { ROUTE_PATHS } from './constants/routes.constants'
 import {
@@ -60,9 +61,15 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      // URL of the EU form service the contact form posts to (NUXT_PUBLIC_CONTACT_FORM_ACTION).
-      // Empty: the contact page offers an email link instead of the form.
-      contactFormAction: '',
+      // The EmailJS account the contact form sends through (NUXT_PUBLIC_EMAILJS_*, public ids).
+      // Any of the three empty: the contact page offers an email link instead of the form.
+      emailjs: {
+        serviceId: '',
+        templateId: '',
+        publicKey: '',
+        // Only the E2E suite overrides this (its stand-in). Never set it in deployments.
+        apiHost: EMAILJS_API_HOST,
+      },
       // Google Tag Manager container of this environment (NUXT_PUBLIC_GTM_ID). Empty: no
       // statistics at all, and the consent window does not offer them (docs/analytics/GTM.md).
       gtmId: '',

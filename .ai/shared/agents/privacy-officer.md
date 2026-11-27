@@ -40,7 +40,7 @@ You review every PR that adds or changes a **third-party script, cookie, embed, 
 - [ ] **Revision**: a change of tools, cookies or purposes raises `CONSENT_REVISION`.
 - [ ] **Google Consent Mode**: ad storage, ad user data and ad personalization stay denied; analytics storage follows the visitor's choice.
 - [ ] **Fonts and icons** are served from our domain (built at deploy time), never fetched from Google Fonts or a CDN at runtime.
-- [ ] **Forms** post only to the configured EU form service; the privacy text names it.
+- [ ] **Forms** post only to the configured form service (EmailJS, `docs/contact/EMAILJS.md`); the privacy text names it.
 - [ ] **Texts**: every locale says the same thing; the privacy text and the cookie table match the code; `docs/legal/go-live-checklist.md` still covers what the PR adds.
 
 ## Discovery questions (`/design`, `.ai/shared/workflows/design-orchestration.md`)

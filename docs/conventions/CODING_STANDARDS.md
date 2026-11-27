@@ -15,7 +15,7 @@
 
 ## 2. Data
 
-- ✅ `useAsyncData`, `useFetch` and `useSanity` never in views (`components/`, `pages/`, `layouts/`). ✅ `useSanity` only in `composables/useCmsQuery`. No `fetch`/`$fetch`, with one documented exception: `useContactForm` posts to the form service.
+- ✅ `useAsyncData`, `useFetch` and `useSanity` never in views (`components/`, `pages/`, `layouts/`). ✅ `useSanity` only in `composables/useCmsQuery`. No `fetch`/`$fetch`, with one documented exception: `useContactForm` posts to EmailJS.
 - **Queries** are groqd (`q` from `utils/groqd/groqd.utils.ts`), one per page in `composables/<useName>/<name>.query.ts`. Reused pieces are fragments in `groqd.utils.ts`. Find a page document with `filterRaw('language == $locale')`, never by its id.
 - **Optional fields**: an object or list that may be missing ends with `.nullable(true)`; otherwise groqd rejects the answer (a 503).
 - **Filter a list of references before following it**: `.field('faq[]').filterRaw('@->language == $locale').deref()`.
@@ -43,7 +43,7 @@
 - Pure functions → `unit` project (plain Node). Components and composables → `nuxt` project with `mountSuspended`. Mock only the CMS (`useSanity`, answers built with `tests/helpers/cmsData.ts`). Never mock Nuxt runtime APIs; assert their real output (`tests/helpers/renderedHead.ts`).
 - Assert rendered text, attributes and returned values. Test behaviour, not constants.
 - Content components that only call a composable and compose components (`*Content`, `LegalDocument`) are covered by the composable's spec and E2E.
-- **E2E is hermetic**: the app reads `tests/e2e/sanity/fixtures.ts` through a local GROQ server (`server.ts`, groq-js), which also stands in for the form service. A new page or query gets its test documents there. CI runs E2E on a production build (`pnpm build:e2e`, then `CI=1 pnpm test:e2e`).
+- **E2E is hermetic**: the app reads `tests/e2e/sanity/fixtures.ts` through a local GROQ server (`server.ts`, groq-js), which also stands in for EmailJS. A new page or query gets its test documents there. CI runs E2E on a production build (`pnpm build:e2e`, then `CI=1 pnpm test:e2e`).
 - **Live Sanity** is covered by `smoke.spec.ts` on every deployment (every page answers, no console error).
 
 ## 7. Local gates (single definition)
