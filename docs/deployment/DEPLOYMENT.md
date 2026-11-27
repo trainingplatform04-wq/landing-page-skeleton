@@ -757,7 +757,8 @@ machine under benchmark index 600 is made again, up to 3 times. A busy machine l
 at a normal index (the same article page: 412 ms of main-thread work on one run, 2,503 ms on
 another), so a page under 80 is measured again, up to 2 times, and its best run decides; a really
 slow page fails every run. The summary says how many runs were made again. Scores from 80 to 89
-pass and show as 🟡 "below target" in the PR report. Numbers: `webPerformance.config.ts`; rules: `docs/conventions/CODING_STANDARDS.md` §7.1.
+pass and show as 🟡 "below target" in the PR report. Numbers: `webPerformance.config.ts`; rules:
+`docs/conventions/CODING_STANDARDS.md` §7.1.
 
 Public repository: GitHub Actions minutes on standard runners are free.
 
