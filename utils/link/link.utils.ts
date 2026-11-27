@@ -7,7 +7,7 @@ const isPageRoute = (route: string): route is RouteName => route in ROUTE_PATHS
 
 /** A link as the editor picked it in the Studio. */
 interface LinkInput {
-  kind?: 'route' | 'external' | null
+  kind?: string | null
   route?: string | null
   href?: string | null
 }

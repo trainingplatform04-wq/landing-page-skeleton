@@ -18,6 +18,10 @@ describe('resolveLink', () => {
     expect(resolveLink({ kind: 'route', route: 'nope' }, context)).toBeNull()
   })
 
+  it('never links a kind the picker no longer offers', () => {
+    expect(resolveLink({ kind: 'reference' }, context)).toBeNull()
+  })
+
   it('allows https, mailto and tel addresses only', () => {
     expect(resolveLink({ kind: 'external', href: 'https://example.com' }, context)).toEqual({
       to: 'https://example.com',

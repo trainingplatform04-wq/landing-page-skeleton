@@ -37,9 +37,12 @@ export const imageFragment = q.fragment<AccessibleImage>().project((image) => ({
   hotspot: image.field('hotspot').project({ x: z.number(), y: z.number() }).nullable(true),
 }))
 
-/** What the editor picked: a page or an address. */
+/**
+ * What the editor picked: a page or an address. `kind` is any string: a link saved while the
+ * picker still had another kind (an offer) must not fail the whole page, it just isn't shown.
+ */
 const linkFragment = q.fragment<Link>().project(() => ({
-  kind: z.enum(['route', 'external']).nullable(),
+  kind: z.string().nullable(),
   route: z.string().nullable(),
   href: z.string().nullable(),
 }))
@@ -69,7 +72,7 @@ const richTextMark = z
   .object({
     _type: z.string(),
     _key: z.string(),
-    kind: z.enum(['route', 'external']).nullish(),
+    kind: z.string().nullish(),
     route: z.string().nullish(),
     href: z.string().nullish(),
   })
