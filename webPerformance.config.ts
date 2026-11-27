@@ -4,8 +4,8 @@
  * `target`: what every page aims for; `minimum`: below it, a score blocks the PR. One run per
  * page on mobile and one on desktop; a page under the minimum is measured again, and its best
  * run decides.
- * Tightening the gate is free (a higher `target`, `minimum` or `minimumBenchmarkIndex`, fewer
- * reruns); loosening it is a Tech Lead decision recorded in the PR.
+ * Tightening the gate is free (a higher `target` or `minimum`, a lower `minimumBenchmarkIndex`,
+ * fewer reruns); loosening it is a Tech Lead decision recorded in the PR.
  */
 
 /** The four categories of the PageSpeed Insights report. */
