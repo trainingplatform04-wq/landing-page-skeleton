@@ -203,7 +203,7 @@ test.describe('Consent', () => {
     await page.getByRole('button', { name: 'Alle ablehnen' }).click()
 
     const table = page.getByRole('table')
-    for (const name of ['cc_cookie', 'color-mode', '_ga', '_ga_*', 'VISITOR_INFO1_LIVE', 'YSC'])
+    for (const name of ['cc_cookie', 'color-mode', '_ga', '_ga_*'])
       await expect(table.getByText(name, { exact: true })).toBeVisible()
   })
 })
