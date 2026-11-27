@@ -73,7 +73,8 @@ docs/legal/go-live-checklist.md                     processor row: EmailJS, tran
 
 ### Risks
 
-- **Privacy**: EmailJS does not state EU-only processing; the privacy text names it and the transfer, and the owner signs its data processing agreement.
-- **Misuse**: the confirmation quotes the message to any typed address from the platform's own mailbox. Honeypot, the EmailJS domain allowlist and the quota cap limit it.
+- **Privacy**: EmailJS (Singapore, servers in the USA) and the Google mailbox are processors; the privacy text names both, the transfers and EmailJS's sending log (up to 30 days), and the owner accepts both data processing agreements. Production uses Google Workspace, not a free Gmail.
+- **Misuse**: the confirmation quotes the message to any typed address from the platform's own mailbox. The honeypot and the EmailJS domain allowlist stop casual misuse only: the ids are public and a script can forge the origin. The monthly quota caps the damage.
+  **Tech Lead decision (review R1)**: risk accepted; the quoted message stays, as the approved acceptance criteria require. Dropping it is one line in the EmailJS template, the owner's call; the go-live checklist has it as a lawyer item, with the EmailJS footer.
 - **Quota**: about 100 messages a month; above it, sending fails until the next month (error toast).
 - **Performance**: none; no script is loaded, one request on send.

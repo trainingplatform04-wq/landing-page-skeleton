@@ -25,12 +25,14 @@ EmailJS ── template "Contact: owner"        → your Gmail (Reply goes to th
 | Requests per month | 200; one message uses **2** (owner + confirmation): about 100 |
 | Templates          | 2: exactly the two below; one confirmation holds DE and EN    |
 | Above the quota    | Sending fails until next month; the visitor sees the error    |
-| Email history      | 7 days in the dashboard                                       |
-| Footer             | EmailJS adds a small footer to emails                         |
+| Email history      | 7 days in the dashboard (30 on paid plans): name, email, text |
+| Footer             | "Email sent via EmailJS.com" under every email (a go-live lawyer item; paid plans remove it) |
 
 Upgrade when messages near 100 a month: <https://www.emailjs.com/pricing/>.
 
 ## 3. Account and Gmail service
+
+Production sends from a **Google Workspace** mailbox with Google's data processing agreement accepted; a free Gmail account has none and is for testing only (`docs/legal/go-live-checklist.md`).
 
 1. Open <https://dashboard.emailjs.com/sign-up> → sign up with the Gmail address the emails will come from → confirm the email EmailJS sends you.
 2. Left menu **Email Services** → **Add New Service** → **Gmail**.
@@ -67,7 +69,6 @@ Upgrade when messages near 100 a month: <https://www.emailjs.com/pricing/>.
 
 4. Content box → **Edit Content** → **Code** (the `<>` button) → select all, delete, paste:
 
-<!-- prettier-ignore -->
 ```html
 <div style="font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 1.5; color: #1f2937; max-width: 600px">
   <p style="margin: 0 0 16px">Neue Nachricht über das Kontaktformular.</p>
@@ -131,7 +132,6 @@ Auf diese E-Mail antworten: die Antwort geht direkt an Anna Schmidt. Zugesagte A
 
 4. Content box → **Edit Content** → **Code** (`<>`) → select all, delete, paste:
 
-<!-- prettier-ignore -->
 ```html
 <div style="font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 1.5; color: #1f2937; max-width: 600px">
   <p style="margin: 0 0 16px">Hallo {{name}},</p>
@@ -218,7 +218,11 @@ Rules this text keeps (a fork that edits it keeps them too):
 | Allow EmailJS API for non-browser applications | **off** (only browsers may send)                                                                                                          |
 | Use Private Key                                | **off** (the site sends from the browser; a private key would be public there)                                                            |
 
-Then **Save**. Feature deployments (`-pr-<number>`) are not on the allowlist: their form fails on purpose. Test the form on Development.
+Then **Save**.
+
+What these settings do and don't do: they stop sending from other websites' pages and casual misuse. They are **not** a lock: the three ids are public in the page, and a script can call EmailJS directly with a forged origin, skip the honeypot, and send any text to any address as a confirmation from your mailbox. The monthly quota caps the damage. The project accepts this risk (`docs/tasks/contact-auto-reply.md`, Risks); dropping `{{message}}` from the confirmation template removes the quoted text from such emails.
+
+Feature deployments (`-pr-<number>`) are not on the allowlist, so their form fails unless you add the address for a test (§10).
 
 ## 8. The three values for the site
 
@@ -237,7 +241,9 @@ They go in `.env` locally and in Vercel (Production, Development, Feature, Local
 
 ## 10. Test
 
-1. On Development, send the form in German and in English with an address you can read.
+On a pull request's Feature deployment: add `https://landing-page-skeleton-webapp-pr-<number>.vercel.app` to the allowlist (§7) → test as below → remove it again afterwards.
+
+1. On Development (or the Feature deployment above), send the form in German and in English with an address you can read.
 2. Your Gmail gets **Neue Kontaktanfrage von …**; **Reply** addresses the visitor.
 3. The visitor address gets the confirmation from your Gmail, not in spam, with the message and its line breaks.
 4. **EmailJS → Email History** shows two emails per message.
