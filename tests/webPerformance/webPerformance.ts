@@ -247,8 +247,12 @@ async function measure(targets: Page[]): Promise<void> {
           const next = await measuredRun(page.url, page.formFactor)
           slowReruns += next.slowReruns
           if (lowestScore(next.report) > lowestScore(report)) report = next.report
-        } catch {
+        } catch (error) {
           // The page is measured already: its best run so far counts.
+          const reason = error instanceof Error ? error.message : String(error)
+          process.stderr.write(
+            `${page.formFactor} ${page.url}: rerun failed, best run counts: ${reason}\n`,
+          )
           break
         }
       }
@@ -281,7 +285,7 @@ async function warmUp(targets: string[]): Promise<void> {
 }
 
 process.stdout.write(
-  `PageSpeed Insights · ${urls.length} pages · ${budget.formFactors.join(' + ')} · one run each\n`,
+  `PageSpeed Insights · ${urls.length} pages · ${budget.formFactors.join(' + ')} · one run each, a page under ${budget.minimum} up to ${budget.failingPageReruns} more\n`,
 )
 await warmUp(urls)
 await measure(pages)

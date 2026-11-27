@@ -2,8 +2,10 @@
  * The PageSpeed Insights budget of every page, mobile and desktop (rules: CODING_STANDARDS §7.1).
  * Each page template is measured once, in the default language: the budget holds for every page.
  * `target`: what every page aims for; `minimum`: below it, a score blocks the PR. One run per
- * page on mobile and one on desktop decides; a page under the minimum is measured again.
- * Raising a number is free; lowering one is a Tech Lead decision recorded in the PR.
+ * page on mobile and one on desktop; a page under the minimum is measured again, and its best
+ * run decides.
+ * Tightening the gate is free (a higher `target`, `minimum` or `minimumBenchmarkIndex`, fewer
+ * reruns); loosening it is a Tech Lead decision recorded in the PR.
  */
 
 /** The four categories of the PageSpeed Insights report. */
