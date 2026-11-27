@@ -19,7 +19,7 @@ Client: `<name>` · Production URL: `<url>` · Completed by: `<name>` on `<date>
 - [ ] Written by the editors in the **production** Studio, in every locale (the development seed is only a draft).
 - [ ] Controller data match the imprint.
 - [ ] Every processor named with purpose, legal basis and any transfer outside the EU (§5).
-- [ ] The contact form's service named with company and address (EmailJS Pte. Ltd., Singapore, servers in the USA), the mailbox provider (Google), EmailJS's sending log and the confirmation email to the visitor.
+- [ ] The contact form's service named with company and seat, address if the service publishes one (EmailJS Pte. Ltd., Singapore, servers in the USA), the mailbox provider (Google), EmailJS's sending log and the confirmation email to the visitor.
 - [ ] Supervisory authority of the client's federal state named.
 - [ ] **Checked by a lawyer or eRecht24**; who checked and when: `<name, date>`.
 

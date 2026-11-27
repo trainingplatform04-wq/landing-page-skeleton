@@ -236,8 +236,9 @@ They go in `.env` locally and in Vercel (Production, Development, Feature, Local
 
 ## 9. Data processing agreement
 
-1. Read and accept EmailJS's DPA: <https://www.emailjs.com/legal/data-protection-agreement/> (EmailJS Pte. Ltd.; servers in the USA; transfer under standard contractual clauses).
-2. Tick its row in `docs/legal/go-live-checklist.md` §5; the privacy page names EmailJS (Studio → Privacy).
+1. Read and accept EmailJS's DPA: <https://www.emailjs.com/legal/data-protection-agreement/> (EmailJS Pte. Ltd., Singapore; servers in the USA; transfers under standard contractual clauses).
+2. Production mailbox: in the Google Workspace Admin console → **Account → Account settings → Legal and compliance**, accept Google's **Cloud Data Processing Addendum**.
+3. Tick both rows (EmailJS, Google Workspace) in `docs/legal/go-live-checklist.md` §5; the privacy page names both (Studio → Privacy).
 
 ## 10. Test
 
