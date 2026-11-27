@@ -42,7 +42,7 @@ export default defineNuxtConfig({
   // Overridden at runtime by NUXT_PUBLIC_SITE_URL, NUXT_PUBLIC_SITE_NAME and
   // NUXT_SITE_ENV. Only NUXT_SITE_ENV=production is indexable by search engines.
   site: {
-    name: 'Landing Page',
+    name: 'Portfolio 26',
   },
 
   colorMode: {
